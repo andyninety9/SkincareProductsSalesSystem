@@ -1,0 +1,7 @@
+**/Build/
+.vscode/
+.env
+.fake
+docker-compose-production.yml
+.history
+node_modules/
