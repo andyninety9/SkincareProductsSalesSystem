@@ -1,0 +1,49 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace Domain.Entities;
+
+public partial class Product
+{
+    public long ProductId { get; set; }
+
+    public long CateId { get; set; }
+
+    public long BrandId { get; set; }
+
+    public long SkinTypeId { get; set; }
+
+    public string ProductName { get; set; } = null!;
+
+    public string? ProductDesc { get; set; }
+
+    /// <summary>
+    /// Array Varchar
+    /// </summary>
+    public string? ProductImgUrl { get; set; }
+
+    public int Stocks { get; set; }
+
+    public double CostPrice { get; set; }
+
+    public double SellPrice { get; set; }
+
+    /// <summary>
+    /// Suitable for skin type...
+    /// </summary>
+    public string? UseFor { get; set; }
+
+    public double? TotalRating { get; set; }
+
+    public virtual Brand Brand { get; set; } = null!;
+
+    public virtual CategoryProduct Cate { get; set; } = null!;
+
+    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+    public virtual ICollection<EventDetail> EventDetails { get; set; } = new List<EventDetail>();
+
+    public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+
+    public virtual ICollection<RatingProduct> RatingProducts { get; set; } = new List<RatingProduct>();
+}

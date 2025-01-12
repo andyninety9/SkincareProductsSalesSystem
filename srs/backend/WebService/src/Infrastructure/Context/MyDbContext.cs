@@ -16,93 +16,697 @@ public partial class MyDbContext : DbContext
     {
     }
 
-    public virtual DbSet<Job> Jobs { get; set; }
+    public virtual DbSet<Account> Accounts { get; set; }
+
+    public virtual DbSet<AccountStatus> AccountStatuses { get; set; }
+
+    public virtual DbSet<Address> Addresses { get; set; }
+
+    public virtual DbSet<Brand> Brands { get; set; }
+
+    public virtual DbSet<CategoryProduct> CategoryProducts { get; set; }
+
+    public virtual DbSet<Comment> Comments { get; set; }
+
+    public virtual DbSet<DeliveryDetail> DeliveryDetails { get; set; }
+
+    public virtual DbSet<DeliveryService> DeliveryServices { get; set; }
+
+    public virtual DbSet<Event> Events { get; set; }
+
+    public virtual DbSet<EventDetail> EventDetails { get; set; }
+
+    public virtual DbSet<Order> Orders { get; set; }
+
+    public virtual DbSet<OrderDetail> OrderDetails { get; set; }
+
+    public virtual DbSet<OrderLog> OrderLogs { get; set; }
+
+    public virtual DbSet<OrderStatus> OrderStatuses { get; set; }
+
+    public virtual DbSet<Product> Products { get; set; }
+
+    public virtual DbSet<Question> Questions { get; set; }
+
+    public virtual DbSet<RatingProduct> RatingProducts { get; set; }
+
+    public virtual DbSet<ResultSkinTest> ResultSkinTests { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 
+    public virtual DbSet<SkinCondition> SkinConditions { get; set; }
+
+    public virtual DbSet<SkinType> SkinTypes { get; set; }
+
+    public virtual DbSet<SkinTypeTest> SkinTypeTests { get; set; }
+
+    public virtual DbSet<SkinTypeTestDetail> SkinTypeTestDetails { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
-    public virtual DbSet<UserRole> UserRoles { get; set; }
+    public virtual DbSet<Voucher> Vouchers { get; set; }
+
+    public virtual DbSet<WarantyOrder> WarantyOrders { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseNpgsql("Name=DefaultConnection");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasPostgresExtension("pgcrypto");
-
-        modelBuilder.Entity<Job>(entity =>
+        modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.JobId).HasName("Job_pkey");
+            entity.HasKey(e => e.AccId).HasName("Account_pkey");
 
-            entity.ToTable("Job");
+            entity.ToTable("Account");
 
-            entity.Property(e => e.JobId).ValueGeneratedNever();
+            entity.HasIndex(e => e.Username, "account_username_unique").IsUnique();
+
+            entity.Property(e => e.AccId)
+                .ValueGeneratedNever()
+                .HasColumnName("accID");
+            entity.Property(e => e.AccStatusId).HasColumnName("accStatusID");
+            entity.Property(e => e.Password)
+                .HasMaxLength(255)
+                .HasDefaultValueSql("'255'::character varying")
+                .HasColumnName("password");
+            entity.Property(e => e.RoleId).HasColumnName("roleID");
+            entity.Property(e => e.Username)
+                .HasMaxLength(255)
+                .HasColumnName("username");
+
+            entity.HasOne(d => d.Acc).WithOne(p => p.Account)
+                .HasForeignKey<Account>(d => d.AccId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("account_accid_foreign");
+
+            entity.HasOne(d => d.AccStatus).WithMany(p => p.Accounts)
+                .HasForeignKey(d => d.AccStatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("account_accstatusid_foreign");
+
+            entity.HasOne(d => d.Role).WithMany(p => p.Accounts)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("account_roleid_foreign");
+        });
+
+        modelBuilder.Entity<AccountStatus>(entity =>
+        {
+            entity.HasKey(e => e.AccStatusId).HasName("AccountStatus_pkey");
+
+            entity.ToTable("AccountStatus");
+
+            entity.Property(e => e.AccStatusId)
+                .ValueGeneratedNever()
+                .HasColumnName("accStatusID");
+            entity.Property(e => e.StatusName)
+                .HasMaxLength(255)
+                .HasColumnName("statusName");
+        });
+
+        modelBuilder.Entity<Address>(entity =>
+        {
+            entity.HasKey(e => e.AddressId).HasName("Address_pkey");
+
+            entity.ToTable("Address");
+
+            entity.Property(e => e.AddressId)
+                .ValueGeneratedNever()
+                .HasColumnName("addressID");
+            entity.Property(e => e.AddDetail)
+                .HasMaxLength(255)
+                .HasColumnName("addDetail");
+            entity.Property(e => e.City)
+                .HasMaxLength(255)
+                .HasColumnName("city");
+            entity.Property(e => e.Country)
+                .HasMaxLength(255)
+                .HasColumnName("country");
+            entity.Property(e => e.District)
+                .HasMaxLength(255)
+                .HasColumnName("district");
+            entity.Property(e => e.Ward)
+                .HasMaxLength(255)
+                .HasColumnName("ward");
+        });
+
+        modelBuilder.Entity<Brand>(entity =>
+        {
+            entity.HasKey(e => e.BrandId).HasName("Brand_pkey");
+
+            entity.ToTable("Brand");
+
+            entity.Property(e => e.BrandId)
+                .ValueGeneratedNever()
+                .HasColumnName("brandID");
+            entity.Property(e => e.BrandDesc).HasColumnName("brandDesc");
+            entity.Property(e => e.BrandName)
+                .HasMaxLength(255)
+                .HasColumnName("brandName");
+            entity.Property(e => e.BrandOrigin)
+                .HasMaxLength(255)
+                .HasColumnName("brandOrigin");
+            entity.Property(e => e.BrandStatus).HasColumnName("brandStatus");
+        });
+
+        modelBuilder.Entity<CategoryProduct>(entity =>
+        {
+            entity.HasKey(e => e.CateProdId).HasName("CategoryProduct_pkey");
+
+            entity.ToTable("CategoryProduct");
+
+            entity.Property(e => e.CateProdId)
+                .ValueGeneratedNever()
+                .HasColumnName("cateProdID");
+            entity.Property(e => e.CateProdName)
+                .HasMaxLength(255)
+                .HasColumnName("cateProdName");
+            entity.Property(e => e.CateProdStatus).HasColumnName("cateProdStatus");
+        });
+
+        modelBuilder.Entity<Comment>(entity =>
+        {
+            entity.HasKey(e => e.CommentId).HasName("Comment_pkey");
+
+            entity.ToTable("Comment");
+
+            entity.Property(e => e.CommentId)
+                .ValueGeneratedNever()
+                .HasColumnName("commentID");
+            entity.Property(e => e.CommentContent).HasColumnName("commentContent");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("createAt");
+            entity.Property(e => e.ProdId).HasColumnName("prodID");
+            entity.Property(e => e.UpdateAd).HasColumnName("updateAd");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
+
+            entity.HasOne(d => d.Prod).WithMany(p => p.Comments)
+                .HasForeignKey(d => d.ProdId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("comment_prodid_foreign");
+
+            entity.HasOne(d => d.Usr).WithMany(p => p.Comments)
+                .HasForeignKey(d => d.UsrId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("comment_usrid_foreign");
+        });
+
+        modelBuilder.Entity<DeliveryDetail>(entity =>
+        {
+            entity.HasKey(e => e.DeliId).HasName("DeliveryDetail_pkey");
+
+            entity.ToTable("DeliveryDetail");
+
+            entity.Property(e => e.DeliId)
+                .ValueGeneratedNever()
+                .HasColumnName("deliID");
+            entity.Property(e => e.AddressId).HasColumnName("addressID");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("createAt");
+            entity.Property(e => e.DeliServiceId).HasColumnName("deliServiceID");
+            entity.Property(e => e.DeliStatus)
+                .HasComment("Just manage 2 status: Success / False")
+                .HasColumnName("deliStatus");
+            entity.Property(e => e.OrdId).HasColumnName("ordID");
+
+            entity.HasOne(d => d.Address).WithMany(p => p.DeliveryDetails)
+                .HasForeignKey(d => d.AddressId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("deliverydetail_addressid_foreign");
+
+            entity.HasOne(d => d.DeliService).WithMany(p => p.DeliveryDetails)
+                .HasForeignKey(d => d.DeliServiceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("deliverydetail_deliserviceid_foreign");
+
+            entity.HasOne(d => d.Ord).WithMany(p => p.DeliveryDetails)
+                .HasForeignKey(d => d.OrdId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("deliverydetail_ordid_foreign");
+        });
+
+        modelBuilder.Entity<DeliveryService>(entity =>
+        {
+            entity.HasKey(e => e.DeliServiceId).HasName("DeliveryService_pkey");
+
+            entity.ToTable("DeliveryService");
+
+            entity.Property(e => e.DeliServiceId)
+                .ValueGeneratedNever()
+                .HasColumnName("DeliServiceID");
+            entity.Property(e => e.ContactService)
+                .HasMaxLength(255)
+                .HasColumnName("contactService");
+            entity.Property(e => e.DeliServiceName).HasMaxLength(255);
+            entity.Property(e => e.DeliServiceStatus).HasColumnName("deliServiceStatus");
+        });
+
+        modelBuilder.Entity<Event>(entity =>
+        {
+            entity.HasKey(e => e.EventId).HasName("Event_pkey");
+
+            entity.ToTable("Event");
+
+            entity.Property(e => e.EventId)
+                .ValueGeneratedNever()
+                .HasColumnName("eventID");
+            entity.Property(e => e.DiscountPercent).HasColumnName("discountPercent");
+            entity.Property(e => e.EndTime)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("endTime");
+            entity.Property(e => e.EventDesc).HasColumnName("eventDesc");
+            entity.Property(e => e.EventName).HasColumnName("eventName");
+            entity.Property(e => e.StartTime)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("startTime");
+        });
+
+        modelBuilder.Entity<EventDetail>(entity =>
+        {
+            entity.HasKey(e => e.EventDetailId).HasName("EventDetail_pkey");
+
+            entity.ToTable("EventDetail");
+
+            entity.Property(e => e.EventDetailId)
+                .ValueGeneratedNever()
+                .HasColumnName("eventDetailID");
+            entity.Property(e => e.EventId).HasColumnName("eventID");
+            entity.Property(e => e.ProductId).HasColumnName("productID");
+
+            entity.HasOne(d => d.Event).WithMany(p => p.EventDetails)
+                .HasForeignKey(d => d.EventId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("eventdetail_eventid_foreign");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.EventDetails)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("eventdetail_productid_foreign");
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.HasKey(e => e.OrdId).HasName("Order_pkey");
+
+            entity.ToTable("Order");
+
+            entity.Property(e => e.OrdId)
+                .ValueGeneratedNever()
+                .HasColumnName("ordID");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("createAt");
+            entity.Property(e => e.EventId).HasColumnName("eventID");
+            entity.Property(e => e.OrdDate)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("ordDate");
+            entity.Property(e => e.OrdStatusId).HasColumnName("ordStatusID");
+            entity.Property(e => e.TotalOrdPricr).HasColumnName("totalOrdPricr");
+            entity.Property(e => e.UpdateAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("updateAt");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
+
+            entity.HasOne(d => d.Event).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.EventId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("order_eventid_foreign");
+
+            entity.HasOne(d => d.OrdStatus).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.OrdStatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("order_ordstatusid_foreign");
+        });
+
+        modelBuilder.Entity<OrderDetail>(entity =>
+        {
+            entity.HasKey(e => e.OrdDetailId).HasName("OrderDetail_pkey");
+
+            entity.ToTable("OrderDetail");
+
+            entity.Property(e => e.OrdDetailId)
+                .ValueGeneratedNever()
+                .HasColumnName("ordDetailID");
+            entity.Property(e => e.OrdId).HasColumnName("ordID");
+            entity.Property(e => e.ProdId).HasColumnName("prodID");
+            entity.Property(e => e.Quantity).HasColumnName("quantity");
+            entity.Property(e => e.SellPrice).HasColumnName("sellPrice");
+
+            entity.HasOne(d => d.Ord).WithMany(p => p.OrderDetails)
+                .HasForeignKey(d => d.OrdId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orderdetail_ordid_foreign");
+
+            entity.HasOne(d => d.Prod).WithMany(p => p.OrderDetails)
+                .HasForeignKey(d => d.ProdId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orderdetail_prodid_foreign");
+        });
+
+        modelBuilder.Entity<OrderLog>(entity =>
+        {
+            entity.HasKey(e => e.OrdLogId).HasName("OrderLog_pkey");
+
+            entity.ToTable("OrderLog");
+
+            entity.Property(e => e.OrdLogId)
+                .ValueGeneratedNever()
+                .HasColumnName("ordLogID");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("createAt");
+            entity.Property(e => e.NewStatusOrdId).HasColumnName("newStatusOrdID");
+            entity.Property(e => e.Note).HasColumnName("note");
+            entity.Property(e => e.OrdId).HasColumnName("ordID");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
+
+            entity.HasOne(d => d.NewStatusOrd).WithMany(p => p.OrderLogs)
+                .HasForeignKey(d => d.NewStatusOrdId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orderlog_newstatusordid_foreign");
+
+            entity.HasOne(d => d.Ord).WithMany(p => p.OrderLogs)
+                .HasForeignKey(d => d.OrdId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orderlog_ordid_foreign");
+
+            entity.HasOne(d => d.Usr).WithMany(p => p.OrderLogs)
+                .HasForeignKey(d => d.UsrId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orderlog_usrid_foreign");
+        });
+
+        modelBuilder.Entity<OrderStatus>(entity =>
+        {
+            entity.HasKey(e => e.OrdStatusId).HasName("OrderStatus_pkey");
+
+            entity.ToTable("OrderStatus");
+
+            entity.Property(e => e.OrdStatusId)
+                .ValueGeneratedNever()
+                .HasColumnName("ordStatusID");
+            entity.Property(e => e.OrdStatusName)
+                .HasMaxLength(255)
+                .HasColumnName("ordStatusName");
+        });
+
+        modelBuilder.Entity<Product>(entity =>
+        {
+            entity.HasKey(e => e.ProductId).HasName("Product_pkey");
+
+            entity.ToTable("Product");
+
+            entity.Property(e => e.ProductId)
+                .ValueGeneratedNever()
+                .HasColumnName("productID");
+            entity.Property(e => e.BrandId).HasColumnName("brandID");
+            entity.Property(e => e.CateId).HasColumnName("cateID");
+            entity.Property(e => e.CostPrice).HasColumnName("costPrice");
+            entity.Property(e => e.ProductDesc).HasColumnName("productDesc");
+            entity.Property(e => e.ProductImgUrl)
+                .HasMaxLength(255)
+                .HasDefaultValueSql("'Array'::character varying")
+                .HasComment("Array Varchar")
+                .HasColumnName("productImgUrl");
+            entity.Property(e => e.ProductName)
+                .HasMaxLength(255)
+                .HasColumnName("productName");
+            entity.Property(e => e.SellPrice).HasColumnName("sellPrice");
+            entity.Property(e => e.SkinTypeId).HasColumnName("skinTypeID");
+            entity.Property(e => e.Stocks).HasColumnName("stocks");
+            entity.Property(e => e.TotalRating).HasColumnName("totalRating");
+            entity.Property(e => e.UseFor)
+                .HasMaxLength(255)
+                .HasComment("Suitable for skin type...")
+                .HasColumnName("useFor");
+
+            entity.HasOne(d => d.Brand).WithMany(p => p.Products)
+                .HasForeignKey(d => d.BrandId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("product_brandid_foreign");
+
+            entity.HasOne(d => d.Cate).WithMany(p => p.Products)
+                .HasForeignKey(d => d.CateId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("product_cateid_foreign");
+        });
+
+        modelBuilder.Entity<Question>(entity =>
+        {
+            entity.HasKey(e => e.QuestionId).HasName("Question_pkey");
+
+            entity.ToTable("Question");
+
+            entity.Property(e => e.QuestionId)
+                .ValueGeneratedNever()
+                .HasColumnName("questionID");
+            entity.Property(e => e.QuestionContent).HasColumnName("questionContent");
+            entity.Property(e => e.SkinTypeId).HasColumnName("skinTypeID");
+
+            entity.HasOne(d => d.SkinType).WithMany(p => p.Questions)
+                .HasForeignKey(d => d.SkinTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("question_skintypeid_foreign");
+        });
+
+        modelBuilder.Entity<RatingProduct>(entity =>
+        {
+            entity.HasKey(e => e.RatingProdId).HasName("RatingProduct_pkey");
+
+            entity.ToTable("RatingProduct");
+
+            entity.Property(e => e.RatingProdId)
+                .ValueGeneratedNever()
+                .HasColumnName("ratingProdID");
+            entity.Property(e => e.ProdId).HasColumnName("prodID");
+            entity.Property(e => e.Rating).HasColumnName("rating");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
+
+            entity.HasOne(d => d.Prod).WithMany(p => p.RatingProducts)
+                .HasForeignKey(d => d.ProdId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("ratingproduct_prodid_foreign");
+
+            entity.HasOne(d => d.Usr).WithMany(p => p.RatingProducts)
+                .HasForeignKey(d => d.UsrId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("ratingproduct_usrid_foreign");
+        });
+
+        modelBuilder.Entity<ResultSkinTest>(entity =>
+        {
+            entity.HasKey(e => e.ResultId).HasName("ResultSkinTest_pkey");
+
+            entity.ToTable("ResultSkinTest");
+
+            entity.Property(e => e.ResultId)
+                .ValueGeneratedNever()
+                .HasColumnName("resultID");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("createAt");
+            entity.Property(e => e.SkinTypeId).HasColumnName("skinTypeID");
+            entity.Property(e => e.TestId).HasColumnName("testID");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
+
+            entity.HasOne(d => d.SkinType).WithMany(p => p.ResultSkinTests)
+                .HasForeignKey(d => d.SkinTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("resultskintest_skintypeid_foreign");
+
+            entity.HasOne(d => d.Test).WithMany(p => p.ResultSkinTests)
+                .HasForeignKey(d => d.TestId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("resultskintest_testid_foreign");
+
+            entity.HasOne(d => d.Usr).WithMany(p => p.ResultSkinTests)
+                .HasForeignKey(d => d.UsrId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("resultskintest_usrid_foreign");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("roles_pkey");
+            entity.HasKey(e => e.RoleId).HasName("Role_pkey");
 
-            entity.ToTable("roles");
-
-            entity.HasIndex(e => e.RoleName, "roles_role_name_key").IsUnique();
+            entity.ToTable("Role");
 
             entity.Property(e => e.RoleId)
-                .HasDefaultValueSql("gen_random_uuid()")
-                .HasColumnName("role_id");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("created_at");
+                .ValueGeneratedNever()
+                .HasColumnName("roleID");
             entity.Property(e => e.RoleName)
-                .HasMaxLength(50)
-                .HasColumnName("role_name");
+                .HasMaxLength(255)
+                .HasColumnName("roleName");
+            entity.Property(e => e.RoleStatus).HasColumnName("roleStatus");
+        });
+
+        modelBuilder.Entity<SkinCondition>(entity =>
+        {
+            entity.HasKey(e => e.SkinCondId).HasName("SkinCondition_pkey");
+
+            entity.ToTable("SkinCondition");
+
+            entity.Property(e => e.SkinCondId)
+                .ValueGeneratedNever()
+                .HasColumnName("SkinCondID");
+            entity.Property(e => e.Condition)
+                .HasMaxLength(255)
+                .HasColumnName("condition");
+            entity.Property(e => e.ConditionDesc).HasColumnName("conditionDesc");
+        });
+
+        modelBuilder.Entity<SkinType>(entity =>
+        {
+            entity.HasKey(e => e.SkinTypeId).HasName("SkinType_pkey");
+
+            entity.ToTable("SkinType");
+
+            entity.Property(e => e.SkinTypeId)
+                .ValueGeneratedNever()
+                .HasColumnName("skinTypeID");
+            entity.Property(e => e.SkinType1)
+                .HasMaxLength(255)
+                .HasColumnName("skinType");
+            entity.Property(e => e.SkinTypeDesc).HasColumnName("skinTypeDesc");
+        });
+
+        modelBuilder.Entity<SkinTypeTest>(entity =>
+        {
+            entity.HasKey(e => e.TestId).HasName("SkinTypeTest_pkey");
+
+            entity.ToTable("SkinTypeTest");
+
+            entity.Property(e => e.TestId)
+                .ValueGeneratedNever()
+                .HasColumnName("testID");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("createAt");
+            entity.Property(e => e.CreatedByUsrId).HasColumnName("createdByUsrID");
+            entity.Property(e => e.TestDesc).HasColumnName("testDesc");
+
+            entity.HasOne(d => d.CreatedByUsr).WithMany(p => p.SkinTypeTests)
+                .HasForeignKey(d => d.CreatedByUsrId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("skintypetest_createdbyusrid_foreign");
+        });
+
+        modelBuilder.Entity<SkinTypeTestDetail>(entity =>
+        {
+            entity.HasKey(e => e.DetailId).HasName("SkinTypeTestDetail_pkey");
+
+            entity.ToTable("SkinTypeTestDetail");
+
+            entity.Property(e => e.DetailId)
+                .ValueGeneratedNever()
+                .HasColumnName("detailID");
+            entity.Property(e => e.QuestionId).HasColumnName("questionID");
+            entity.Property(e => e.TestId).HasColumnName("testID");
+
+            entity.HasOne(d => d.Question).WithMany(p => p.SkinTypeTestDetails)
+                .HasForeignKey(d => d.QuestionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("skintypetestdetail_questionid_foreign");
+
+            entity.HasOne(d => d.Test).WithMany(p => p.SkinTypeTestDetails)
+                .HasForeignKey(d => d.TestId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("skintypetestdetail_testid_foreign");
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("users_pkey");
+            entity.HasKey(e => e.UsrId).HasName("User_pkey");
 
-            entity.ToTable("users");
+            entity.ToTable("User");
 
-            entity.HasIndex(e => e.Email, "users_email_key").IsUnique();
-
-            entity.Property(e => e.UserId)
-                .HasDefaultValueSql("gen_random_uuid()")
-                .HasColumnName("user_id");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("created_at");
+            entity.Property(e => e.UsrId)
+                .ValueGeneratedNever()
+                .HasColumnName("usrID");
+            entity.Property(e => e.AddressId).HasColumnName("addressID");
+            entity.Property(e => e.AvatarUrl)
+                .HasMaxLength(255)
+                .HasColumnName("avatarUrl");
+            entity.Property(e => e.CoverUrl)
+                .HasMaxLength(255)
+                .HasColumnName("coverUrl");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("createAt");
+            entity.Property(e => e.Dob).HasColumnName("dob");
             entity.Property(e => e.Email)
-                .HasMaxLength(100)
+                .HasMaxLength(255)
                 .HasColumnName("email");
-            entity.Property(e => e.Name)
-                .HasMaxLength(100)
-                .HasColumnName("name");
+            entity.Property(e => e.EmailVerifyToken)
+                .HasMaxLength(255)
+                .HasColumnName("emailVerifyToken");
+            entity.Property(e => e.ForgotPasswordToken)
+                .HasMaxLength(255)
+                .HasColumnName("forgotPasswordToken");
+            entity.Property(e => e.Fullname)
+                .HasMaxLength(255)
+                .HasColumnName("fullname");
+            entity.Property(e => e.SkinCondId).HasColumnName("skinCondID");
+            entity.Property(e => e.SkinTypeId).HasColumnName("skinTypeID");
+            entity.Property(e => e.UpdateAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("updateAt");
+
+            entity.HasOne(d => d.Address).WithMany(p => p.Users)
+                .HasForeignKey(d => d.AddressId)
+                .HasConstraintName("user_addressid_foreign");
+
+            entity.HasOne(d => d.SkinCond).WithMany(p => p.Users)
+                .HasForeignKey(d => d.SkinCondId)
+                .HasConstraintName("user_skincondid_foreign");
+
+            entity.HasOne(d => d.SkinType).WithMany(p => p.Users)
+                .HasForeignKey(d => d.SkinTypeId)
+                .HasConstraintName("user_skintypeid_foreign");
         });
 
-        modelBuilder.Entity<UserRole>(entity =>
+        modelBuilder.Entity<Voucher>(entity =>
         {
-            entity.HasKey(e => new { e.UserId, e.RoleId }).HasName("user_roles_pkey");
+            entity.HasKey(e => e.VoucherId).HasName("Voucher_pkey");
 
-            entity.ToTable("user_roles");
+            entity.ToTable("Voucher");
 
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.RoleId).HasColumnName("role_id");
-            entity.Property(e => e.AssignedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("assigned_at");
+            entity.Property(e => e.VoucherId)
+                .ValueGeneratedNever()
+                .HasColumnName("voucherID");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
+            entity.Property(e => e.VoucherDesc).HasColumnName("voucherDesc");
+            entity.Property(e => e.VoucherDiscount).HasColumnName("voucherDiscount");
 
-            entity.HasOne(d => d.Role).WithMany(p => p.UserRoles)
-                .HasForeignKey(d => d.RoleId)
-                .HasConstraintName("user_roles_role_id_fkey");
+            entity.HasOne(d => d.Usr).WithMany(p => p.Vouchers)
+                .HasForeignKey(d => d.UsrId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("voucher_usrid_foreign");
+        });
 
-            entity.HasOne(d => d.User).WithMany(p => p.UserRoles)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("user_roles_user_id_fkey");
+        modelBuilder.Entity<WarantyOrder>(entity =>
+        {
+            entity.HasKey(e => e.WarantyId).HasName("WarantyOrder_pkey");
+
+            entity.ToTable("WarantyOrder");
+
+            entity.Property(e => e.WarantyId)
+                .ValueGeneratedNever()
+                .HasColumnName("warantyID");
+            entity.Property(e => e.CreateAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("createAt");
+            entity.Property(e => e.EndDate)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("endDate");
+            entity.Property(e => e.OrdId).HasColumnName("ordID");
+
+            entity.HasOne(d => d.Ord).WithMany(p => p.WarantyOrders)
+                .HasForeignKey(d => d.OrdId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("warantyorder_ordid_foreign");
         });
 
         OnModelCreatingPartial(modelBuilder);
