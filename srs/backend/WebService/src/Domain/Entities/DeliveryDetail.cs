@@ -11,6 +11,8 @@ public partial class DeliveryDetail
 
     public long AddressId { get; set; }
 
+    public string DeliPhoneNumber { get; set; } = null!;
+
     public long OrdId { get; set; }
 
     /// <summary>
@@ -19,8 +21,6 @@ public partial class DeliveryDetail
     public bool DeliStatus { get; set; }
 
     public DateTime CreateAt { get; set; }
-
-    public virtual Address Address { get; set; } = null!;
 
     public virtual DeliveryService DeliService { get; set; } = null!;
 

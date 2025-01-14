@@ -7,13 +7,13 @@ public partial class SkinTypeTest
 {
     public long TestId { get; set; }
 
+    public string TestName { get; set; } = null!;
+
+    public string TestDesc { get; set; } = null!;
+
     public long CreatedByUsrId { get; set; }
 
-    public long TestDesc { get; set; }
-
-    public DateTime CreateAt { get; set; }
-
-    public virtual User CreatedByUsr { get; set; } = null!;
+    public DateOnly CreatedAt { get; set; }
 
     public virtual ICollection<ResultSkinTest> ResultSkinTests { get; set; } = new List<ResultSkinTest>();
 

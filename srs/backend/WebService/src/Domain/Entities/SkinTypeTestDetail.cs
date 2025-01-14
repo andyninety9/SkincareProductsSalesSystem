@@ -7,9 +7,9 @@ public partial class SkinTypeTestDetail
 {
     public long DetailId { get; set; }
 
-    public long TestId { get; set; }
+    public short QuestionId { get; set; }
 
-    public long QuestionId { get; set; }
+    public long TestId { get; set; }
 
     public virtual Question Question { get; set; } = null!;
 

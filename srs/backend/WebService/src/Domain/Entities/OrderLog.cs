@@ -7,7 +7,7 @@ public partial class OrderLog
 {
     public long OrdLogId { get; set; }
 
-    public long NewStatusOrdId { get; set; }
+    public string NewStatusOrdId { get; set; } = null!;
 
     public long OrdId { get; set; }
 
@@ -20,6 +20,4 @@ public partial class OrderLog
     public virtual OrderStatus NewStatusOrd { get; set; } = null!;
 
     public virtual Order Ord { get; set; } = null!;
-
-    public virtual User Usr { get; set; } = null!;
 }

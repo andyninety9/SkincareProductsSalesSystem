@@ -11,9 +11,31 @@ public partial class ResultSkinTest
 
     public long UsrId { get; set; }
 
-    public long SkinTypeId { get; set; }
+    /// <summary>
+    /// OilyDryScore
+    /// </summary>
+    public short Odscore { get; set; }
+
+    /// <summary>
+    /// SensitiveResistantScore
+    /// </summary>
+    public short Srscore { get; set; }
+
+    /// <summary>
+    /// PigmentedNonPigmentedScore
+    /// </summary>
+    public short Pnpscore { get; set; }
+
+    /// <summary>
+    /// WrinkledTightScore
+    /// </summary>
+    public short Wtscore { get; set; }
+
+    public short SkinTypeId { get; set; }
 
     public DateTime CreateAt { get; set; }
+
+    public bool IsDefault { get; set; }
 
     public virtual SkinType SkinType { get; set; } = null!;
 

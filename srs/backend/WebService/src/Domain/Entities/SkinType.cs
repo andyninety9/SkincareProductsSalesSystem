@@ -5,15 +5,22 @@ namespace Domain.Entities;
 
 public partial class SkinType
 {
-    public long SkinTypeId { get; set; }
+    public short SkinTypeId { get; set; }
 
-    public string SkinType1 { get; set; } = null!;
+    /// <summary>
+    /// Mã loại da (ví dụ: &quot;OSPT&quot;, &quot;DRNW&quot;).
+    /// </summary>
+    public string SkinTypeCodes { get; set; } = null!;
 
+    /// <summary>
+    /// Tên loại da đầy đủ (ví dụ: &quot;Oily, Sensitive, Pigmented, Tight&quot;).
+    /// </summary>
+    public string SkinTypeName { get; set; } = null!;
+
+    /// <summary>
+    /// Mô tả chi tiết về loại da.
+    /// </summary>
     public string SkinTypeDesc { get; set; } = null!;
 
-    public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
-
     public virtual ICollection<ResultSkinTest> ResultSkinTests { get; set; } = new List<ResultSkinTest>();
-
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

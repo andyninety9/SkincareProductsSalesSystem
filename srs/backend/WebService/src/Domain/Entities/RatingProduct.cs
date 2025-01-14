@@ -14,6 +14,4 @@ public partial class RatingProduct
     public short Rating { get; set; }
 
     public virtual Product Prod { get; set; } = null!;
-
-    public virtual User Usr { get; set; } = null!;
 }

@@ -7,13 +7,11 @@ public partial class User
 {
     public long UsrId { get; set; }
 
-    public long? AddressId { get; set; }
-
-    public long? SkinTypeId { get; set; }
-
-    public long? SkinCondId { get; set; }
-
     public string? Fullname { get; set; }
+
+    public string? Gender { get; set; }
+
+    public string Phone { get; set; } = null!;
 
     public string Email { get; set; } = null!;
 
@@ -31,23 +29,15 @@ public partial class User
 
     public string? CoverUrl { get; set; }
 
-    public virtual Account? Account { get; set; }
+    public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
 
-    public virtual Address? Address { get; set; }
-
-    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
-
-    public virtual ICollection<OrderLog> OrderLogs { get; set; } = new List<OrderLog>();
-
-    public virtual ICollection<RatingProduct> RatingProducts { get; set; } = new List<RatingProduct>();
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual ICollection<ResultSkinTest> ResultSkinTests { get; set; } = new List<ResultSkinTest>();
 
-    public virtual SkinCondition? SkinCond { get; set; }
+    public virtual ICollection<ReturnProduct> ReturnProducts { get; set; } = new List<ReturnProduct>();
 
-    public virtual SkinType? SkinType { get; set; }
-
-    public virtual ICollection<SkinTypeTest> SkinTypeTests { get; set; } = new List<SkinTypeTest>();
+    public virtual Account Usr { get; set; } = null!;
 
     public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
 }

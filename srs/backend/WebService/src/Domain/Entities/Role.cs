@@ -5,7 +5,7 @@ namespace Domain.Entities;
 
 public partial class Role
 {
-    public long RoleId { get; set; }
+    public string RoleId { get; set; } = null!;
 
     public string RoleName { get; set; } = null!;
 

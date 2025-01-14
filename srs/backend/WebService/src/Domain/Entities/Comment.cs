@@ -13,11 +13,9 @@ public partial class Comment
 
     public long ProdId { get; set; }
 
-    public DateTime CreateAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-    public long UpdateAd { get; set; }
+    public DateTime UpdatedAt { get; set; }
 
     public virtual Product Prod { get; set; } = null!;
-
-    public virtual User Usr { get; set; } = null!;
 }

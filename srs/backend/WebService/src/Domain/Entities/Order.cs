@@ -13,7 +13,7 @@ public partial class Order
 
     public DateTime OrdDate { get; set; }
 
-    public long OrdStatusId { get; set; }
+    public string OrdStatusId { get; set; } = null!;
 
     public double TotalOrdPricr { get; set; }
 
@@ -30,6 +30,10 @@ public partial class Order
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
     public virtual ICollection<OrderLog> OrderLogs { get; set; } = new List<OrderLog>();
+
+    public virtual ICollection<ReturnProduct> ReturnProducts { get; set; } = new List<ReturnProduct>();
+
+    public virtual User Usr { get; set; } = null!;
 
     public virtual ICollection<WarantyOrder> WarantyOrders { get; set; } = new List<WarantyOrder>();
 }

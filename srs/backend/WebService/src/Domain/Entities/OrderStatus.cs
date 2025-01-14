@@ -5,7 +5,7 @@ namespace Domain.Entities;
 
 public partial class OrderStatus
 {
-    public long OrdStatusId { get; set; }
+    public string OrdStatusId { get; set; } = null!;
 
     public string OrdStatusName { get; set; } = null!;
 

@@ -11,16 +11,11 @@ public partial class Product
 
     public long BrandId { get; set; }
 
-    public long SkinTypeId { get; set; }
+    public short SkinTypeId { get; set; }
 
     public string ProductName { get; set; } = null!;
 
     public string? ProductDesc { get; set; }
-
-    /// <summary>
-    /// Array Varchar
-    /// </summary>
-    public string? ProductImgUrl { get; set; }
 
     public int Stocks { get; set; }
 
@@ -45,5 +40,9 @@ public partial class Product
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
+    public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
+
     public virtual ICollection<RatingProduct> RatingProducts { get; set; } = new List<RatingProduct>();
+
+    public virtual ICollection<ReturnProductDetail> ReturnProductDetails { get; set; } = new List<ReturnProductDetail>();
 }
