@@ -1,12 +1,22 @@
+using System.Text;
 using Application;
 using Infrastructure;
-using Infrastructure.Configs;
 using Infrastructure.Context;
 using Infrastructure.Utils;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
 using WebApi.Configs;
+using WebApi.Middlewares;
+
+
+//Load .env file
+string solutionDirectory = Directory.GetParent(Directory.GetCurrentDirectory())?.FullName ?? "";
+if (solutionDirectory != null)
+{
+    DotNetEnv.Env.Load(Path.Combine(solutionDirectory, ".env"));
+}
 
 var builder = WebApplication.CreateBuilder(args);
 var environment = builder.Environment;
@@ -14,7 +24,14 @@ var environment = builder.Environment;
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+
 builder.Services.AddAuthorization();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 
 builder.Host.UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(hostingContext.Configuration));
@@ -44,6 +61,8 @@ builder.Services
     .AddInfrastructure();
 
 
+
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -63,7 +82,12 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseMiddleware<HandleExceptionMiddleware>();
+
 app.MapControllers();
+
+
+
 
 app.Run();
 
