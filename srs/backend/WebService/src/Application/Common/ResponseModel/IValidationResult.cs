@@ -7,7 +7,7 @@ namespace Application.Common.ResponseModel
 {
     public interface IValidationResult
     {
-        public static readonly Error ValidationError = new Error("Validation Error", "A Validation problem has occurred.");
+        public static readonly Error ValidationError = new Error("Error Response", "Problems has occurred.");
 
         Error[] Errors { get; }
 

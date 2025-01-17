@@ -6,23 +6,11 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
+                    "Host": "web-service-swp",
                     "Port": 5001
                 }
             ],
             "DownstreamPathTemplate": "/api/{everything}"
-        },
-        {
-            "UpstreamPathTemplate": "/swagger/{everything}",
-            "UpstreamHttpMethod": ["Get", "Post", "Put", "Delete"],
-            "DownstreamScheme": "http",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 5001
-                }
-            ],
-            "DownstreamPathTemplate": "/swagger/{everything}"
         }
     ],
     "GlobalConfiguration": {

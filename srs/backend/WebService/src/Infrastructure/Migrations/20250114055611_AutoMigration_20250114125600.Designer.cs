@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20250114012625_AutoMigration_20250114082614")]
-    partial class AutoMigration_20250114082614
+    [Migration("20250114055611_AutoMigration_20250114125600")]
+    partial class AutoMigration_20250114125600
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,11 +28,16 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Account", b =>
                 {
                     b.Property<long>("AccId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("accID");
 
-                    b.Property<long>("AccStatusId")
-                        .HasColumnType("bigint")
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("AccId"));
+
+                    b.Property<string>("AccStatusId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("accStatusID");
 
                     b.Property<string>("Password")
@@ -43,8 +48,10 @@ namespace Infrastructure.Migrations
                         .HasColumnName("password")
                         .HasDefaultValueSql("'255'::character varying");
 
-                    b.Property<long>("RoleId")
-                        .HasColumnType("bigint")
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("roleID");
 
                     b.Property<string>("Username")
@@ -68,8 +75,9 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.AccountStatus", b =>
                 {
-                    b.Property<long>("AccStatusId")
-                        .HasColumnType("bigint")
+                    b.Property<string>("AccStatusId")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("accStatusID");
 
                     b.Property<string>("StatusName")
@@ -87,8 +95,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Address", b =>
                 {
                     b.Property<long>("AddressId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("addressID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("AddressId"));
 
                     b.Property<string>("AddDetail")
                         .IsRequired()
@@ -114,6 +125,15 @@ namespace Infrastructure.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("district");
 
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("isDefault");
+
+                    b.Property<long>("UsrId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("usrID");
+
                     b.Property<string>("Ward")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -123,14 +143,48 @@ namespace Infrastructure.Migrations
                     b.HasKey("AddressId")
                         .HasName("Address_pkey");
 
+                    b.HasIndex("UsrId");
+
                     b.ToTable("Address", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.AnswerUser", b =>
+                {
+                    b.Property<long>("AndId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("andID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("AndId"));
+
+                    b.Property<short>("KeyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasColumnName("keyID");
+
+                    b.Property<short>("QuestionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasColumnName("questionID");
+
+                    b.HasKey("AndId")
+                        .HasName("AnswerUser_pkey");
+
+                    b.HasIndex("KeyId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("AnswerUser", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Brand", b =>
                 {
                     b.Property<long>("BrandId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("brandID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("BrandId"));
 
                     b.Property<string>("BrandDesc")
                         .HasColumnType("text")
@@ -161,8 +215,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.CategoryProduct", b =>
                 {
                     b.Property<long>("CateProdId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("cateProdID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("CateProdId"));
 
                     b.Property<string>("CateProdName")
                         .IsRequired()
@@ -180,39 +237,74 @@ namespace Infrastructure.Migrations
                     b.ToTable("CategoryProduct", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.CategoryQuestion", b =>
+                {
+                    b.Property<short>("CateQuestionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasColumnName("cateQuestionID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("CateQuestionId"));
+
+                    b.Property<string>("CateDesc")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("cateDesc");
+
+                    b.Property<string>("CateName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("cateName");
+
+                    b.Property<DateOnly>("CreatedAt")
+                        .HasColumnType("date")
+                        .HasColumnName("createdAt");
+
+                    b.HasKey("CateQuestionId")
+                        .HasName("CategoryQuestion_pkey");
+
+                    b.ToTable("CategoryQuestion", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.Comment", b =>
                 {
                     b.Property<long>("CommentId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("commentID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("CommentId"));
 
                     b.Property<string>("CommentContent")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("commentContent");
 
-                    b.Property<DateTime>("CreateAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp(0) without time zone")
-                        .HasColumnName("createAt");
+                        .HasColumnName("createdAt");
 
                     b.Property<long>("ProdId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("prodID");
 
-                    b.Property<long>("UpdateAd")
-                        .HasColumnType("bigint")
-                        .HasColumnName("updateAd");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp(0) without time zone")
+                        .HasColumnName("updatedAt");
 
                     b.Property<long>("UsrId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("usrID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("UsrId"));
 
                     b.HasKey("CommentId")
                         .HasName("Comment_pkey");
 
                     b.HasIndex("ProdId");
-
-                    b.HasIndex("UsrId");
 
                     b.ToTable("Comment", (string)null);
                 });
@@ -231,6 +323,12 @@ namespace Infrastructure.Migrations
                         .HasColumnType("timestamp(0) without time zone")
                         .HasColumnName("createAt");
 
+                    b.Property<string>("DeliPhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("deliPhoneNumber");
+
                     b.Property<long>("DeliServiceId")
                         .HasColumnType("bigint")
                         .HasColumnName("deliServiceID");
@@ -246,8 +344,6 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("DeliId")
                         .HasName("DeliveryDetail_pkey");
-
-                    b.HasIndex("AddressId");
 
                     b.HasIndex("DeliServiceId");
 
@@ -339,17 +435,56 @@ namespace Infrastructure.Migrations
                     b.ToTable("EventDetail", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.KeyQuestion", b =>
+                {
+                    b.Property<short>("KeyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasColumnName("keyID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("KeyId"));
+
+                    b.Property<DateOnly>("CreatedAt")
+                        .HasColumnType("date")
+                        .HasColumnName("createdAt");
+
+                    b.Property<string>("KeyContent")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("keyContent");
+
+                    b.Property<short>("KeyScore")
+                        .HasColumnType("smallint")
+                        .HasColumnName("keyScore");
+
+                    b.Property<short>("QuestionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasColumnName("questionID");
+
+                    b.HasKey("KeyId")
+                        .HasName("KeyQuestion_pkey");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("KeyQuestion", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.Order", b =>
                 {
                     b.Property<long>("OrdId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("ordID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("OrdId"));
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("timestamp(0) without time zone")
                         .HasColumnName("createAt");
 
                     b.Property<long>("EventId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("eventID");
 
@@ -357,8 +492,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("timestamp(0) without time zone")
                         .HasColumnName("ordDate");
 
-                    b.Property<long>("OrdStatusId")
-                        .HasColumnType("bigint")
+                    b.Property<string>("OrdStatusId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("ordStatusID");
 
                     b.Property<double>("TotalOrdPricr")
@@ -370,6 +507,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("updateAt");
 
                     b.Property<long>("UsrId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("usrID");
 
@@ -379,6 +517,8 @@ namespace Infrastructure.Migrations
                     b.HasIndex("EventId");
 
                     b.HasIndex("OrdStatusId");
+
+                    b.HasIndex("UsrId");
 
                     b.ToTable("Order", (string)null);
                 });
@@ -425,8 +565,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("timestamp(0) without time zone")
                         .HasColumnName("createAt");
 
-                    b.Property<long>("NewStatusOrdId")
-                        .HasColumnType("bigint")
+                    b.Property<string>("NewStatusOrdId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("newStatusOrdID");
 
                     b.Property<string>("Note")
@@ -448,15 +590,14 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("OrdId");
 
-                    b.HasIndex("UsrId");
-
                     b.ToTable("OrderLog", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.OrderStatus", b =>
                 {
-                    b.Property<long>("OrdStatusId")
-                        .HasColumnType("bigint")
+                    b.Property<string>("OrdStatusId")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("ordStatusID");
 
                     b.Property<string>("OrdStatusName")
@@ -474,32 +615,31 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Product", b =>
                 {
                     b.Property<long>("ProductId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("productID");
 
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ProductId"));
+
                     b.Property<long>("BrandId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("brandID");
 
                     b.Property<long>("CateId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("cateID");
 
                     b.Property<double>("CostPrice")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("double precision")
-                        .HasColumnName("costPrice");
+                        .HasColumnName("costPrice")
+                        .HasDefaultValueSql("'0'::double precision");
 
                     b.Property<string>("ProductDesc")
                         .HasColumnType("text")
                         .HasColumnName("productDesc");
-
-                    b.Property<string>("ProductImgUrl")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("productImgUrl")
-                        .HasDefaultValueSql("'Array'::character varying")
-                        .HasComment("Array Varchar");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
@@ -508,15 +648,22 @@ namespace Infrastructure.Migrations
                         .HasColumnName("productName");
 
                     b.Property<double>("SellPrice")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("double precision")
-                        .HasColumnName("sellPrice");
+                        .HasColumnName("sellPrice")
+                        .HasDefaultValueSql("'0'::double precision");
 
-                    b.Property<long>("SkinTypeId")
-                        .HasColumnType("bigint")
+                    b.Property<short>("SkinTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
                         .HasColumnName("skinTypeID");
 
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("SkinTypeId"));
+
                     b.Property<int>("Stocks")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
+                        .HasDefaultValue(0)
                         .HasColumnName("stocks");
 
                     b.Property<double?>("TotalRating")
@@ -539,25 +686,68 @@ namespace Infrastructure.Migrations
                     b.ToTable("Product", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.ProductImage", b =>
+                {
+                    b.Property<long>("ProductImageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("productImageID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ProductImageId"));
+
+                    b.Property<long>("ProductId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("productID");
+
+                    b.Property<string>("ProductImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("productImageUrl");
+
+                    b.HasKey("ProductImageId")
+                        .HasName("ProductImage_pkey");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductImage", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.Question", b =>
                 {
-                    b.Property<long>("QuestionId")
-                        .HasColumnType("bigint")
+                    b.Property<short>("QuestionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
                         .HasColumnName("questionID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("QuestionId"));
+
+                    b.Property<long>("AnsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("ansID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("AnsId"));
+
+                    b.Property<short>("CateQuestionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasColumnName("cateQuestionID");
+
+                    b.Property<DateOnly>("CreatedAt")
+                        .HasColumnType("date")
+                        .HasColumnName("createdAt");
 
                     b.Property<string>("QuestionContent")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("questionContent");
 
-                    b.Property<long>("SkinTypeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("skinTypeID");
-
                     b.HasKey("QuestionId")
                         .HasName("Question_pkey");
 
-                    b.HasIndex("SkinTypeId");
+                    b.HasIndex("CateQuestionId");
 
                     b.ToTable("Question", (string)null);
                 });
@@ -565,10 +755,14 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.RatingProduct", b =>
                 {
                     b.Property<long>("RatingProdId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("ratingProdID");
 
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("RatingProdId"));
+
                     b.Property<long>("ProdId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("prodID");
 
@@ -577,15 +771,16 @@ namespace Infrastructure.Migrations
                         .HasColumnName("rating");
 
                     b.Property<long>("UsrId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("usrID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("UsrId"));
 
                     b.HasKey("RatingProdId")
                         .HasName("RatingProduct_pkey");
 
                     b.HasIndex("ProdId");
-
-                    b.HasIndex("UsrId");
 
                     b.ToTable("RatingProduct", (string)null);
                 });
@@ -593,24 +788,64 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.ResultSkinTest", b =>
                 {
                     b.Property<long>("ResultId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("resultID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ResultId"));
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("timestamp(0) without time zone")
                         .HasColumnName("createAt");
 
-                    b.Property<long>("SkinTypeId")
-                        .HasColumnType("bigint")
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("isDefault");
+
+                    b.Property<short>("Odscore")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasColumnName("ODScore")
+                        .HasDefaultValueSql("'0'::smallint")
+                        .HasComment("OilyDryScore");
+
+                    b.Property<short>("Pnpscore")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasColumnName("PNPScore")
+                        .HasDefaultValueSql("'0'::smallint")
+                        .HasComment("PigmentedNonPigmentedScore");
+
+                    b.Property<short>("SkinTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
                         .HasColumnName("skinTypeID");
 
+                    b.Property<short>("Srscore")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasColumnName("SRScore")
+                        .HasDefaultValueSql("'0'::smallint")
+                        .HasComment("SensitiveResistantScore");
+
                     b.Property<long>("TestId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("testID");
 
                     b.Property<long>("UsrId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("usrID");
+
+                    b.Property<short>("Wtscore")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasColumnName("WTScore")
+                        .HasDefaultValueSql("'0'::smallint")
+                        .HasComment("WrinkledTightScore");
 
                     b.HasKey("ResultId")
                         .HasName("ResultSkinTest_pkey");
@@ -624,10 +859,83 @@ namespace Infrastructure.Migrations
                     b.ToTable("ResultSkinTest", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.ReturnProduct", b =>
+                {
+                    b.Property<long>("ReturnId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("returnID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ReturnId"));
+
+                    b.Property<long>("OrdId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("ordID");
+
+                    b.Property<DateOnly>("ReturnDate")
+                        .HasColumnType("date")
+                        .HasColumnName("returnDate");
+
+                    b.Property<long>("UsrId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("usrID");
+
+                    b.HasKey("ReturnId")
+                        .HasName("ReturnProduct_pkey");
+
+                    b.HasIndex("OrdId");
+
+                    b.HasIndex("UsrId");
+
+                    b.ToTable("ReturnProduct", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.ReturnProductDetail", b =>
+                {
+                    b.Property<long>("ReturnProductDetailId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("returnProductDetailID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ReturnProductDetailId"));
+
+                    b.Property<long>("ProdId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("prodID");
+
+                    b.Property<long>("ReturnId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("returnID");
+
+                    b.Property<string>("ReturnImgUrl")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("returnImgUrl");
+
+                    b.Property<short>("ReturnQuantity")
+                        .HasColumnType("smallint")
+                        .HasColumnName("returnQuantity");
+
+                    b.HasKey("ReturnProductDetailId")
+                        .HasName("ReturnProductDetail_pkey");
+
+                    b.HasIndex("ProdId");
+
+                    b.HasIndex("ReturnId");
+
+                    b.ToTable("ReturnProductDetail", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.Role", b =>
                 {
-                    b.Property<long>("RoleId")
-                        .HasColumnType("bigint")
+                    b.Property<string>("RoleId")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("roleID");
 
                     b.Property<string>("RoleName")
@@ -646,45 +954,34 @@ namespace Infrastructure.Migrations
                     b.ToTable("Role", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.SkinCondition", b =>
-                {
-                    b.Property<long>("SkinCondId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("SkinCondID");
-
-                    b.Property<string>("Condition")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("condition");
-
-                    b.Property<string>("ConditionDesc")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("conditionDesc");
-
-                    b.HasKey("SkinCondId")
-                        .HasName("SkinCondition_pkey");
-
-                    b.ToTable("SkinCondition", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Entities.SkinType", b =>
                 {
-                    b.Property<long>("SkinTypeId")
-                        .HasColumnType("bigint")
+                    b.Property<short>("SkinTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
                         .HasColumnName("skinTypeID");
 
-                    b.Property<string>("SkinType1")
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("SkinTypeId"));
+
+                    b.Property<string>("SkinTypeCodes")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
-                        .HasColumnName("skinType");
+                        .HasColumnName("skinTypeCodes")
+                        .HasComment("Mã loại da (ví dụ: \"OSPT\", \"DRNW\").");
 
                     b.Property<string>("SkinTypeDesc")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("skinTypeDesc");
+                        .HasColumnName("skinTypeDesc")
+                        .HasComment("Mô tả chi tiết về loại da.");
+
+                    b.Property<string>("SkinTypeName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("skinTypeName")
+                        .HasComment("Tên loại da đầy đủ (ví dụ: \"Oily, Sensitive, Pigmented, Tight\").");
 
                     b.HasKey("SkinTypeId")
                         .HasName("SkinType_pkey");
@@ -695,25 +992,36 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.SkinTypeTest", b =>
                 {
                     b.Property<long>("TestId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("testID");
 
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("timestamp(0) without time zone")
-                        .HasColumnName("createAt");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("TestId"));
+
+                    b.Property<DateOnly>("CreatedAt")
+                        .HasColumnType("date")
+                        .HasColumnName("createdAt");
 
                     b.Property<long>("CreatedByUsrId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("createdByUsrID");
 
-                    b.Property<long>("TestDesc")
-                        .HasColumnType("bigint")
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("CreatedByUsrId"));
+
+                    b.Property<string>("TestDesc")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("testDesc");
+
+                    b.Property<string>("TestName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("testName");
 
                     b.HasKey("TestId")
                         .HasName("SkinTypeTest_pkey");
-
-                    b.HasIndex("CreatedByUsrId");
 
                     b.ToTable("SkinTypeTest", (string)null);
                 });
@@ -724,8 +1032,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("detailID");
 
-                    b.Property<long>("QuestionId")
-                        .HasColumnType("bigint")
+                    b.Property<short>("QuestionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
                         .HasColumnName("questionID");
 
                     b.Property<long>("TestId")
@@ -745,12 +1054,9 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
                     b.Property<long>("UsrId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("usrID");
-
-                    b.Property<long?>("AddressId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("addressID");
 
                     b.Property<string>("AvatarUrl")
                         .HasMaxLength(255)
@@ -791,13 +1097,16 @@ namespace Infrastructure.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("fullname");
 
-                    b.Property<long?>("SkinCondId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("skinCondID");
+                    b.Property<string>("Gender")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("gender");
 
-                    b.Property<long?>("SkinTypeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("skinTypeID");
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("phone");
 
                     b.Property<DateTime>("UpdateAt")
                         .HasColumnType("timestamp(0) without time zone")
@@ -806,11 +1115,17 @@ namespace Infrastructure.Migrations
                     b.HasKey("UsrId")
                         .HasName("User_pkey");
 
-                    b.HasIndex("AddressId");
+                    b.HasIndex(new[] { "Email" }, "user_email_unique")
+                        .IsUnique();
 
-                    b.HasIndex("SkinCondId");
+                    b.HasIndex(new[] { "EmailVerifyToken" }, "user_emailverifytoken_unique")
+                        .IsUnique();
 
-                    b.HasIndex("SkinTypeId");
+                    b.HasIndex(new[] { "ForgotPasswordToken" }, "user_forgotpasswordtoken_unique")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "Phone" }, "user_phone_unique")
+                        .IsUnique();
 
                     b.ToTable("User", (string)null);
                 });
@@ -818,10 +1133,14 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Voucher", b =>
                 {
                     b.Property<long>("VoucherId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("voucherID");
 
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("VoucherId"));
+
                     b.Property<long>("UsrId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("usrID");
 
@@ -845,8 +1164,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.WarantyOrder", b =>
                 {
                     b.Property<long>("WarantyId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("warantyID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("WarantyId"));
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("timestamp(0) without time zone")
@@ -857,6 +1179,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("endDate");
 
                     b.Property<long>("OrdId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("ordID");
 
@@ -870,12 +1193,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Account", b =>
                 {
-                    b.HasOne("Domain.Entities.User", "Acc")
-                        .WithOne("Account")
-                        .HasForeignKey("Domain.Entities.Account", "AccId")
-                        .IsRequired()
-                        .HasConstraintName("account_accid_foreign");
-
                     b.HasOne("Domain.Entities.AccountStatus", "AccStatus")
                         .WithMany("Accounts")
                         .HasForeignKey("AccStatusId")
@@ -888,11 +1205,39 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("account_roleid_foreign");
 
-                    b.Navigation("Acc");
-
                     b.Navigation("AccStatus");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Address", b =>
+                {
+                    b.HasOne("Domain.Entities.User", "Usr")
+                        .WithMany("Addresses")
+                        .HasForeignKey("UsrId")
+                        .IsRequired()
+                        .HasConstraintName("address_usrid_foreign");
+
+                    b.Navigation("Usr");
+                });
+
+            modelBuilder.Entity("Domain.Entities.AnswerUser", b =>
+                {
+                    b.HasOne("Domain.Entities.KeyQuestion", "Key")
+                        .WithMany("AnswerUsers")
+                        .HasForeignKey("KeyId")
+                        .IsRequired()
+                        .HasConstraintName("answeruser_keyid_foreign");
+
+                    b.HasOne("Domain.Entities.Question", "Question")
+                        .WithMany("AnswerUsers")
+                        .HasForeignKey("QuestionId")
+                        .IsRequired()
+                        .HasConstraintName("answeruser_questionid_foreign");
+
+                    b.Navigation("Key");
+
+                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("Domain.Entities.Comment", b =>
@@ -903,25 +1248,11 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("comment_prodid_foreign");
 
-                    b.HasOne("Domain.Entities.User", "Usr")
-                        .WithMany("Comments")
-                        .HasForeignKey("UsrId")
-                        .IsRequired()
-                        .HasConstraintName("comment_usrid_foreign");
-
                     b.Navigation("Prod");
-
-                    b.Navigation("Usr");
                 });
 
             modelBuilder.Entity("Domain.Entities.DeliveryDetail", b =>
                 {
-                    b.HasOne("Domain.Entities.Address", "Address")
-                        .WithMany("DeliveryDetails")
-                        .HasForeignKey("AddressId")
-                        .IsRequired()
-                        .HasConstraintName("deliverydetail_addressid_foreign");
-
                     b.HasOne("Domain.Entities.DeliveryService", "DeliService")
                         .WithMany("DeliveryDetails")
                         .HasForeignKey("DeliServiceId")
@@ -933,8 +1264,6 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("OrdId")
                         .IsRequired()
                         .HasConstraintName("deliverydetail_ordid_foreign");
-
-                    b.Navigation("Address");
 
                     b.Navigation("DeliService");
 
@@ -960,6 +1289,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Domain.Entities.KeyQuestion", b =>
+                {
+                    b.HasOne("Domain.Entities.Question", "Question")
+                        .WithMany("KeyQuestions")
+                        .HasForeignKey("QuestionId")
+                        .IsRequired()
+                        .HasConstraintName("keyquestion_questionid_foreign");
+
+                    b.Navigation("Question");
+                });
+
             modelBuilder.Entity("Domain.Entities.Order", b =>
                 {
                     b.HasOne("Domain.Entities.Event", "Event")
@@ -974,9 +1314,17 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("order_ordstatusid_foreign");
 
+                    b.HasOne("Domain.Entities.User", "Usr")
+                        .WithMany("Orders")
+                        .HasForeignKey("UsrId")
+                        .IsRequired()
+                        .HasConstraintName("order_usrid_foreign");
+
                     b.Navigation("Event");
 
                     b.Navigation("OrdStatus");
+
+                    b.Navigation("Usr");
                 });
 
             modelBuilder.Entity("Domain.Entities.OrderDetail", b =>
@@ -1012,17 +1360,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("orderlog_ordid_foreign");
 
-                    b.HasOne("Domain.Entities.User", "Usr")
-                        .WithMany("OrderLogs")
-                        .HasForeignKey("UsrId")
-                        .IsRequired()
-                        .HasConstraintName("orderlog_usrid_foreign");
-
                     b.Navigation("NewStatusOrd");
 
                     b.Navigation("Ord");
-
-                    b.Navigation("Usr");
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
@@ -1044,15 +1384,26 @@ namespace Infrastructure.Migrations
                     b.Navigation("Cate");
                 });
 
+            modelBuilder.Entity("Domain.Entities.ProductImage", b =>
+                {
+                    b.HasOne("Domain.Entities.Product", "Product")
+                        .WithMany("ProductImages")
+                        .HasForeignKey("ProductId")
+                        .IsRequired()
+                        .HasConstraintName("productimage_productid_foreign");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Domain.Entities.Question", b =>
                 {
-                    b.HasOne("Domain.Entities.SkinType", "SkinType")
+                    b.HasOne("Domain.Entities.CategoryQuestion", "CateQuestion")
                         .WithMany("Questions")
-                        .HasForeignKey("SkinTypeId")
+                        .HasForeignKey("CateQuestionId")
                         .IsRequired()
-                        .HasConstraintName("question_skintypeid_foreign");
+                        .HasConstraintName("question_catequestionid_foreign");
 
-                    b.Navigation("SkinType");
+                    b.Navigation("CateQuestion");
                 });
 
             modelBuilder.Entity("Domain.Entities.RatingProduct", b =>
@@ -1063,15 +1414,7 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("ratingproduct_prodid_foreign");
 
-                    b.HasOne("Domain.Entities.User", "Usr")
-                        .WithMany("RatingProducts")
-                        .HasForeignKey("UsrId")
-                        .IsRequired()
-                        .HasConstraintName("ratingproduct_usrid_foreign");
-
                     b.Navigation("Prod");
-
-                    b.Navigation("Usr");
                 });
 
             modelBuilder.Entity("Domain.Entities.ResultSkinTest", b =>
@@ -1101,15 +1444,42 @@ namespace Infrastructure.Migrations
                     b.Navigation("Usr");
                 });
 
-            modelBuilder.Entity("Domain.Entities.SkinTypeTest", b =>
+            modelBuilder.Entity("Domain.Entities.ReturnProduct", b =>
                 {
-                    b.HasOne("Domain.Entities.User", "CreatedByUsr")
-                        .WithMany("SkinTypeTests")
-                        .HasForeignKey("CreatedByUsrId")
+                    b.HasOne("Domain.Entities.Order", "Ord")
+                        .WithMany("ReturnProducts")
+                        .HasForeignKey("OrdId")
                         .IsRequired()
-                        .HasConstraintName("skintypetest_createdbyusrid_foreign");
+                        .HasConstraintName("returnproduct_ordid_foreign");
 
-                    b.Navigation("CreatedByUsr");
+                    b.HasOne("Domain.Entities.User", "Usr")
+                        .WithMany("ReturnProducts")
+                        .HasForeignKey("UsrId")
+                        .IsRequired()
+                        .HasConstraintName("returnproduct_usrid_foreign");
+
+                    b.Navigation("Ord");
+
+                    b.Navigation("Usr");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ReturnProductDetail", b =>
+                {
+                    b.HasOne("Domain.Entities.Product", "Prod")
+                        .WithMany("ReturnProductDetails")
+                        .HasForeignKey("ProdId")
+                        .IsRequired()
+                        .HasConstraintName("returnproductdetail_prodid_foreign");
+
+                    b.HasOne("Domain.Entities.ReturnProduct", "Return")
+                        .WithMany("ReturnProductDetails")
+                        .HasForeignKey("ReturnId")
+                        .IsRequired()
+                        .HasConstraintName("returnproductdetail_returnid_foreign");
+
+                    b.Navigation("Prod");
+
+                    b.Navigation("Return");
                 });
 
             modelBuilder.Entity("Domain.Entities.SkinTypeTestDetail", b =>
@@ -1133,26 +1503,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
-                    b.HasOne("Domain.Entities.Address", "Address")
-                        .WithMany("Users")
-                        .HasForeignKey("AddressId")
-                        .HasConstraintName("user_addressid_foreign");
+                    b.HasOne("Domain.Entities.Account", "Usr")
+                        .WithOne("User")
+                        .HasForeignKey("Domain.Entities.User", "UsrId")
+                        .IsRequired()
+                        .HasConstraintName("user_usrid_foreign");
 
-                    b.HasOne("Domain.Entities.SkinCondition", "SkinCond")
-                        .WithMany("Users")
-                        .HasForeignKey("SkinCondId")
-                        .HasConstraintName("user_skincondid_foreign");
-
-                    b.HasOne("Domain.Entities.SkinType", "SkinType")
-                        .WithMany("Users")
-                        .HasForeignKey("SkinTypeId")
-                        .HasConstraintName("user_skintypeid_foreign");
-
-                    b.Navigation("Address");
-
-                    b.Navigation("SkinCond");
-
-                    b.Navigation("SkinType");
+                    b.Navigation("Usr");
                 });
 
             modelBuilder.Entity("Domain.Entities.Voucher", b =>
@@ -1177,16 +1534,14 @@ namespace Infrastructure.Migrations
                     b.Navigation("Ord");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Account", b =>
+                {
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Entities.AccountStatus", b =>
                 {
                     b.Navigation("Accounts");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Address", b =>
-                {
-                    b.Navigation("DeliveryDetails");
-
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Domain.Entities.Brand", b =>
@@ -1197,6 +1552,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.CategoryProduct", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Domain.Entities.CategoryQuestion", b =>
+                {
+                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("Domain.Entities.DeliveryService", b =>
@@ -1211,6 +1571,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("Orders");
                 });
 
+            modelBuilder.Entity("Domain.Entities.KeyQuestion", b =>
+                {
+                    b.Navigation("AnswerUsers");
+                });
+
             modelBuilder.Entity("Domain.Entities.Order", b =>
                 {
                     b.Navigation("DeliveryDetails");
@@ -1218,6 +1583,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("OrderDetails");
 
                     b.Navigation("OrderLogs");
+
+                    b.Navigation("ReturnProducts");
 
                     b.Navigation("WarantyOrders");
                 });
@@ -1237,12 +1604,25 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("OrderDetails");
 
+                    b.Navigation("ProductImages");
+
                     b.Navigation("RatingProducts");
+
+                    b.Navigation("ReturnProductDetails");
                 });
 
             modelBuilder.Entity("Domain.Entities.Question", b =>
                 {
+                    b.Navigation("AnswerUsers");
+
+                    b.Navigation("KeyQuestions");
+
                     b.Navigation("SkinTypeTestDetails");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ReturnProduct", b =>
+                {
+                    b.Navigation("ReturnProductDetails");
                 });
 
             modelBuilder.Entity("Domain.Entities.Role", b =>
@@ -1250,18 +1630,9 @@ namespace Infrastructure.Migrations
                     b.Navigation("Accounts");
                 });
 
-            modelBuilder.Entity("Domain.Entities.SkinCondition", b =>
-                {
-                    b.Navigation("Users");
-                });
-
             modelBuilder.Entity("Domain.Entities.SkinType", b =>
                 {
-                    b.Navigation("Questions");
-
                     b.Navigation("ResultSkinTests");
-
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Domain.Entities.SkinTypeTest", b =>
@@ -1273,17 +1644,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
-                    b.Navigation("Account");
+                    b.Navigation("Addresses");
 
-                    b.Navigation("Comments");
-
-                    b.Navigation("OrderLogs");
-
-                    b.Navigation("RatingProducts");
+                    b.Navigation("Orders");
 
                     b.Navigation("ResultSkinTests");
 
-                    b.Navigation("SkinTypeTests");
+                    b.Navigation("ReturnProducts");
 
                     b.Navigation("Vouchers");
                 });

@@ -1,25 +1,30 @@
+# Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /App
 
+# Sao chép file solution
 COPY Web.sln ./
 
+# Sao chép các file .csproj
 COPY src/WebApi/WebApi.csproj ./src/WebApi/
 COPY src/Application/Application.csproj ./src/Application/
 COPY src/Infrastructure/Infrastructure.csproj ./src/Infrastructure/
 COPY src/Domain/Domain.csproj ./src/Domain/
 COPY test/test.csproj ./test/
 
-RUN dotnet restore
+# Khôi phục dependencies
+RUN dotnet restore src/WebApi/WebApi.csproj
 
-COPY src/ ./src/
+# Sao chép toàn bộ mã nguồn
+COPY . .
 
+# Build ứng dụng
 WORKDIR /App/src/WebApi
 RUN dotnet publish -c Release -o /App/out
 
+# Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /App
-
-ENV ASPNETCORE_ENVIRONMENT=Production
 
 COPY --from=build /App/out .
 

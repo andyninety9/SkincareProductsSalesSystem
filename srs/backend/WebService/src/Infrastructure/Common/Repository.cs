@@ -12,7 +12,7 @@ namespace Infrastructure.Common
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private readonly MyDbContext _context;
+        protected readonly MyDbContext _context;
         private readonly DbSet<T> _dbSet;
 
         public Repository(MyDbContext context)
@@ -31,9 +31,9 @@ namespace Infrastructure.Common
             await _dbSet.AddRangeAsync(entities, cancellationToken);
         }
 
-        public async Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<T> GetByIdAsync(long id, CancellationToken cancellationToken = default)
         {
-            var entity = await _dbSet.FindAsync(new object[] { id }, cancellationToken);
+            var entity = await _dbSet.FindAsync(id , cancellationToken);
             if (entity == null)
             {
                 throw new KeyNotFoundException($"{nameof(T)} with id {id} not found.");
@@ -56,9 +56,9 @@ namespace Infrastructure.Common
             _dbSet.Update(entity);
         }
 
-        public async Task DeleteByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task DeleteByIdAsync(long id, CancellationToken cancellationToken = default)
         {
-            var entity = await _dbSet.FindAsync([id], cancellationToken);
+            var entity = await _dbSet.FindAsync(id, cancellationToken);
             if (entity != null)
             {
                 _dbSet.Remove(entity);

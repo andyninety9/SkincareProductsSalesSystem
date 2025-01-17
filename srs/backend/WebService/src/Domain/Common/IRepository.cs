@@ -10,11 +10,11 @@ namespace Domain.Common
     {
         Task AddAsync(T entity, CancellationToken cancellationToken);
         Task AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken);
-        Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+        Task<T> GetByIdAsync(long id, CancellationToken cancellationToken);
         Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken);
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken);
         void Update(T entity);
-        Task DeleteByIdAsync(Guid id, CancellationToken cancellationToken);
+        Task DeleteByIdAsync(long id, CancellationToken cancellationToken);
         void Delete(T entity);
         void DeleteRange(IEnumerable<T> entities);
     }

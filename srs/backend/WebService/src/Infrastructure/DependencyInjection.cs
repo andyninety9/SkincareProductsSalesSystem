@@ -8,6 +8,19 @@ using Infrastructure.Repositories;
 using Application.Abstractions.UnitOfWork;
 using Domain.Common;
 using Infrastructure.Common;
+using Infrastructure.JWT;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Application.Common.Jwt;
+using Infrastructure.Redis;
+using Application.Abstractions.Redis;
+using StackExchange.Redis;
+using Infrastructure.AWS;
+using Amazon.SimpleEmail;
+using Amazon.Runtime;
+using Amazon;
+using Application.Abstractions.AWS;
 
 namespace Infrastructure
 {
@@ -17,14 +30,95 @@ namespace Infrastructure
         {
 
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+
 
             string solutionDirectory = Directory.GetParent(Directory.GetCurrentDirectory())?.FullName ?? "";
             if (solutionDirectory != null)
             {
                 DotNetEnv.Env.Load(Path.Combine(solutionDirectory, ".env"));
             }
+            //DI AWS IAM Service
+            services.AddSingleton<IAMConfig>();
+            var iamConfig = services.BuildServiceProvider().GetRequiredService<IAMConfig>();
+
+            services.AddSingleton<IAmazonSimpleEmailService>(provider =>
+            {
+                var credentials = new BasicAWSCredentials(iamConfig.AccessKey, iamConfig.SecretKey);
+
+                return new AmazonSimpleEmailServiceClient(credentials, RegionEndpoint.APSoutheast1);
+            });
+            // System.Console.WriteLine(iamConfig.AccessKey);
+            // System.Console.WriteLine(iamConfig.SecretKey);
+
+            services.AddTransient<IEmailService, AwsSesEmailService>();
+
+            //DI Jwt Service
+            services.AddSingleton<JwtConfigService>();
+            var jwtConfig = services.BuildServiceProvider().GetRequiredService<JwtConfigService>();
+            // System.Console.WriteLine(jwtConfig.JwtIssuer);
+            // System.Console.WriteLine(jwtConfig.JwtAudience);
+            // System.Console.WriteLine(jwtConfig.JwtKey);
+
+            //Config JWT
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtConfig.JwtIssuer,
+                    ValidAudience = jwtConfig.JwtAudience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.JwtKey))
+                };
+            });
+
+            // Config Redis
+            services.AddSingleton<RedisConfigService>();
+            var redisConfig = services.BuildServiceProvider().GetRequiredService<RedisConfigService>();
+
+            services.AddSingleton<IConnectionMultiplexer>(provider =>
+            {
+                try
+                {
+                    // Sử dụng ConfigurationOptions để cấu hình chi tiết
+                    var options = new ConfigurationOptions
+                    {
+                        EndPoints = { $"{redisConfig.RedisHost}:{redisConfig.RedisPort}" }, 
+                        User = redisConfig.RedisUsername, 
+                        Password = redisConfig.RedisPassword, 
+                        Ssl = true, 
+                        AbortOnConnectFail = false, 
+                        ConnectTimeout = 10000, 
+                        SyncTimeout = 10000, 
+                    };
+
+                    // Kết nối Redis
+                    var multiplexer = ConnectionMultiplexer.Connect(options);
+                    Console.WriteLine("Connected to Redis successfully.");
+                    return multiplexer;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to connect to Redis: {ex.Message}");
+                    throw;
+                }
+            });
+            // System.Console.WriteLine(redisConfig.RedisHost);
+            // System.Console.WriteLine(redisConfig.RedisPort);
+            services.AddTransient<IRedisCacheService, RedisCacheService>();
+
             services.AddSingleton<EnvironmentConfig>();
             using var serviceProvider = services.BuildServiceProvider();
             var logger = serviceProvider.GetRequiredService<ILogger<AutoScaffold>>();
@@ -69,6 +163,7 @@ namespace Infrastructure
                     SchemaComparer.SetMigrationRequired(false);
                 }
             }
+
             return services;
         }
     }
