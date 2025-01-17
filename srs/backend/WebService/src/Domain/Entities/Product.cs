@@ -11,8 +11,6 @@ public partial class Product
 
     public long BrandId { get; set; }
 
-    public short SkinTypeId { get; set; }
-
     public string ProductName { get; set; } = null!;
 
     public string? ProductDesc { get; set; }
@@ -22,11 +20,6 @@ public partial class Product
     public double CostPrice { get; set; }
 
     public double SellPrice { get; set; }
-
-    /// <summary>
-    /// Suitable for skin type...
-    /// </summary>
-    public string? UseFor { get; set; }
 
     public double? TotalRating { get; set; }
 
@@ -45,4 +38,6 @@ public partial class Product
     public virtual ICollection<RatingProduct> RatingProducts { get; set; } = new List<RatingProduct>();
 
     public virtual ICollection<ReturnProductDetail> ReturnProductDetails { get; set; } = new List<ReturnProductDetail>();
+
+    public virtual ICollection<UseFor> UseFors { get; set; } = new List<UseFor>();
 }

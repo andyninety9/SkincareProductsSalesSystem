@@ -72,6 +72,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<SkinTypeTestDetail> SkinTypeTestDetails { get; set; }
 
+    public virtual DbSet<UseFor> UseFors { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<Voucher> Vouchers { get; set; }
@@ -92,16 +94,12 @@ public partial class MyDbContext : DbContext
             entity.HasIndex(e => e.Username, "account_username_unique").IsUnique();
 
             entity.Property(e => e.AccId).HasColumnName("accID");
-            entity.Property(e => e.AccStatusId)
-                .HasMaxLength(255)
-                .HasColumnName("accStatusID");
+            entity.Property(e => e.AccStatusId).HasColumnName("accStatusID");
             entity.Property(e => e.Password)
                 .HasMaxLength(255)
                 .HasDefaultValueSql("'255'::character varying")
                 .HasColumnName("password");
-            entity.Property(e => e.RoleId)
-                .HasMaxLength(255)
-                .HasColumnName("roleID");
+            entity.Property(e => e.RoleId).HasColumnName("roleID");
             entity.Property(e => e.Username)
                 .HasMaxLength(255)
                 .HasColumnName("username");
@@ -124,7 +122,7 @@ public partial class MyDbContext : DbContext
             entity.ToTable("AccountStatus");
 
             entity.Property(e => e.AccStatusId)
-                .HasMaxLength(255)
+                .ValueGeneratedNever()
                 .HasColumnName("accStatusID");
             entity.Property(e => e.StatusName)
                 .HasMaxLength(255)
@@ -151,9 +149,7 @@ public partial class MyDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("district");
             entity.Property(e => e.IsDefault).HasColumnName("isDefault");
-            entity.Property(e => e.UsrId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("usrID");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
             entity.Property(e => e.Ward)
                 .HasMaxLength(255)
                 .HasColumnName("ward");
@@ -171,12 +167,8 @@ public partial class MyDbContext : DbContext
             entity.ToTable("AnswerUser");
 
             entity.Property(e => e.AndId).HasColumnName("andID");
-            entity.Property(e => e.KeyId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("keyID");
-            entity.Property(e => e.QuestionId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("questionID");
+            entity.Property(e => e.KeyId).HasColumnName("keyID");
+            entity.Property(e => e.QuestionId).HasColumnName("questionID");
 
             entity.HasOne(d => d.Key).WithMany(p => p.AnswerUsers)
                 .HasForeignKey(d => d.KeyId)
@@ -244,15 +236,11 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("timestamp(0) without time zone")
                 .HasColumnName("createdAt");
-            entity.Property(e => e.ProdId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("prodID");
+            entity.Property(e => e.ProdId).HasColumnName("prodID");
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("timestamp(0) without time zone")
                 .HasColumnName("updatedAt");
-            entity.Property(e => e.UsrId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("usrID");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
 
             entity.HasOne(d => d.Prod).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.ProdId)
@@ -266,9 +254,7 @@ public partial class MyDbContext : DbContext
 
             entity.ToTable("DeliveryDetail");
 
-            entity.Property(e => e.DeliId)
-                .ValueGeneratedNever()
-                .HasColumnName("deliID");
+            entity.Property(e => e.DeliId).HasColumnName("deliID");
             entity.Property(e => e.AddressId).HasColumnName("addressID");
             entity.Property(e => e.CreateAt)
                 .HasColumnType("timestamp(0) without time zone")
@@ -281,6 +267,11 @@ public partial class MyDbContext : DbContext
                 .HasComment("Just manage 2 status: Success / False")
                 .HasColumnName("deliStatus");
             entity.Property(e => e.OrdId).HasColumnName("ordID");
+
+            entity.HasOne(d => d.Address).WithMany(p => p.DeliveryDetails)
+                .HasForeignKey(d => d.AddressId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("deliverydetail_addressid_foreign");
 
             entity.HasOne(d => d.DeliService).WithMany(p => p.DeliveryDetails)
                 .HasForeignKey(d => d.DeliServiceId)
@@ -299,9 +290,7 @@ public partial class MyDbContext : DbContext
 
             entity.ToTable("DeliveryService");
 
-            entity.Property(e => e.DeliServiceId)
-                .ValueGeneratedNever()
-                .HasColumnName("DeliServiceID");
+            entity.Property(e => e.DeliServiceId).HasColumnName("DeliServiceID");
             entity.Property(e => e.ContactService)
                 .HasMaxLength(255)
                 .HasColumnName("contactService");
@@ -315,15 +304,15 @@ public partial class MyDbContext : DbContext
 
             entity.ToTable("Event");
 
-            entity.Property(e => e.EventId)
-                .ValueGeneratedNever()
-                .HasColumnName("eventID");
+            entity.Property(e => e.EventId).HasColumnName("eventID");
             entity.Property(e => e.DiscountPercent).HasColumnName("discountPercent");
             entity.Property(e => e.EndTime)
                 .HasColumnType("timestamp(0) without time zone")
                 .HasColumnName("endTime");
             entity.Property(e => e.EventDesc).HasColumnName("eventDesc");
-            entity.Property(e => e.EventName).HasColumnName("eventName");
+            entity.Property(e => e.EventName)
+                .HasMaxLength(255)
+                .HasColumnName("eventName");
             entity.Property(e => e.StartTime)
                 .HasColumnType("timestamp(0) without time zone")
                 .HasColumnName("startTime");
@@ -335,9 +324,7 @@ public partial class MyDbContext : DbContext
 
             entity.ToTable("EventDetail");
 
-            entity.Property(e => e.EventDetailId)
-                .ValueGeneratedNever()
-                .HasColumnName("eventDetailID");
+            entity.Property(e => e.EventDetailId).HasColumnName("eventDetailID");
             entity.Property(e => e.EventId).HasColumnName("eventID");
             entity.Property(e => e.ProductId).HasColumnName("productID");
 
@@ -379,25 +366,19 @@ public partial class MyDbContext : DbContext
             entity.ToTable("Order");
 
             entity.Property(e => e.OrdId).HasColumnName("ordID");
-            entity.Property(e => e.CreateAt)
+            entity.Property(e => e.CreatedAt)
                 .HasColumnType("timestamp(0) without time zone")
-                .HasColumnName("createAt");
-            entity.Property(e => e.EventId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("eventID");
+                .HasColumnName("createdAt");
+            entity.Property(e => e.EventId).HasColumnName("eventID");
             entity.Property(e => e.OrdDate)
                 .HasColumnType("timestamp(0) without time zone")
                 .HasColumnName("ordDate");
-            entity.Property(e => e.OrdStatusId)
-                .HasMaxLength(255)
-                .HasColumnName("ordStatusID");
-            entity.Property(e => e.TotalOrdPricr).HasColumnName("totalOrdPricr");
-            entity.Property(e => e.UpdateAt)
+            entity.Property(e => e.OrdStatusId).HasColumnName("ordStatusID");
+            entity.Property(e => e.TotalOrdPrice).HasColumnName("totalOrdPrice");
+            entity.Property(e => e.UpdatedAt)
                 .HasColumnType("timestamp(0) without time zone")
-                .HasColumnName("updateAt");
-            entity.Property(e => e.UsrId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("usrID");
+                .HasColumnName("updatedAt");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
 
             entity.HasOne(d => d.Event).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.EventId)
@@ -421,9 +402,7 @@ public partial class MyDbContext : DbContext
 
             entity.ToTable("OrderDetail");
 
-            entity.Property(e => e.OrdDetailId)
-                .ValueGeneratedNever()
-                .HasColumnName("ordDetailID");
+            entity.Property(e => e.OrdDetailId).HasColumnName("ordDetailID");
             entity.Property(e => e.OrdId).HasColumnName("ordID");
             entity.Property(e => e.ProdId).HasColumnName("prodID");
             entity.Property(e => e.Quantity).HasColumnName("quantity");
@@ -446,15 +425,11 @@ public partial class MyDbContext : DbContext
 
             entity.ToTable("OrderLog");
 
-            entity.Property(e => e.OrdLogId)
-                .ValueGeneratedNever()
-                .HasColumnName("ordLogID");
-            entity.Property(e => e.CreateAt)
+            entity.Property(e => e.OrdLogId).HasColumnName("ordLogID");
+            entity.Property(e => e.CreatedAt)
                 .HasColumnType("timestamp(0) without time zone")
-                .HasColumnName("createAt");
-            entity.Property(e => e.NewStatusOrdId)
-                .HasMaxLength(255)
-                .HasColumnName("newStatusOrdID");
+                .HasColumnName("createdAt");
+            entity.Property(e => e.NewStatusOrdId).HasColumnName("newStatusOrdID");
             entity.Property(e => e.Note).HasColumnName("note");
             entity.Property(e => e.OrdId).HasColumnName("ordID");
             entity.Property(e => e.UsrId).HasColumnName("usrID");
@@ -477,7 +452,7 @@ public partial class MyDbContext : DbContext
             entity.ToTable("OrderStatus");
 
             entity.Property(e => e.OrdStatusId)
-                .HasMaxLength(255)
+                .ValueGeneratedNever()
                 .HasColumnName("ordStatusID");
             entity.Property(e => e.OrdStatusName)
                 .HasMaxLength(255)
@@ -491,12 +466,8 @@ public partial class MyDbContext : DbContext
             entity.ToTable("Product");
 
             entity.Property(e => e.ProductId).HasColumnName("productID");
-            entity.Property(e => e.BrandId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("brandID");
-            entity.Property(e => e.CateId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("cateID");
+            entity.Property(e => e.BrandId).HasColumnName("brandID");
+            entity.Property(e => e.CateId).HasColumnName("cateID");
             entity.Property(e => e.CostPrice)
                 .HasDefaultValueSql("'0'::double precision")
                 .HasColumnName("costPrice");
@@ -507,17 +478,10 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.SellPrice)
                 .HasDefaultValueSql("'0'::double precision")
                 .HasColumnName("sellPrice");
-            entity.Property(e => e.SkinTypeId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("skinTypeID");
             entity.Property(e => e.Stocks)
                 .HasDefaultValue(0)
                 .HasColumnName("stocks");
             entity.Property(e => e.TotalRating).HasColumnName("totalRating");
-            entity.Property(e => e.UseFor)
-                .HasMaxLength(255)
-                .HasComment("Suitable for skin type...")
-                .HasColumnName("useFor");
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Products)
                 .HasForeignKey(d => d.BrandId)
@@ -537,9 +501,7 @@ public partial class MyDbContext : DbContext
             entity.ToTable("ProductImage");
 
             entity.Property(e => e.ProductImageId).HasColumnName("productImageID");
-            entity.Property(e => e.ProductId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("productID");
+            entity.Property(e => e.ProductId).HasColumnName("productID");
             entity.Property(e => e.ProductImageUrl)
                 .HasMaxLength(255)
                 .HasColumnName("productImageUrl");
@@ -579,13 +541,9 @@ public partial class MyDbContext : DbContext
             entity.ToTable("RatingProduct");
 
             entity.Property(e => e.RatingProdId).HasColumnName("ratingProdID");
-            entity.Property(e => e.ProdId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("prodID");
+            entity.Property(e => e.ProdId).HasColumnName("prodID");
             entity.Property(e => e.Rating).HasColumnName("rating");
-            entity.Property(e => e.UsrId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("usrID");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
 
             entity.HasOne(d => d.Prod).WithMany(p => p.RatingProducts)
                 .HasForeignKey(d => d.ProdId)
@@ -621,12 +579,8 @@ public partial class MyDbContext : DbContext
                 .HasDefaultValueSql("'0'::smallint")
                 .HasComment("SensitiveResistantScore")
                 .HasColumnName("SRScore");
-            entity.Property(e => e.TestId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("testID");
-            entity.Property(e => e.UsrId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("usrID");
+            entity.Property(e => e.TestId).HasColumnName("testID");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
             entity.Property(e => e.Wtscore)
                 .HasDefaultValueSql("'0'::smallint")
                 .HasComment("WrinkledTightScore")
@@ -655,13 +609,9 @@ public partial class MyDbContext : DbContext
             entity.ToTable("ReturnProduct");
 
             entity.Property(e => e.ReturnId).HasColumnName("returnID");
-            entity.Property(e => e.OrdId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("ordID");
+            entity.Property(e => e.OrdId).HasColumnName("ordID");
             entity.Property(e => e.ReturnDate).HasColumnName("returnDate");
-            entity.Property(e => e.UsrId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("usrID");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
 
             entity.HasOne(d => d.Ord).WithMany(p => p.ReturnProducts)
                 .HasForeignKey(d => d.OrdId)
@@ -681,12 +631,8 @@ public partial class MyDbContext : DbContext
             entity.ToTable("ReturnProductDetail");
 
             entity.Property(e => e.ReturnProductDetailId).HasColumnName("returnProductDetailID");
-            entity.Property(e => e.ProdId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("prodID");
-            entity.Property(e => e.ReturnId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("returnID");
+            entity.Property(e => e.ProdId).HasColumnName("prodID");
+            entity.Property(e => e.ReturnId).HasColumnName("returnID");
             entity.Property(e => e.ReturnImgUrl)
                 .HasMaxLength(255)
                 .HasColumnName("returnImgUrl");
@@ -710,7 +656,7 @@ public partial class MyDbContext : DbContext
             entity.ToTable("Role");
 
             entity.Property(e => e.RoleId)
-                .HasMaxLength(255)
+                .ValueGeneratedNever()
                 .HasColumnName("roleID");
             entity.Property(e => e.RoleName)
                 .HasMaxLength(255)
@@ -780,6 +726,27 @@ public partial class MyDbContext : DbContext
                 .HasConstraintName("skintypetestdetail_testid_foreign");
         });
 
+        modelBuilder.Entity<UseFor>(entity =>
+        {
+            entity.HasKey(e => e.RecId).HasName("UseFor_pkey");
+
+            entity.ToTable("UseFor");
+
+            entity.Property(e => e.RecId).HasColumnName("recID");
+            entity.Property(e => e.ProdId).HasColumnName("prodID");
+            entity.Property(e => e.SkinTypeId).HasColumnName("skinTypeID");
+
+            entity.HasOne(d => d.Prod).WithMany(p => p.UseFors)
+                .HasForeignKey(d => d.ProdId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("usefor_prodid_foreign");
+
+            entity.HasOne(d => d.SkinType).WithMany(p => p.UseFors)
+                .HasForeignKey(d => d.SkinTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("usefor_skintypeid_foreign");
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.UsrId).HasName("User_pkey");
@@ -811,10 +778,10 @@ public partial class MyDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("email");
             entity.Property(e => e.EmailVerifyToken)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .HasColumnName("emailVerifyToken");
             entity.Property(e => e.ForgotPasswordToken)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .HasColumnName("forgotPasswordToken");
             entity.Property(e => e.Fullname)
                 .HasMaxLength(255)
@@ -842,9 +809,7 @@ public partial class MyDbContext : DbContext
             entity.ToTable("Voucher");
 
             entity.Property(e => e.VoucherId).HasColumnName("voucherID");
-            entity.Property(e => e.UsrId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("usrID");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
             entity.Property(e => e.VoucherDesc).HasColumnName("voucherDesc");
             entity.Property(e => e.VoucherDiscount).HasColumnName("voucherDiscount");
 

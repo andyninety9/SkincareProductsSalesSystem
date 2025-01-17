@@ -13,13 +13,13 @@ public partial class Order
 
     public DateTime OrdDate { get; set; }
 
-    public string OrdStatusId { get; set; } = null!;
+    public short OrdStatusId { get; set; }
 
-    public double TotalOrdPricr { get; set; }
+    public double TotalOrdPrice { get; set; }
 
-    public DateTime CreateAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-    public DateTime UpdateAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 
     public virtual ICollection<DeliveryDetail> DeliveryDetails { get; set; } = new List<DeliveryDetail>();
 

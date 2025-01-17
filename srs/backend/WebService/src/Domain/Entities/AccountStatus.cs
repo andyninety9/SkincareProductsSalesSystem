@@ -5,7 +5,7 @@ namespace Domain.Entities;
 
 public partial class AccountStatus
 {
-    public string AccStatusId { get; set; } = null!;
+    public short AccStatusId { get; set; }
 
     public string StatusName { get; set; } = null!;
 

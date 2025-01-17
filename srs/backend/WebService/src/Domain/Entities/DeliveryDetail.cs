@@ -22,6 +22,8 @@ public partial class DeliveryDetail
 
     public DateTime CreateAt { get; set; }
 
+    public virtual Address Address { get; set; } = null!;
+
     public virtual DeliveryService DeliService { get; set; } = null!;
 
     public virtual Order Ord { get; set; } = null!;

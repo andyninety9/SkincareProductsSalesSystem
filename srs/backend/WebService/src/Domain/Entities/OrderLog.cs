@@ -7,7 +7,7 @@ public partial class OrderLog
 {
     public long OrdLogId { get; set; }
 
-    public string NewStatusOrdId { get; set; } = null!;
+    public short NewStatusOrdId { get; set; }
 
     public long OrdId { get; set; }
 
@@ -15,7 +15,7 @@ public partial class OrderLog
 
     public string? Note { get; set; }
 
-    public DateTime CreateAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public virtual OrderStatus NewStatusOrd { get; set; } = null!;
 

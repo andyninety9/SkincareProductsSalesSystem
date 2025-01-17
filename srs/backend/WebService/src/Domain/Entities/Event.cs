@@ -7,7 +7,7 @@ public partial class Event
 {
     public long EventId { get; set; }
 
-    public long EventName { get; set; }
+    public string EventName { get; set; } = null!;
 
     public DateTime StartTime { get; set; }
 

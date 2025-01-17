@@ -11,7 +11,7 @@ public partial class RatingProduct
 
     public long ProdId { get; set; }
 
-    public short Rating { get; set; }
+    public double Rating { get; set; }
 
     public virtual Product Prod { get; set; } = null!;
 }

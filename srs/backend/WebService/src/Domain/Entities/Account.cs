@@ -7,9 +7,9 @@ public partial class Account
 {
     public long AccId { get; set; }
 
-    public string RoleId { get; set; } = null!;
+    public short RoleId { get; set; }
 
-    public string AccStatusId { get; set; } = null!;
+    public short AccStatusId { get; set; }
 
     public string Username { get; set; } = null!;
 

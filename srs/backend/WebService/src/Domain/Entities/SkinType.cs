@@ -23,4 +23,6 @@ public partial class SkinType
     public string SkinTypeDesc { get; set; } = null!;
 
     public virtual ICollection<ResultSkinTest> ResultSkinTests { get; set; } = new List<ResultSkinTest>();
+
+    public virtual ICollection<UseFor> UseFors { get; set; } = new List<UseFor>();
 }
