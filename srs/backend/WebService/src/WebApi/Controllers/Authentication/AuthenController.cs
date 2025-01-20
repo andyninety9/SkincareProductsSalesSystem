@@ -1,4 +1,4 @@
-using Application.Accounts.Commands;
+using Application.Auth.Commands;
 using Application.Constant;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -116,6 +116,51 @@ namespace WebApi.Controllers.Authentication
             {
                 statusCode = 200,
                 message = IConstantMessage.VERIFY_EMAIL_SUCCESS,
+                data = result.Value
+            });
+        }
+
+        // POST: api/Authen/resend-verify-email
+        // {
+        //     "email": "string"
+        // }
+        [Authorize]
+        [HttpPost("resend-verify-email")]
+        public async Task<IActionResult> ResendVerifyEmail([FromBody] ResendEmailVerifyCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+
+            if (result.IsFailure)
+            {
+                return HandleFailure(result);
+            }
+
+            return Ok(new
+            {
+                statusCode = 200,
+                message = IConstantMessage.RESEND_VERIFY_EMAIL_SUCCESS,
+                data = result.Value
+            });
+        }
+
+        // POST: api/Authen/forgot-password
+        // {
+        //     "email": "string"
+        // }
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+
+            if (result.IsFailure)
+            {
+                return HandleFailure(result);
+            }
+
+            return Ok(new
+            {
+                statusCode = 200,
+                message = IConstantMessage.FORGOT_PASSWORD_SUCCESS,
                 data = result.Value
             });
         }
