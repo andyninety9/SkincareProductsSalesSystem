@@ -17,6 +17,8 @@ public partial class Event
 
     public double DiscountPercent { get; set; }
 
+    public bool StatusEvent { get; set; }
+
     public virtual ICollection<EventDetail> EventDetails { get; set; } = new List<EventDetail>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();

@@ -9,7 +9,7 @@ public partial class WarantyOrder
 
     public long OrdId { get; set; }
 
-    public DateTime CreateAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public DateTime EndDate { get; set; }
 

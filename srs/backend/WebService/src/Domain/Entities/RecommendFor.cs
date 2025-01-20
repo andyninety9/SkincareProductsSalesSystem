@@ -3,13 +3,15 @@ using System.Collections.Generic;
 
 namespace Domain.Entities;
 
-public partial class ProductImage
+public partial class RecommendFor
 {
-    public long ProdImageId { get; set; }
+    public long RecForId { get; set; }
 
     public long ProdId { get; set; }
 
-    public string ProdImageUrl { get; set; } = null!;
+    public short SkinTypeId { get; set; }
 
     public virtual Product Prod { get; set; } = null!;
+
+    public virtual SkinType SkinType { get; set; } = null!;
 }

@@ -11,7 +11,7 @@ public partial class DeliveryDetail
 
     public long AddressId { get; set; }
 
-    public string DeliPhoneNumber { get; set; } = null!;
+    public string DeliPhone { get; set; } = null!;
 
     public long OrdId { get; set; }
 

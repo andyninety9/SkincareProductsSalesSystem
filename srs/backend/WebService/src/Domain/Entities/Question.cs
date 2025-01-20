@@ -15,11 +15,9 @@ public partial class Question
 
     public DateOnly CreatedAt { get; set; }
 
-    public virtual ICollection<AnswerUser> AnswerUsers { get; set; } = new List<AnswerUser>();
-
     public virtual CategoryQuestion CateQuestion { get; set; } = null!;
 
     public virtual ICollection<KeyQuestion> KeyQuestions { get; set; } = new List<KeyQuestion>();
 
-    public virtual ICollection<SkinTypeTestDetail> SkinTypeTestDetails { get; set; } = new List<SkinTypeTestDetail>();
+    public virtual ICollection<QuizDetail> QuizDetails { get; set; } = new List<QuizDetail>();
 }

@@ -5,7 +5,7 @@ namespace Domain.Entities;
 
 public partial class CategoryProduct
 {
-    public long CateProdId { get; set; }
+    public short CateProdId { get; set; }
 
     public string CateProdName { get; set; } = null!;
 

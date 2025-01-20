@@ -22,8 +22,6 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<Address> Addresses { get; set; }
 
-    public virtual DbSet<AnswerUser> AnswerUsers { get; set; }
-
     public virtual DbSet<Brand> Brands { get; set; }
 
     public virtual DbSet<CategoryProduct> CategoryProducts { get; set; }
@@ -54,11 +52,21 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<ProductImage> ProductImages { get; set; }
 
+    public virtual DbSet<ProductStatus> ProductStatuses { get; set; }
+
     public virtual DbSet<Question> Questions { get; set; }
+
+    public virtual DbSet<Quiz> Quizzes { get; set; }
+
+    public virtual DbSet<QuizDetail> QuizDetails { get; set; }
 
     public virtual DbSet<RatingProduct> RatingProducts { get; set; }
 
-    public virtual DbSet<ResultSkinTest> ResultSkinTests { get; set; }
+    public virtual DbSet<RecommendFor> RecommendFors { get; set; }
+
+    public virtual DbSet<ResultDetail> ResultDetails { get; set; }
+
+    public virtual DbSet<ResultQuiz> ResultQuizzes { get; set; }
 
     public virtual DbSet<ReturnProduct> ReturnProducts { get; set; }
 
@@ -68,11 +76,7 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<SkinType> SkinTypes { get; set; }
 
-    public virtual DbSet<SkinTypeTest> SkinTypeTests { get; set; }
-
-    public virtual DbSet<SkinTypeTestDetail> SkinTypeTestDetails { get; set; }
-
-    public virtual DbSet<UseFor> UseFors { get; set; }
+    public virtual DbSet<TreatmentSolution> TreatmentSolutions { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -121,9 +125,7 @@ public partial class MyDbContext : DbContext
 
             entity.ToTable("AccountStatus");
 
-            entity.Property(e => e.AccStatusId)
-                .ValueGeneratedNever()
-                .HasColumnName("accStatusID");
+            entity.Property(e => e.AccStatusId).HasColumnName("accStatusID");
             entity.Property(e => e.StatusName)
                 .HasMaxLength(255)
                 .HasColumnName("statusName");
@@ -158,27 +160,6 @@ public partial class MyDbContext : DbContext
                 .HasForeignKey(d => d.UsrId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("address_usrid_foreign");
-        });
-
-        modelBuilder.Entity<AnswerUser>(entity =>
-        {
-            entity.HasKey(e => e.AndId).HasName("AnswerUser_pkey");
-
-            entity.ToTable("AnswerUser");
-
-            entity.Property(e => e.AndId).HasColumnName("andID");
-            entity.Property(e => e.KeyId).HasColumnName("keyID");
-            entity.Property(e => e.QuestionId).HasColumnName("questionID");
-
-            entity.HasOne(d => d.Key).WithMany(p => p.AnswerUsers)
-                .HasForeignKey(d => d.KeyId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("answeruser_keyid_foreign");
-
-            entity.HasOne(d => d.Question).WithMany(p => p.AnswerUsers)
-                .HasForeignKey(d => d.QuestionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("answeruser_questionid_foreign");
         });
 
         modelBuilder.Entity<Brand>(entity =>
@@ -259,9 +240,9 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.CreateAt)
                 .HasColumnType("timestamp(0) without time zone")
                 .HasColumnName("createAt");
-            entity.Property(e => e.DeliPhoneNumber)
+            entity.Property(e => e.DeliPhone)
                 .HasMaxLength(255)
-                .HasColumnName("deliPhoneNumber");
+                .HasColumnName("deliPhone");
             entity.Property(e => e.DeliServiceId).HasColumnName("deliServiceID");
             entity.Property(e => e.DeliStatus)
                 .HasComment("Just manage 2 status: Success / False")
@@ -316,6 +297,7 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.StartTime)
                 .HasColumnType("timestamp(0) without time zone")
                 .HasColumnName("startTime");
+            entity.Property(e => e.StatusEvent).HasColumnName("statusEvent");
         });
 
         modelBuilder.Entity<EventDetail>(entity =>
@@ -467,10 +449,15 @@ public partial class MyDbContext : DbContext
 
             entity.Property(e => e.ProductId).HasColumnName("productID");
             entity.Property(e => e.BrandId).HasColumnName("brandID");
-            entity.Property(e => e.CateId).HasColumnName("cateID");
+            entity.Property(e => e.CateId)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("cateID");
             entity.Property(e => e.CostPrice)
                 .HasDefaultValueSql("'0'::double precision")
                 .HasColumnName("costPrice");
+            entity.Property(e => e.Ingredient).HasColumnName("ingredient");
+            entity.Property(e => e.Instruction).HasColumnName("instruction");
+            entity.Property(e => e.ProdStatusId).HasColumnName("prodStatusID");
             entity.Property(e => e.ProductDesc).HasColumnName("productDesc");
             entity.Property(e => e.ProductName)
                 .HasMaxLength(255)
@@ -492,24 +479,41 @@ public partial class MyDbContext : DbContext
                 .HasForeignKey(d => d.CateId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("product_cateid_foreign");
+
+            entity.HasOne(d => d.ProdStatus).WithMany(p => p.Products)
+                .HasForeignKey(d => d.ProdStatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("product_prodstatusid_foreign");
         });
 
         modelBuilder.Entity<ProductImage>(entity =>
         {
-            entity.HasKey(e => e.ProductImageId).HasName("ProductImage_pkey");
+            entity.HasKey(e => e.ProdImageId).HasName("ProductImage_pkey");
 
             entity.ToTable("ProductImage");
 
-            entity.Property(e => e.ProductImageId).HasColumnName("productImageID");
-            entity.Property(e => e.ProductId).HasColumnName("productID");
-            entity.Property(e => e.ProductImageUrl)
+            entity.Property(e => e.ProdImageId).HasColumnName("prodImageID");
+            entity.Property(e => e.ProdId).HasColumnName("prodID");
+            entity.Property(e => e.ProdImageUrl)
                 .HasMaxLength(255)
-                .HasColumnName("productImageUrl");
+                .HasColumnName("prodImageUrl");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.ProductImages)
-                .HasForeignKey(d => d.ProductId)
+            entity.HasOne(d => d.Prod).WithMany(p => p.ProductImages)
+                .HasForeignKey(d => d.ProdId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("productimage_productid_foreign");
+                .HasConstraintName("productimage_prodid_foreign");
+        });
+
+        modelBuilder.Entity<ProductStatus>(entity =>
+        {
+            entity.HasKey(e => e.ProdStatusId).HasName("ProductStatus_pkey");
+
+            entity.ToTable("ProductStatus");
+
+            entity.Property(e => e.ProdStatusId).HasColumnName("prodStatusID");
+            entity.Property(e => e.ProdStatusName)
+                .HasMaxLength(255)
+                .HasColumnName("prodStatusName");
         });
 
         modelBuilder.Entity<Question>(entity =>
@@ -534,6 +538,45 @@ public partial class MyDbContext : DbContext
                 .HasConstraintName("question_catequestionid_foreign");
         });
 
+        modelBuilder.Entity<Quiz>(entity =>
+        {
+            entity.HasKey(e => e.QuizId).HasName("Quiz_pkey");
+
+            entity.ToTable("Quiz");
+
+            entity.Property(e => e.QuizId).HasColumnName("quizID");
+            entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
+            entity.Property(e => e.QuizDesc).HasColumnName("quizDesc");
+            entity.Property(e => e.QuizName)
+                .HasMaxLength(255)
+                .HasColumnName("quizName");
+        });
+
+        modelBuilder.Entity<QuizDetail>(entity =>
+        {
+            entity.HasKey(e => e.DetailId).HasName("QuizDetail_pkey");
+
+            entity.ToTable("QuizDetail");
+
+            entity.Property(e => e.DetailId)
+                .ValueGeneratedNever()
+                .HasColumnName("detailID");
+            entity.Property(e => e.QuestId)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("questID");
+            entity.Property(e => e.QuizId).HasColumnName("quizID");
+
+            entity.HasOne(d => d.Quest).WithMany(p => p.QuizDetails)
+                .HasForeignKey(d => d.QuestId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("quizdetail_questid_foreign");
+
+            entity.HasOne(d => d.Quiz).WithMany(p => p.QuizDetails)
+                .HasForeignKey(d => d.QuizId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("quizdetail_quizid_foreign");
+        });
+
         modelBuilder.Entity<RatingProduct>(entity =>
         {
             entity.HasKey(e => e.RatingProdId).HasName("RatingProduct_pkey");
@@ -551,11 +594,53 @@ public partial class MyDbContext : DbContext
                 .HasConstraintName("ratingproduct_prodid_foreign");
         });
 
-        modelBuilder.Entity<ResultSkinTest>(entity =>
+        modelBuilder.Entity<RecommendFor>(entity =>
         {
-            entity.HasKey(e => e.ResultId).HasName("ResultSkinTest_pkey");
+            entity.HasKey(e => e.RecForId).HasName("RecommendFor_pkey");
 
-            entity.ToTable("ResultSkinTest");
+            entity.ToTable("RecommendFor");
+
+            entity.Property(e => e.RecForId).HasColumnName("recForID");
+            entity.Property(e => e.ProdId).HasColumnName("prodID");
+            entity.Property(e => e.SkinTypeId).HasColumnName("skinTypeID");
+
+            entity.HasOne(d => d.Prod).WithMany(p => p.RecommendFors)
+                .HasForeignKey(d => d.ProdId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("recommendfor_prodid_foreign");
+
+            entity.HasOne(d => d.SkinType).WithMany(p => p.RecommendFors)
+                .HasForeignKey(d => d.SkinTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("recommendfor_skintypeid_foreign");
+        });
+
+        modelBuilder.Entity<ResultDetail>(entity =>
+        {
+            entity.HasKey(e => e.ResultDetailId).HasName("ResultDetail_pkey");
+
+            entity.ToTable("ResultDetail");
+
+            entity.Property(e => e.ResultDetailId).HasColumnName("resultDetailID");
+            entity.Property(e => e.KeyId).HasColumnName("keyID");
+            entity.Property(e => e.ResultId).HasColumnName("resultID");
+
+            entity.HasOne(d => d.Key).WithMany(p => p.ResultDetails)
+                .HasForeignKey(d => d.KeyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("resultdetail_keyid_foreign");
+
+            entity.HasOne(d => d.Result).WithMany(p => p.ResultDetails)
+                .HasForeignKey(d => d.ResultId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("resultdetail_resultid_foreign");
+        });
+
+        modelBuilder.Entity<ResultQuiz>(entity =>
+        {
+            entity.HasKey(e => e.ResultId).HasName("ResultQuiz_pkey");
+
+            entity.ToTable("ResultQuiz");
 
             entity.Property(e => e.ResultId).HasColumnName("resultID");
             entity.Property(e => e.CreateAt)
@@ -572,6 +657,7 @@ public partial class MyDbContext : DbContext
                 .HasDefaultValueSql("'0'::smallint")
                 .HasComment("PigmentedNonPigmentedScore")
                 .HasColumnName("PNPScore");
+            entity.Property(e => e.QuizId).HasColumnName("quizID");
             entity.Property(e => e.SkinTypeId)
                 .ValueGeneratedOnAdd()
                 .HasColumnName("skinTypeID");
@@ -579,27 +665,26 @@ public partial class MyDbContext : DbContext
                 .HasDefaultValueSql("'0'::smallint")
                 .HasComment("SensitiveResistantScore")
                 .HasColumnName("SRScore");
-            entity.Property(e => e.TestId).HasColumnName("testID");
             entity.Property(e => e.UsrId).HasColumnName("usrID");
             entity.Property(e => e.Wtscore)
                 .HasDefaultValueSql("'0'::smallint")
                 .HasComment("WrinkledTightScore")
                 .HasColumnName("WTScore");
 
-            entity.HasOne(d => d.SkinType).WithMany(p => p.ResultSkinTests)
+            entity.HasOne(d => d.Quiz).WithMany(p => p.ResultQuizzes)
+                .HasForeignKey(d => d.QuizId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("resultquiz_quizid_foreign");
+
+            entity.HasOne(d => d.SkinType).WithMany(p => p.ResultQuizzes)
                 .HasForeignKey(d => d.SkinTypeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("resultskintest_skintypeid_foreign");
+                .HasConstraintName("resultquiz_skintypeid_foreign");
 
-            entity.HasOne(d => d.Test).WithMany(p => p.ResultSkinTests)
-                .HasForeignKey(d => d.TestId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("resultskintest_testid_foreign");
-
-            entity.HasOne(d => d.Usr).WithMany(p => p.ResultSkinTests)
+            entity.HasOne(d => d.Usr).WithMany(p => p.ResultQuizzes)
                 .HasForeignKey(d => d.UsrId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("resultskintest_usrid_foreign");
+                .HasConstraintName("resultquiz_usrid_foreign");
         });
 
         modelBuilder.Entity<ReturnProduct>(entity =>
@@ -609,14 +694,16 @@ public partial class MyDbContext : DbContext
             entity.ToTable("ReturnProduct");
 
             entity.Property(e => e.ReturnId).HasColumnName("returnID");
-            entity.Property(e => e.OrdId).HasColumnName("ordID");
+            entity.Property(e => e.OrdIdd).HasColumnName("ordIDd");
+            entity.Property(e => e.RefundAmount).HasColumnName("refundAmount");
             entity.Property(e => e.ReturnDate).HasColumnName("returnDate");
+            entity.Property(e => e.ReturnStatus).HasColumnName("returnStatus");
             entity.Property(e => e.UsrId).HasColumnName("usrID");
 
-            entity.HasOne(d => d.Ord).WithMany(p => p.ReturnProducts)
-                .HasForeignKey(d => d.OrdId)
+            entity.HasOne(d => d.OrdIddNavigation).WithMany(p => p.ReturnProducts)
+                .HasForeignKey(d => d.OrdIdd)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("returnproduct_ordid_foreign");
+                .HasConstraintName("returnproduct_ordidd_foreign");
 
             entity.HasOne(d => d.Usr).WithMany(p => p.ReturnProducts)
                 .HasForeignKey(d => d.UsrId)
@@ -626,22 +713,22 @@ public partial class MyDbContext : DbContext
 
         modelBuilder.Entity<ReturnProductDetail>(entity =>
         {
-            entity.HasKey(e => e.ReturnProductDetailId).HasName("ReturnProductDetail_pkey");
+            entity.HasKey(e => e.ReturnProdDetailId).HasName("ReturnProductDetail_pkey");
 
             entity.ToTable("ReturnProductDetail");
 
-            entity.Property(e => e.ReturnProductDetailId).HasColumnName("returnProductDetailID");
-            entity.Property(e => e.ProdId).HasColumnName("prodID");
+            entity.Property(e => e.ReturnProdDetailId).HasColumnName("returnProdDetailID");
+            entity.Property(e => e.ProdIdre).HasColumnName("prodIDre");
             entity.Property(e => e.ReturnId).HasColumnName("returnID");
             entity.Property(e => e.ReturnImgUrl)
                 .HasMaxLength(255)
                 .HasColumnName("returnImgUrl");
             entity.Property(e => e.ReturnQuantity).HasColumnName("returnQuantity");
 
-            entity.HasOne(d => d.Prod).WithMany(p => p.ReturnProductDetails)
-                .HasForeignKey(d => d.ProdId)
+            entity.HasOne(d => d.ProdIdreNavigation).WithMany(p => p.ReturnProductDetails)
+                .HasForeignKey(d => d.ProdIdre)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("returnproductdetail_prodid_foreign");
+                .HasConstraintName("returnproductdetail_prodidre_foreign");
 
             entity.HasOne(d => d.Return).WithMany(p => p.ReturnProductDetails)
                 .HasForeignKey(d => d.ReturnId)
@@ -684,67 +771,20 @@ public partial class MyDbContext : DbContext
                 .HasColumnName("skinTypeName");
         });
 
-        modelBuilder.Entity<SkinTypeTest>(entity =>
+        modelBuilder.Entity<TreatmentSolution>(entity =>
         {
-            entity.HasKey(e => e.TestId).HasName("SkinTypeTest_pkey");
+            entity.HasKey(e => e.SolutionId).HasName("TreatmentSolution_pkey");
 
-            entity.ToTable("SkinTypeTest");
+            entity.ToTable("TreatmentSolution");
 
-            entity.Property(e => e.TestId).HasColumnName("testID");
-            entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
-            entity.Property(e => e.CreatedByUsrId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("createdByUsrID");
-            entity.Property(e => e.TestDesc).HasColumnName("testDesc");
-            entity.Property(e => e.TestName)
-                .HasMaxLength(255)
-                .HasColumnName("testName");
-        });
-
-        modelBuilder.Entity<SkinTypeTestDetail>(entity =>
-        {
-            entity.HasKey(e => e.DetailId).HasName("SkinTypeTestDetail_pkey");
-
-            entity.ToTable("SkinTypeTestDetail");
-
-            entity.Property(e => e.DetailId)
-                .ValueGeneratedNever()
-                .HasColumnName("detailID");
-            entity.Property(e => e.QuestionId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("questionID");
-            entity.Property(e => e.TestId).HasColumnName("testID");
-
-            entity.HasOne(d => d.Question).WithMany(p => p.SkinTypeTestDetails)
-                .HasForeignKey(d => d.QuestionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("skintypetestdetail_questionid_foreign");
-
-            entity.HasOne(d => d.Test).WithMany(p => p.SkinTypeTestDetails)
-                .HasForeignKey(d => d.TestId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("skintypetestdetail_testid_foreign");
-        });
-
-        modelBuilder.Entity<UseFor>(entity =>
-        {
-            entity.HasKey(e => e.RecId).HasName("UseFor_pkey");
-
-            entity.ToTable("UseFor");
-
-            entity.Property(e => e.RecId).HasColumnName("recID");
-            entity.Property(e => e.ProdId).HasColumnName("prodID");
+            entity.Property(e => e.SolutionId).HasColumnName("solutionID");
             entity.Property(e => e.SkinTypeId).HasColumnName("skinTypeID");
+            entity.Property(e => e.SolutionContent).HasColumnName("solutionContent");
 
-            entity.HasOne(d => d.Prod).WithMany(p => p.UseFors)
-                .HasForeignKey(d => d.ProdId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("usefor_prodid_foreign");
-
-            entity.HasOne(d => d.SkinType).WithMany(p => p.UseFors)
+            entity.HasOne(d => d.SkinType).WithMany(p => p.TreatmentSolutions)
                 .HasForeignKey(d => d.SkinTypeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("usefor_skintypeid_foreign");
+                .HasConstraintName("treatmentsolution_skintypeid_foreign");
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -770,31 +810,33 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.CoverUrl)
                 .HasMaxLength(255)
                 .HasColumnName("coverUrl");
-            entity.Property(e => e.CreateAt)
+            entity.Property(e => e.CreatedAt)
                 .HasColumnType("timestamp(0) without time zone")
-                .HasColumnName("createAt");
+                .HasColumnName("createdAt");
             entity.Property(e => e.Dob).HasColumnName("dob");
             entity.Property(e => e.Email)
                 .HasMaxLength(255)
                 .HasColumnName("email");
             entity.Property(e => e.EmailVerifyToken)
-                .HasMaxLength(500)
+                .HasMaxLength(255)
                 .HasColumnName("emailVerifyToken");
             entity.Property(e => e.ForgotPasswordToken)
-                .HasMaxLength(500)
+                .HasMaxLength(255)
                 .HasColumnName("forgotPasswordToken");
             entity.Property(e => e.Fullname)
                 .HasMaxLength(255)
                 .HasColumnName("fullname");
-            entity.Property(e => e.Gender)
-                .HasMaxLength(255)
-                .HasColumnName("gender");
+            entity.Property(e => e.Gender).HasColumnName("gender");
             entity.Property(e => e.Phone)
                 .HasMaxLength(255)
                 .HasColumnName("phone");
-            entity.Property(e => e.UpdateAt)
+            entity.Property(e => e.RewardPoint)
+                .HasDefaultValueSql("'0'::smallint")
+                .HasComment("0-250: Bronze rank\n250-1500: Silver rank\nOver 1500: Gold rank")
+                .HasColumnName("rewardPoint");
+            entity.Property(e => e.UpdatedAt)
                 .HasColumnType("timestamp(0) without time zone")
-                .HasColumnName("updateAt");
+                .HasColumnName("updatedAt");
 
             entity.HasOne(d => d.Usr).WithOne(p => p.User)
                 .HasForeignKey<User>(d => d.UsrId)
@@ -826,15 +868,13 @@ public partial class MyDbContext : DbContext
             entity.ToTable("WarantyOrder");
 
             entity.Property(e => e.WarantyId).HasColumnName("warantyID");
-            entity.Property(e => e.CreateAt)
+            entity.Property(e => e.CreatedAt)
                 .HasColumnType("timestamp(0) without time zone")
-                .HasColumnName("createAt");
+                .HasColumnName("createdAt");
             entity.Property(e => e.EndDate)
                 .HasColumnType("timestamp(0) without time zone")
                 .HasColumnName("endDate");
-            entity.Property(e => e.OrdId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("ordID");
+            entity.Property(e => e.OrdId).HasColumnName("ordID");
 
             entity.HasOne(d => d.Ord).WithMany(p => p.WarantyOrders)
                 .HasForeignKey(d => d.OrdId)

@@ -22,7 +22,9 @@ public partial class SkinType
     /// </summary>
     public string SkinTypeDesc { get; set; } = null!;
 
-    public virtual ICollection<ResultSkinTest> ResultSkinTests { get; set; } = new List<ResultSkinTest>();
+    public virtual ICollection<RecommendFor> RecommendFors { get; set; } = new List<RecommendFor>();
 
-    public virtual ICollection<UseFor> UseFors { get; set; } = new List<UseFor>();
+    public virtual ICollection<ResultQuiz> ResultQuizzes { get; set; } = new List<ResultQuiz>();
+
+    public virtual ICollection<TreatmentSolution> TreatmentSolutions { get; set; } = new List<TreatmentSolution>();
 }

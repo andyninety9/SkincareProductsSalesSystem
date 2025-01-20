@@ -7,7 +7,7 @@ public partial class Product
 {
     public long ProductId { get; set; }
 
-    public long CateId { get; set; }
+    public short CateId { get; set; }
 
     public long BrandId { get; set; }
 
@@ -23,6 +23,12 @@ public partial class Product
 
     public double? TotalRating { get; set; }
 
+    public string Ingredient { get; set; } = null!;
+
+    public string Instruction { get; set; } = null!;
+
+    public short ProdStatusId { get; set; }
+
     public virtual Brand Brand { get; set; } = null!;
 
     public virtual CategoryProduct Cate { get; set; } = null!;
@@ -33,11 +39,13 @@ public partial class Product
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
+    public virtual ProductStatus ProdStatus { get; set; } = null!;
+
     public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
 
     public virtual ICollection<RatingProduct> RatingProducts { get; set; } = new List<RatingProduct>();
 
-    public virtual ICollection<ReturnProductDetail> ReturnProductDetails { get; set; } = new List<ReturnProductDetail>();
+    public virtual ICollection<RecommendFor> RecommendFors { get; set; } = new List<RecommendFor>();
 
-    public virtual ICollection<UseFor> UseFors { get; set; } = new List<UseFor>();
+    public virtual ICollection<ReturnProductDetail> ReturnProductDetails { get; set; } = new List<ReturnProductDetail>();
 }

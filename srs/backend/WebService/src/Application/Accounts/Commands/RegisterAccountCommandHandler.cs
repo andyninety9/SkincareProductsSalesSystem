@@ -102,8 +102,8 @@ namespace Application.Accounts.Commands
                     UsrId = retrievedAccount.AccId,
                     Email = command.Email,
                     Phone = command.Phone,
-                    CreateAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
-                    UpdateAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                    CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                    UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
                     EmailVerifyToken = createdEmailVerifyToken,
                 };
 
