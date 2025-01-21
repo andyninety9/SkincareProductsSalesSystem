@@ -9,7 +9,7 @@ using AutoMapper;
 using Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Accounts.Commands
+namespace Application.Auth.Commands
 {
     public sealed record LoginAccountCommand(string Username, string Password) : ICommand<LoginResponse>;
 

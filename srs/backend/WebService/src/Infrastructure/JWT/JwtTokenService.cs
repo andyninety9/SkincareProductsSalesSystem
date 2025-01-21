@@ -64,6 +64,25 @@ namespace Infrastructure.JWT
             return long.Parse(jwtToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value);
         }
 
+        public int GetExpireMinutesFromToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfigOptions.Value.JwtKey));
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ValidateIssuer = true,
+                ValidIssuer = _jwtConfigOptions.Value.JwtIssuer,
+                ValidateAudience = true,
+                ValidAudience = _jwtConfigOptions.Value.JwtAudience,
+                ValidateLifetime = true
+            }, out SecurityToken validatedToken);
+
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            return (int)jwtToken.ValidTo.Subtract(DateTime.UtcNow).TotalMinutes;
+        }
+
         public ClaimsPrincipal GetPrincipalFromToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();

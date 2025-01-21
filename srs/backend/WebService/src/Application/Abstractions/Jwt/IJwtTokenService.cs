@@ -16,6 +16,8 @@ namespace Application.Common.Jwt
 
         int GetRoleIdFromToken(string token);
 
+        int GetExpireMinutesFromToken(string token);
+
         // Get claims from token
         ClaimsPrincipal GetPrincipalFromToken(string token);
         

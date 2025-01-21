@@ -11,6 +11,14 @@ namespace Infrastructure.Repositories
         {
         }
 
+        public Task<User> GetByEmailAsync(string email)
+        {
+            User? user = _context.Users.FirstOrDefault(u => u.Email == email);
+            if (user == null)
+                throw new KeyNotFoundException($"User with email {email} not found.");
+            return Task.FromResult(user);
+        }
+
         public Task<string> GetEmailVerifyTokenByUsrID(long usrId)
         {
             User? user = _context.Users.FirstOrDefault(u => u.UsrId == usrId);
@@ -37,6 +45,26 @@ namespace Infrastructure.Repositories
         {
             User? user = _context.Users.FirstOrDefault(u => u.Phone == phone);
             return Task.FromResult(user != null);
+        }
+
+        public Task<bool> UpdateEmailVerifyTokenAsync(long usrId, string token)
+        {
+            User? user = _context.Users.FirstOrDefault(u => u.UsrId == usrId);
+            if (user == null)
+                return Task.FromResult(false);
+            user.EmailVerifyToken = token;
+            _context.Users.Update(user);
+            return Task.FromResult(true);
+        }
+
+        public Task<bool> UpdateForgotPasswordTokenAsync(long usrId, string token)
+        {
+            User? user = _context.Users.FirstOrDefault(u => u.UsrId == usrId);
+            if (user == null)
+                return Task.FromResult(false);
+            user.ForgotPasswordToken = token;
+            _context.Users.Update(user);
+            return Task.FromResult(true);
         }
 
         public async Task<bool> VerifyEmail(long usrId)

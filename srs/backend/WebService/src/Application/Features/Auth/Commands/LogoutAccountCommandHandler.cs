@@ -9,7 +9,7 @@ using AutoMapper;
 using Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Accounts.Commands
+namespace Application.Auth.Commands
 {
     public sealed record LogoutAccountCommand(string RefreshToken) : ICommand<LogoutResponse>;
 
@@ -18,7 +18,7 @@ namespace Application.Accounts.Commands
         private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<LoginAccountCommandHandler> _logger;
+        private readonly ILogger<LogoutAccountCommand> _logger;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IRedisCacheService _redisCacheService;
 
@@ -26,7 +26,7 @@ namespace Application.Accounts.Commands
             IAccountRepository accountRepository,
             IMapper mapper,
             IUnitOfWork unitOfWork,
-            ILogger<LoginAccountCommandHandler> logger,
+            ILogger<LogoutAccountCommand> logger,
             IJwtTokenService jwtTokenService,
             IRedisCacheService redisCacheService)
         {

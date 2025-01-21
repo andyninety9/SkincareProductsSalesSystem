@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Amazon.SimpleEmail;
 using Amazon.SimpleEmail.Model;
 using Application.Abstractions.AWS;
@@ -16,9 +12,8 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
-namespace Application.Accounts.Commands
+namespace Application.Auth.Commands
 {
     public sealed record RegisterAccountCommand
     (
@@ -122,7 +117,7 @@ namespace Application.Accounts.Commands
                     {
                         From = Environment.GetEnvironmentVariable("AWS_SES_EMAIL") ?? throw new InvalidOperationException("AWS_SES_EMAIL environment variable is not set"),
                         To = command.Email,
-                        Subject = "Email Verification",
+                        Subject = "[MAVID SKINCARE] Verify Your Email",
                         Body = emailBody // HTML nội dung email
                     });
 
