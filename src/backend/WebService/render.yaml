@@ -1,0 +1,43 @@
+# Exported from Render on 2025-01-17T12:27:33Z
+services:
+- type: web
+  name: skincare-mavid-webapi-dev:web-service
+  runtime: image
+  image:
+    url: docker.io/andyninety9/skincare-mavid-webapi-dev:web-service
+  plan: free
+  envVars:
+  - key: AWS_SES_EMAIL
+    sync: false
+  - key: AWS_SECRET_KEY
+    sync: false
+  - key: AWS_ACCESS_KEY
+    sync: false
+  - key: AWS_REGION
+    sync: false
+  - key: REDIS_USERNAME
+    sync: false
+  - key: REDIS_PASSWORD
+    sync: false
+  - key: REDIS_PORT
+    sync: false
+  - key: REDIS_HOST
+    sync: false
+  - key: JWT_KEY
+    sync: false
+  - key: JWT_AUDIENCE
+    sync: false
+  - key: JWT_ISSUER
+    sync: false
+  - key: DATABASE_PASSWORD
+    sync: false
+  - key: DATABASE_USERNAME
+    sync: false
+  - key: DATABASE_NAME
+    sync: false
+  - key: DATABASE_PORT
+    sync: false
+  - key: DATABASE_HOST
+    sync: false
+  region: singapore
+version: "1"

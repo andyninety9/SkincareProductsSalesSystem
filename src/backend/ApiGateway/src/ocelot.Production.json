@@ -1,0 +1,43 @@
+{
+    "Routes": [
+        {
+            "UpstreamPathTemplate": "/api/{everything}",
+            "UpstreamHttpMethod": ["Get", "Post", "Put", "Delete"],
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "${WEB_SERVICE_HOST}",
+                    "Port": "${WEB_SERVICE_PORT}"
+                }
+            ],
+            "DownstreamPathTemplate": "/api/{everything}"
+        },
+        {
+            "UpstreamPathTemplate": "/swagger/{everything}",
+            "UpstreamHttpMethod": ["Get"],
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "${WEB_SERVICE_HOST}",
+                    "Port": "${WEB_SERVICE_PORT}"
+                }
+            ],
+            "DownstreamPathTemplate": "/swagger/{everything}"
+        },
+        {
+            "UpstreamPathTemplate": "/swagger/v1/swagger.json",
+            "UpstreamHttpMethod": ["Get"],
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "${WEB_SERVICE_HOST}",
+                    "Port": "${WEB_SERVICE_PORT}"
+                }
+            ],
+            "DownstreamPathTemplate": "/swagger/v1/swagger.json"
+        }
+    ],
+    "GlobalConfiguration": {
+        "BaseUrl": "${OCELOT_BASE_URL}"
+    }
+}
