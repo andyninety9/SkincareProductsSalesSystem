@@ -46,10 +46,10 @@ namespace Application.Auth.Commands
                 return Result<RefreshTokenResponse>.Failure<RefreshTokenResponse>(
                     new Error("RefreshTokenError", IConstantMessage.INVALID_REFRESH_TOKEN));
             }
+
             var roleId = _jwtTokenService.GetRoleIdFromToken(command.RefreshToken);
 
             var storedRefreshToken = await _redisCacheService.GetAsync(accountID.ToString());
-
             if (storedRefreshToken == null || storedRefreshToken != command.RefreshToken)
             {
                 return Result<RefreshTokenResponse>.Failure<RefreshTokenResponse>(
@@ -57,7 +57,6 @@ namespace Application.Auth.Commands
             }
 
             var newAccessToken = _jwtTokenService.GenerateToken(accountID, roleId, IConstant.ACCESS_TOKEN_EXPIRE_MINUTES);
-
             var newRefreshToken = _jwtTokenService.GenerateToken(accountID, roleId, IConstant.REFRESH_TOKEN_EXPIRE_MINUTES);
 
             await _redisCacheService.SetAsync(accountID.ToString(), newRefreshToken, TimeSpan.FromMinutes(IConstant.REFRESH_TOKEN_EXPIRE_MINUTES));
@@ -70,6 +69,5 @@ namespace Application.Auth.Commands
 
             return Result<RefreshTokenResponse>.Success(response);
         }
-
     }
 }

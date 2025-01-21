@@ -23,6 +23,7 @@ namespace Application.Auth.Commands
         string Password,
         string ConfirmPassword
     ) : ICommand<RegisterResponse>;
+
     internal sealed class RegisterAccountCommandHandler : ICommandHandler<RegisterAccountCommand, RegisterResponse>
     {
         private readonly IAccountRepository _accountRepository;
@@ -32,7 +33,15 @@ namespace Application.Auth.Commands
         private readonly ILogger<RegisterAccountCommandHandler> _logger;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IEmailService _emailService;
-        public RegisterAccountCommandHandler(IAccountRepository accountRepository, IUserRepository userRepository, IMapper mapper, IUnitOfWork unitOfWork, ILogger<RegisterAccountCommandHandler> logger, IJwtTokenService jwtTokenService, IEmailService emailService)
+
+        public RegisterAccountCommandHandler(
+            IAccountRepository accountRepository,
+            IUserRepository userRepository,
+            IMapper mapper,
+            IUnitOfWork unitOfWork,
+            ILogger<RegisterAccountCommandHandler> logger,
+            IJwtTokenService jwtTokenService,
+            IEmailService emailService)
         {
             _accountRepository = accountRepository;
             _userRepository = userRepository;
@@ -46,25 +55,23 @@ namespace Application.Auth.Commands
         public async Task<Result<RegisterResponse>> Handle(RegisterAccountCommand command, CancellationToken cancellationToken)
         {
             var errors = new List<Error>();
+
             if (await _accountRepository.IsExistedUsername(command.Username))
             {
                 errors.Add(new Error("RegisterError", IConstantMessage.DUPLICATED_USERNAME));
-      
             }
 
             if (await _userRepository.IsExistedPhone(command.Phone))
             {
                 errors.Add(new Error("RegisterError", IConstantMessage.DUPLICATED_PHONE_NUMBER));
-        
             }
 
             if (await _userRepository.IsExistedEmail(command.Email))
             {
                 errors.Add(new Error("RegisterError", IConstantMessage.DUPLICATED_EMAIL));
-        
             }
 
-            if(errors.Any())
+            if (errors.Any())
             {
                 return Result<RegisterResponse>.Failure<RegisterResponse>(new Error("ValidationError", string.Join("; ", errors.Select(e => e.Description))));
             }
@@ -85,13 +92,11 @@ namespace Application.Auth.Commands
                 var retrievedAccount = await _accountRepository.GetAccountByUsername(command.Username);
                 if (retrievedAccount == null)
                 {
-                    Result<RegisterResponse>.Failure(new Error("RegisterAccount", IConstantMessage.REGISTER_FALSE));
-                }
-                if (retrievedAccount == null)
-                {
                     return Result<RegisterResponse>.Failure<RegisterResponse>(new Error("RegisterAccount", IConstantMessage.REGISTER_FALSE));
                 }
-                var createdEmailVerifyToken = _jwtTokenService.GenerateToken(retrievedAccount.AccId, retrievedAccount.RoleId, IConstant.EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES); 
+
+                var createdEmailVerifyToken = _jwtTokenService.GenerateToken(retrievedAccount.AccId, retrievedAccount.RoleId, IConstant.EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES);
+
                 var user = new User
                 {
                     UsrId = retrievedAccount.AccId,
@@ -121,39 +126,36 @@ namespace Application.Auth.Commands
                         Body = emailBody // HTML nội dung email
                     });
 
-                    Console.WriteLine("Email sent successfully.");
+                    _logger.LogInformation("Email sent successfully.");
                 }
                 catch (MessageRejectedException ex)
                 {
-                    Console.WriteLine($"Email rejected: {ex.Message}");
+                    _logger.LogError($"Email rejected: {ex.Message}");
                     throw;
                 }
                 catch (AmazonSimpleEmailServiceException ex)
                 {
-                    Console.WriteLine($"AWS SES error: {ex.Message}");
+                    _logger.LogError($"AWS SES error: {ex.Message}");
                     throw;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"General error: {ex.Message}");
+                    _logger.LogError($"General error: {ex.Message}");
                     throw;
                 }
-
 
                 var response = new RegisterResponse
                 {
                     EmailVerifyToken = createdEmailVerifyToken
                 };
+
                 return Result<RegisterResponse>.Success(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred during account registration: {Message}", ex.Message);
-
                 return Result<RegisterResponse>.Failure<RegisterResponse>(new Error("RegisterAccount", "An error occurred while registering the account"));
             }
         }
-
-
     }
 }

@@ -30,8 +30,6 @@ namespace Application.Auth.Commands
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
 
-
-
         public ResendEmailVerifyCommandHandler(
             IAccountRepository accountRepository,
             IMapper mapper,
@@ -60,22 +58,35 @@ namespace Application.Auth.Commands
                 return Result<ResendEmailVerifyResponse>.Failure<ResendEmailVerifyResponse>(
                     new Error("ResendEmailVerifyError", IConstantMessage.USER_NOT_FOUND)
                 );
-            }else if (user.EmailVerifyToken == null){
+            }
+
+            if (user.EmailVerifyToken == null)
+            {
                 return Result<ResendEmailVerifyResponse>.Failure<ResendEmailVerifyResponse>(
                     new Error("ResendEmailVerifyError", IConstantMessage.EMAIL_VERIFY_HAVE_BEEN_VERIFIED)
                 );
             }
-            int expiredToken = _jwtTokenService.GetExpireMinutesFromToken(user.EmailVerifyToken);
-            if (expiredToken > 0)
+
+            if (_jwtTokenService.IsTokenValid(user.EmailVerifyToken))
             {
                 return Result<ResendEmailVerifyResponse>.Failure<ResendEmailVerifyResponse>(
-                    new Error("ResendEmailVerifyError", IConstantMessage.EMAIL_VERIFY_TOKEN_STILL_VALID + ", try again in " + expiredToken + " minutes")
+                    new Error("ResendEmailVerifyError", IConstantMessage.EMAIL_VERIFY_TOKEN_STILL_VALID)
                 );
             }
+
             var account = await _accountRepository.GetByIdAsync(user.UsrId, cancellationToken);
             var createdEmailVerifyToken = _jwtTokenService.GenerateToken(user.UsrId, account.RoleId, IConstant.EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES);
+
             bool isSuccess = await _userRepository.UpdateEmailVerifyTokenAsync(user.UsrId, createdEmailVerifyToken);
+            if (!isSuccess)
+            {
+                return Result<ResendEmailVerifyResponse>.Failure<ResendEmailVerifyResponse>(
+                    new Error("ResendEmailVerifyError", IConstantMessage.EMAIL_VERIFY_TOKEN_UPDATE_FAILED)
+                );
+            }
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
             try
             {
                 var emailBody = EmailTemplate.GenerateEmailVerifyTokenHtml(
@@ -92,35 +103,28 @@ namespace Application.Auth.Commands
                     Body = emailBody // HTML nội dung email
                 });
 
-                Console.WriteLine("Email sent successfully.");
+                _logger.LogInformation("Email sent successfully.");
             }
             catch (MessageRejectedException ex)
             {
-                Console.WriteLine($"Email rejected: {ex.Message}");
+                _logger.LogError($"Email rejected: {ex.Message}");
                 throw;
             }
             catch (AmazonSimpleEmailServiceException ex)
             {
-                Console.WriteLine($"AWS SES error: {ex.Message}");
+                _logger.LogError($"AWS SES error: {ex.Message}");
                 throw;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"General error: {ex.Message}");
+                _logger.LogError($"General error: {ex.Message}");
                 throw;
             }
 
-            if (!isSuccess)
-            {
-                return Result<ResendEmailVerifyResponse>.Failure<ResendEmailVerifyResponse>(
-                    new Error("ResendEmailVerifyError", IConstantMessage.EMAIL_VERIFY_TOKEN_UPDATE_FAILED)
-                );
-            }
             return Result<ResendEmailVerifyResponse>.Success(new ResendEmailVerifyResponse
             {
                 NewEmailVerifyToken = createdEmailVerifyToken
             });
-
         }
     }
 }

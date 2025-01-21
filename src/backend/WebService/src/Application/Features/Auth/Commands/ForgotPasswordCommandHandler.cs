@@ -58,14 +58,13 @@ namespace Application.Auth.Commands
                 );
             }else if(user.ForgotPasswordToken != null)
             {
-                int expiredToken = _jwtTokenService.GetExpireMinutesFromToken(user.ForgotPasswordToken);
-                if(expiredToken > 0)
+                bool expiredToken = _jwtTokenService.IsTokenValid(user.ForgotPasswordToken);
+                if(expiredToken)
                 {
                     return Result<ForgotPasswordResponse>.Failure<ForgotPasswordResponse>(
                         new Error("ForgotPasswordError", IConstantMessage.FORGOT_PASSWORD_TOKEN_EXIST + ", try again in " + expiredToken + " minutes")
                     );
                 }
-                
             }
             var account = await _accountRepository.GetByIdAsync(user.UsrId, cancellationToken);
             var newForgotPasswordToken = _jwtTokenService.GenerateToken(user.UsrId, account.RoleId, IConstant.FORGOT_PASSWORD_TOKEN_EXPIRE_MINUTES);

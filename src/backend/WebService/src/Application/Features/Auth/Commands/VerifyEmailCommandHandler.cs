@@ -58,12 +58,14 @@ namespace Application.Auth.Commands
 
             var storingEmailVerifyToken = await _userRepository.GetEmailVerifyTokenByUsrID(usrID);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            float expireMinutes = _jwtTokenService.GetExpireMinutesFromToken(command.EmailVerifyToken);
             if (storingEmailVerifyToken == null)
             {
                 return Result<VerifyEmailResponse>.Failure<VerifyEmailResponse>(
                     new Error("VerifyEmailError", IConstantMessage.EMAIL_VERIFY_HAVE_BEEN_VERIFIED)
                 );
-            }else if(storingEmailVerifyToken != command.EmailVerifyToken)
+            }
+            else if (storingEmailVerifyToken != command.EmailVerifyToken || expireMinutes <= 0)
             {
                 return Result<VerifyEmailResponse>.Failure<VerifyEmailResponse>(
                     new Error("VerifyEmailError", IConstantMessage.EMAIL_VERIFICATION_EXPIRED)
@@ -89,6 +91,5 @@ namespace Application.Auth.Commands
                 );
             }
         }
-
     }
 }

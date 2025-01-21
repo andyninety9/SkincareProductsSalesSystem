@@ -3,11 +3,11 @@
         {
             "UpstreamPathTemplate": "/api/{everything}",
             "UpstreamHttpMethod": ["Get", "Post", "Put", "Delete"],
-            "DownstreamScheme": "http",
+            "DownstreamScheme": "https",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "${WEB_SERVICE_HOST}",
-                    "Port": "${WEB_SERVICE_PORT}"
+                    "Host": "https://web-service-swp-v1-0-0.onrender.com",
+                    "Port": 443
                 }
             ],
             "DownstreamPathTemplate": "/api/{everything}"
@@ -15,11 +15,11 @@
         {
             "UpstreamPathTemplate": "/swagger/{everything}",
             "UpstreamHttpMethod": ["Get"],
-            "DownstreamScheme": "http",
+            "DownstreamScheme": "https",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "${WEB_SERVICE_HOST}",
-                    "Port": "${WEB_SERVICE_PORT}"
+                    "Host": "https://web-service-swp-v1-0-0.onrender.com",
+                    "Port": 443
                 }
             ],
             "DownstreamPathTemplate": "/swagger/{everything}"
@@ -27,17 +27,17 @@
         {
             "UpstreamPathTemplate": "/swagger/v1/swagger.json",
             "UpstreamHttpMethod": ["Get"],
-            "DownstreamScheme": "http",
+            "DownstreamScheme": "https",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "${WEB_SERVICE_HOST}",
-                    "Port": "${WEB_SERVICE_PORT}"
+                    "Host": "https://web-service-swp-v1-0-0.onrender.com",
+                    "Port": 443
                 }
             ],
             "DownstreamPathTemplate": "/swagger/v1/swagger.json"
         }
     ],
     "GlobalConfiguration": {
-        "BaseUrl": "${OCELOT_BASE_URL}"
+        "BaseUrl": "http://localhost:8080"
     }
 }

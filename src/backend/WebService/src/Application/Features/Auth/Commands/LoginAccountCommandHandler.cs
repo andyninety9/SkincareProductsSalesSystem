@@ -60,18 +60,18 @@ namespace Application.Auth.Commands
                     account.RoleId,
                     IConstant.REFRESH_TOKEN_EXPIRE_MINUTES);
 
+                // Cache refresh token with user ID as key
+                await _redisCacheService.SetAsync(
+                    account.AccId.ToString(),
+                    refreshToken,
+                    TimeSpan.FromMinutes(IConstant.REFRESH_TOKEN_EXPIRE_MINUTES));
+
                 // Phản hồi
                 var response = new LoginResponse
                 {
                     AccessToken = accessToken,
                     RefreshToken = refreshToken
                 };
-
-                // Cache refresh token with user ID as key
-                await _redisCacheService.SetAsync(
-                    account.AccId.ToString(), 
-                    refreshToken,
-                    TimeSpan.FromMinutes(IConstant.REFRESH_TOKEN_EXPIRE_MINUTES));
 
                 return Result<LoginResponse>.Success(response);
             }

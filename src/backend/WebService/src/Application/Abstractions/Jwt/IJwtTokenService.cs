@@ -16,10 +16,13 @@ namespace Application.Common.Jwt
 
         int GetRoleIdFromToken(string token);
 
-        int GetExpireMinutesFromToken(string token);
+        float GetExpireMinutesFromToken(string token);
 
         // Get claims from token
         ClaimsPrincipal GetPrincipalFromToken(string token);
-        
+
+        // Validate token
+        bool IsTokenValid(string token);
+
     }
 }
