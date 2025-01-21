@@ -2,6 +2,7 @@
 .vscode/
 .env
 .fake
+.DS_Store
 docker-compose-production.yml
 docker-compose-production-v1.yml
 
