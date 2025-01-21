@@ -21,6 +21,15 @@ namespace Application.Constant
         public static string EMAIL_VERIFY_HAVE_BEEN_VERIFIED = "Email verify have been verified";
         public static string EMAIL_VERIFY_SUCCESS = "Email verify success";
         public static string EMAIL_VERIFY_FALSE = "Email verify false";
+        public static string FORGOT_PASSWORD_EMAIL_SEND_FAILED = "Forgot password email send failed";
+        public static string USER_NOT_FOUND = "User not found";
+        public static string EMAIL_VERIFY_TOKEN_UPDATE_FAILED = "Email verify token update failed";
+        public static string EMAIL_VERIFICATION_EXPIRED = "Email verification expired";
+        public static string RESEND_VERIFY_EMAIL_SUCCESS = "Resend verify email success";
+        public static string EMAIL_VERIFY_TOKEN_STILL_VALID = "Email verify token still valid";
+        public static string FORGOT_PASSWORD_TOKEN_EXIST = "Forgot password token exist";
+        public static string FORGOT_PASSWORD_TOKEN_GENERATE_FAILED = "Forgot password token generate failed";
+        public static string FORGOT_PASSWORD_SUCCESS = "Forgot password success";
 
 
 

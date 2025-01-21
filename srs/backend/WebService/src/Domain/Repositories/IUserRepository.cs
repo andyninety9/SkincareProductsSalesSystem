@@ -17,6 +17,12 @@ namespace Domain.Repositories
 
         public Task<bool> VerifyEmail(long usrId);
 
+        public Task<User> GetByEmailAsync(string email);
+
+        public Task<bool> UpdateEmailVerifyTokenAsync(long usrId, string token);
+
+        public Task<bool> UpdateForgotPasswordTokenAsync(long usrId, string token);
+
 
     }
 }

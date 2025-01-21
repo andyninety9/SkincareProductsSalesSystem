@@ -9,31 +9,28 @@ using AutoMapper;
 using Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Accounts.Commands
+namespace Application.Auth.Commands
 {
     public sealed record VerifyEmailCommand(string EmailVerifyToken) : ICommand<VerifyEmailResponse>;
 
     internal sealed class VerifyEmailCommandHandler : ICommandHandler<VerifyEmailCommand, VerifyEmailResponse>
     {
         private readonly IAccountRepository _accountRepository;
-        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<LoginAccountCommandHandler> _logger;
+        private readonly ILogger<VerifyEmailCommand> _logger;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IRedisCacheService _redisCacheService;
         private readonly IUserRepository _userRepository;
 
         public VerifyEmailCommandHandler(
             IAccountRepository accountRepository,
-            IMapper mapper,
             IUnitOfWork unitOfWork,
-            ILogger<LoginAccountCommandHandler> logger,
+            ILogger<VerifyEmailCommand> logger,
             IJwtTokenService jwtTokenService,
             IRedisCacheService redisCacheService,
             IUserRepository userRepository)
         {
             _accountRepository = accountRepository;
-            _mapper = mapper;
             _unitOfWork = unitOfWork;
             _logger = logger;
             _jwtTokenService = jwtTokenService;
@@ -60,10 +57,16 @@ namespace Application.Accounts.Commands
             }
 
             var storingEmailVerifyToken = await _userRepository.GetEmailVerifyTokenByUsrID(usrID);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
             if (storingEmailVerifyToken == null)
             {
                 return Result<VerifyEmailResponse>.Failure<VerifyEmailResponse>(
                     new Error("VerifyEmailError", IConstantMessage.EMAIL_VERIFY_HAVE_BEEN_VERIFIED)
+                );
+            }else if(storingEmailVerifyToken != command.EmailVerifyToken)
+            {
+                return Result<VerifyEmailResponse>.Failure<VerifyEmailResponse>(
+                    new Error("VerifyEmailError", IConstantMessage.EMAIL_VERIFICATION_EXPIRED)
                 );
             }
 
