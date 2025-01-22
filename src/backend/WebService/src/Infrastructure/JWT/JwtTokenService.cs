@@ -46,18 +46,92 @@ namespace Infrastructure.JWT
 
         public long GetAccountIdFromToken(string token)
         {
-            var principal = GetPrincipalFromToken(token);
-            return long.Parse(principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ?? throw new SecurityTokenException("Invalid token"));
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfigOptions.Value.JwtKey));
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ValidateIssuer = true,
+                ValidIssuer = _jwtConfigOptions.Value.JwtIssuer,
+                ValidateAudience = true,
+                ValidAudience = _jwtConfigOptions.Value.JwtAudience,
+                ValidateLifetime = true
+            }, out SecurityToken validatedToken);
+
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            return long.Parse(jwtToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value);
         }
 
         public float GetExpireMinutesFromToken(string token)
         {
-            var principal = GetPrincipalFromToken(token);
-            var jwtToken = (JwtSecurityToken)principal.Identity;
-            return (float)jwtToken.ValidTo.Subtract(DateTime.UtcNow).TotalMinutes;
+            try
+            {
+                var principal = GetPrincipalFromToken(token);
+                var validatedToken = principal.Identities.FirstOrDefault()?.BootstrapContext as SecurityToken;
+                if (validatedToken is JwtSecurityToken jwtToken)
+                {
+                    return (float)jwtToken.ValidTo.Subtract(DateTime.UtcNow).TotalMinutes;
+                }
+                throw new SecurityTokenException("Invalid token type.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("GetExpireMinutesFromToken: " + ex.Message);
+                return 0; // Trả về 0 nếu có lỗi
+            }
         }
 
         public ClaimsPrincipal GetPrincipalFromToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfigOptions.Value.JwtKey));
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ValidateIssuer = true,
+                ValidIssuer = _jwtConfigOptions.Value.JwtIssuer,
+                ValidateAudience = true,
+                ValidAudience = _jwtConfigOptions.Value.JwtAudience,
+                ValidateLifetime = true
+            }, out SecurityToken validatedToken);
+
+            return tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ValidateIssuer = true,
+                ValidIssuer = _jwtConfigOptions.Value.JwtIssuer,
+                ValidateAudience = true,
+                ValidAudience = _jwtConfigOptions.Value.JwtAudience,
+                ValidateLifetime = true
+            }, out validatedToken);
+
+
+        }
+
+        public int GetRoleIdFromToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfigOptions.Value.JwtKey));
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ValidateIssuer = true,
+                ValidIssuer = _jwtConfigOptions.Value.JwtIssuer,
+                ValidateAudience = true,
+                ValidAudience = _jwtConfigOptions.Value.JwtAudience,
+                ValidateLifetime = true
+            }, out SecurityToken validatedToken);
+
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            return int.Parse(jwtToken.Claims.First(claim => claim.Type == "roleId").Value);
+
+        }
+
+        public bool IsTokenValid(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfigOptions.Value.JwtKey));
@@ -70,29 +144,19 @@ namespace Infrastructure.JWT
                 ValidIssuer = _jwtConfigOptions.Value.JwtIssuer,
                 ValidateAudience = true,
                 ValidAudience = _jwtConfigOptions.Value.JwtAudience,
-                ValidateLifetime = true
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero // Không cho phép sai lệch thời gian
             };
 
-            var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
-            return principal;
-        }
-
-        public int GetRoleIdFromToken(string token)
-        {
-            var principal = GetPrincipalFromToken(token);
-            return int.Parse(principal.FindFirst("roleId")?.Value ?? throw new SecurityTokenException("Invalid token"));
-        }
-
-        public bool IsTokenValid(string token)
-        {
             try
             {
-                var principal = GetPrincipalFromToken(token);
-                return true;
+                // Xác thực token
+                tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+                return true; // Token hợp lệ
             }
             catch
             {
-                return false;
+                return false; // Token không hợp lệ
             }
         }
     }

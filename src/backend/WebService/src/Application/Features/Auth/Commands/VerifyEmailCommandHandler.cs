@@ -42,6 +42,7 @@ namespace Application.Auth.Commands
         {
 
             var usrID = _jwtTokenService.GetAccountIdFromToken(command.EmailVerifyToken);
+            
 
             if (usrID == 0)
             {
@@ -51,15 +52,16 @@ namespace Application.Auth.Commands
             }
 
             var storingEmailVerifyToken = await _userRepository.GetEmailVerifyTokenByUsrID(usrID);
+            // System.Console.WriteLine("storingEmailVerifyToken: " + storingEmailVerifyToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            float expireMinutes = _jwtTokenService.GetExpireMinutesFromToken(command.EmailVerifyToken);
+            bool isValidToken = _jwtTokenService.IsTokenValid(command.EmailVerifyToken);
             if (storingEmailVerifyToken == null)
             {
                 return Result<VerifyEmailResponse>.Failure<VerifyEmailResponse>(
                     new Error("VerifyEmailError", IConstantMessage.EMAIL_VERIFY_HAVE_BEEN_VERIFIED)
                 );
             }
-            else if (storingEmailVerifyToken != command.EmailVerifyToken || expireMinutes <= 0)
+            else if (storingEmailVerifyToken != command.EmailVerifyToken || isValidToken == false)
             {
                 return Result<VerifyEmailResponse>.Failure<VerifyEmailResponse>(
                     new Error("VerifyEmailError", IConstantMessage.EMAIL_VERIFICATION_EXPIRED)
