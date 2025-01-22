@@ -46,7 +46,7 @@ namespace Application.Auth.Commands
                 var account = await _accountRepository.LoginAsync(command.Username, command.Password);
                 if (account == null)
                 {
-                    return Result<LoginResponse>.Failure<LoginResponse>(new Error("LoginError", IConstantMessage.LOGIN_FALSE));
+                    return Result<LoginResponse>.Failure<LoginResponse>(new Error("LoginError", IConstantMessage.INVALID_EMAIL_OR_PASSWORD));
                 }
 
                 // Tạo token
@@ -77,8 +77,8 @@ namespace Application.Auth.Commands
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred during login.");
-                return Result<LoginResponse>.Failure<LoginResponse>(new Error("LoginAccount", "An unexpected error occurred"));
+                _logger.LogError(ex, IConstantMessage.LOGIN_FALSE);
+                return Result<LoginResponse>.Failure<LoginResponse>(new Error("LoginAccount", IConstantMessage.LOGIN_FALSE));
             }
         }
     }

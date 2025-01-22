@@ -40,12 +40,6 @@ namespace Application.Auth.Commands
 
         public async Task<Result<VerifyEmailResponse>> Handle(VerifyEmailCommand command, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(command.EmailVerifyToken))
-            {
-                return Result<VerifyEmailResponse>.Failure<VerifyEmailResponse>(
-                    new Error("VerifyEmailError", "Email verification token is missing or invalid.")
-                );
-            }
 
             var usrID = _jwtTokenService.GetAccountIdFromToken(command.EmailVerifyToken);
 
