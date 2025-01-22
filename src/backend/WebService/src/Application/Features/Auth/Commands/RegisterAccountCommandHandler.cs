@@ -96,6 +96,13 @@ namespace Application.Auth.Commands
                     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                     // Send verification email
+                    if (user.EmailVerifyToken == null)
+                    {
+                        await transaction.RollbackAsync(cancellationToken);
+                        return Result<RegisterResponse>.Failure<RegisterResponse>(
+                            new Error("RegisterAccount", "Email verification token is null")
+                        );
+                    }
                     var emailSentSuccessfully = await SendVerificationEmailAsync(command, user.EmailVerifyToken);
                     if (!emailSentSuccessfully)
                     {

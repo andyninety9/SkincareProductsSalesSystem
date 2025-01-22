@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Application.Features.Users.Response;
 using Application.Users.Commands;
 using Application.Users.Queries;
 using AutoMapper;
@@ -18,6 +19,8 @@ namespace Application.Common.Mapper
 
             CreateMap<GetUserResponse, User>();
             CreateMap<User, GetUserResponse>();
+            CreateMap<GetMeResponse, User>();
+            CreateMap<User, GetMeResponse>();
         }
         
     }

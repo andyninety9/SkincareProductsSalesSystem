@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Application.Users.Commands;
 using Application.Users.Queries;
 using MediatR;
@@ -14,24 +15,63 @@ namespace WebApi.Controllers.Users
         public UserController(IMediator mediator) : base(mediator)
         {
         }
-        
-        // [Authorize]
-        [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] CreateUserCommand request, CancellationToken cancellationToken)
-        {
-            var result = await _mediator.Send(request, cancellationToken);
-            if (result.IsFailure)
-            {
-                return HandleFailure(result);
-            }
-            return Ok(result);
-        }
+
+        // GET: api/User/get-me
+        // Authorization: Bearer token
+        [HttpGet("get-me")]
         [Authorize]
-        [HttpGet("read")]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetMe(CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new GetAllUsersQuery(), cancellationToken);
-            return Ok(result);
+            try
+            {
+                // Kiểm tra xem User có null không
+                if (User == null)
+                {
+                    return Unauthorized(new { statusCode = 401, message = "User information not found in token." });
+                }
+
+                // Lấy giá trị của claim "sub" từ token
+                var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                // Kiểm tra xem usrID có null hoặc rỗng không
+                if (string.IsNullOrEmpty(usrID))
+                {
+                    return Unauthorized(new { statusCode = 401, message = "Invalid or missing user ID in token." });
+                }
+
+                // Kiểm tra xem usrID có phải là long hợp lệ không
+                if (!long.TryParse(usrID, out var userId))
+                {
+                    return Unauthorized(new { statusCode = 401, message = "Invalid user ID format in token." });
+                }
+
+                // In ra usrID để debug (nếu cần)
+                System.Console.WriteLine(usrID);
+
+                // Kiểm tra xem _mediator có null không
+                if (_mediator == null)
+                {
+                    return StatusCode(500, new { statusCode = 500, message = "Internal server error: Mediator is not initialized." });
+                }
+
+                // Gọi Query Handler để lấy thông tin profile người dùng
+                var query = new GetMeQuery(userId);
+                var result = await _mediator.Send(query, cancellationToken);
+
+                // Kiểm tra kết quả và trả về response
+                if (result == null || !result.IsSuccess)
+                {
+                    return BadRequest(new { statusCode = 400, message = result?.Error?.Description ?? "Failed to get user profile." });
+                }
+
+                return Ok(new { statusCode = 200, message = "Get me successfully", data = result.Value });
+            }
+            catch (Exception ex)
+            {
+                // Trả về lỗi 500 nếu có lỗi không mong muốn
+                System.Console.WriteLine(ex.Message);
+                return StatusCode(500, new { statusCode = 500, message = "An unexpected error occurred." });
+            }
         }
     }
 }
