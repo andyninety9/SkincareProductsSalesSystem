@@ -31,6 +31,11 @@ namespace Application.Constant
         public static string FORGOT_PASSWORD_TOKEN_GENERATE_FAILED = "Forgot password token generate failed";
         public static string FORGOT_PASSWORD_SUCCESS = "Forgot password success";
 
+        // User related messages
+        public static string USER_INFORMATION_NOT_FOUND = "User information not found in token";
+        public static string MISSING_USER_ID = "Invalid or missing user ID in token.";
+        public static string GET_ME_FALSE = "Cannot get user information";
+        public static string GET_ME_SUCCESS = "Get user information success";
 
 
 
@@ -49,5 +54,9 @@ namespace Application.Constant
 
         // Email related messages
         public static string EMAIL_VERIFICATION_SUCCESS = "Email verification success";
+
+        // Server related messages
+        public static string INTERNAL_SERVER_ERROR = "Internal server error";
+        public static string INTERNAL_SERVER_MEDIATOR_ERROR = "Internal server error: Mediator is not initialized.";
     }
 }
