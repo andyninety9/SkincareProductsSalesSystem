@@ -65,5 +65,55 @@ namespace WebApi.Controllers.Users
                 return StatusCode(500, new { statusCode = 500, message = "An unexpected error occurred." });
             }
         }
+
+        // POST: api/User/update-me
+        // Authorization: Bearer token
+        // Body: { "fullname": "string", "gender": "string", "email": "string", "phoneNumber": "string", "dob": "string:ISO8601"}
+        [HttpPost("update-me")]
+        [Authorize]
+        public async Task<IActionResult> UpdateMe([FromBody] UpdateMeCommand command, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (User == null)
+                {
+                    return Unauthorized(new { statusCode = 401, message = IConstantMessage.USER_INFORMATION_NOT_FOUND });
+                }
+
+                var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(usrID))
+                {
+                    return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+                }
+
+                if (!long.TryParse(usrID, out var userId))
+                {
+                    return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
+                }
+
+                if (_mediator == null)
+                {
+                    return StatusCode(500, new { statusCode = 500, message = IConstantMessage.INTERNAL_SERVER_MEDIATOR_ERROR });
+                }
+                
+                var updatedCommand = command with { UsrId = userId};
+                var result = await _mediator.Send(updatedCommand, cancellationToken);
+
+                if (result.IsFailure)
+                {
+                    return HandleFailure(result);
+                }
+                
+                var response = await _mediator.Send(new GetMeQuery(userId), cancellationToken);
+                return Ok(new { statusCode = 200, message = IConstantMessage.UPDATE_ME_SUCCESS, data = response.Value });
+                
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+                return StatusCode(500, new { statusCode = 500, message = "An unexpected error occurred." });
+            }
+        }
     }
 }

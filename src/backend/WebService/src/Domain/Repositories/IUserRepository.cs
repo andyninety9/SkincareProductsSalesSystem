@@ -23,6 +23,8 @@ namespace Domain.Repositories
 
         public Task<bool> UpdateForgotPasswordTokenAsync(long usrId, string token);
 
+        public Task<bool> UpdateUserAsync(User user, CancellationToken cancellationToken);
+
 
     }
 }

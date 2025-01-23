@@ -9,8 +9,6 @@ namespace Application.Common.Mapper
     {
         public AutoMapperProfile()
         {
-            CreateMap<CreateUserCommand, User>();
-            CreateMap<User, CreateUserCommand>();
 
             CreateMap<GetMeResponse, User>();
             CreateMap<User, GetMeResponse>();

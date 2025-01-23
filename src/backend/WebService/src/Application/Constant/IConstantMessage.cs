@@ -36,6 +36,9 @@ namespace Application.Constant
         public static string MISSING_USER_ID = "Invalid or missing user ID in token.";
         public static string GET_ME_FALSE = "Cannot get user information";
         public static string GET_ME_SUCCESS = "Get user information success";
+        public static string UPDATE_ME_FALSE = "Cannot update user information";
+        public static string UPDATE_ME_SUCCESS = "Update user information success";
+        public static string INVALID_GENDER_FORMAT = "Gender must be 1, 2 or 3";
 
 
 

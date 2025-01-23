@@ -67,6 +67,12 @@ namespace Infrastructure.Repositories
             return Task.FromResult(true);
         }
 
+        public Task<bool> UpdateUserAsync(User user, CancellationToken cancellationToken)
+        {
+            _context.Users.Update(user);
+            return Task.FromResult(true);
+        }
+
         public async Task<bool> VerifyEmail(long usrId)
         {
             var user = _context.Users.FirstOrDefault(u => u.UsrId == usrId);
