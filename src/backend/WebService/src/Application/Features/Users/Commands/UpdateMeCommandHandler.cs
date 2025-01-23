@@ -34,40 +34,41 @@ namespace Application.Users.Commands
             var user = await _userRepository.GetByIdAsync(command.UsrId, cancellationToken);
             if (user == null)
             {
-                Result<GetMeResponse>.Failure<GetMeResponse>(
-                   new Error("UpdateMe", IConstantMessage.USER_NOT_FOUND)
-               );
+                return Result.Failure(new Error("UpdateMe", IConstantMessage.USER_NOT_FOUND));
             }
-            user.Fullname = command.Fullname ?? user.Fullname;
-            user.Phone = command.PhoneNumber ?? user.Phone;
-            //Gender: 1 -> Male, 2 -> Female, 3 -> Other
-            if (command.Gender != null)
-            {
-                short inputGender = short.TryParse(command.Gender, out inputGender) ? inputGender : (short)0;
-                if (inputGender > 0 && inputGender < 4)
-                {
-                    user.Gender = inputGender;
-                }
-                else
-                {
-                    Result<GetMeResponse>.Failure<GetMeResponse>(
-                        new Error("UpdateMe", IConstantMessage.INVALID_GENDER_FORMAT));
-                }
-            }
-            if (command.Dob != null && DateOnly.TryParse(command.Dob, out DateOnly date))
-            {
-                user.Dob = date;
-            }
+
+            UpdateUserFields(user, command);
+
             user.UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
+
             bool isSuccess = await _userRepository.UpdateUserAsync(user, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            if (isSuccess)
+
+            return isSuccess
+                ? Result.Success()
+                : Result.Failure(new Error("UpdateMe", IConstantMessage.UPDATE_ME_FALSE));
+        }
+
+        private void UpdateUserFields(User user, UpdateMeCommand command)
+        {
+            if (!string.IsNullOrEmpty(command.Fullname))
             {
-                return Result<GetMeResponse>.Success();
+                user.Fullname = command.Fullname;
             }
-            else
+
+            if (!string.IsNullOrEmpty(command.PhoneNumber))
             {
-                return Result.Failure(new Error("UpdateMe", IConstantMessage.UPDATE_ME_FALSE));
+                user.Phone = command.PhoneNumber;
+            }
+
+            if (!string.IsNullOrEmpty(command.Gender) && short.TryParse(command.Gender, out short inputGender))
+            {
+                user.Gender = inputGender;
+            }
+
+            if (!string.IsNullOrEmpty(command.Dob) && DateOnly.TryParse(command.Dob, out DateOnly date))
+            {
+                user.Dob = date;
             }
         }
     }

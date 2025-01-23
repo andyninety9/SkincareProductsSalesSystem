@@ -37,8 +37,8 @@ namespace Application.Features.Users.Commands.Validations
             When(x => !string.IsNullOrEmpty(x.Fullname), () =>
             {
                 RuleFor(x => x.Fullname)
-                    .Length(1, 100)
-                    .WithMessage("Fullname must be between 1 and 100 characters");
+                    .Length(3, 100)
+                    .WithMessage("Fullname must be between 3 and 100 characters");
             });
         }
     }
