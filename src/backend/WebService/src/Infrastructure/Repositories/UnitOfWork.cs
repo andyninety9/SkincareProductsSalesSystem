@@ -14,7 +14,7 @@ namespace Infrastructure.Repositories
     {
         private readonly MyDbContext _context;
         private readonly Dictionary<Type, object> _repositories = new();
-        private IDbContextTransaction _transaction;
+        private IDbContextTransaction? _transaction;
 
         public UnitOfWork(MyDbContext context)
         {
