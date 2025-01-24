@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Application.Users.Commands;
 using FluentValidation;
 
@@ -17,8 +13,8 @@ namespace Application.Features.Users.Commands.Validations
                 .WithMessage("File must be an image (jpg, jpeg, png, gif)");
 
             RuleFor(x => x.AvatarFileData.Length)
-                .LessThanOrEqualTo(15 * 1024 * 1024)
-                .WithMessage("Image size must be less than 15MB");
+                .LessThanOrEqualTo(10 * 1024 * 1024)
+                .WithMessage("Image size must be less than 10MB");
         }
 
         private bool IsImage(byte[] fileData)

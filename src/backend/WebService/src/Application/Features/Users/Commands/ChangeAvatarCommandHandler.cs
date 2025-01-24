@@ -36,7 +36,7 @@ namespace Application.Users.Commands
         {
             _logger.LogInformation("Starting to handle ChangeAvatarCommand for User ID: {UserId}", command.UsrId);
 
-            // Tìm user
+            // Finding user
             var user = await _userRepository.GetByIdAsync(command.UsrId, cancellationToken);
             if (user == null)
             {
@@ -46,25 +46,25 @@ namespace Application.Users.Commands
 
             _logger.LogInformation("User found: {UserId}, Current Avatar URL: {AvatarUrl}", user.UsrId, user.AvatarUrl);
 
-            // Xử lý avatar cũ
+            // Process old avatar
             var oldAvatar = user.AvatarUrl;
 
             if (command.AvatarFileData == null || command.AvatarFileData.Length == 0)
             {
                 _logger.LogError("Avatar file data is null or empty for User ID: {UserId}", command.UsrId);
-                return Result.Failure(new Error("ChangeAvatarCommandHandler", "Avatar file data is invalid."));
+                return Result.Failure(new Error("ChangeAvatarCommandHandler", IConstantMessage.AVATAR_FILE_INVALID));
             }
 
             try
             {
                 _logger.LogInformation("Avatar file data length: {Length}", command.AvatarFileData.Length);
 
-                // Xây dựng đường dẫn lưu file trong bucket
+                // Create new file path
                 var folderName = "avatar";
                 var newFileName = $"{folderName}/{command.UsrId}/{Guid.NewGuid()}{Path.GetExtension(command.FileName)}";
                 _logger.LogInformation("Generated new file path: {FilePath}", newFileName);
 
-                // Upload avatar mới
+                // Upload file to S3
                 string newAvatarUrl;
                 using (var memoryStream = new MemoryStream(command.AvatarFileData))
                 {
@@ -74,16 +74,18 @@ namespace Application.Users.Commands
 
                 _logger.LogInformation("New Avatar URL: {NewAvatar}", newAvatarUrl);
 
-                // Cập nhật avatar mới cho user
+                // Fetching user and updating avatar URL
                 user.AvatarUrl = newAvatarUrl;
                 _userRepository.Update(user);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                // Xóa avatar cũ nếu có
+                // Delete old avatar
                 if (!string.IsNullOrEmpty(oldAvatar))
                 {
                     _logger.LogInformation("Deleting old avatar: {OldAvatar}", oldAvatar);
-                    await _cloudStorageService.DeleteFileAsync(oldAvatar, cancellationToken);
+                    var bucketUrl = $"https://mavid-webapp.s3.ap-southeast-1.amazonaws.com/";
+                    var fileKey = oldAvatar.Replace(bucketUrl, "");
+                    await _cloudStorageService.DeleteFileAsync(fileKey, cancellationToken);
                 }
 
                 _logger.LogInformation("ChangeAvatarCommand handled successfully for User ID: {UserId}", command.UsrId);
@@ -92,12 +94,12 @@ namespace Application.Users.Commands
             catch (AmazonS3Exception ex)
             {
                 _logger.LogError(ex, "Amazon S3 error occurred while uploading file {FileName}. StatusCode: {StatusCode}, ErrorCode: {ErrorCode}", command.FileName, ex.StatusCode, ex.ErrorCode);
-                return Result.Failure(new Error("ChangeAvatarCommandHandler", "Failed to upload avatar due to S3 error."));
+                return Result.Failure(new Error("ChangeAvatarCommandHandler", IConstantMessage.FILE_UPLOAD_FALSE_ON_S3));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An unexpected error occurred while handling ChangeAvatarCommand for User ID: {UserId}", command.UsrId);
-                return Result.Failure(new Error("ChangeAvatarCommandHandler", "An unexpected error occurred."));
+                return Result.Failure(new Error("ChangeAvatarCommandHandler", IConstantMessage.INTERNAL_SERVER_ERROR));
             }
         }
     }
