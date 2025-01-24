@@ -2,15 +2,10 @@ using Amazon.S3;
 using Application.Abstractions.Cloud;
 using Application.Abstractions.Messaging;
 using Application.Abstractions.UnitOfWork;
-using Application.Common;
 using Application.Common.ResponseModel;
 using Application.Constant;
-using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.Extensions.Logging;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Application.Users.Commands
 {
@@ -41,6 +36,7 @@ namespace Application.Users.Commands
         {
             _logger.LogInformation("Starting to handle ChangeAvatarCommand for User ID: {UserId}", command.UsrId);
 
+            // Tìm user
             var user = await _userRepository.GetByIdAsync(command.UsrId, cancellationToken);
             if (user == null)
             {
@@ -50,41 +46,44 @@ namespace Application.Users.Commands
 
             _logger.LogInformation("User found: {UserId}, Current Avatar URL: {AvatarUrl}", user.UsrId, user.AvatarUrl);
 
+            // Xử lý avatar cũ
             var oldAvatar = user.AvatarUrl;
-            _logger.LogInformation("Old Avatar URL: {OldAvatar}", oldAvatar);
+
+            if (command.AvatarFileData == null || command.AvatarFileData.Length == 0)
+            {
+                _logger.LogError("Avatar file data is null or empty for User ID: {UserId}", command.UsrId);
+                return Result.Failure(new Error("ChangeAvatarCommandHandler", "Avatar file data is invalid."));
+            }
 
             try
             {
-                // Check if AvatarFileData is valid
-                if (command.AvatarFileData == null || command.AvatarFileData.Length == 0)
-                {
-                    _logger.LogError("Avatar file data is null or empty for User ID: {UserId}", command.UsrId);
-                    return Result.Failure(new Error("ChangeAvatarCommandHandler", "Avatar file data is invalid."));
-                }
-
                 _logger.LogInformation("Avatar file data length: {Length}", command.AvatarFileData.Length);
 
-                // Upload new avatar
-                _logger.LogInformation("Uploading new avatar for User ID: {UserId}", command.UsrId);
+                // Xây dựng đường dẫn lưu file trong bucket
+                var folderName = "avatar";
+                var newFileName = $"{folderName}/{command.UsrId}/{Guid.NewGuid()}{Path.GetExtension(command.FileName)}";
+                _logger.LogInformation("Generated new file path: {FilePath}", newFileName);
+
+                // Upload avatar mới
+                string newAvatarUrl;
                 using (var memoryStream = new MemoryStream(command.AvatarFileData))
                 {
-                    _logger.LogInformation("File stream length: {Length}", memoryStream.Length);
-                    var newAvatar = await _cloudStorageService.UploadFileAsync(memoryStream, command.FileName, cancellationToken);
-                    _logger.LogInformation("New Avatar URL: {NewAvatar}", newAvatar);
-
-                    // Update user's avatar URL
-                    user.AvatarUrl = newAvatar;
-                    _userRepository.Update(user);
-                    await _unitOfWork.SaveChangesAsync(cancellationToken);
-                    _logger.LogInformation("Avatar URL updated successfully for User ID: {UserId}", command.UsrId);
+                    _logger.LogInformation("Uploading file for User ID: {UserId}", command.UsrId);
+                    newAvatarUrl = await _cloudStorageService.UploadFileAsync(memoryStream, "avatar", command.UsrId.ToString(), newFileName, cancellationToken);
                 }
 
-                // Delete old avatar if it exists
+                _logger.LogInformation("New Avatar URL: {NewAvatar}", newAvatarUrl);
+
+                // Cập nhật avatar mới cho user
+                user.AvatarUrl = newAvatarUrl;
+                _userRepository.Update(user);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                // Xóa avatar cũ nếu có
                 if (!string.IsNullOrEmpty(oldAvatar))
                 {
                     _logger.LogInformation("Deleting old avatar: {OldAvatar}", oldAvatar);
                     await _cloudStorageService.DeleteFileAsync(oldAvatar, cancellationToken);
-                    _logger.LogInformation("Old avatar deleted successfully: {OldAvatar}", oldAvatar);
                 }
 
                 _logger.LogInformation("ChangeAvatarCommand handled successfully for User ID: {UserId}", command.UsrId);
@@ -97,7 +96,7 @@ namespace Application.Users.Commands
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while handling ChangeAvatarCommand for User ID: {UserId}", command.UsrId);
+                _logger.LogError(ex, "An unexpected error occurred while handling ChangeAvatarCommand for User ID: {UserId}", command.UsrId);
                 return Result.Failure(new Error("ChangeAvatarCommandHandler", "An unexpected error occurred."));
             }
         }

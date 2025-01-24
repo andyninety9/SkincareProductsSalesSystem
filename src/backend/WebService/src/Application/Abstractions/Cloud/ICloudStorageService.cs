@@ -7,7 +7,7 @@ namespace Application.Abstractions.Cloud
 {
     public interface ICloudStorageService
     {
-        Task<string> UploadFileAsync(Stream fileStream, string fileName, CancellationToken cancellationToken);
+        Task<string> UploadFileAsync(Stream fileStream, string folderName, string id, string fileName, CancellationToken cancellationToken);
         Task DeleteFileAsync(string fileName, CancellationToken cancellationToken);
         string GetFileUrl(string fileName);
     }

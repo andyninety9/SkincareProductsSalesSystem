@@ -7,6 +7,6 @@ namespace WebApi.DTOs
 {
     public class ChangeAvatarRequest
     {
-        public IFormFile AvatarFile { get; set; }
+        public required IFormFile AvatarFile { get; set; }
     }
 }
