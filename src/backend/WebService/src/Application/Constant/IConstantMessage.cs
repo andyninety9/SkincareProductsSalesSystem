@@ -39,6 +39,7 @@ namespace Application.Constant
         public static string UPDATE_ME_FALSE = "Cannot update user information";
         public static string UPDATE_ME_SUCCESS = "Update user information success";
         public static string INVALID_GENDER_FORMAT = "Gender must be 1, 2 or 3";
+        public static string CHANGE_AVATAR_SUCCESS = "Change avatar success";
 
 
 

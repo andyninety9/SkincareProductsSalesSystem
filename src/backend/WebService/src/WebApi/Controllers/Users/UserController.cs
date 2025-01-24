@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Common;
+using WebApi.DTOs;
 
 namespace WebApi.Controllers.Users
 {
@@ -108,6 +109,68 @@ namespace WebApi.Controllers.Users
                 var response = await _mediator.Send(new GetMeQuery(userId), cancellationToken);
                 return Ok(new { statusCode = 200, message = IConstantMessage.UPDATE_ME_SUCCESS, data = response.Value });
                 
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+                return StatusCode(500, new { statusCode = 500, message = "An unexpected error occurred." });
+            }
+        }
+
+        //POST: api/User/change-avatar
+        //Authorization: Bearer token
+        //Body: { AvatarFile: "file" }
+        [HttpPost("change-avatar")]
+        [Authorize]
+        public async Task<IActionResult> ChangeAvatar([FromForm] ChangeAvatarRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (request.AvatarFile == null || request.AvatarFile.Length == 0)
+                {
+                    return BadRequest(new { statusCode = 400, message = "No file uploaded." });
+                }
+
+                var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(usrID))
+                {
+                    return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+                }
+
+                var userId = long.Parse(usrID);
+
+                // Chuyển đổi IFormFile thành byte[]
+                byte[] fileData;
+                try
+                {
+                    using var memoryStream = new MemoryStream();
+                    await request.AvatarFile.CopyToAsync(memoryStream, cancellationToken);
+                    fileData = memoryStream.ToArray();
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine($"Error processing file: {ex.Message}");
+                    return StatusCode(500, new { statusCode = 500, message = "Error processing uploaded file." });
+                }
+
+                // Tạo command
+                var command = new ChangeAvatarCommand(
+                    UsrId: userId,
+                    AvatarFileData: fileData,
+                    FileName: request.AvatarFile.FileName
+                );
+
+                // Gửi command
+                var result = await _mediator.Send(command, cancellationToken);
+
+                if (result.IsFailure)
+                {
+                    return HandleFailure(result);
+                }
+
+                // Trả về thông tin user sau khi cập nhật
+                var response = await _mediator.Send(new GetMeQuery(userId), cancellationToken);
+                return Ok(new { statusCode = 200, message = "Avatar updated successfully.", data = response.Value });
             }
             catch (Exception ex)
             {

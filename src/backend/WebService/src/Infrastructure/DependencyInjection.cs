@@ -21,6 +21,9 @@ using Amazon.SimpleEmail;
 using Amazon.Runtime;
 using Amazon;
 using Application.Abstractions.AWS;
+using Infrastructure.Cloud;
+using Application.Abstractions.Cloud;
+using Amazon.S3;
 
 namespace Infrastructure
 {
@@ -83,6 +86,27 @@ namespace Infrastructure
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.JwtKey))
                 };
             });
+
+            // Config AWS S3
+            services.AddSingleton<AwsS3Config>();
+            var awsConfig = services.BuildServiceProvider().GetRequiredService<AwsS3Config>();
+
+            services.AddSingleton<IAmazonS3>(provider =>
+            {
+                var config = new AmazonS3Config
+                {
+                    RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(awsConfig.Region)
+                };
+                return new AmazonS3Client(
+                    awsConfig.AccessKey,
+                    awsConfig.SecretKey,
+                    config
+                );
+            });
+
+            // Config CloudStorageService
+            services.AddTransient<ICloudStorageService, CloudStorageService>();
+
 
             // Config Redis
             services.AddSingleton<RedisConfigService>();
