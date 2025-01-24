@@ -11,10 +11,10 @@ namespace Infrastructure.Cloud
 
         public AwsS3Config()
         {
-            BucketName = GetEnvironmentVariable("AWS_BUCKET_NAME");
-            AccessKey = GetEnvironmentVariable("AWS_ACCESS_KEY");
-            SecretKey = GetEnvironmentVariable("AWS_SECRET_KEY");
-            Region = GetEnvironmentVariable("AWS_REGION");
+            BucketName = GetEnvironmentVariable("AWS_BUCKET_NAME_S3");
+            AccessKey = GetEnvironmentVariable("AWS_ACCESS_KEY_S3");
+            SecretKey = GetEnvironmentVariable("AWS_SECRET_KEY_S3");
+            Region = GetEnvironmentVariable("AWS_REGION_S3");
         }
 
         private string GetEnvironmentVariable(string variableName)
