@@ -150,7 +150,7 @@ namespace WebApi.Controllers.Users
                 catch (Exception ex)
                 {
                     System.Console.WriteLine($"Error processing file: {ex.Message}");
-                    return StatusCode(500, new { statusCode = 500, message = "Error processing uploaded file." });
+                    return StatusCode(500, new { statusCode = 500, message = IConstantMessage.UPLOAD_FILE_FALSE });
                 }
 
                 // Tạo command
@@ -170,7 +170,68 @@ namespace WebApi.Controllers.Users
 
                 // Trả về thông tin user sau khi cập nhật
                 var response = await _mediator.Send(new GetMeQuery(userId), cancellationToken);
-                return Ok(new { statusCode = 200, message = "Avatar updated successfully.", data = response.Value });
+                return Ok(new { statusCode = 200, message = IConstantMessage.CHANGE_AVATAR_SUCCESS, data = response.Value });
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+                return StatusCode(500, new { statusCode = 500, message = "An unexpected error occurred." });
+            }
+        }
+        //POST: api/User/change-cover
+        //Authorization: Bearer token
+        //Body: { CoverFile: "file" }
+        [HttpPost("change-cover")]
+        [Authorize]
+        public async Task<IActionResult> ChangeCover([FromForm] ChangeCoverRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (request.CoverFile == null || request.CoverFile.Length == 0)
+                {
+                    return BadRequest(new { statusCode = 400, message = "No file uploaded." });
+                }
+
+                var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(usrID))
+                {
+                    return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+                }
+
+                var userId = long.Parse(usrID);
+
+                // Chuyển đổi IFormFile thành byte[]
+                byte[] fileData;
+                try
+                {
+                    using var memoryStream = new MemoryStream();
+                    await request.CoverFile.CopyToAsync(memoryStream, cancellationToken);
+                    fileData = memoryStream.ToArray();
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine($"Error processing file: {ex.Message}");
+                    return StatusCode(500, new { statusCode = 500, message = IConstantMessage.UPLOAD_FILE_FALSE });
+                }
+
+                // Tạo command
+                var command = new ChangeCoverCommand(
+                    UsrId: userId,
+                    CoverFileData: fileData,
+                    FileName: request.CoverFile.FileName
+                );
+
+                // Gửi command
+                var result = await _mediator.Send(command, cancellationToken);
+
+                if (result.IsFailure)
+                {
+                    return HandleFailure(result);
+                }
+
+                // Trả về thông tin user sau khi cập nhật
+                var response = await _mediator.Send(new GetMeQuery(userId), cancellationToken);
+                return Ok(new { statusCode = 200, message = IConstantMessage.CHANGE_AVATAR_SUCCESS, data = response.Value });
             }
             catch (Exception ex)
             {

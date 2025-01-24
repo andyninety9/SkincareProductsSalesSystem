@@ -68,7 +68,7 @@ namespace Infrastructure.Cloud
             try
             {
                 // Xây dựng đường dẫn key theo thư mục và id
-                var filePath = $"{folderName}/{id}/{fileName}";
+                var filePath = $"{fileName}";
 
                 _logger.LogInformation("Uploading file {FileName} to bucket {BucketName} in path {FilePath}", fileName, _awsConfig.BucketName, filePath);
 
