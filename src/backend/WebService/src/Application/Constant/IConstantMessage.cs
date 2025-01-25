@@ -44,6 +44,7 @@ namespace Application.Constant
         public static string COVER_FILE_INVALID = "Avatar file data is invalid.";
         public static string FILE_UPLOAD_FALSE_ON_S3 = "Failed to upload avatar due to S3 error.";
         public static string UPLOAD_FILE_FALSE = "Error processing uploaded file.";
+        public static string PHONE_NUMBER_EXISTED = "Phone number existed";
 
 
 

@@ -6,7 +6,7 @@
             "DownstreamScheme": "https",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "https://web-service-swp-v1-0-0.onrender.com",
+                    "Host": "web-service-swp-v1-0-0.onrender.com",
                     "Port": 443
                 }
             ],
@@ -18,7 +18,7 @@
             "DownstreamScheme": "https",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "https://web-service-swp-v1-0-0.onrender.com",
+                    "Host": "web-service-swp-v1-0-0.onrender.com",
                     "Port": 443
                 }
             ],
@@ -30,7 +30,7 @@
             "DownstreamScheme": "https",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "https://web-service-swp-v1-0-0.onrender.com",
+                    "Host": "web-service-swp-v1-0-0.onrender.com",
                     "Port": 443
                 }
             ],

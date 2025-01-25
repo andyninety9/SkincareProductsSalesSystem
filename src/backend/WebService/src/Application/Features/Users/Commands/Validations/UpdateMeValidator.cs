@@ -40,6 +40,14 @@ namespace Application.Features.Users.Commands.Validations
                     .Length(3, 100)
                     .WithMessage("Fullname must be between 3 and 100 characters");
             });
+
+            // Validate Email only if it is provided
+            When(x => !string.IsNullOrEmpty(x.Email), () =>
+            {
+                RuleFor(x => x.Email)
+                    .EmailAddress()
+                    .WithMessage("Invalid email address");
+            });
         }
     }
 }
