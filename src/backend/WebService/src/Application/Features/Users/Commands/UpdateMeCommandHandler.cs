@@ -116,7 +116,7 @@ namespace Application.Users.Commands
                 await _emailService.SendEmailAsync(new EmailModel
                 {
                     From = Environment.GetEnvironmentVariable("AWS_SES_EMAIL") ?? throw new InvalidOperationException("AWS_SES_EMAIL environment variable is not set"),
-                    To = command.Email,
+                    To = command.Email ?? throw new InvalidOperationException("Email cannot be null when sending verification email"),
                     Subject = "[MAVID SKINCARE] Verify Your Email",
                     Body = emailBody
                 });

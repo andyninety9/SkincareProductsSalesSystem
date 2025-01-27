@@ -52,6 +52,18 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
-        
+
+        public async Task<bool> UpdateNewPasswordAsync(long accountId, string newPassword)
+        {
+            Account? account = await _context.Accounts.FirstOrDefaultAsync(a => a.AccId == accountId);
+            if (account == null)
+            {
+                return false;
+            }
+            account.Password = newPassword;
+            _context.Accounts.Update(account);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

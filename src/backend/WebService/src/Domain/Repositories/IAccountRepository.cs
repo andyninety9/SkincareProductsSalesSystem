@@ -10,5 +10,7 @@ namespace Domain.Repositories
         public Task<Account?> LoginAsync(string username, String password);
 
         public Task<bool> UpdateAccountStatusId(long accountId, short statusID);
+
+        public Task<bool> UpdateNewPasswordAsync(long accountId, string newPassword);
     }
 }

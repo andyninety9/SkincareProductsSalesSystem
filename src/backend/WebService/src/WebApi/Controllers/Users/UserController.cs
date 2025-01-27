@@ -100,6 +100,7 @@ namespace WebApi.Controllers.Users
                 {
                     return StatusCode(500, new { statusCode = 500, message = IConstantMessage.INTERNAL_SERVER_MEDIATOR_ERROR });
                 }
+                System.Console.WriteLine("user id: " + userId);
                 
                 var updatedCommand = command with { UsrId = userId};
                 var result = await _mediator.Send(updatedCommand, cancellationToken);
@@ -142,7 +143,6 @@ namespace WebApi.Controllers.Users
 
                 var userId = long.Parse(usrID);
 
-                // Chuyển đổi IFormFile thành byte[]
                 byte[] fileData;
                 try
                 {
@@ -156,14 +156,12 @@ namespace WebApi.Controllers.Users
                     return StatusCode(500, new { statusCode = 500, message = IConstantMessage.UPLOAD_FILE_FALSE });
                 }
 
-                // Tạo command
                 var command = new ChangeAvatarCommand(
                     UsrId: userId,
                     AvatarFileData: fileData,
                     FileName: request.AvatarFile.FileName
                 );
 
-                // Gửi command
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (result.IsFailure)
@@ -171,7 +169,6 @@ namespace WebApi.Controllers.Users
                     return HandleFailure(result);
                 }
 
-                // Trả về thông tin user sau khi cập nhật
                 var response = await _mediator.Send(new GetMeQuery(userId), cancellationToken);
                 return Ok(new { statusCode = 200, message = IConstantMessage.CHANGE_AVATAR_SUCCESS, data = response.Value });
             }
@@ -203,7 +200,6 @@ namespace WebApi.Controllers.Users
 
                 var userId = long.Parse(usrID);
 
-                // Chuyển đổi IFormFile thành byte[]
                 byte[] fileData;
                 try
                 {
@@ -217,14 +213,12 @@ namespace WebApi.Controllers.Users
                     return StatusCode(500, new { statusCode = 500, message = IConstantMessage.UPLOAD_FILE_FALSE });
                 }
 
-                // Tạo command
                 var command = new ChangeCoverCommand(
                     UsrId: userId,
                     CoverFileData: fileData,
                     FileName: request.CoverFile.FileName
                 );
 
-                // Gửi command
                 var result = await _mediator.Send(command, cancellationToken);
 
                 if (result.IsFailure)
@@ -232,9 +226,57 @@ namespace WebApi.Controllers.Users
                     return HandleFailure(result);
                 }
 
-                // Trả về thông tin user sau khi cập nhật
                 var response = await _mediator.Send(new GetMeQuery(userId), cancellationToken);
                 return Ok(new { statusCode = 200, message = IConstantMessage.CHANGE_AVATAR_SUCCESS, data = response.Value });
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+                return StatusCode(500, new { statusCode = 500, message = "An unexpected error occurred." });
+            }
+        }
+
+        //POST: api/User/change-password
+        //Authorization: Bearer token
+        //Body: { "oldPassword": "string", "newPassword": "string", "confirmPassword": "string" }
+        [HttpPost("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (User == null)
+                {
+                    return Unauthorized(new { statusCode = 401, message = IConstantMessage.USER_INFORMATION_NOT_FOUND });
+                }
+
+                var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(usrID))
+                {
+                    return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+                }
+
+                if (!long.TryParse(usrID, out var userId))
+                {
+                    return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
+                }
+
+                if (_mediator == null)
+                {
+                    return StatusCode(500, new { statusCode = 500, message = IConstantMessage.INTERNAL_SERVER_MEDIATOR_ERROR });
+                }
+
+                var command = request with { UsrId = userId };
+
+                var result = await _mediator.Send(command, cancellationToken);
+
+                if (result.IsFailure)
+                {
+                    return HandleFailure(result);
+                }
+
+                return Ok(new { statusCode = 200, message = IConstantMessage.CHANGE_PASSWORD_SUCCESS });
             }
             catch (Exception ex)
             {
