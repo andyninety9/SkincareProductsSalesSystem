@@ -1,7 +1,10 @@
 using System.Security.Claims;
+using Application.Attributes;
 using Application.Constant;
 using Application.Users.Commands;
 using Application.Users.Queries;
+using Domain.Entities;
+using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -239,5 +242,17 @@ namespace WebApi.Controllers.Users
                 return StatusCode(500, new { statusCode = 500, message = "An unexpected error occurred." });
             }
         }
+
+        //POST: api/User/all-users/{page}/{limit}
+        //Authorization: Bearer token
+        [HttpGet("all-users/{page}/{limit}")]
+        [Authorize]
+        [AuthorizeRole(RoleType.Customer)]
+        public async Task<IActionResult> GetAllUsers(int page, int limit, CancellationToken cancellationToken)
+        {
+            await Task.Delay(1000);
+            return Ok("Get all users successfully, page: " + page + ", limit: " + limit);
+        }
+
     }
 }
