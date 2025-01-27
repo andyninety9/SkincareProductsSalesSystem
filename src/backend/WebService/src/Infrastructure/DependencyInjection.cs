@@ -24,6 +24,8 @@ using Application.Abstractions.AWS;
 using Infrastructure.Cloud;
 using Application.Abstractions.Cloud;
 using Amazon.S3;
+using Application.Abstractions.Authorization;
+using Infrastructure.Authorization;
 
 namespace Infrastructure
 {
@@ -39,6 +41,8 @@ namespace Infrastructure
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 
+            //DI IAuthorizationService
+            services.AddScoped<IAuthorizationService, AuthorizationService>();
 
             string solutionDirectory = Directory.GetParent(Directory.GetCurrentDirectory())?.FullName ?? "";
             if (solutionDirectory != null)
