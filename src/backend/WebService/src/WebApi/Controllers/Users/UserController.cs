@@ -292,10 +292,9 @@ namespace WebApi.Controllers.Users
         // Query String: ?page={int}&limit={int}
         [HttpGet("all-users")]
         [Authorize]
-        [AuthorizeRole(RoleType.Manager)]
+        [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
         public async Task<IActionResult> GetAllUsers(CancellationToken cancellationToken, [FromQuery] int page = 1, [FromQuery] int limit = 10)
         {
-            // Kiểm tra giá trị page và limit
             if (page <= 0 || limit <= 0)
             {
                 return BadRequest(new { statusCode = 400, message = "Page and limit must be greater than 0." });
@@ -304,7 +303,6 @@ namespace WebApi.Controllers.Users
             var query = new GetAllUsersQuery(new PaginationParams { Page = page, PageSize = limit });
             var result = await _mediator.Send(query, cancellationToken);
 
-            // Trả về kết quả
             if (!result.IsSuccess)
             {
                 return BadRequest(new { statusCode = 400, message = result.Error.Description });
@@ -312,6 +310,8 @@ namespace WebApi.Controllers.Users
 
             return Ok(new { statusCode = 200, message = "Get all users successfully", data = result.Value });
         }
+
+       
 
     }
 }

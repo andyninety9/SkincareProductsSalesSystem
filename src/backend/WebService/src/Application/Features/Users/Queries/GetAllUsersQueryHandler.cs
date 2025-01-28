@@ -10,6 +10,7 @@ using Application.Features.Users.Response;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Domain.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Users.Queries
@@ -21,17 +22,26 @@ namespace Application.Users.Queries
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public GetAllUsersQueryHandler(IUserRepository userRepository, IMapper mapper)
+        public GetAllUsersQueryHandler(IUserRepository userRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
 
             _userRepository = userRepository;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Result<PagedResult<GetAllUsersResponse>>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
+            var currentUserRoleId = int.Parse(_httpContextAccessor.HttpContext?.User.FindFirst("roleId")?.Value ?? "0");
+
             var query = _userRepository.GetAllUsers();
+
+            if (currentUserRoleId == 2)
+            {
+                query = query.Where(user => user.Usr.Role.RoleId == 3);
+            }
 
             var totalItems = await query.CountAsync(cancellationToken);
 
