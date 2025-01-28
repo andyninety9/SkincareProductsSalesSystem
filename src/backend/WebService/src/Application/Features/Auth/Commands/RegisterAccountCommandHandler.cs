@@ -187,10 +187,11 @@ namespace Application.Auth.Commands
         {
             try
             {
+                var endpointUrl = Environment.GetEnvironmentVariable("ENDPOINT_URL") ?? throw new InvalidOperationException("ENDPOINT_URL environment variable is not set");
                 var emailBody = EmailTemplate.GenerateEmailVerifyTokenHtml(
                     username: command.Username,
                     verifyToken: emailVerifyToken,
-                    baseUrl: "http://localhost:5019/swagger/api/Authen/verify-email"
+                    baseUrl: endpointUrl + "/api/Authen/verify-email"
                 );
 
                 await _emailService.SendEmailAsync(new EmailModel

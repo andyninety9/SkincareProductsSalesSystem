@@ -83,7 +83,7 @@ namespace Application.Common.Email
 
         public static string GenerateEmailVerifyTokenHtml(string username, string verifyToken, string baseUrl)
         {
-            string verifyLink = $"{baseUrl}/verify-email?token={verifyToken}";
+            string verifyLink = $"{baseUrl}/verify-email/{verifyToken}";
             string emailHtml = $@"
     <!DOCTYPE html>
     <html lang='en'>

@@ -78,10 +78,11 @@ namespace Application.Auth.Commands
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             try
             {
+                var endpointUrl = Environment.GetEnvironmentVariable("ENDPOINT_WEBAPP_URL") ?? throw new InvalidOperationException("ENDPOINT_WEBAPP_URL environment variable is not set");
                 var emailBody = EmailTemplate.GenerateForgotPasswordEmailHtml(
                     username: account.Username,
                     resetToken: newForgotPasswordToken,
-                    baseUrl: "http://localhost:3000/reset-password"
+                    baseUrl: endpointUrl + "/reset-password"
                 );
                 await _emailService.SendEmailAsync(new EmailModel
                 {

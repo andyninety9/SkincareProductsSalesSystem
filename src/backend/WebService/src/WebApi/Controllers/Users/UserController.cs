@@ -289,7 +289,7 @@ namespace WebApi.Controllers.Users
         //Authorization: Bearer token
         [HttpGet("all-users/{page}/{limit}")]
         [Authorize]
-        [AuthorizeRole(RoleType.Customer)]
+        [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
         public async Task<IActionResult> GetAllUsers(int page, int limit, CancellationToken cancellationToken)
         {
             await Task.Delay(1000);
