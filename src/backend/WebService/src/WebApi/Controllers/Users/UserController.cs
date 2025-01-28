@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Application.Attributes;
+using Application.Common.Paginations;
 using Application.Constant;
 using Application.Users.Commands;
 using Application.Users.Queries;
@@ -285,15 +286,31 @@ namespace WebApi.Controllers.Users
             }
         }
 
-        //POST: api/User/all-users/{page}/{limit}
-        //Authorization: Bearer token
-        [HttpGet("all-users/{page}/{limit}")]
+        // GET: api/User/all-users?page={int}&limit={int}
+        // Authorization: Bearer token
+        // Role: Manager, Staff
+        // Query String: ?page={int}&limit={int}
+        [HttpGet("all-users")]
         [Authorize]
-        [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
-        public async Task<IActionResult> GetAllUsers(int page, int limit, CancellationToken cancellationToken)
+        [AuthorizeRole(RoleType.Manager)]
+        public async Task<IActionResult> GetAllUsers(CancellationToken cancellationToken, [FromQuery] int page = 1, [FromQuery] int limit = 10)
         {
-            await Task.Delay(1000);
-            return Ok("Get all users successfully, page: " + page + ", limit: " + limit);
+            // Kiểm tra giá trị page và limit
+            if (page <= 0 || limit <= 0)
+            {
+                return BadRequest(new { statusCode = 400, message = "Page and limit must be greater than 0." });
+            }
+
+            var query = new GetAllUsersQuery(new PaginationParams { Page = page, PageSize = limit });
+            var result = await _mediator.Send(query, cancellationToken);
+
+            // Trả về kết quả
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error.Description });
+            }
+
+            return Ok(new { statusCode = 200, message = "Get all users successfully", data = result.Value });
         }
 
     }

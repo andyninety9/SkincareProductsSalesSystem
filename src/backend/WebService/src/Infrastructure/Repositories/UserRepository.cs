@@ -2,6 +2,7 @@ using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Common;
 using Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -9,6 +10,11 @@ namespace Infrastructure.Repositories
     {
         public UserRepository(MyDbContext context) : base(context)
         {
+        }
+
+        public IQueryable<User> GetAllUsers()
+        {
+            return _context.Users.AsNoTracking().Include(user => user.Usr); ;
         }
 
         public Task<User> GetByEmailAsync(string email)

@@ -25,7 +25,7 @@ namespace Domain.Repositories
 
         public Task<bool> UpdateUserAsync(User user, CancellationToken cancellationToken);
 
-        
+        public IQueryable<User> GetAllUsers();
 
 
     }
