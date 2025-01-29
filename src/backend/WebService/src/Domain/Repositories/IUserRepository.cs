@@ -27,7 +27,9 @@ namespace Domain.Repositories
 
         public IQueryable<User> GetAllUsers();
 
-        public IQueryable<User> SearchUsers(string keyword);
+        public IQueryable<User> SearchUsers(string? keyword = null, int? page = null, int? limit = null,
+            string? gender = null, int? status = null, int? role = null,
+            DateTime? fromDate = null, DateTime? toDate = null);
 
 
     }

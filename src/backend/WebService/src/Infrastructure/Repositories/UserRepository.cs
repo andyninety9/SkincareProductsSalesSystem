@@ -53,16 +53,31 @@ namespace Infrastructure.Repositories
             return Task.FromResult(user != null);
         }
 
-        public IQueryable<User> SearchUsers(string keyword)
+        public IQueryable<User> SearchUsers(string? keyword = null, int? page = null, int? limit = null, 
+            string? gender = null, int? status = null, int? role = null,
+            DateTime? fromDate = null, DateTime? toDate = null)
         {
-            return _context.Users.AsNoTracking()
-            .Include(user => user.Usr)
-            .Where(user => 
-                user.UsrId.ToString().Contains(keyword) || 
-                (user.Fullname ?? string.Empty).Contains(keyword) ||
-                (user.Phone ?? string.Empty).Contains(keyword) ||
-                (user.Email ?? string.Empty).Contains(keyword) ||
-                (user.Usr.Username ?? string.Empty).Contains(keyword));
+            var query = _context.Users.AsNoTracking()
+                .Include(user => user.Usr)
+                .Where(user => 
+                    (string.IsNullOrEmpty(keyword) || 
+                    user.UsrId.ToString().Contains(keyword) || 
+                    (user.Fullname ?? string.Empty).Contains(keyword) ||
+                    (user.Phone ?? string.Empty).Contains(keyword) ||
+                    (user.Email ?? string.Empty).Contains(keyword) ||
+                    (user.Usr.Username ?? string.Empty).Contains(keyword))
+                    && (gender == null || user.Gender == short.Parse(gender))
+                    && (status == null || (int)user.Usr.AccStatusId == status)
+                    && (role == null || (int)user.Usr.RoleId == role)
+                    && (!fromDate.HasValue || user.Dob >= DateOnly.FromDateTime(fromDate.Value))
+                    && (!toDate.HasValue || user.Dob <= DateOnly.FromDateTime(toDate.Value)));
+
+            if (page.HasValue && limit.HasValue)
+            {
+                query = query.Skip((page.Value - 1) * limit.Value).Take(limit.Value);
+            }
+
+            return query;
         }
 
         public Task<bool> UpdateEmailVerifyTokenAsync(long usrId, string token)

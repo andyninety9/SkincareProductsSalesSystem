@@ -314,18 +314,35 @@ namespace WebApi.Controllers.Users
         //GET: api/User/search-users?keyword={string}&page={int}&limit={int}
         //Authorization: Bearer token
         //Role: Manager, Staff
-        //Query String: ?keyword={string}&page={int}&limit={int}
+        //Query String: ?keyword={string}&page={int}&limit={int}&gender={string}&status={int}&role={int}&fromDate={ISO8601}&toDate={ISO8601}
         [HttpGet("search-users")]
         [Authorize]
         [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
-        public async Task<IActionResult> SearchUsers(CancellationToken cancellationToken, [FromQuery] string keyword, [FromQuery] int page = 1, [FromQuery] int limit = 10)
+        public async Task<IActionResult> SearchUsers(
+            CancellationToken cancellationToken,
+            [FromQuery] string keyword,
+            [FromQuery] int page = 1,
+            [FromQuery] int limit = 10,
+            [FromQuery] string gender = null,
+            [FromQuery] int? status = null,
+            [FromQuery] int? role = null,
+            [FromQuery] string fromDate = null,
+            [FromQuery] string toDate = null)
         {
             if (page <= 0 || limit <= 0)
             {
                 return BadRequest(new { statusCode = 400, message = "Page and limit must be greater than 0." });
             }
 
-            var query = new SearchUsersQuery(keyword, new PaginationParams { Page = page, PageSize = limit });
+            var query = new SearchUsersQuery(
+                keyword,
+                new PaginationParams { Page = page, PageSize = limit },
+                gender,
+                status,
+                role,
+                fromDate,
+                toDate
+            );
             var result = await _mediator.Send(query, cancellationToken);
 
             if (!result.IsSuccess)
@@ -335,6 +352,8 @@ namespace WebApi.Controllers.Users
 
             return Ok(new { statusCode = 200, message = "Search users successfully", data = result.Value });
         }
+
+        //GET: api/User/get-user/{usrId}
 
     }
 }

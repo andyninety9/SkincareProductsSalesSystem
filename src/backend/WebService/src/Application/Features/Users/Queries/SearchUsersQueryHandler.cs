@@ -15,8 +15,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Users.Queries
 {
-    public sealed record SearchUsersQuery(String Keyword ,PaginationParams PaginationParams)
-        : IQuery<PagedResult<GetAllUsersResponse>>;
+    public sealed record SearchUsersQuery(
+        string Keyword,
+        PaginationParams PaginationParams,
+        string Gender,
+        int? Status,
+        int? Role,
+        string FromDate,
+        string ToDate) : IQuery<PagedResult<GetAllUsersResponse>>;
 
     internal sealed class SearchUsersQueryHandler : IQueryHandler<SearchUsersQuery, PagedResult<GetAllUsersResponse>>
     {
@@ -37,6 +43,33 @@ namespace Application.Users.Queries
             var currentUserRoleId = int.Parse(_httpContextAccessor.HttpContext?.User.FindFirst("roleId")?.Value ?? "0");
 
             var query = _userRepository.SearchUsers(request.Keyword);
+
+            if (!string.IsNullOrEmpty(request.Gender))
+            {
+                query = query.Where(u => u.Gender == short.Parse(request.Gender));
+            }
+
+            if (request.Status.HasValue)
+            {
+                query = query.Where(u => u.Usr.AccStatusId == request.Status.Value);
+            }
+
+            if (request.Role.HasValue)
+            {
+                query = query.Where(u => u.Usr.Role.RoleId == request.Role.Value);
+            }
+
+            if (!string.IsNullOrEmpty(request.FromDate))
+            {
+                var fromDate = DateOnly.Parse(request.FromDate);
+                query = query.Where(u => u.Dob >= fromDate);
+            }
+
+            if (!string.IsNullOrEmpty(request.ToDate))
+            {
+                var toDate = DateOnly.Parse(request.ToDate);
+                query = query.Where(u => u.Dob <= toDate);
+            }
 
             if (currentUserRoleId == 2)
             {
