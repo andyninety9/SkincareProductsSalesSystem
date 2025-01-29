@@ -27,6 +27,8 @@ namespace Domain.Repositories
 
         public IQueryable<User> GetAllUsers();
 
+        public IQueryable<User> SearchUsers(string keyword);
+
 
     }
 }

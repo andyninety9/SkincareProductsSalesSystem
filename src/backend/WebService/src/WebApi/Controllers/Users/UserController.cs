@@ -311,7 +311,30 @@ namespace WebApi.Controllers.Users
             return Ok(new { statusCode = 200, message = "Get all users successfully", data = result.Value });
         }
 
-       
+        //GET: api/User/search-users?keyword={string}&page={int}&limit={int}
+        //Authorization: Bearer token
+        //Role: Manager, Staff
+        //Query String: ?keyword={string}&page={int}&limit={int}
+        [HttpGet("search-users")]
+        [Authorize]
+        [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
+        public async Task<IActionResult> SearchUsers(CancellationToken cancellationToken, [FromQuery] string keyword, [FromQuery] int page = 1, [FromQuery] int limit = 10)
+        {
+            if (page <= 0 || limit <= 0)
+            {
+                return BadRequest(new { statusCode = 400, message = "Page and limit must be greater than 0." });
+            }
+
+            var query = new SearchUsersQuery(keyword, new PaginationParams { Page = page, PageSize = limit });
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error.Description });
+            }
+
+            return Ok(new { statusCode = 200, message = "Search users successfully", data = result.Value });
+        }
 
     }
 }

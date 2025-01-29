@@ -53,6 +53,18 @@ namespace Infrastructure.Repositories
             return Task.FromResult(user != null);
         }
 
+        public IQueryable<User> SearchUsers(string keyword)
+        {
+            return _context.Users.AsNoTracking()
+            .Include(user => user.Usr)
+            .Where(user => 
+                user.UsrId.ToString().Contains(keyword) || 
+                (user.Fullname ?? string.Empty).Contains(keyword) ||
+                (user.Phone ?? string.Empty).Contains(keyword) ||
+                (user.Email ?? string.Empty).Contains(keyword) ||
+                (user.Usr.Username ?? string.Empty).Contains(keyword));
+        }
+
         public Task<bool> UpdateEmailVerifyTokenAsync(long usrId, string token)
         {
             User? user = _context.Users.FirstOrDefault(u => u.UsrId == usrId);
