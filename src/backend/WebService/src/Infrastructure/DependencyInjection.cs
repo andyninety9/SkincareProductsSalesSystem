@@ -26,6 +26,9 @@ using Application.Abstractions.Cloud;
 using Amazon.S3;
 using Application.Abstractions.Authorization;
 using Infrastructure.Authorization;
+using Infrastructure.ElasticSearch;
+using Nest;
+using Application.Abstractions.ElasticSearch;
 
 namespace Infrastructure
 {
@@ -38,7 +41,23 @@ namespace Infrastructure
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped(typeof(Domain.Common.IRepository<>), typeof(Repository<>));
+
+            // Đăng ký cấu hình Elasticsearch từ biến môi trường
+            services.AddSingleton<ElasticSearchConfig>();
+            var elasticConfig = services.BuildServiceProvider().GetRequiredService<ElasticSearchConfig>();
+
+            // Cấu hình Elasticsearch Client
+            var settings = new ConnectionSettings(new Uri(elasticConfig.GetElasticSearchUri()))
+                .DefaultIndex("users") // Đặt index mặc định
+                .DisableDirectStreaming()
+                .PrettyJson();
+
+            var elasticClient = new ElasticClient(settings);
+            services.AddSingleton<IElasticClient>(elasticClient);
+
+            // Đăng ký ElasticSearchService
+            services.AddScoped<IElasticSearchService, ElasticSearchService>();
 
 
             //DI IAuthorizationService
