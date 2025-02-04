@@ -33,8 +33,6 @@ public partial class Product
 
     public virtual CategoryProduct Cate { get; set; } = null!;
 
-    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
-
     public virtual ICollection<EventDetail> EventDetails { get; set; } = new List<EventDetail>();
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
@@ -43,9 +41,9 @@ public partial class Product
 
     public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
 
-    public virtual ICollection<RatingProduct> RatingProducts { get; set; } = new List<RatingProduct>();
-
     public virtual ICollection<RecommendFor> RecommendFors { get; set; } = new List<RecommendFor>();
 
     public virtual ICollection<ReturnProductDetail> ReturnProductDetails { get; set; } = new List<ReturnProductDetail>();
+
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

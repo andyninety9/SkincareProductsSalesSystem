@@ -28,8 +28,6 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<CategoryQuestion> CategoryQuestions { get; set; }
 
-    public virtual DbSet<Comment> Comments { get; set; }
-
     public virtual DbSet<DeliveryDetail> DeliveryDetails { get; set; }
 
     public virtual DbSet<DeliveryService> DeliveryServices { get; set; }
@@ -60,8 +58,6 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<QuizDetail> QuizDetails { get; set; }
 
-    public virtual DbSet<RatingProduct> RatingProducts { get; set; }
-
     public virtual DbSet<RecommendFor> RecommendFors { get; set; }
 
     public virtual DbSet<ResultDetail> ResultDetails { get; set; }
@@ -71,6 +67,8 @@ public partial class MyDbContext : DbContext
     public virtual DbSet<ReturnProduct> ReturnProducts { get; set; }
 
     public virtual DbSet<ReturnProductDetail> ReturnProductDetails { get; set; }
+
+    public virtual DbSet<Review> Reviews { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 
@@ -95,7 +93,7 @@ public partial class MyDbContext : DbContext
 
             entity.ToTable("Account");
 
-            entity.HasIndex(e => e.Username, "account_username_unique").IsUnique();
+            entity.HasIndex(e => e.Username, "Account_username_key").IsUnique();
 
             entity.Property(e => e.AccId).HasColumnName("accID");
             entity.Property(e => e.AccStatusId).HasColumnName("accStatusID");
@@ -204,29 +202,6 @@ public partial class MyDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("cateName");
             entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
-        });
-
-        modelBuilder.Entity<Comment>(entity =>
-        {
-            entity.HasKey(e => e.CommentId).HasName("Comment_pkey");
-
-            entity.ToTable("Comment");
-
-            entity.Property(e => e.CommentId).HasColumnName("commentID");
-            entity.Property(e => e.CommentContent).HasColumnName("commentContent");
-            entity.Property(e => e.CreatedAt)
-                .HasColumnType("timestamp(0) without time zone")
-                .HasColumnName("createdAt");
-            entity.Property(e => e.ProdId).HasColumnName("prodID");
-            entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(0) without time zone")
-                .HasColumnName("updatedAt");
-            entity.Property(e => e.UsrId).HasColumnName("usrID");
-
-            entity.HasOne(d => d.Prod).WithMany(p => p.Comments)
-                .HasForeignKey(d => d.ProdId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("comment_prodid_foreign");
         });
 
         modelBuilder.Entity<DeliveryDetail>(entity =>
@@ -577,23 +552,6 @@ public partial class MyDbContext : DbContext
                 .HasConstraintName("quizdetail_quizid_foreign");
         });
 
-        modelBuilder.Entity<RatingProduct>(entity =>
-        {
-            entity.HasKey(e => e.RatingProdId).HasName("RatingProduct_pkey");
-
-            entity.ToTable("RatingProduct");
-
-            entity.Property(e => e.RatingProdId).HasColumnName("ratingProdID");
-            entity.Property(e => e.ProdId).HasColumnName("prodID");
-            entity.Property(e => e.Rating).HasColumnName("rating");
-            entity.Property(e => e.UsrId).HasColumnName("usrID");
-
-            entity.HasOne(d => d.Prod).WithMany(p => p.RatingProducts)
-                .HasForeignKey(d => d.ProdId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("ratingproduct_prodid_foreign");
-        });
-
         modelBuilder.Entity<RecommendFor>(entity =>
         {
             entity.HasKey(e => e.RecForId).HasName("RecommendFor_pkey");
@@ -736,6 +694,30 @@ public partial class MyDbContext : DbContext
                 .HasConstraintName("returnproductdetail_returnid_foreign");
         });
 
+        modelBuilder.Entity<Review>(entity =>
+        {
+            entity.HasKey(e => e.ReviewId).HasName("Review_pkey");
+
+            entity.ToTable("Review");
+
+            entity.Property(e => e.ReviewId).HasColumnName("reviewID");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("createdAt");
+            entity.Property(e => e.ProdId).HasColumnName("prodID");
+            entity.Property(e => e.Rating).HasColumnName("rating");
+            entity.Property(e => e.ReviewContent).HasColumnName("reviewContent");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("updatedAt");
+            entity.Property(e => e.UsrId).HasColumnName("usrID");
+
+            entity.HasOne(d => d.Prod).WithMany(p => p.Reviews)
+                .HasForeignKey(d => d.ProdId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("comment_prodid_foreign");
+        });
+
         modelBuilder.Entity<Role>(entity =>
         {
             entity.HasKey(e => e.RoleId).HasName("Role_pkey");
@@ -793,13 +775,13 @@ public partial class MyDbContext : DbContext
 
             entity.ToTable("User");
 
-            entity.HasIndex(e => e.Email, "user_email_unique").IsUnique();
+            entity.HasIndex(e => e.EmailVerifyToken, "User_emailVerifyToken_key").IsUnique();
 
-            entity.HasIndex(e => e.EmailVerifyToken, "user_emailverifytoken_unique").IsUnique();
+            entity.HasIndex(e => e.Email, "User_email_key").IsUnique();
 
-            entity.HasIndex(e => e.ForgotPasswordToken, "user_forgotpasswordtoken_unique").IsUnique();
+            entity.HasIndex(e => e.ForgotPasswordToken, "User_forgotPasswordToken_key").IsUnique();
 
-            entity.HasIndex(e => e.Phone, "user_phone_unique").IsUnique();
+            entity.HasIndex(e => e.Phone, "User_phone_key").IsUnique();
 
             entity.Property(e => e.UsrId)
                 .ValueGeneratedOnAdd()
@@ -818,10 +800,10 @@ public partial class MyDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("email");
             entity.Property(e => e.EmailVerifyToken)
-                .HasMaxLength(500)
+                .HasMaxLength(255)
                 .HasColumnName("emailVerifyToken");
             entity.Property(e => e.ForgotPasswordToken)
-                .HasMaxLength(500)
+                .HasMaxLength(255)
                 .HasColumnName("forgotPasswordToken");
             entity.Property(e => e.Fullname)
                 .HasMaxLength(255)

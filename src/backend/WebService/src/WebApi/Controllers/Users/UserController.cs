@@ -1,3 +1,5 @@
+/* The above code is a C# implementation of a UserController in a WebApi project. Here is a summary of
+what the code is doing: */
 using System.Security.Claims;
 using Application.Attributes;
 using Application.Common.Paginations;
