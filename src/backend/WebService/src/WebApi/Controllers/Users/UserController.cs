@@ -1,3 +1,5 @@
+/* The above code is a C# implementation of a UserController in a WebApi project. Here is a summary of
+what the code is doing: */
 using System.Security.Claims;
 using Application.Attributes;
 using Application.Common.Paginations;
@@ -353,7 +355,28 @@ namespace WebApi.Controllers.Users
             return Ok(new { statusCode = 200, message = "Search users successfully", data = result.Value });
         }
 
+<<<<<<< HEAD
         //GET: api/User/get-user/{usrId}
+=======
+        //POST: api/User/create-user
+        //Authorization: Bearer token
+        //Role: Manager
+        //Body: { "fullname": "string", "username": "string", "email": "string", "phone": "string", roleId: "short"}
+        [HttpPost("create-user")]
+        [Authorize]
+        [AuthorizeRole(RoleType.Manager)]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error.Description });
+            }
+
+            return Ok(new { statusCode = 200, message = "Create user successfully", data = result.Value });
+        }
+>>>>>>> feature/user-service
 
     }
 }
