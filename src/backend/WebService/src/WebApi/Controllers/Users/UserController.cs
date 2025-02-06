@@ -325,11 +325,11 @@ namespace WebApi.Controllers.Users
             [FromQuery] string keyword,
             [FromQuery] int page = 1,
             [FromQuery] int limit = 10,
-            [FromQuery] string gender = null,
+            [FromQuery] string? gender = null,
             [FromQuery] int? status = null,
             [FromQuery] int? role = null,
-            [FromQuery] string fromDate = null,
-            [FromQuery] string toDate = null)
+            [FromQuery] string? fromDate = null,
+            [FromQuery] string? toDate = null)
         {
             if (page <= 0 || limit <= 0)
             {
@@ -339,11 +339,11 @@ namespace WebApi.Controllers.Users
             var query = new SearchUsersQuery(
                 keyword,
                 new PaginationParams { Page = page, PageSize = limit },
-                gender,
+                gender ?? string.Empty,
                 status,
                 role,
-                fromDate,
-                toDate
+                fromDate ?? string.Empty,
+                toDate ?? string.Empty
             );
             var result = await _mediator.Send(query, cancellationToken);
 
@@ -355,9 +355,6 @@ namespace WebApi.Controllers.Users
             return Ok(new { statusCode = 200, message = "Search users successfully", data = result.Value });
         }
 
-<<<<<<< HEAD
-        //GET: api/User/get-user/{usrId}
-=======
         //POST: api/User/create-user
         //Authorization: Bearer token
         //Role: Manager
@@ -376,7 +373,6 @@ namespace WebApi.Controllers.Users
 
             return Ok(new { statusCode = 200, message = "Create user successfully", data = result.Value });
         }
->>>>>>> feature/user-service
 
     }
 }
