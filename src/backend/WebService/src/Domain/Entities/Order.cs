@@ -31,6 +31,8 @@ public partial class Order
 
     public virtual ICollection<OrderLog> OrderLogs { get; set; } = new List<OrderLog>();
 
+    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
     public virtual ICollection<ReturnProduct> ReturnProducts { get; set; } = new List<ReturnProduct>();
 
     public virtual User Usr { get; set; } = null!;

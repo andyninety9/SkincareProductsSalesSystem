@@ -46,6 +46,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<OrderStatus> OrderStatuses { get; set; }
 
+    public virtual DbSet<Payment> Payments { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<ProductImage> ProductImages { get; set; }
@@ -414,6 +416,28 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.OrdStatusName)
                 .HasMaxLength(255)
                 .HasColumnName("ordStatusName");
+        });
+
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.HasKey(e => e.PaymentId).HasName("Payment_pkey");
+
+            entity.ToTable("Payment");
+
+            entity.Property(e => e.PaymentId).HasColumnName("paymentID");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("createdAt");
+            entity.Property(e => e.OrderId).HasColumnName("orderID");
+            entity.Property(e => e.PaymentAmount).HasColumnName("paymentAmount");
+            entity.Property(e => e.PaymentMethod)
+                .HasColumnType("character varying")
+                .HasColumnName("paymentMethod");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.Payments)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("payment_ordid_foreign");
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -787,10 +811,10 @@ public partial class MyDbContext : DbContext
                 .ValueGeneratedOnAdd()
                 .HasColumnName("usrID");
             entity.Property(e => e.AvatarUrl)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .HasColumnName("avatarUrl");
             entity.Property(e => e.CoverUrl)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .HasColumnName("coverUrl");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("timestamp(0) without time zone")
