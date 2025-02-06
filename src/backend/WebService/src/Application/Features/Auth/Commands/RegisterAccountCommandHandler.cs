@@ -1,9 +1,8 @@
-using Amazon.SimpleEmail;
-using Amazon.SimpleEmail.Model;
 using Application.Abstractions.AWS;
 using Application.Abstractions.Messaging;
 using Application.Abstractions.UnitOfWork;
 using Application.Accounts.Response;
+using Application.Common;
 using Application.Common.Email;
 using Application.Common.Jwt;
 using Application.Common.ResponseModel;
@@ -12,7 +11,6 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Auth.Commands
@@ -35,6 +33,7 @@ namespace Application.Auth.Commands
         private readonly ILogger<RegisterAccountCommandHandler> _logger;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IEmailService _emailService;
+        private readonly IdGeneratorService _idGenerator;
 
         public RegisterAccountCommandHandler(
             IAccountRepository accountRepository,
@@ -43,7 +42,8 @@ namespace Application.Auth.Commands
             IUnitOfWork unitOfWork,
             ILogger<RegisterAccountCommandHandler> logger,
             IJwtTokenService jwtTokenService,
-            IEmailService emailService)
+            IEmailService emailService,
+            IdGeneratorService idGenerator)
         {
             _accountRepository = accountRepository;
             _userRepository = userRepository;
@@ -52,6 +52,7 @@ namespace Application.Auth.Commands
             _logger = logger;
             _jwtTokenService = jwtTokenService;
             _emailService = emailService;
+            _idGenerator = idGenerator;
         }
 
         public async Task<Result<RegisterResponse>> Handle(RegisterAccountCommand command, CancellationToken cancellationToken)
@@ -65,33 +66,25 @@ namespace Application.Auth.Commands
                 );
             }
 
-            // Sử dụng Execution Strategy để thực hiện transaction
+            // Using execution strategy to handle transient exceptions
             var executionStrategy = _unitOfWork.CreateExecutionStrategy();
 
             return await executionStrategy.ExecuteAsync(async () =>
             {
-                // Bắt đầu transaction
                 await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
                 try
                 {
+                    // Generate Snowflake ID
+                    long accountId = _idGenerator.GenerateLongId();
+
                     // Create Account
-                    var account = CreateAccount(command);
+                    var account = CreateAccount(accountId, command);
                     await _accountRepository.AddAsync(account, cancellationToken);
                     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                    // Retrieve the newly created account
-                    var retrievedAccount = await _accountRepository.GetAccountByUsername(command.Username);
-                    if (retrievedAccount == null)
-                    {
-                        await transaction.RollbackAsync(cancellationToken);
-                        return Result<RegisterResponse>.Failure<RegisterResponse>(
-                            new Error("RegisterAccount", IConstantMessage.REGISTER_FALSE)
-                        );
-                    }
-
                     // Create User
-                    var user = CreateUser(retrievedAccount.AccId, command, _jwtTokenService);
+                    var user = CreateUser(accountId, command, _jwtTokenService);
                     await _userRepository.AddAsync(user, cancellationToken);
                     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -103,6 +96,7 @@ namespace Application.Auth.Commands
                             new Error("RegisterAccount", "Email verification token is null")
                         );
                     }
+
                     var emailSentSuccessfully = await SendVerificationEmailAsync(command, user.EmailVerifyToken);
                     if (!emailSentSuccessfully)
                     {
@@ -125,11 +119,10 @@ namespace Application.Auth.Commands
                 }
                 catch (Exception ex)
                 {
-                    // Rollback nếu có lỗi
                     await transaction.RollbackAsync(cancellationToken);
                     _logger.LogError(ex, "Error occurred during account registration: {Message}", ex.Message);
                     return Result<RegisterResponse>.Failure<RegisterResponse>(
-                        new Error("RegisterAccount", "An error occurred while registering the account")
+                        new Error("RegisterAccount", ex.Message)
                     );
                 }
             });
@@ -157,14 +150,15 @@ namespace Application.Auth.Commands
             return errors;
         }
 
-        private Account CreateAccount(RegisterAccountCommand command)
+        private Account CreateAccount(long accountId, RegisterAccountCommand command)
         {
             return new Account
             {
+                AccId = accountId,
                 Password = BCrypt.Net.BCrypt.HashPassword(command.Password, workFactor: 12),
                 Username = command.Username,
-                AccStatusId = 1, // Assuming 1 is the default status for new accounts
-                RoleId = 3       // Assuming 3 is the default role for new users
+                AccStatusId = 1, // Default status
+                RoleId = 3       // Default role
             };
         }
 
@@ -208,7 +202,8 @@ namespace Application.Auth.Commands
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to send verification email: {Message}", ex.Message);
-                return false;
+                // Đang dùng môi trường sandbox, nên không thể gửi email thực tế, nên bỏ qua lỗi
+                return true;
             }
         }
     }

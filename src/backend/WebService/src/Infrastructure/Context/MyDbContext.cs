@@ -800,10 +800,10 @@ public partial class MyDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("email");
             entity.Property(e => e.EmailVerifyToken)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .HasColumnName("emailVerifyToken");
             entity.Property(e => e.ForgotPasswordToken)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .HasColumnName("forgotPasswordToken");
             entity.Property(e => e.Fullname)
                 .HasMaxLength(255)
