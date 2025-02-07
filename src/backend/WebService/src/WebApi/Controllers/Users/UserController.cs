@@ -390,10 +390,10 @@ namespace WebApi.Controllers.Users
             return Ok(new { statusCode = 200, message = "Delete user successfully" });
         }
 
-        //PUT: api/User/active-user/{id}
+        //PATCH: api/User/active-user/{id}
         //Authorization: Bearer token
         //Role: Manager, Staff
-        [HttpPut("active-user/{id}")]
+        [HttpPatch("active-user/{id}")]
         [Authorize]
         [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
         public async Task<IActionResult> ActiveUser(long id, CancellationToken cancellationToken)
