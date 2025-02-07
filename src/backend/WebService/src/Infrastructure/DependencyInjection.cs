@@ -26,6 +26,8 @@ using Application.Abstractions.Cloud;
 using Amazon.S3;
 using Application.Abstractions.Authorization;
 using Infrastructure.Authorization;
+using Application.Abstractions.Google;
+using Infrastructure.Google;
 
 namespace Infrastructure
 {
@@ -40,6 +42,12 @@ namespace Infrastructure
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
+            //DI GoogleOAuthService
+            services.AddSingleton<GoogleAuthConfig>();
+            var googleAuthConfig = services.BuildServiceProvider().GetRequiredService<GoogleAuthConfig>();
+            // System.Console.WriteLine(googleAuthConfig.ClientId);
+            // System.Console.WriteLine(googleAuthConfig.ClientSecret);
+            services.AddScoped<IGoogleOAuthService, GoogleOAuthService>();
 
             //DI IAuthorizationService
             services.AddScoped<IAuthorizationService, AuthorizationService>();
