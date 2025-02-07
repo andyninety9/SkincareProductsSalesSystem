@@ -16,7 +16,7 @@ using WebApi.DTOs;
 
 namespace WebApi.Controllers.Users
 {
-    
+
     [Route("api/[controller]")]
     public class UserController : ApiController
     {
@@ -49,7 +49,7 @@ namespace WebApi.Controllers.Users
                     return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
                 }
 
-                System.Console.WriteLine(usrID);
+                // System.Console.WriteLine(usrID);
 
                 if (_mediator == null)
                 {
@@ -104,18 +104,18 @@ namespace WebApi.Controllers.Users
                     return StatusCode(500, new { statusCode = 500, message = IConstantMessage.INTERNAL_SERVER_MEDIATOR_ERROR });
                 }
                 System.Console.WriteLine("user id: " + userId);
-                
-                var updatedCommand = command with { UsrId = userId};
+
+                var updatedCommand = command with { UsrId = userId };
                 var result = await _mediator.Send(updatedCommand, cancellationToken);
 
                 if (result.IsFailure)
                 {
                     return HandleFailure(result);
                 }
-                
+
                 var response = await _mediator.Send(new GetMeQuery(userId), cancellationToken);
                 return Ok(new { statusCode = 200, message = IConstantMessage.UPDATE_ME_SUCCESS, data = response.Value });
-                
+
             }
             catch (Exception ex)
             {
@@ -372,6 +372,25 @@ namespace WebApi.Controllers.Users
             }
 
             return Ok(new { statusCode = 200, message = "Create user successfully", data = result.Value });
+        }
+
+        //DELETE: api/User/delete-user/{id}
+        //Authorization: Bearer token
+        //Role: Manager, Staff
+        [HttpDelete("delete-user/{id}")]
+        [Authorize]
+        [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
+        public async Task<IActionResult> DeleteUser(long id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteUserCommand(id);
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error.Description });
+            }
+
+            return Ok(new { statusCode = 200, message = "Delete user successfully" });
         }
 
     }

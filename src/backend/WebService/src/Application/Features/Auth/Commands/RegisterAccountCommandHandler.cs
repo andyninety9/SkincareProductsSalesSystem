@@ -4,9 +4,11 @@ using Application.Abstractions.UnitOfWork;
 using Application.Accounts.Response;
 using Application.Common;
 using Application.Common.Email;
+using Application.Common.Enum;
 using Application.Common.Jwt;
 using Application.Common.ResponseModel;
 using Application.Constant;
+using Application.Common.Enum;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Repositories;
@@ -157,8 +159,8 @@ namespace Application.Auth.Commands
                 AccId = accountId,
                 Password = BCrypt.Net.BCrypt.HashPassword(command.Password, workFactor: 12),
                 Username = command.Username,
-                AccStatusId = 1, // Default status
-                RoleId = 3       // Default role
+                AccStatusId = (short)AccountStatusEnum.Unverified, // Default status
+                RoleId = (short)RoleAccountEnum.Customer       // Default role
             };
         }
 
