@@ -8,7 +8,6 @@ using Application.Common.Enum;
 using Application.Common.Jwt;
 using Application.Common.ResponseModel;
 using Application.Constant;
-using Application.Common.Enum;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Repositories;
@@ -208,5 +207,6 @@ namespace Application.Auth.Commands
                 return true;
             }
         }
+
     }
 }

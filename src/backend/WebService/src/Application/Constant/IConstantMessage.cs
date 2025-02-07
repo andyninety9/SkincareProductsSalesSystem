@@ -28,6 +28,7 @@ namespace Application.Constant
         public static string FORGOT_PASSWORD_TOKEN_GENERATE_FAILED = "Unable to generate a new password reset token.";
         public static string FORGOT_PASSWORD_SUCCESS = "Your password has been reset successfully.";
         public static string ACCOUNT_IS_LOCKED = "Your account has been banned.";
+        public static string ACCOUNT_ACTIVE_ALREADY = "Your account is already active.";
 
         // User related messages
         public static string USER_INFORMATION_NOT_FOUND = "User information is missing in the token.";

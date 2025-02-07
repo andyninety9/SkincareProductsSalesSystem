@@ -1,12 +1,9 @@
-/* The above code is a C# implementation of a UserController in a WebApi project. Here is a summary of
-what the code is doing: */
 using System.Security.Claims;
 using Application.Attributes;
 using Application.Common.Paginations;
 using Application.Constant;
 using Application.Users.Commands;
 using Application.Users.Queries;
-using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -391,6 +388,25 @@ namespace WebApi.Controllers.Users
             }
 
             return Ok(new { statusCode = 200, message = "Delete user successfully" });
+        }
+
+        //PUT: api/User/active-user/{id}
+        //Authorization: Bearer token
+        //Role: Manager, Staff
+        [HttpPut("active-user/{id}")]
+        [Authorize]
+        [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
+        public async Task<IActionResult> ActiveUser(long id, CancellationToken cancellationToken)
+        {
+            var command = new ActiveUserCommand(id);
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error.Description });
+            }
+
+            return Ok(new { statusCode = 200, message = "Active user successfully" });
         }
 
     }
