@@ -371,10 +371,10 @@ namespace WebApi.Controllers.Users
             return Ok(new { statusCode = 200, message = "Create user successfully", data = result.Value });
         }
 
-        //DELETE: api/User/delete-user/{id}
+        //DELETE: api/User/deactive-user/{id}
         //Authorization: Bearer token
         //Role: Manager, Staff
-        [HttpDelete("delete-user/{id}")]
+        [HttpDelete("deactive-user/{id}")]
         [Authorize]
         [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
         public async Task<IActionResult> DeleteUser(long id, CancellationToken cancellationToken)
@@ -408,6 +408,11 @@ namespace WebApi.Controllers.Users
 
             return Ok(new { statusCode = 200, message = "Active user successfully" });
         }
+
+        //POST: api/User/create-address
+        //Authorization: Bearer token
+        
+
 
     }
 }
