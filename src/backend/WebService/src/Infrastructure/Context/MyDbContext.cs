@@ -454,6 +454,9 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.CostPrice)
                 .HasDefaultValueSql("'0'::double precision")
                 .HasColumnName("costPrice");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("createdAt");
             entity.Property(e => e.Ingredient).HasColumnName("ingredient");
             entity.Property(e => e.Instruction).HasColumnName("instruction");
             entity.Property(e => e.ProdStatusId).HasColumnName("prodStatusID");
@@ -468,6 +471,9 @@ public partial class MyDbContext : DbContext
                 .HasDefaultValue(0)
                 .HasColumnName("stocks");
             entity.Property(e => e.TotalRating).HasColumnName("totalRating");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updatedAt");
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Products)
                 .HasForeignKey(d => d.BrandId)
