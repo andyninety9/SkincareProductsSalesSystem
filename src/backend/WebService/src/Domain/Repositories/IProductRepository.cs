@@ -17,5 +17,6 @@ namespace Domain.Repositories
             int page,
             int pageSize,
             CancellationToken cancellationToken);
+        Task<Product?> GetProductByIdAsync(long productId, CancellationToken cancellationToken);
     }
 }

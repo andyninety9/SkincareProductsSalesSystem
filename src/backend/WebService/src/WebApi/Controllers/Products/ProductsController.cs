@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Common.Paginations;
+using Application.Features.Products.Queries.Validator;
 using Application.Features.Products.Validator;
 using Application.Products.Queries;
 using MediatR;
@@ -67,6 +68,43 @@ namespace WebApi.Controllers.Products
 
             _logger.LogInformation("Returning {ProductCount} products for page {Page}.", result.Value.Items.Count, page);
             return Ok(new { statusCode = 200, message = "Fetch all products successfully", data = result.Value });
+        }
+
+        // GET: /api/products/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProductById(int id, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Received GET /api/products/{Id} request with Id={Id}", id);
+
+            var query = new GetProductByIdQuery(id);
+            var validator = new GetProductQueryValidator();
+            var validationResult = validator.Validate(query);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("BadRequest: Query failed with error: {Error}", result.Error?.Description);
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            if (result.Value == null)
+            {
+                _logger.LogWarning("NotFound: Product with Id={Id} not found.", id);
+                return NotFound(new { statusCode = 404, message = $"Product with Id={id} not found." });
+            }
+
+            _logger.LogInformation("Returning product with Id={Id}.", id);
+            return Ok(new { statusCode = 200, message = "Fetch product by Id successfully", data = result.Value });
         }
     }
 }

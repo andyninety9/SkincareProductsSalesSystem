@@ -35,6 +35,12 @@ namespace Application.Common.Mapper
 
             // Mapping cho ProductImage nếu cần
             CreateMap<ProductImage, string>().ConvertUsing(src => src.ProdImageUrl);
+            CreateMap<Product, GetProductResponse>()
+                .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand.BrandName))
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Cate.CateProdName))
+                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.ProdStatus.ProdStatusName))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.ProductImages.Select(i => i.ProdImageUrl).ToList()))
+                .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews.Count()));
         }
 
         private static string MapGender(short? gender)

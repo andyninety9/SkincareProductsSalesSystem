@@ -36,8 +36,8 @@ namespace Infrastructure.Repositories
                 .Include(p => p.Brand)
                 .Include(p => p.Cate)
                 .Include(p => p.ProdStatus)
-                .Include(p => p.ProductImages) 
-                .Include(p => p.Reviews) 
+                .Include(p => p.ProductImages)
+                .Include(p => p.Reviews)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(keyword))
@@ -72,6 +72,19 @@ namespace Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
 
             return (products, totalItems);
+        }
+
+        public async Task<Product?> GetProductByIdAsync(long productId, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Fetching product with ID: {ProductId}", productId);
+
+            return await _context.Set<Product>()
+                .Include(p => p.Brand)
+                .Include(p => p.Cate)
+                .Include(p => p.ProdStatus)
+                .Include(p => p.ProductImages)
+                .Include(p => p.Reviews)
+                .FirstOrDefaultAsync(p => p.ProductId == productId, cancellationToken);
         }
     }
 }
