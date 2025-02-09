@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Common.Paginations;
+using Application.Features.Products.Validator;
 using Application.Products.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +46,17 @@ namespace WebApi.Controllers.Products
 
             var paginationParams = new PaginationParams { Page = page, PageSize = pageSize };
             var query = new GetAllProductsQuery(keyword, paginationParams, cateId, brandId, fromDate, toDate);
+            var validator = new GetAllProductsQueryValidator();
+            var validationResult = validator.Validate(query);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
             var result = await _mediator.Send(query, cancellationToken);
 
             if (!result.IsSuccess)
