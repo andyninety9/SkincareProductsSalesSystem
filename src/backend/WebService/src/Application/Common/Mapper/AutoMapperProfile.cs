@@ -4,6 +4,7 @@ using AutoMapper;
 using Application.Features.Users.Response;
 using Application.Features.Products.Response;
 using Domain.Entities;
+using Domain.DTOs;
 
 namespace Application.Common.Mapper
 {
@@ -16,7 +17,7 @@ namespace Application.Common.Mapper
             CreateMap<User, GetMeResponse>();
             CreateMap<User, GetAllUsersResponse>();
             CreateMap<GetAllUsersResponse, User>();
-            
+
             CreateMap<User, GetAllUsersResponse>()
                 .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Usr.Role.RoleId))
                 .ForMember(dest => dest.StatusId, opt => opt.MapFrom(src => src.Usr.AccStatusId))
@@ -43,6 +44,10 @@ namespace Application.Common.Mapper
                 .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.ProdStatus.ProdStatusName))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.ProductImages.Select(i => i.ProdImageUrl).ToList()))
                 .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews.Count()));
+            // Mapping cho Review
+            CreateMap<Review, GetAllProductReviewsResponse>()
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.UsrId));
+
         }
 
         private static string MapGender(short? gender)
