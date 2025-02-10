@@ -29,6 +29,7 @@ namespace Application.Constant
         public static string FORGOT_PASSWORD_SUCCESS = "Your password has been reset successfully.";
         public static string ACCOUNT_IS_LOCKED = "Your account has been banned.";
         public static string ACCOUNT_ACTIVE_ALREADY = "Your account is already active.";
+        public static string INVALID_GOOGLE_ID_TOKEN = "The provided Google ID Token is invalid.";
 
         // User related messages
         public static string USER_INFORMATION_NOT_FOUND = "User information is missing in the token.";

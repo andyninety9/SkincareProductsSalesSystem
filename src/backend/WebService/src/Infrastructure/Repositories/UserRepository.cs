@@ -17,13 +17,22 @@ namespace Infrastructure.Repositories
             return _context.Users.AsNoTracking().Include(user => user.Usr); ;
         }
 
-        public Task<User> GetByEmailAsync(string email)
+        public async Task<User?> GetByEmailAsync(string email)
         {
-            User? user = _context.Users.FirstOrDefault(u => u.Email == email);
-            if (user == null)
-                throw new KeyNotFoundException($"User with email {email} not found.");
-            return Task.FromResult(user);
+            try
+            {
+                // Sử dụng FirstOrDefaultAsync để trả về null nếu không tìm thấy user
+                return await _context.Users
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.Email == email);
+            }
+            catch (Exception ex)
+            {
+                // _logger.LogError(ex, "Error occurred while fetching user by email: {Email}", email);
+                throw; // Ném ngoại lệ nếu có lỗi truy vấn cơ sở dữ liệu
+            }
         }
+
 
         public Task<string> GetEmailVerifyTokenByUsrID(long usrId)
         {
