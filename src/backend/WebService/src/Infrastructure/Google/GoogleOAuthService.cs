@@ -4,18 +4,24 @@ using System.Threading.Tasks;
 using Application.Abstractions.Google;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Google
 {
     public class GoogleOAuthService : IGoogleOAuthService
     {
-        private readonly GoogleAuthConfig _googleAuthConfig;
+        private readonly IOptions<GoogleAuthConfig> _googleAuthConfig;
         private readonly ILogger<GoogleOAuthService> _logger;
 
-        public GoogleOAuthService(GoogleAuthConfig googleAuthConfig, ILogger<GoogleOAuthService> logger)
+        public GoogleOAuthService(IOptions<GoogleAuthConfig> googleAuthConfig, ILogger<GoogleOAuthService> logger)
         {
-            _googleAuthConfig = googleAuthConfig;
-            _logger = logger;
+            _googleAuthConfig = googleAuthConfig ?? throw new ArgumentNullException(nameof(googleAuthConfig));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            if (string.IsNullOrEmpty(_googleAuthConfig.Value.ClientId))
+            {
+                throw new InvalidOperationException("GoogleAuthConfig is not properly configured. Missing ClientId.");
+            }
         }
 
         /// <summary>
@@ -28,14 +34,14 @@ namespace Infrastructure.Google
             if (string.IsNullOrEmpty(idToken))
             {
                 _logger.LogWarning("ID Token is null or empty.");
-                return null; // ✅ Trả về `null` đúng với interface
+                return null;
             }
 
             try
             {
-                var settings = new GoogleJsonWebSignature.ValidationSettings()
+                var settings = new GoogleJsonWebSignature.ValidationSettings
                 {
-                    Audience = new List<string> { _googleAuthConfig.ClientId }
+                    Audience = new List<string> { _googleAuthConfig.Value.ClientId }
                 };
 
                 var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
@@ -44,7 +50,7 @@ namespace Infrastructure.Google
             }
             catch (InvalidJwtException ex)
             {
-                _logger.LogError(ex, "Invalid Google ID Token.");
+                _logger.LogWarning("Invalid Google ID Token: {Message}", ex.Message);
                 return null;
             }
             catch (Exception ex)
@@ -53,6 +59,5 @@ namespace Infrastructure.Google
                 return null;
             }
         }
-
     }
 }

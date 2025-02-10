@@ -44,10 +44,23 @@ namespace Infrastructure
 
             //DI GoogleOAuthService
             services.AddSingleton<GoogleAuthConfig>();
-            var googleAuthConfig = services.BuildServiceProvider().GetRequiredService<GoogleAuthConfig>();
-            // System.Console.WriteLine(googleAuthConfig.ClientId);
-            // System.Console.WriteLine(googleAuthConfig.ClientSecret);
+
+            //DI HttpClient for Google OAuth Service
+            services.AddHttpClient<IGoogleOAuthService, GoogleOAuthService>();
+
+            // DI GoogleOAuthService
             services.AddScoped<IGoogleOAuthService, GoogleOAuthService>();
+
+            // Config Google OAuth
+            services.AddSingleton(provider =>
+            {
+                var config = provider.GetRequiredService<GoogleAuthConfig>();
+                if (string.IsNullOrEmpty(config.ClientId) || string.IsNullOrEmpty(config.ClientSecret))
+                {
+                    throw new InvalidOperationException("Google OAuth credentials are not configured properly.");
+                }
+                return config;
+            });
 
             //DI IAuthorizationService
             services.AddScoped<IAuthorizationService, AuthorizationService>();

@@ -14,6 +14,7 @@ namespace Application.Common.Mapper
             CreateMap<User, GetMeResponse>();
             CreateMap<User, GetAllUsersResponse>();
             CreateMap<GetAllUsersResponse, User>();
+            
             CreateMap<User, GetAllUsersResponse>()
            .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Usr.Role.RoleId)) 
            .ForMember(dest => dest.StatusId, opt => opt.MapFrom(src => src.Usr.AccStatusId)) 
