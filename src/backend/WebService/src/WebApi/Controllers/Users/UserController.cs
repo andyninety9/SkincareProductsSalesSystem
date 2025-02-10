@@ -1,10 +1,10 @@
 using System.Security.Claims;
 using Application.Attributes;
+using Application.Common.Enum;
 using Application.Common.Paginations;
 using Application.Constant;
 using Application.Users.Commands;
 using Application.Users.Queries;
-using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -291,7 +291,7 @@ namespace WebApi.Controllers.Users
         // Query String: ?page={int}&limit={int}
         [HttpGet("all-users")]
         [Authorize]
-        [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
         public async Task<IActionResult> GetAllUsers(CancellationToken cancellationToken, [FromQuery] int page = 1, [FromQuery] int limit = 10)
         {
             if (page <= 0 || limit <= 0)
@@ -316,7 +316,7 @@ namespace WebApi.Controllers.Users
         //Query String: ?keyword={string}&page={int}&limit={int}&gender={string}&status={int}&role={int}&fromDate={ISO8601}&toDate={ISO8601}
         [HttpGet("search-users")]
         [Authorize]
-        [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
         public async Task<IActionResult> SearchUsers(
             CancellationToken cancellationToken,
             [FromQuery] string keyword,
@@ -358,7 +358,7 @@ namespace WebApi.Controllers.Users
         //Body: { "fullname": "string", "username": "string", "email": "string", "phone": "string", roleId: "short"}
         [HttpPost("create-user")]
         [Authorize]
-        [AuthorizeRole(RoleType.Manager)]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
@@ -376,7 +376,7 @@ namespace WebApi.Controllers.Users
         //Role: Manager, Staff
         [HttpDelete("deactive-user/{id}")]
         [Authorize]
-        [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
         public async Task<IActionResult> DeleteUser(long id, CancellationToken cancellationToken)
         {
             var command = new DeleteUserCommand(id);
@@ -395,7 +395,7 @@ namespace WebApi.Controllers.Users
         //Role: Manager, Staff
         [HttpPatch("active-user/{id}")]
         [Authorize]
-        [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
         public async Task<IActionResult> ActiveUser(long id, CancellationToken cancellationToken)
         {
             var command = new ActiveUserCommand(id);
