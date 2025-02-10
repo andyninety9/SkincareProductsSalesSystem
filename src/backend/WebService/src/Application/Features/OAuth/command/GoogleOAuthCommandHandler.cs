@@ -71,24 +71,25 @@ namespace Application.Auth.Commands
                     long accountId = _idGenerator.GenerateLongId();
 
                     // Tạo User mới
-                    var newUser = new Domain.Entities.User
+                    var newUser = new User
                     {
                         UsrId = accountId,
                         Email = payload.Email,
                         Fullname = payload.Name ?? "Unknown",
                         Phone = null,
+                        AvatarUrl = payload.Picture,
                         CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
                         UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
                         EmailVerifyToken = null, // Không cần xác minh email
                     };
 
                     await _userRepository.AddAsync(newUser, cancellationToken);
-
+                    string randomPassword = RandomString.GenerateRandomPassword(12);
                     // Tạo Account mới
-                    account = new Domain.Entities.Account
+                    account = new Account
                     {
                         AccId = accountId,
-                        Password = null, // Không cần mật khẩu với OAuth
+                        Password = randomPassword, // Không cần mật khẩu với OAuth
                         Username = payload.Email,
                         AccStatusId = 2, // Đã xác minh email
                         RoleId = 3,      // Default role

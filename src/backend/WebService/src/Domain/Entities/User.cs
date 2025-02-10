@@ -11,7 +11,7 @@ public partial class User
 
     public short? Gender { get; set; }
 
-    public string Phone { get; set; } = null!;
+    public string? Phone { get; set; } = null;
 
     public string Email { get; set; } = null!;
 
