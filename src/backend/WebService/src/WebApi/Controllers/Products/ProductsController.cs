@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Application.Common.Paginations;
 using Application.Features.Products.Queries.Validator;
 using Application.Features.Products.Validator;
@@ -8,7 +5,6 @@ using Application.Features.Reviews.Queries.Validator;
 using Application.Products.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using WebApi.Common;
 
 namespace WebApi.Controllers.Products
