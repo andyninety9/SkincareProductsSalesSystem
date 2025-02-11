@@ -72,7 +72,8 @@ const HeaderUser = () => {
                 padding: "20px",
                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                 zIndex: 1000,
-                overflowX: "auto",
+                overflowX: "hidden",
+                overflowY: "hidden",
               }}
             >
 
