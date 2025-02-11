@@ -1,0 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Domain.Common;
+using Domain.Entities;
+
+namespace Domain.Repositories
+{
+    public interface IQuestionRepository : IRepository<Question>
+    {
+        Task<List<Question>> GetQuestionsByCategoryAsync(int categoryId);
+        Task<List<CategoryQuestion>> GetAllCategoriesAsync();
+        Task<Question?> GetNextQuestionInCategoryAsync(int categoryId, long quizId);
+    }
+}
