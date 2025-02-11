@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Products.Queries
 {
-    public sealed record GetNextQuestionQuery(long QuizId, int QuestionId, int AnswerId) : IQuery<GetNextQuestionResponse>;
+    public sealed record GetNextQuestionQuery(long UserId, int QuestionId, int AnswerKeyId, long QuizId) : IQuery<GetNextQuestionResponse>;
 
     internal sealed class GetNextQuestionQueryHandler : IQueryHandler<GetNextQuestionQuery, GetNextQuestionResponse>
     {
@@ -38,14 +38,17 @@ namespace Application.Products.Queries
         {
             _logger.LogInformation($"Processing next question for quizId={request.QuizId}, questionId={request.QuestionId}");
 
-            // ✅ 1. Lưu câu trả lời vào QuizDetail
+            // ✅ 1. Lưu câu hỏi vào QuizDetail
             await _quizRepository.SaveUserAnswerAsync(request.QuizId, request.QuestionId);
 
-            // ✅ 2. Lấy danh sách câu hỏi đã trả lời
-            
+            // Get resultQuizId by QuizId
+            var resultQuizId = await _resultQuizRepository.GetResultQuizIdByQuizIdAsync(request.QuizId);
+
+            // ✅ 2. Save answer key to ResultDetail
+            await _resultQuizRepository.SaveUserAnswerAsync(resultQuizId, request.AnswerKeyId);
 
             // ✅ 3. Lấy câu hỏi tiếp theo trong cùng category, tránh câu hỏi đã trả lời
-            var currentQuestion = await _questionRepository.GetByIdAsync(request.QuestionId, cancellationToken);
+            var currentQuestion = await _questionRepository.GetQuestionByIdAsync(request.QuestionId);
 
             // Lấy danh sách câu hỏi đã trả lời từ QuizDetail
             var answeredQuestions = await _quizRepository.GetAnsweredQuestionsAsync(request.QuizId);
@@ -60,6 +63,7 @@ namespace Application.Products.Queries
 
             return Result<GetNextQuestionResponse>.Success(new GetNextQuestionResponse
             {
+                QuizId = request.QuizId,
                 QuestionId = nextQuestion.QuestionId,
                 QuestionText = nextQuestion.QuestionContent,
                 KeyQuestions = nextQuestion.KeyQuestions.Select(kq => new KeyQuestionResponse

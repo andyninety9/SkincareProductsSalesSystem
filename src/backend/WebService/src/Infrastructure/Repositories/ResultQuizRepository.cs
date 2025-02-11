@@ -95,5 +95,14 @@ namespace Infrastructure.Repositories
 
             return null;
         }
+
+        public Task<long> GetResultQuizIdByQuizIdAsync(long quizId)
+        {
+            return _context.ResultQuizzes
+                .Where(r => r.QuizId == quizId)
+                .Select(r => r.ResultId)
+                .FirstOrDefaultAsync();
+
+        }
     }
 }

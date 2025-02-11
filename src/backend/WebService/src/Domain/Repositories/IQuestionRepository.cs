@@ -12,5 +12,7 @@ namespace Domain.Repositories
         Task<List<Question>> GetQuestionsByCategoryAsync(int categoryId);
         Task<List<CategoryQuestion>> GetAllCategoriesAsync();
         Task<Question?> GetNextQuestionInCategoryAsync(int categoryId, long quizId);
+        Task<Question?> GetQuestionByIdAsync(int questionId);
+
     }
 }

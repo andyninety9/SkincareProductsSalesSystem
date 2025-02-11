@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Application.Common;
 using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Common;
@@ -12,8 +13,10 @@ namespace Infrastructure.Repositories
 {
     public class QuizRepository : Repository<Quiz>, IQuizRepository
     {
-        public QuizRepository(MyDbContext context) : base(context)
+        private readonly IdGeneratorService _idGenerator;
+        public QuizRepository(MyDbContext context, IdGeneratorService idGenerator) : base(context)
         {
+            _idGenerator = idGenerator;
         }
 
         // ✅ 1. Tạo một bài quiz mới khi bắt đầu
@@ -37,6 +40,7 @@ namespace Infrastructure.Repositories
         {
             var quizDetail = new QuizDetail
             {
+                DetailId = _idGenerator.GenerateLongId(),
                 QuizId = quizId,
                 QuestId = (short)questionId
             };

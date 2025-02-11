@@ -39,14 +39,22 @@ namespace Infrastructure.Repositories
 
             // ✅ 2. Lọc ra các câu hỏi chưa trả lời trong category hiện tại
             var nextQuestion = await _context.Questions
-                .Where(q => q.CateQuestionId == categoryId && !answeredQuestions.Contains(q.QuestionId))
-                .OrderBy(q => q.QuestionId) // Chọn câu hỏi tiếp theo có ID nhỏ nhất
+                .Where(q => q.CateQuestionId == categoryId && 
+                           !answeredQuestions.Contains(q.QuestionId) &&
+                           q.KeyQuestions.Any())
+                .Include(q => q.KeyQuestions)
+                .OrderBy(q => q.QuestionId)
                 .FirstOrDefaultAsync();
 
             // ✅ 3. Nếu không còn câu hỏi trong category hiện tại, trả về null để chuyển sang category khác
             return nextQuestion;
         }
 
-
+        public async Task<Question?> GetQuestionByIdAsync(int questionId)
+        {
+            return await _context.Questions
+                .Include(q => q.KeyQuestions)
+                .FirstOrDefaultAsync(q => q.QuestionId == questionId);
+        }
     }
 }

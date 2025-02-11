@@ -60,15 +60,32 @@ namespace WebApi.Controllers.SkinTest
             return Ok(new { statusCode = 200, message = "Get start question successfully", data = result.Value });
         }
 
-        // GET /api/skin-test/next?questionId=int&answerId=int
+        // GET /api/skin-test/next?questionId=int&answerKeyId=int?quizId=int
         [HttpGet("next")]
+        [Authorize]
         public async Task<IActionResult> NextQuestion(
-            [FromQuery] long userId,
-            [FromQuery] int questionId,
-            [FromQuery] int answerId,
+            [FromQuery] string questionId,
+            [FromQuery] string answerKeyId,
+            [FromQuery] string quizId,
             CancellationToken cancellationToken = default)
         {
-            var query = new GetNextQuestionQuery(userId, questionId, answerId);
+            if (User == null)
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.USER_INFORMATION_NOT_FOUND });
+            }
+
+            var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(usrID))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+            }
+
+            if (!long.TryParse(usrID, out var userId))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
+            }
+            var query = new GetNextQuestionQuery(userId, int.Parse(questionId), int.Parse(answerKeyId), int.Parse(quizId));
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(new { statusCode = 200, message = "Get next question successfully", data = result.Value });
         }

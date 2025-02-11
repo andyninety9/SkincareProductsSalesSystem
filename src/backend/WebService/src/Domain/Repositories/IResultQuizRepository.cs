@@ -14,5 +14,6 @@ namespace Domain.Repositories
         Task UpdateScoreAsync(long resultId, int osScore, int srScore, int pnScore, int wtScore);
         Task<bool> IsTestCompleteAsync(long resultId);
         Task<int?> GetSkinTypeIdAsync(long resultId);
+        Task<long> GetResultQuizIdByQuizIdAsync(long quizId);
     }
 }

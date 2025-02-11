@@ -7,6 +7,7 @@ namespace Domain.DTOs
 {
     public class GetNextQuestionResponse
     {
+        public long QuizId { get; set; }
         public int QuestionId { get; set; }
         public string QuestionText { get; set; }
         public string Category { get; set; }
