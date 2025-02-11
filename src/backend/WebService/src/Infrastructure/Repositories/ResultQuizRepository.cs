@@ -25,7 +25,7 @@ namespace Infrastructure.Repositories
                 Srscore = 0,
                 Pnpscore = 0,
                 Wtscore = 0,
-                CreateAt = DateTime.UtcNow,
+                CreateAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
                 IsDefault = false
             };
 

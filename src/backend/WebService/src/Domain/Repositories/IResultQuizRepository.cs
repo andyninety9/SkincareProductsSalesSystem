@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain.Common;
+using Domain.Entities;
 
 namespace Domain.Repositories
 {
-    public interface IResultQuizRepository
+    public interface IResultQuizRepository : IRepository<ResultQuiz>
     {
         Task<long> CreateNewResultAsync(long quizId, long userId);
         Task SaveUserAnswerAsync(long resultId, int keyId);

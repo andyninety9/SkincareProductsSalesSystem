@@ -9,7 +9,7 @@ namespace Domain.Repositories
 {
     public interface IQuizRepository : IRepository<Quiz>
     {
-        Task<long> CreateNewQuizAsync(string quizName, string quizDesc);
+        Task<long> CreateNewQuizAsync( string quizName, string quizDesc);
         Task SaveUserAnswerAsync(long quizId, int questionId);
         Task<Quiz?> GetQuizByIdAsync(long quizId);
         Task<List<int>> GetAnsweredQuestionsAsync(long quizId);

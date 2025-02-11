@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.SkinTest.Queries
 {
-    public sealed record GetStartQuestionQuery() : IQuery<GetStartQuestionResponse>;
+    public sealed record GetStartQuestionQuery(long UserId, string QuizName, string QuizDesc) : IQuery<GetStartQuestionResponse>;
 
     internal sealed class GetStartQuestionQueryHandler : IQueryHandler<GetStartQuestionQuery, GetStartQuestionResponse>
     {
@@ -43,14 +43,19 @@ namespace Application.SkinTest.Queries
         {
             _logger.LogInformation("Fetching start question and creating a new quiz");
 
-            var quizId = await _quizRepository.CreateNewQuizAsync("Baumann Skin Type Test", "Determine skin type using Baumann method.");
+            var quizId = await _quizRepository.CreateNewQuizAsync(request.QuizName, request.QuizDesc);
             _logger.LogInformation($"Created new quiz with ID: {quizId}");
+
+            await _resultQuizRepository.CreateNewResultAsync(quizId, request.UserId);
+
 
             // Lấy câu hỏi đầu tiên
             var categories = await _questionRepository.GetAllCategoriesAsync();
             var randomCategory = categories.OrderBy(c => Guid.NewGuid()).FirstOrDefault();
             var questions = await _questionRepository.GetQuestionsByCategoryAsync(randomCategory.CateQuestionId);
-            var randomQuestion = questions.OrderBy(q => Guid.NewGuid()).FirstOrDefault();
+            var randomQuestion = questions.Where(q => q.KeyQuestions != null && q.KeyQuestions.Any())
+                                        .OrderBy(q => Guid.NewGuid())
+                                        .FirstOrDefault();
 
             var response = new GetStartQuestionResponse
             {
@@ -68,19 +73,6 @@ namespace Application.SkinTest.Queries
             };
 
             return Result<GetStartQuestionResponse>.Success(response);
-        }
-
-
-        private int? GetUserIdFromAccessToken()
-        {
-            var user = _httpContextAccessor.HttpContext?.User;
-            if (user == null)
-            {
-                return null;
-            }
-
-            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
-            return userIdClaim != null ? int.Parse(userIdClaim.Value) : (int?)null;
         }
     }
 }
