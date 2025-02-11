@@ -19,6 +19,7 @@ namespace Domain.Repositories
             int page,
             int pageSize,
             CancellationToken cancellationToken);
+        Task<OrderDetailResponse?> GetOrderByIdAsync(long orderId, CancellationToken cancellationToken);
 
 
     }

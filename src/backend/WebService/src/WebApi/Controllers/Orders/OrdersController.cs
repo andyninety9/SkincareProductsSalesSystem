@@ -94,9 +94,48 @@ namespace WebApi.Controllers.Orders
             }
         }
 
+        //GET: /api/orders/{id}
+        //Header: Authorization: Bearer {token}
+        //Role: Admin, Staff
+        [HttpGet("{id}")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> GetOrderById(long id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                
+                var query = new GetOrderDetailQuery(id);
+             
+                var result = await _mediator.Send(query, cancellationToken);
 
+                if (!result.IsSuccess)
+                {
+                    return StatusCode(500, new
+                    {
+                        statusCode = 500,
+                        message = "An error occurred while fetching order.",
+                        details = result.Error
+                    });
+                }
 
-
-
+                return Ok(new
+                {
+                    statusCode = 200,
+                    message = "Order retrieved successfully.",
+                    data = result.Value
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error in GetOrderById");
+                return StatusCode(500, new
+                {
+                    statusCode = 500,
+                    message = "An unexpected error occurred.",
+                    details = ex.Message
+                });
+            }
+        }
     }
 }

@@ -90,5 +90,85 @@ namespace Infrastructure.Repositories
 
             return (orders, totalItems);
         }
+
+        public async Task<OrderDetailResponse?> GetOrderByIdAsync(long orderId, CancellationToken cancellationToken)
+        {
+            var order = await _context.Orders
+                .Include(o => o.Usr)
+                .Include(o => o.OrdStatus)
+                .Include(o => o.OrderDetails).ThenInclude(od => od.Prod)
+                .Include(o => o.Payments)
+                .Include(o => o.DeliveryDetails)
+                    .ThenInclude(d => d.DeliService)
+                .Include(o => o.WarantyOrders)
+                .Include(o => o.OrderLogs).ThenInclude(ol => ol.NewStatusOrd)
+                .OrderBy(o => o.CreatedAt)
+                .Select(o => new
+                {
+                    Order = o,
+                    Address = o.DeliveryDetails.Select(d => d.Address).FirstOrDefault() // Lấy Address từ DeliveryDetails
+                })
+                .FirstOrDefaultAsync(o => o.Order.OrdId == orderId, cancellationToken);
+
+
+            if (order == null) return null;
+
+            return new OrderDetailResponse
+            {
+                OrderId = order.Order.OrdId,
+                CustomerId = order.Order.UsrId,
+                CustomerName = order.Order.Usr.Fullname ?? "Unknown",
+                CustomerEmail = order.Order.Usr.Email,
+                OrderDate = order.Order.OrdDate,
+                OrderStatus = order.Order.OrdStatus.OrdStatusName,
+                TotalPrice = order.Order.TotalOrdPrice,
+                CreatedAt = order.Order.CreatedAt,
+                UpdatedAt = order.Order.UpdatedAt,
+                Payment = order.Order.Payments.Select(p => new PaymentDto
+                {
+                    PaymentId = p.PaymentId,
+                    PaymentMethod = p.PaymentMethod,
+                    PaymentAmount = p.PaymentAmount,
+                    CreatedAt = p.CreatedAt
+                }).FirstOrDefault() ?? new PaymentDto(),
+                Products = order.Order.OrderDetails.Select(od => new OrderProductDto
+                {
+                    ProductId = od.ProdId,
+                    ProductName = od.Prod.ProductName,
+                    Quantity = od.Quantity,
+                    UnitPrice = od.SellPrice
+                }).ToList(),
+                ShippingAddress = new AddressDto
+                {
+                    AddressId = order.Address.AddressId,
+                    Detail = order.Address.AddDetail + ", " + order.Address.Ward + ", " + order.Address.District + ", " + order.Address.City + ", " + order.Address.Country
+                    // IsDefault = order.ShippingAddress.IsDefault
+                },
+                Delivery = order.Order.DeliveryDetails.Select(d => new DeliveryDto
+                {
+                    DeliveryId = d.DeliId,
+                    DeliveryService = d.DeliService.DeliServiceName,
+                    DeliveryPhone = d.DeliPhone,
+                    DeliveryStatus = d.DeliStatus ? "Success" : "Failed",
+                    CreatedAt = d.CreateAt
+                }).FirstOrDefault() ?? new DeliveryDto(),
+                Warranty = order.Order.WarantyOrders.Select(w => new WarrantyOrderDto
+                {
+                    WarrantyId = w.WarantyId,
+                    StartDate = w.CreatedAt,
+                    EndDate = w.EndDate
+                }).FirstOrDefault() ?? new WarrantyOrderDto(),
+                OrderLogs = order.Order.OrderLogs.Select(ol => new OrderLogDto
+                {
+                    OrderLogId = ol.OrdLogId,
+                    NewStatusOrderId = ol.NewStatusOrdId,
+                    NewStatusOrderName = ol.NewStatusOrd.OrdStatusName, 
+                    UserId = ol.UsrId,
+                    Note = ol.Note,
+                    CreatedAt = ol.CreatedAt
+                }).ToList()
+            };
+        }
+
     }
 }
