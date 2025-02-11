@@ -1,0 +1,32 @@
+.login-container {
+    min-height: 80vh;
+    width: 100%;
+    background-color: #F6EEF0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    flex: 1;
+    
+}
+
+.custom-border-bottom {
+    background-color: #F6EEF0;
+    border-bottom: 0.5px solid #C87E83 !important;
+}
+
+.form-check-input {
+    accent-color: #C87E83 !important;
+    border: 2px solid #C87E83 !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+}
+
+.form-check-input:checked {
+    background-color: #C87E83 !important;
+    border-color: #C87E83 !important;
+}
+
+h1 {
+    font-family: 'Marko One', serif;
+}
