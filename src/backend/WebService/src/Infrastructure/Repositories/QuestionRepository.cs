@@ -7,13 +7,16 @@ using Domain.Repositories;
 using Infrastructure.Common;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories
 {
     public class QuestionRepository : Repository<Question>, IQuestionRepository
     {
-        public QuestionRepository(MyDbContext context) : base(context)
+        private readonly ILogger<QuestionRepository> _logger;
+        public QuestionRepository(MyDbContext context, ILogger<QuestionRepository> logger) : base(context)
         {
+            _logger = logger;
         }
 
         public Task<List<CategoryQuestion>> GetAllCategoriesAsync()
@@ -31,24 +34,45 @@ namespace Infrastructure.Repositories
 
         public async Task<Question?> GetNextQuestionInCategoryAsync(int categoryId, long quizId)
         {
+            _logger.LogInformation($"Fetching next question in category {categoryId} for quiz {quizId}");
+
             // ✅ 1. Lấy danh sách câu hỏi đã trả lời từ QuizDetail theo quizId
             var answeredQuestions = await _context.QuizDetails
                 .Where(qd => qd.QuizId == quizId)
                 .Select(qd => qd.QuestId)
                 .ToListAsync();
 
-            // ✅ 2. Lọc ra các câu hỏi chưa trả lời trong category hiện tại
-            var nextQuestion = await _context.Questions
-                .Where(q => q.CateQuestionId == categoryId && 
-                           !answeredQuestions.Contains(q.QuestionId) &&
-                           q.KeyQuestions.Any())
-                .Include(q => q.KeyQuestions)
-                .OrderBy(q => q.QuestionId)
-                .FirstOrDefaultAsync();
+            _logger.LogInformation($"Answered questions: {string.Join(", ", answeredQuestions)}");
 
-            // ✅ 3. Nếu không còn câu hỏi trong category hiện tại, trả về null để chuyển sang category khác
+            // ✅ 2. Kiểm tra xem còn câu hỏi nào chưa trả lời không
+            var remainingQuestions = await _context.Questions
+                .Where(q => q.CateQuestionId == categoryId &&
+                            !answeredQuestions.Contains(q.QuestionId))
+                .Include(q => q.KeyQuestions)
+                .ToListAsync();
+
+            if (!remainingQuestions.Any())
+            {
+                _logger.LogWarning($"No more questions available in category {categoryId}");
+                return null; // Không còn câu hỏi nào trong category hiện tại
+            }
+
+            // ✅ 3. Chọn câu hỏi tiếp theo có KeyQuestions hợp lệ
+            var nextQuestion = remainingQuestions
+                .Where(q => q.KeyQuestions.Any()) // Đảm bảo câu hỏi có câu trả lời hợp lệ
+                .OrderBy(q => q.QuestionId) // Sắp xếp để lấy câu hỏi có ID nhỏ nhất
+                .FirstOrDefault();
+
+            if (nextQuestion == null)
+            {
+                _logger.LogWarning($"No valid next question found in category {categoryId}");
+                return null;
+            }
+
+            _logger.LogInformation($"Returning next question: {nextQuestion.QuestionId}");
             return nextQuestion;
         }
+
 
         public async Task<Question?> GetQuestionByIdAsync(int questionId)
         {

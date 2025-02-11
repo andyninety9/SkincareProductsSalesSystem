@@ -52,10 +52,19 @@ namespace Application.SkinTest.Queries
             // Lấy câu hỏi đầu tiên
             var categories = await _questionRepository.GetAllCategoriesAsync();
             var randomCategory = categories.OrderBy(c => Guid.NewGuid()).FirstOrDefault();
+            if (randomCategory == null)
+            {
+                return Result<GetStartQuestionResponse>.Failure<GetStartQuestionResponse>(new Error("Categories.NotFound", "No categories found"));
+            }
             var questions = await _questionRepository.GetQuestionsByCategoryAsync(randomCategory.CateQuestionId);
             var randomQuestion = questions.Where(q => q.KeyQuestions != null && q.KeyQuestions.Any())
                                         .OrderBy(q => Guid.NewGuid())
                                         .FirstOrDefault();
+            
+            if (randomQuestion == null)
+            {
+                return Result<GetStartQuestionResponse>.Failure<GetStartQuestionResponse>(new Error("Questions.NotFound", "No questions found for the selected category"));
+            }
 
             var response = new GetStartQuestionResponse
             {

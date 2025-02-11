@@ -46,9 +46,14 @@ namespace Application.Products.Queries
 
             // ✅ 2. Save answer key to ResultDetail
             await _resultQuizRepository.SaveUserAnswerAsync(resultQuizId, request.AnswerKeyId);
+            
 
             // ✅ 3. Lấy câu hỏi tiếp theo trong cùng category, tránh câu hỏi đã trả lời
             var currentQuestion = await _questionRepository.GetQuestionByIdAsync(request.QuestionId);
+            if (currentQuestion == null)
+            {
+                return Result<GetNextQuestionResponse>.Failure<GetNextQuestionResponse>(new Error("QuestionNotFound", "Current question not found."));
+            }
 
             // Lấy danh sách câu hỏi đã trả lời từ QuizDetail
             var answeredQuestions = await _quizRepository.GetAnsweredQuestionsAsync(request.QuizId);
