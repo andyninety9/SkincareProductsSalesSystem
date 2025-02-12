@@ -29,6 +29,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.1.3",
     "redux-persist": "^6.0.0",
+    "swiper": "^11.2.3",
     "yup": "^1.6.1"
   },
   "devDependencies": {
@@ -41,6 +42,8 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
+    "sass": "^1.84.0",
+    "sass-embedded": "^1.83.4",
     "vite": "^6.0.5"
   }
 }

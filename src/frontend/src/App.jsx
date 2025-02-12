@@ -5,6 +5,7 @@ import AboutPage from './page/aboutPage/aboutPage';
 import Login from './page/login/Login';
 import Register from './page/register/Register';
 import ResetPassword from './page/resetPassword/ResetPassword';
+import Contact from './page/contact/Contact';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HomePage from './page/homePage/HomePage';
@@ -39,6 +40,7 @@ function App() {
         { path: routes.product, element: <ProductPage /> },
         { path: routes.productDetail, element: <ProductDetailPage /> },
         { path: routes.review, element: <ReviewPage /> },
+        { path: routes.contact, element: <Contact /> },
       ],
     },
   ]);
