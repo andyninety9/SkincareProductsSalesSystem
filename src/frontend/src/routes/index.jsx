@@ -12,4 +12,5 @@ export const routes = {
     checkout: "/checkout",
     quiz:"/quiz",
     startQuiz:"/quiz/start",
+    contact: "/contact",
 }

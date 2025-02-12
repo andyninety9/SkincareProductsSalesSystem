@@ -16,6 +16,7 @@ import CartPage from "./page/cartPage/CartPage";
 import CheckOutPage from "./page/checkoutPage/CheckoutPage";
 import QuizPage from "./page/quizPage/QuizPage";
 import StartQuizPage from "./page/quizPage/StartQuizPage";
+import Contact from './page/contact/Contact';
 
 function App() {
   const router = createBrowserRouter([
@@ -46,6 +47,7 @@ function App() {
         { path: routes.checkout, element: <CheckOutPage /> },
         { path: routes.quiz, element: <QuizPage /> },
         { path: routes.startQuiz, element: <StartQuizPage /> },
+        { path: routes.contact, element: <Contact /> },
       ],
     },
   ]);

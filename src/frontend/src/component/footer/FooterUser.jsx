@@ -2,13 +2,14 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Facebook, Instagram, Twitter } from "@mui/icons-material";
 import '../../App.css';
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
     <footer className="py-4 px-5 mt-auto" style={{ backgroundColor: "#F6EEF0", borderTop: "0.5px solid #5A2D2F" }}>
       <div className="container d-flex justify-content-between">
         <div style={{ maxWidth: "300px" }}>
-          <h2 className="fw-bold fs-4 marko-font">Mavid</h2>
+          <h2 className="fw-bold fs-4" style={{ fontFamily: "Marko One", fontSize: "2rem" }}>Mavid</h2>
           <p className="small">
             Đặt mua ngay các sản phẩm mỹ phẩm phù hợp với làn da của bạn, cam kết 100% chính hãng.
           </p>
@@ -18,7 +19,7 @@ const Footer = () => {
         <div>
           <h3 className="fw-bold fs-5">Chăm Sóc Khách Hàng</h3>
           <ul className="list-unstyled small mt-2">
-            <li><a href="#" className="text-dark text-decoration-none">Liên hệ chúng tôi</a></li>
+            <li><Link to="/contact" className="text-dark text-decoration-none">Liên hệ chúng tôi</Link></li>
             <li><a href="#" className="text-dark text-decoration-none">Hỏi đáp</a></li>
             <li><a href="#" className="text-dark text-decoration-none">Chính sách đổi trả</a></li>
             <li><a href="#" className="text-dark text-decoration-none">Chính sách bán hàng</a></li>
