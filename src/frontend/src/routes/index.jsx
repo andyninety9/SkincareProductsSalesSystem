@@ -7,4 +7,5 @@ export const routes = {
     // verifyCode: "/verify-code",
     product: "/product",
     productDetail: "/product/:id",
+    review:"product/:id/review",
 }

@@ -275,7 +275,7 @@ export default function ProductDetailPage() {
                 <div style={{
                     maxWidth: "1100px",
                     margin: "auto",
-                    padding: "20px 300px",
+                    padding: "20px 250px",
                 }}>
                     <div style={{ marginTop: "50px" }}>
                         <div>
@@ -323,7 +323,7 @@ export default function ProductDetailPage() {
                     </div>
                     <p style={{ color: "#A76A6E", textAlign: "center", paddingTop: "2%" }}>2/10 đánh giá</p>
                     <div style={{display:"flex", justifyContent:"center", paddingTop:"2%"}}>
-                        <button style={{ backgroundColor: "#A76A6E", color: "white", padding: "10px 20px", borderRadius: "5px", border: "none", cursor: "pointer" }}>Xem tất cả đánh giá</button>
+                        <button style={{ backgroundColor: "#A76A6E", color: "white", padding: "10px 20px", borderRadius: "5px", border: "none", cursor: "pointer", fontSize:"15px" }}>Xem tất cả đánh giá</button>
                     </div>
                 </div>
             </div>

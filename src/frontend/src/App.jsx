@@ -9,6 +9,7 @@ import HomePage from './page/homePage/HomePage';
 import UserLayout from './layout/userLayout/UserLayout';
 import ProductPage from './page/productPage/ProductPage';
 import ProductDetailPage from './page/productDetail/ProductDetailPage';
+import ReviewPage from './page/reviewPage/ReviewPage';
 
 function App() {
   const router = createBrowserRouter([
@@ -16,15 +17,16 @@ function App() {
       path: routes.login,
       element: <Login />,
     },
-    
+
     {
       path: routes.home,
       element: <UserLayout />,
       children: [
         { path: routes.home, element: <HomePage /> },
         { path: routes.about, element: <AboutPage /> },
-        {path: routes.product, element:<ProductPage/>},
-        {path: routes.productDetail, element:<ProductDetailPage/>},
+        { path: routes.product, element: <ProductPage /> },
+        { path: routes.productDetail, element: <ProductDetailPage /> },
+        { path: routes.review, element: <ReviewPage /> },
       ],
     },
   ]);
