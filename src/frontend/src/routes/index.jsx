@@ -4,8 +4,8 @@ export const routes = {
     login: "/login",
     register: "/register",
     forgotPassword: "/forgot-password",
-    // verifyCode: "/verify-code",
+    resetPassword: "/reset-password",
     product: "/product",
     productDetail: "/product/:id",
-    review:"product/:id/review",
+    review: "product/:id/review",
 }

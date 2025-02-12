@@ -3,6 +3,8 @@ import { routes } from './routes';
 // import UserLayout from './layout/userLayout/userLayout';
 import AboutPage from './page/aboutPage/aboutPage';
 import Login from './page/login/Login';
+import Register from './page/register/Register';
+import ResetPassword from './page/resetPassword/ResetPassword';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HomePage from './page/homePage/HomePage';
@@ -17,6 +19,16 @@ function App() {
       path: routes.login,
       element: <Login />,
     },
+
+    {
+      path: routes.register,
+      element: <Register />,
+    },
+    {
+      path: routes.resetPassword, 
+      element: <ResetPassword />,
+    },
+
 
     {
       path: routes.home,

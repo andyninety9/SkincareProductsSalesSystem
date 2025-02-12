@@ -3,16 +3,20 @@ import { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { FaUser, FaLock } from "react-icons/fa";
+import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import HeaderUser from "../../component/header/HeaderUser";
 import FooterUser from "../../component/footer/FooterUser";
 import { FaFacebook, FaGoogle } from "react-icons/fa";
 import ForgotPasswordModal from "./ForgotPasswordModal";
+import { routes } from "../../routes";
+
 import "./Login.css";
 import "../../index.css";
 
 const Login = () => {
     const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     return (
         <>
@@ -46,32 +50,49 @@ const Login = () => {
                                     <label className="form-label" style={{ fontSize: "14px", color: "#C87E83", fontFamily: "'Nunito', sans-serif" }}>
                                         <FaUser className="me-1" /> Tên đăng nhập
                                     </label>
-                                    <Field name="username" type="text" className="form-control border-0 border-bottom rounded-0 custom-border-bottom " style={{ backgroundColor: "#F6EEF0" }} />
-                                    <ErrorMessage name="username" component="div" className="text-danger small mt-1 " />
+                                    <Field
+                                        name="username"
+                                        type="text"
+                                        className="form-control border-0 border-bottom rounded-0 custom-border-bottom"
+                                        style={{ backgroundColor: "#F6EEF0" }}
+                                    />
+                                    <ErrorMessage name="username" component="div" className="text-danger small mt-1" />
                                 </div>
 
-                                {/* Password */}
-                                <div className="mb-3">
+                                {/* Password with Eye Icon */}
+                                <div className="mb-3 position-relative">
                                     <label className="form-label" style={{ fontSize: "14px", color: "#C87E83", fontFamily: "'Nunito', sans-serif" }}>
                                         <FaLock className="me-1" /> Mật khẩu
                                     </label>
-                                    <Field name="password" type="password" className="form-control border-0 border-bottom rounded-0 custom-border-bottom" style={{ backgroundColor: "#F6EEF0" }} />
+                                    <div className="position-relative">
+                                        <Field
+                                            name="password"
+                                            type={showPassword ? "text" : "password"}
+                                            className="form-control border-0 border-bottom rounded-0 custom-border-bottom pe-4"
+                                            style={{ backgroundColor: "#F6EEF0" }}
+                                        />
+                                        <span
+                                            className="position-absolute top-50 translate-middle-y"
+                                            style={{ right: "10px", cursor: "pointer", color: "#C87E83" }}
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <EyeOutlined /> : <EyeInvisibleOutlined />}
+                                        </span>
+                                    </div>
                                     <ErrorMessage name="password" component="div" className="text-danger small mt-1" />
+
                                     {/* Forgot Password */}
                                     <span
                                         onClick={() => setIsForgotPasswordOpen(true)}
                                         className="d-block text-end small text-decoration-none mt-1"
-                                        style={{ color: "#C87E83", cursor: "pointer" }}>
+                                        style={{ color: "#C87E83", cursor: "pointer" }}
+                                    >
                                         Quên mật khẩu?
                                     </span>
-            
 
-                                    {/* ForgotPasswordModal */}
+                                    {/* Forgot Password Modal */}
                                     {isForgotPasswordOpen && (
-                                        <ForgotPasswordModal
-                                            isOpen={isForgotPasswordOpen}
-                                            onClose={() => setIsForgotPasswordOpen(false)}
-                                        />
+                                        <ForgotPasswordModal isOpen={isForgotPasswordOpen} onClose={() => setIsForgotPasswordOpen(false)} />
                                     )}
                                 </div>
 
@@ -90,16 +111,18 @@ const Login = () => {
                                 {/* Submit Button */}
                                 <button
                                     type="submit"
-                                    className="btn w-100 d-flex align-items-center justify-content-center"
+                                    className=" d-flex align-items-center justify-content-center"
                                     style={{
-                                        width: "100%",
+                                        width: "80%",
                                         height: "45px",
-                                        borderRadius: "20px",
+                                        borderRadius: "10px",
                                         border: "1px solid #5A2D2F",
                                         backgroundColor: "#F6EEF0",
                                         color: "#5A2D2F",
                                         fontWeight: "bold",
                                         fontFamily: "'Nunito', sans-serif",
+                                        marginLeft: "40px",
+                                        marginTop: "40px"
                                     }}
                                     disabled={isSubmitting}
                                 >
@@ -108,13 +131,29 @@ const Login = () => {
 
 
                                 {/* Link qua Signup */}
-                                <div className="text-center mt-3">
-                                    <p className="text-muted small">Bạn chưa có tài khoản? <Link to="/register" className="text-decoration-none fw-bold" style={{ color: "#C87E83", fontFamily: "'Nunito', sans-serif" }}>Tạo tài khoản</Link></p>
+                                <div className="text-center mt-3 ">
+                                    <p className="text-muted small">Bạn chưa có tài khoản? 
+                                        <Link to={routes.register} className="text-decoration-none fw-bold text-decoration-underline" 
+                                        style={{ color: "#C87E83", fontFamily: "'Nunito', sans-serif", fontStyle: "italic", }}>Tạo tài khoản</Link></p>
                                 </div>
 
                                 {/* Login with socials */}
                                 <div className="text-center mt-3">
-                                    <p lassName="small" style={{ color: "#C87E83", fontFamily: "'Nunito', sans-serif" }}>Hoặc đăng nhập bằng</p>
+                                    <div className="d-flex align-items-center">
+                                        <hr className="flex-grow-1" style={{ flex: 0.4, borderTop: "1px solid #C87E83" }} />
+                                        <p
+                                            className="small mx-2"
+                                            style={{
+                                                color: "#C87E83",
+                                                fontFamily: "'Nunito', sans-serif",
+                                                fontWeight: "bold",
+                                                margin: 0,
+                                            }}
+                                        >
+                                            Đăng nhập bằng
+                                        </p>
+                                        <hr className="flex-grow-1" style={{ flex: 0.4, borderTop: "1px solid #C87E83" }} />
+                                    </div>
                                     <div className="text-center mt-3">
 
                                         <div className="d-flex justify-content-center gap-3">
@@ -124,7 +163,7 @@ const Login = () => {
                                                 style={{
                                                     width: "80px",
                                                     height: "40px",
-                                                    borderRadius: "20px",
+                                                    borderRadius: "10px",
                                                     border: "1px solid #5A2D2F",
                                                     backgroundColor: "#F6EEF0",
                                                 }}
@@ -138,7 +177,7 @@ const Login = () => {
                                                 style={{
                                                     width: "80px",
                                                     height: "40px",
-                                                    borderRadius: "20px",
+                                                    borderRadius: "10px",
                                                     border: "1px solid #5A2D2F",
                                                     backgroundColor: "#F6EEF0",
                                                 }}
