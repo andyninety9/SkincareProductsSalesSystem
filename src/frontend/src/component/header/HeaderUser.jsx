@@ -68,7 +68,7 @@ const HeaderUser = () => {
                 left: "110%",
                 transform: "translateX(-50%)",
                 width: "100vw",
-                height: "40vh",
+                height: "fit-content",
                 maxWidth: "1440px",
                 background: "#fffbfc",
                 padding: "20px",
