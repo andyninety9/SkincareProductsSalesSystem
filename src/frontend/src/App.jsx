@@ -1,11 +1,12 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { routes } from './routes';
-import UserLayout from './layout/userLayout/userLayout';
-import HomePage from './page/homePage/homePage';
+// import UserLayout from './layout/userLayout/userLayout';
 import AboutPage from './page/aboutPage/aboutPage';
 import Login from './page/login/Login';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import HomePage from './page/homePage/HomePage';
+import UserLayout from './layout/userLayout/UserLayout';
 
 function App() {
   const router = createBrowserRouter([
