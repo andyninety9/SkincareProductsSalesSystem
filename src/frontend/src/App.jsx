@@ -4,6 +4,7 @@ import UserLayout from './layout/userLayout/userLayout';
 import HomePage from './page/homePage/homePage';
 import AboutPage from './page/aboutPage/aboutPage';
 import Login from './page/login/Login';
+import Register from './page/register/Register';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -13,13 +14,19 @@ function App() {
       path: routes.login,
       element: <Login />,
     },
-    
+
+    {
+      path: routes.register,
+      element: <Register />,
+    },
+
     {
       path: routes.home,
       element: <UserLayout />,
       children: [
         { path: routes.home, element: <HomePage /> },
         { path: routes.about, element: <AboutPage /> },
+
       ],
     },
   ]);

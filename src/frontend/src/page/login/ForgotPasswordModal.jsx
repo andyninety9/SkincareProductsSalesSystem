@@ -1,13 +1,24 @@
 import React, { useState } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, IconButton, Typography } from "@mui/material";
 import { AiOutlineMail, AiOutlineArrowLeft } from "react-icons/ai";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Box } from "@mui/material";
+import * as Yup from "yup";
+
 
 const ForgotPasswordModal = ({ isOpen, onClose }) => {
     const [email, setEmail] = useState("");
     const [isSent, setIsSent] = useState(false);
 
-    const handleSend = () => {
-        console.log("Email gửi đi:", email);
+    const validationSchema = Yup.object({
+        email: Yup.string()
+            .email("Email không hợp lệ")
+            .required("Vui lòng nhập email"),
+    });
+
+    const handleSend = (emailValue) => {
+        console.log("Email gửi đi:", emailValue);
+        setEmail(emailValue);
         setIsSent(true);
     };
 
@@ -21,10 +32,11 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 fullWidth
                 sx={{
                     "& .MuiPaper-root": {
-                        height: "250px",
+                        height: "260px",
                         backgroundColor: "#F6EEF0",
                         borderRadius: "10px",
                         padding: "20px",
+                        overflow: "hidden",
                     },
                 }}
             >
@@ -43,49 +55,68 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                     Nhập email để nhận mã xác minh
                 </DialogTitle>
 
-                {/* Input Field */}
-                <DialogContent sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 3 }}>
-                    <TextField
-                        fullWidth
-                        variant="standard"
-                        placeholder="Email của bạn"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        sx={{
-                            backgroundColor: "#F6EEF0",
-                            fontFamily: "'Nunito', sans-serif",
-                            "& .MuiInput-underline:before": { borderBottomColor: "#C87E83" },
-                            "& .MuiInput-underline:after": { borderBottomColor: "#C87E83" },
-                            "& .MuiInputAdornment-root": { color: "#C87E83" },
-                        }}
-                        InputProps={{
-                            startAdornment: (
-                                <AiOutlineMail size={20} style={{ marginRight: 10, color: "#C87E83" }} />
-                            ),
-                        }}
-                    />
-                </DialogContent>
+                
 
-                {/* Send Button */}
-                <DialogActions sx={{ justifyContent: "center" }}>
-                    <Button
-                        onClick={handleSend}
-                        sx={{
-                            width: "80px",
-                            height: "45px",
-                            borderRadius: "20px",
-                            border: "1px solid #5A2D2F",
-                            backgroundColor: "#F6EEF0",
-                            color: "#5A2D2F",
-                            fontWeight: "bold",
-                            fontFamily: "'Nunito', sans-serif",
-                            textTransform: "none",
-                            "&:hover": { backgroundColor: "#EAD5D8" },
-                        }}
-                    >
-                        Gửi
-                    </Button>
-                </DialogActions>
+                {/* Input Field */}
+                <Formik
+                    initialValues={{ email: "" }}
+                    validationSchema={validationSchema}
+                    onSubmit={(values, { setSubmitting }) => {
+                        handleSend(values.email); 
+                        setSubmitting(false);
+                    }}
+                >
+                    {({ isSubmitting, errors, touched }) => (
+                        <Form>
+                            <DialogContent sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 1 }}>
+                                <Field
+                                    as={TextField}
+                                    fullWidth
+                                    name="email"
+                                    type="email"
+                                    variant="standard"
+                                    placeholder="Email của bạn"
+                                    error={touched.email && !!errors.email}
+                                    helperText={touched.email && errors.email}
+                                    sx={{
+                                        backgroundColor: "#F6EEF0",
+                                        fontFamily: "'Nunito', sans-serif",
+                                        "& .MuiInput-underline:before": { borderBottomColor: "#C87E83" },
+                                        "& .MuiInput-underline:after": { borderBottomColor: "#C87E83" },
+                                    }}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <AiOutlineMail size={20} style={{ marginRight: 10, color: "#C87E83" }} />
+                                        ),
+                                    }}
+                                />
+                            </DialogContent>
+
+                            <DialogActions sx={{ justifyContent: "center" }}>
+                                <Button
+                                    type="submit"
+                                    disabled={isSubmitting || !!errors.email}
+                                    sx={{
+                                        width: "80px",
+                                        height: "40px",
+                                        borderRadius: "10px",
+                                        border: "1px solid #5A2D2F",
+                                        backgroundColor: "#F6EEF0",
+                                        color: "#5A2D2F",
+                                        fontWeight: "bold",
+                                        fontFamily: "'Nunito', sans-serif",
+                                        textTransform: "none",
+                                        marginTop: "10px",
+                                        "&:hover": { backgroundColor: "#EAD5D8" },
+                                    }}
+                                >
+                                    Gửi
+                                </Button>
+                            </DialogActions>
+                        </Form>
+                    )}
+                </Formik>
+
             </Dialog>
 
             {/* Email Confirmation */}
@@ -124,24 +155,27 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                     <Typography variant="h5" sx={{ fontFamily: "'Prata', serif", color: "#5A2D2F", mb: 2 }}>
                         Xác thực email
                     </Typography>
-                    <Typography sx={{ color: "#5A2D2F", mb: 2 }}>
+                    <Typography sx={{ color: "#5A2D2F", mb: 1, textAlign: "center" }}>
                         Mavid đã gửi một email xác minh đến <strong>{email}</strong>.
                         Vui lòng kiểm tra hộp thư và nhấp vào link để hoàn tất xác minh.
                     </Typography>
-                    <AiOutlineMail size={120} style={{ color: "#C87E83", marginBottom: "10px" }} />
-
+                    
                     {/* Resend Email */}
                     <Button
-                        onClick={handleSend}
+                        onClick={() => handleSend(email)}
                         sx={{
                             color: "#C87E83",
                             textDecoration: "underline",
-                            fontSize: "16px",
-                            fontWeight: "bold",
+                            fontSize: "14px",
+                            textTransform: "none"
+                        
                         }}
                     >
                         Gửi lại email
                     </Button>
+
+                    <AiOutlineMail size={120} style={{ color: "#C87E83", marginBottom: "10px" }} />
+
                 </DialogContent>
             </Dialog>
         </>

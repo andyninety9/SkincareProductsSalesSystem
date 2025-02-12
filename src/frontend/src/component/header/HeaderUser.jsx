@@ -18,7 +18,7 @@ const HeaderUser = () => {
     <header className="border-bottom">
 
       <div className="text-center text-white py-2 small" style={{ backgroundColor: "#D8959A" }}>
-        Giao hàng toàn quốc với chỉ 30000đ
+        Giao hàng toàn quốc với chỉ 30.000đ
       </div>
 
       {/* Header Content */}
