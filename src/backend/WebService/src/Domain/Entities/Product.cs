@@ -29,6 +29,10 @@ public partial class Product
 
     public short ProdStatusId { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime UpdatedAt { get; set; }
+
     public virtual Brand Brand { get; set; } = null!;
 
     public virtual CategoryProduct Cate { get; set; } = null!;

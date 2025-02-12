@@ -1,0 +1,54 @@
+.cardProduct {
+  width: 80%;
+  height: 265px;
+  // box-shadow: rgba(0, 0, 0, 0.35) 0px 2px 3px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  border-radius: 7%;
+  margin-left: auto;
+  margin-right: auto;
+
+  img {
+      // border-radius: 10%;
+      border: none;
+      border-radius: 7% 7% 0 0;
+      width: 100%;
+      height: 188px;
+  }
+
+  &-content {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      // gap: 25%;
+
+      &-left {
+          margin-top: 1%;
+          margin-left: 7%;
+
+          p {
+              margin: 0;
+              font-size: 12px;
+          }
+
+          &-rate {
+              font-size: 15px;
+          }
+      }
+
+      &-right {
+          margin-top: 2%;
+          font-size: 14px;
+          font-weight: 500;
+          margin-right: 7%;
+      }
+  }
+}
+
+.product-slider {
+  width: 100%;
+  height: 300px;
+}
+
+// .swiper-button-prev,
+// .swiper-button-next {}

@@ -26,6 +26,8 @@ using Application.Abstractions.Cloud;
 using Amazon.S3;
 using Application.Abstractions.Authorization;
 using Infrastructure.Authorization;
+using Application.Abstractions.Google;
+using Infrastructure.Google;
 
 namespace Infrastructure
 {
@@ -36,10 +38,35 @@ namespace Infrastructure
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IReviewRepository, ReviewRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IQuestionRepository, QuestionRepository>();
+            services.AddScoped<IQuizRepository, QuizRepository>();
+            services.AddScoped<IResultQuizRepository, ResultQuizRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
+            //DI GoogleOAuthService
+            services.AddSingleton<GoogleAuthConfig>();
+
+            //DI HttpClient for Google OAuth Service
+            services.AddHttpClient<IGoogleOAuthService, GoogleOAuthService>();
+
+            // DI GoogleOAuthService
+            services.AddScoped<IGoogleOAuthService, GoogleOAuthService>();
+
+            // Config Google OAuth
+            services.AddSingleton(provider =>
+            {
+                var config = provider.GetRequiredService<GoogleAuthConfig>();
+                if (string.IsNullOrEmpty(config.ClientId) || string.IsNullOrEmpty(config.ClientSecret))
+                {
+                    throw new InvalidOperationException("Google OAuth credentials are not configured properly.");
+                }
+                return config;
+            });
 
             //DI IAuthorizationService
             services.AddScoped<IAuthorizationService, AuthorizationService>();

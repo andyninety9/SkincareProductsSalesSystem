@@ -2,6 +2,7 @@ using Application.Abstractions.Messaging;
 using Application.Abstractions.Redis;
 using Application.Abstractions.UnitOfWork;
 using Application.Accounts.Response;
+using Application.Common.Enum;
 using Application.Common.Jwt;
 using Application.Common.ResponseModel;
 using Application.Constant;
@@ -47,6 +48,11 @@ namespace Application.Auth.Commands
                 if (account == null)
                 {
                     return Result<LoginResponse>.Failure<LoginResponse>(new Error("LoginError", IConstantMessage.INVALID_EMAIL_OR_PASSWORD));
+                }
+
+                if ((AccountStatusEnum)account.AccStatusId == AccountStatusEnum.Banned)
+                {
+                    return Result<LoginResponse>.Failure<LoginResponse>(new Error("LoginError", IConstantMessage.ACCOUNT_IS_LOCKED));
                 }
 
                 // Tạo token

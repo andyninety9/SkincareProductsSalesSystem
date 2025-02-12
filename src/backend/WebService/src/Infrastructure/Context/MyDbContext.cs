@@ -46,6 +46,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<OrderStatus> OrderStatuses { get; set; }
 
+    public virtual DbSet<Payment> Payments { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<ProductImage> ProductImages { get; set; }
@@ -416,6 +418,28 @@ public partial class MyDbContext : DbContext
                 .HasColumnName("ordStatusName");
         });
 
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.HasKey(e => e.PaymentId).HasName("Payment_pkey");
+
+            entity.ToTable("Payment");
+
+            entity.Property(e => e.PaymentId).HasColumnName("paymentID");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("timestamp(0) without time zone")
+                .HasColumnName("createdAt");
+            entity.Property(e => e.OrderId).HasColumnName("orderID");
+            entity.Property(e => e.PaymentAmount).HasColumnName("paymentAmount");
+            entity.Property(e => e.PaymentMethod)
+                .HasColumnType("character varying")
+                .HasColumnName("paymentMethod");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.Payments)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("payment_ordid_foreign");
+        });
+
         modelBuilder.Entity<Product>(entity =>
         {
             entity.HasKey(e => e.ProductId).HasName("Product_pkey");
@@ -430,6 +454,9 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.CostPrice)
                 .HasDefaultValueSql("'0'::double precision")
                 .HasColumnName("costPrice");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("createdAt");
             entity.Property(e => e.Ingredient).HasColumnName("ingredient");
             entity.Property(e => e.Instruction).HasColumnName("instruction");
             entity.Property(e => e.ProdStatusId).HasColumnName("prodStatusID");
@@ -444,6 +471,9 @@ public partial class MyDbContext : DbContext
                 .HasDefaultValue(0)
                 .HasColumnName("stocks");
             entity.Property(e => e.TotalRating).HasColumnName("totalRating");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updatedAt");
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Products)
                 .HasForeignKey(d => d.BrandId)
@@ -787,10 +817,10 @@ public partial class MyDbContext : DbContext
                 .ValueGeneratedOnAdd()
                 .HasColumnName("usrID");
             entity.Property(e => e.AvatarUrl)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .HasColumnName("avatarUrl");
             entity.Property(e => e.CoverUrl)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .HasColumnName("coverUrl");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("timestamp(0) without time zone")
@@ -800,10 +830,10 @@ public partial class MyDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("email");
             entity.Property(e => e.EmailVerifyToken)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .HasColumnName("emailVerifyToken");
             entity.Property(e => e.ForgotPasswordToken)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .HasColumnName("forgotPasswordToken");
             entity.Property(e => e.Fullname)
                 .HasMaxLength(255)

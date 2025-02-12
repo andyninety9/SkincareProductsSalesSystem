@@ -1,13 +1,17 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { routes } from './routes';
-import UserLayout from './layout/userLayout/userLayout';
-import HomePage from './page/homePage/homePage';
+// import UserLayout from './layout/userLayout/userLayout';
 import AboutPage from './page/aboutPage/aboutPage';
 import Login from './page/login/Login';
 import Register from './page/register/Register';
 import ResetPassword from './page/resetPassword/ResetPassword';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import HomePage from './page/homePage/HomePage';
+import UserLayout from './layout/userLayout/UserLayout';
+import ProductPage from './page/productPage/ProductPage';
+import ProductDetailPage from './page/productDetail/ProductDetailPage';
+import ReviewPage from './page/reviewPage/ReviewPage';
 
 function App() {
   const router = createBrowserRouter([
@@ -25,13 +29,16 @@ function App() {
       element: <ResetPassword />,
     },
 
+
     {
       path: routes.home,
       element: <UserLayout />,
       children: [
         { path: routes.home, element: <HomePage /> },
         { path: routes.about, element: <AboutPage /> },
-
+        { path: routes.product, element: <ProductPage /> },
+        { path: routes.productDetail, element: <ProductDetailPage /> },
+        { path: routes.review, element: <ReviewPage /> },
       ],
     },
   ]);

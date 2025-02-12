@@ -1,13 +1,10 @@
-/* The above code is a C# implementation of a UserController in a WebApi project. Here is a summary of
-what the code is doing: */
 using System.Security.Claims;
 using Application.Attributes;
+using Application.Common.Enum;
 using Application.Common.Paginations;
 using Application.Constant;
 using Application.Users.Commands;
 using Application.Users.Queries;
-using Domain.Entities;
-using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +13,7 @@ using WebApi.DTOs;
 
 namespace WebApi.Controllers.Users
 {
-    
+
     [Route("api/[controller]")]
     public class UserController : ApiController
     {
@@ -49,7 +46,7 @@ namespace WebApi.Controllers.Users
                     return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
                 }
 
-                System.Console.WriteLine(usrID);
+                // System.Console.WriteLine(usrID);
 
                 if (_mediator == null)
                 {
@@ -104,18 +101,18 @@ namespace WebApi.Controllers.Users
                     return StatusCode(500, new { statusCode = 500, message = IConstantMessage.INTERNAL_SERVER_MEDIATOR_ERROR });
                 }
                 System.Console.WriteLine("user id: " + userId);
-                
-                var updatedCommand = command with { UsrId = userId};
+
+                var updatedCommand = command with { UsrId = userId };
                 var result = await _mediator.Send(updatedCommand, cancellationToken);
 
                 if (result.IsFailure)
                 {
                     return HandleFailure(result);
                 }
-                
+
                 var response = await _mediator.Send(new GetMeQuery(userId), cancellationToken);
                 return Ok(new { statusCode = 200, message = IConstantMessage.UPDATE_ME_SUCCESS, data = response.Value });
-                
+
             }
             catch (Exception ex)
             {
@@ -294,7 +291,7 @@ namespace WebApi.Controllers.Users
         // Query String: ?page={int}&limit={int}
         [HttpGet("all-users")]
         [Authorize]
-        [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
         public async Task<IActionResult> GetAllUsers(CancellationToken cancellationToken, [FromQuery] int page = 1, [FromQuery] int limit = 10)
         {
             if (page <= 0 || limit <= 0)
@@ -319,17 +316,17 @@ namespace WebApi.Controllers.Users
         //Query String: ?keyword={string}&page={int}&limit={int}&gender={string}&status={int}&role={int}&fromDate={ISO8601}&toDate={ISO8601}
         [HttpGet("search-users")]
         [Authorize]
-        [AuthorizeRole(RoleType.Manager, RoleType.Staff)]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
         public async Task<IActionResult> SearchUsers(
             CancellationToken cancellationToken,
             [FromQuery] string keyword,
             [FromQuery] int page = 1,
             [FromQuery] int limit = 10,
-            [FromQuery] string gender = null,
+            [FromQuery] string? gender = null,
             [FromQuery] int? status = null,
             [FromQuery] int? role = null,
-            [FromQuery] string fromDate = null,
-            [FromQuery] string toDate = null)
+            [FromQuery] string? fromDate = null,
+            [FromQuery] string? toDate = null)
         {
             if (page <= 0 || limit <= 0)
             {
@@ -339,11 +336,11 @@ namespace WebApi.Controllers.Users
             var query = new SearchUsersQuery(
                 keyword,
                 new PaginationParams { Page = page, PageSize = limit },
-                gender,
+                gender ?? string.Empty,
                 status,
                 role,
-                fromDate,
-                toDate
+                fromDate ?? string.Empty,
+                toDate ?? string.Empty
             );
             var result = await _mediator.Send(query, cancellationToken);
 
@@ -355,16 +352,13 @@ namespace WebApi.Controllers.Users
             return Ok(new { statusCode = 200, message = "Search users successfully", data = result.Value });
         }
 
-<<<<<<< HEAD
-        //GET: api/User/get-user/{usrId}
-=======
         //POST: api/User/create-user
         //Authorization: Bearer token
         //Role: Manager
         //Body: { "fullname": "string", "username": "string", "email": "string", "phone": "string", roleId: "short"}
         [HttpPost("create-user")]
         [Authorize]
-        [AuthorizeRole(RoleType.Manager)]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
@@ -376,7 +370,49 @@ namespace WebApi.Controllers.Users
 
             return Ok(new { statusCode = 200, message = "Create user successfully", data = result.Value });
         }
->>>>>>> feature/user-service
+
+        //DELETE: api/User/deactive-user/{id}
+        //Authorization: Bearer token
+        //Role: Manager, Staff
+        [HttpDelete("deactive-user/{id}")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> DeleteUser(long id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteUserCommand(id);
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error.Description });
+            }
+
+            return Ok(new { statusCode = 200, message = "Delete user successfully" });
+        }
+
+        //PATCH: api/User/active-user/{id}
+        //Authorization: Bearer token
+        //Role: Manager, Staff
+        [HttpPatch("active-user/{id}")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> ActiveUser(long id, CancellationToken cancellationToken)
+        {
+            var command = new ActiveUserCommand(id);
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error.Description });
+            }
+
+            return Ok(new { statusCode = 200, message = "Active user successfully" });
+        }
+
+        //POST: api/User/create-address
+        //Authorization: Bearer token
+        
+
 
     }
 }

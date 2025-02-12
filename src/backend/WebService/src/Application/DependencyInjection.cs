@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Application.Behaviors;
+using Application.Common;
 using Domain.Repositories;
 using FluentValidation;
 using MediatR;
@@ -22,6 +23,7 @@ namespace Application
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
             services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
             services.AddHttpContextAccessor();
+            services.AddSingleton<IdGeneratorService>();
             return services;
 
         }

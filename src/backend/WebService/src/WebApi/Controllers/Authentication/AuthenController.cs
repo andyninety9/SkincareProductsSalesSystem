@@ -28,7 +28,7 @@ namespace WebApi.Controllers.Authentication
         public async Task<IActionResult> Register([FromBody] RegisterAccountCommand request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request, cancellationToken);
-            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = "Register successfully", data = result.Value });
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message =IConstantMessage.REGISTER_SUCCESS, data = result.Value });
 
         }
 

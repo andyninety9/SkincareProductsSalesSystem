@@ -11,11 +11,8 @@ namespace Application.Auth.Commands.Validation
             RuleFor(x => x.Password)
                 .NotEmpty()
                 .Length(8, 100)
-                .Matches(@"[A-Z]").WithMessage("Password must contain at least one uppercase letter")
-                .Matches(@"[a-z]").WithMessage("Password must contain at least one lowercase letter")
-                .Matches(@"[0-9]").WithMessage("Password must contain at least one number")
-                .Matches(@"[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character")
-                .WithMessage("Password must be between 8 and 100 characters");
+                .Matches(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{8,100}$")
+                .WithMessage("Password must be between 8 and 100 characters and contain at least one uppercase letter, one lowercase letter, one number and one special character");
         }
     }
 }

@@ -1,9 +1,10 @@
-namespace Domain.Enums
+namespace Application.Common.Enum
 {
-    public enum RoleType
+    public enum RoleAccountEnum
     {
         Manager = 1,
         Staff = 2,
         Customer = 3
+        
     }
 }

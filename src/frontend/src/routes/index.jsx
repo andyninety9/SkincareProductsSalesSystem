@@ -5,4 +5,7 @@ export const routes = {
     register: "/register",
     forgotPassword: "/forgot-password",
     resetPassword: "/reset-password",
+    product: "/product",
+    productDetail: "/product/:id",
+    review: "product/:id/review",
 }

@@ -3,6 +3,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Prata&display=swap');
 
 
-.marko-font {
+
+/* .marko-font {
     font-family: 'Marko One', serif !important;
+} */
+
+/* Áp dụng font Nunito cho toàn bộ trang */
+body {
+    font-family: 'Nunito', sans-serif;
+}
+
+/* Đảm bảo font Marko One cho thẻ h1 */
+h1 {
+    font-family: 'Marko One', serif ;
 }

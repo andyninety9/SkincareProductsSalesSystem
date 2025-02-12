@@ -5,16 +5,16 @@ using System.Linq;
 using System.Security.Claims;
 using Application.Abstractions.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using Domain.Enums; // Nơi định nghĩa RoleType enum
+using Application.Common.Enum;
 
 namespace Application.Attributes
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
     public class AuthorizeRoleAttribute : Attribute, IAuthorizationFilter
     {
-        private readonly RoleType[] _requiredRoles;
+        private readonly RoleAccountEnum[] _requiredRoles;
 
-        public AuthorizeRoleAttribute(params RoleType[] requiredRoles)
+        public AuthorizeRoleAttribute(params RoleAccountEnum[] requiredRoles)
         {
             _requiredRoles = requiredRoles;
         }
@@ -32,7 +32,7 @@ namespace Application.Attributes
 
             // Lấy RoleId từ JWT Token
             var roleIdClaim = user.Claims.FirstOrDefault(c => c.Type == "roleId")?.Value;
-            if (string.IsNullOrEmpty(roleIdClaim) || !Enum.TryParse<RoleType>(roleIdClaim, out var userRole))
+            if (string.IsNullOrEmpty(roleIdClaim) || !Enum.TryParse<RoleAccountEnum>(roleIdClaim, out var userRole))
             {
                 context.Result = new ForbidResult(); // 403 Forbidden
                 return;
