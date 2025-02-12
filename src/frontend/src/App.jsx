@@ -5,6 +5,7 @@ import HomePage from './page/homePage/homePage';
 import AboutPage from './page/aboutPage/aboutPage';
 import Login from './page/login/Login';
 import Register from './page/register/Register';
+import ResetPassword from './page/resetPassword/ResetPassword';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -18,6 +19,10 @@ function App() {
     {
       path: routes.register,
       element: <Register />,
+    },
+    {
+      path: routes.resetPassword, 
+      element: <ResetPassword />,
     },
 
     {

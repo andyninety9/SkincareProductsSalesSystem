@@ -140,7 +140,7 @@ const Login = () => {
                                 {/* Login with socials */}
                                 <div className="text-center mt-3">
                                     <div className="d-flex align-items-center">
-                                        <hr style={{ flex: 0.5, borderTop: "1px solid #C87E83" }} />
+                                        <hr className="flex-grow-1" style={{ flex: 0.4, borderTop: "1px solid #C87E83" }} />
                                         <p
                                             className="small mx-2"
                                             style={{
@@ -152,7 +152,7 @@ const Login = () => {
                                         >
                                             Đăng nhập bằng
                                         </p>
-                                        <hr style={{ flex: 0.5, borderTop: "1px solid #C87E83" }} />
+                                        <hr className="flex-grow-1" style={{ flex: 0.4, borderTop: "1px solid #C87E83" }} />
                                     </div>
                                     <div className="text-center mt-3">
 

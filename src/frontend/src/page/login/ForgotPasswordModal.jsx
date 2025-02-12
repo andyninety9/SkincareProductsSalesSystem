@@ -174,7 +174,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                         Gửi lại email
                     </Button>
 
-                    <AiOutlineMail size={120} style={{ color: "#C87E83", marginBottom: "10px" }} />
+                    <AiOutlineMail style={{ color: "#C87E83", marginBottom: "10px", marginTop: "40px", transform: "scale(8)"}} />
 
                 </DialogContent>
             </Dialog>
