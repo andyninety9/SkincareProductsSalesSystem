@@ -4,6 +4,7 @@ import { FaHeart, FaSearch, FaShoppingBag } from "react-icons/fa";
 import { routes } from "../../routes";
 import dropdownImage from "../../assets/dropdown.webp";
 import "./HeaderUser.css";
+import "@fontsource/marko-one";
 
 const HeaderUser = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -26,11 +27,12 @@ const HeaderUser = () => {
         <div className="d-flex" style={{ flex: 1 }}></div>
 
         {/* Logo (Navigates to Home) */}
-        <h1 className="fw-bold m-0 text-center" style={{ fontFamily: "'Marko One', serif !important", fontSize: "2rem" }}>
+        <h1 className="fw-bold m-0 text-center" style={{ fontFamily: "Marko One", fontSize: "2rem" }}>
           <Link to={routes.home} className="text-dark text-decoration-none">
             Mavid
           </Link>
         </h1>
+
 
         {/* Icons */}
         <div className="d-flex gap-3 align-items-center justify-content-end" style={{ flex: 1 }}>

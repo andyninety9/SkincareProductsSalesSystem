@@ -6,4 +6,5 @@ export const routes = {
     forgotPassword: "/forgot-password",
     // verifyCode: "/verify-code",
     product: "/product",
+    productDetail: "/product/:id",
 }
