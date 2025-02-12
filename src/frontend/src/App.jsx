@@ -7,6 +7,7 @@ import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HomePage from './page/homePage/HomePage';
 import UserLayout from './layout/userLayout/UserLayout';
+import ProductPage from './page/productPage/ProductPage';
 
 function App() {
   const router = createBrowserRouter([
@@ -21,6 +22,7 @@ function App() {
       children: [
         { path: routes.home, element: <HomePage /> },
         { path: routes.about, element: <AboutPage /> },
+        {path: routes.product, element:<ProductPage/>}
       ],
     },
   ]);

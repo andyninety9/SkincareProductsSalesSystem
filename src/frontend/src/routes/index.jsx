@@ -5,4 +5,5 @@ export const routes = {
     register: "/register",
     forgotPassword: "/forgot-password",
     // verifyCode: "/verify-code",
+    product: "/product",
 }
