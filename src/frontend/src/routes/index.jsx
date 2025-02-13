@@ -9,4 +9,5 @@ export const routes = {
     productDetail: "/product/:id",
     review: "product/:id/review",
     cart: "/cart",
+    checkout: "/checkout",
 }
