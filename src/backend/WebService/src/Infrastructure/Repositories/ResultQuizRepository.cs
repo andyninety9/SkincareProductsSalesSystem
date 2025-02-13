@@ -26,7 +26,7 @@ namespace Infrastructure.Repositories
                 Pnpscore = 0,
                 Wtscore = 0,
                 CreateAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
-                SkinTypeId = 0,
+                SkinTypeId = 1,
                 IsDefault = true
             };
 
@@ -139,7 +139,6 @@ namespace Infrastructure.Repositories
                 .Where(r => r.QuizId == quizId)
                 .Select(r => r.ResultId)
                 .FirstOrDefaultAsync();
-
         }
     }
 }
