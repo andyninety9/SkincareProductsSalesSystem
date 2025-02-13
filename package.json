@@ -1,9 +1,0 @@
-{
-  "devDependencies": {
-    "sass-embedded": "^1.83.4"
-  },
-  "dependencies": {
-    "react-bootstrap": "^2.10.9",
-    "swiper": "^11.2.2"
-  }
-}
