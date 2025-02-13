@@ -8,4 +8,6 @@ export const routes = {
     product: "/product",
     productDetail: "/product/:id",
     review: "product/:id/review",
+    cart: "/cart",
+    checkout: "/checkout",
 }
