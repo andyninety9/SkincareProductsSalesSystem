@@ -11,7 +11,7 @@ namespace Domain.Repositories
     {
         Task<long> CreateNewResultAsync(long quizId, long userId);
         Task SaveUserAnswerAsync(long resultId, int keyId);
-        Task UpdateScoreAsync(long resultId, int osScore, int srScore, int pnScore, int wtScore);
+        Task UpdateScoreAsync(long resultId, int score, string cateOldQuestion);
         Task<bool> IsTestCompleteAsync(long resultId);
         Task<int?> GetSkinTypeIdAsync(long resultId);
         Task<long> GetResultQuizIdByQuizIdAsync(long quizId);

@@ -341,7 +341,6 @@ public partial class MyDbContext : DbContext
 
             entity.HasOne(d => d.Event).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.EventId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("order_eventid_foreign");
 
             entity.HasOne(d => d.OrdStatus).WithMany(p => p.Orders)
@@ -666,7 +665,6 @@ public partial class MyDbContext : DbContext
 
             entity.HasOne(d => d.SkinType).WithMany(p => p.ResultQuizzes)
                 .HasForeignKey(d => d.SkinTypeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("resultquiz_skintypeid_foreign");
 
             entity.HasOne(d => d.Usr).WithMany(p => p.ResultQuizzes)
