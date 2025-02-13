@@ -26,7 +26,7 @@ function App() {
       element: <Register />,
     },
     {
-      path: routes.resetPassword, 
+      path: routes.resetPassword,
       element: <ResetPassword />,
     },
 
@@ -40,7 +40,7 @@ function App() {
         { path: routes.product, element: <ProductPage /> },
         { path: routes.productDetail, element: <ProductDetailPage /> },
         { path: routes.review, element: <ReviewPage /> },
-        {path: routes.cart, element: <CartPage/>},
+        { path: routes.cart, element: <CartPage /> },
       ],
     },
   ]);
