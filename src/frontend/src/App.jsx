@@ -12,6 +12,7 @@ import UserLayout from './layout/userLayout/UserLayout';
 import ProductPage from './page/productPage/ProductPage';
 import ProductDetailPage from './page/productDetail/ProductDetailPage';
 import ReviewPage from './page/reviewPage/ReviewPage';
+import CartPage from './page/cartPage/CartPage';
 
 function App() {
   const router = createBrowserRouter([
@@ -39,6 +40,7 @@ function App() {
         { path: routes.product, element: <ProductPage /> },
         { path: routes.productDetail, element: <ProductDetailPage /> },
         { path: routes.review, element: <ReviewPage /> },
+        {path: routes.cart, element: <CartPage/>},
       ],
     },
   ]);
