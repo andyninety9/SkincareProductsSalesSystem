@@ -41,7 +41,7 @@ public partial class ResultQuiz
 
     public virtual ICollection<ResultDetail> ResultDetails { get; set; } = new List<ResultDetail>();
 
-    public virtual SkinType SkinType { get; set; } = null!;
+    public virtual SkinType? SkinType { get; set; }
 
     public virtual User Usr { get; set; } = null!;
 }

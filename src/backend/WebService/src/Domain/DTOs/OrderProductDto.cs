@@ -8,7 +8,7 @@ namespace Domain.DTOs
     public class OrderProductDto
     {
         public long ProductId { get; set; }
-        public string ProductName { get; set; }
+        public required string ProductName { get; set; }
         public int Quantity { get; set; }
         public double UnitPrice { get; set; }
     }
