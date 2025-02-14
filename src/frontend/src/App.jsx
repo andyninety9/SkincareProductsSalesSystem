@@ -18,6 +18,7 @@ import QuizPage from "./page/quizPage/QuizPage";
 import StartQuizPage from "./page/quizPage/StartQuizPage";
 import Contact from './page/contact/Contact';
 import Service from './page/Service/service';
+import Faq from './page/faq/Faq';
 function App() {
   const router = createBrowserRouter([
     {
@@ -49,6 +50,7 @@ function App() {
         { path: routes.startQuiz, element: <StartQuizPage /> },
         { path: routes.contact, element: <Contact /> },
         { path: routes.service, element: <Service /> },
+        { path: routes.faq, element: <Faq /> },
       ],
     },
   ]);

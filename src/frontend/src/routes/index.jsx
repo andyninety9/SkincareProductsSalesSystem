@@ -14,4 +14,5 @@ export const routes = {
     startQuiz:"/quiz/start",
     contact: "/contact",
     service: "/service",
+    faq:"/faq"
 }
