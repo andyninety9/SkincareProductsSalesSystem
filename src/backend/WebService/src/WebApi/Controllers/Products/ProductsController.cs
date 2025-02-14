@@ -1,4 +1,5 @@
 using Application.Common.Paginations;
+using Application.Features.Products.Queries;
 using Application.Features.Products.Queries.Validator;
 using Application.Features.Products.Validator;
 using Application.Features.Reviews.Queries.Validator;
