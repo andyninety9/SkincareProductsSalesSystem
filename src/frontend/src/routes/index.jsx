@@ -10,4 +10,5 @@ export const routes = {
     review: "product/:id/review",
     contact: "/contact",
     service: "/service",
+    faq:"/faq"
 }
