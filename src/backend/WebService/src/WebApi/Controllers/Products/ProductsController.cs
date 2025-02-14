@@ -1,9 +1,12 @@
 using Application.Common.Paginations;
 using Application.Features.Products.Queries;
 using Application.Features.Products.Queries.Validator;
-using Application.Features.Products.Validator;
+
+// using Application.Features.Products.Queries.Validator;
+using Application.Features.Reviews.Queries;
 using Application.Features.Reviews.Queries.Validator;
-using Application.Products.Queries;
+
+// using Application.Features.Reviews.Queries.Validator;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Common;

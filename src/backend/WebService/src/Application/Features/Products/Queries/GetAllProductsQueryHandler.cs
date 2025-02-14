@@ -11,7 +11,7 @@ using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Products.Queries
+namespace Application.Features.Products.Queries
 {
     public sealed record GetAllProductsQuery(
         string? Keyword,
