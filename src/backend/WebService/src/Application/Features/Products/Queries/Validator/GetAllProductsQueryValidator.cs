@@ -2,7 +2,7 @@ using System;
 using Application.Products.Queries;
 using FluentValidation;
 
-namespace Application.Features.Products.Validator
+namespace Application.Features.Products.Queries.Validator
 {
     public class GetAllProductsQueryValidator : AbstractValidator<GetAllProductsQuery>
     {
