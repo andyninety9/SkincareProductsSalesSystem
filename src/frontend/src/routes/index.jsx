@@ -9,4 +9,5 @@ export const routes = {
     productDetail: "/product/:id",
     review: "product/:id/review",
     contact: "/contact",
+    service: "/service",
 }
