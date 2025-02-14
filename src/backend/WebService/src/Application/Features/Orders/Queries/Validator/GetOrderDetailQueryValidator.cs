@@ -1,4 +1,3 @@
-using Application.Orders.Queries;
 using FluentValidation;
 
 namespace Application.Features.Orders.Queries.Validator

@@ -170,5 +170,56 @@ namespace Infrastructure.Repositories
             };
         }
 
+        public async Task<(IEnumerable<GetAllOrdersResponse> Orders, int TotalCount)> GetAllUserOrdersHistoryByQueryAsync(long userId, DateTime? fromDate, DateTime? toDate, int page, int pageSize, CancellationToken cancellationToken)
+        {
+            var query = _context.Orders
+                .Include(o => o.Usr) // Join với User (CustomerName)
+                .Include(o => o.OrdStatus) // Join với OrderStatus
+                .Include(o => o.OrderDetails) // Lấy thông tin chi tiết đơn hàng
+                    .ThenInclude(od => od.Prod) // Lấy thông tin sản phẩm
+                .Where(o => o.Usr.UsrId == userId)
+                .AsQueryable();
+
+            // Áp dụng bộ lọc nếu có
+
+            if (fromDate.HasValue)
+            {
+                query = query.Where(o => o.OrdDate >= fromDate.Value);
+            }
+
+            if (toDate.HasValue)
+            {
+                query = query.Where(o => o.OrdDate <= toDate.Value);
+            }
+
+            int totalItems = await query.CountAsync(cancellationToken);
+
+            var orders = await query
+                .OrderByDescending(o => o.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(o => new GetAllOrdersResponse
+                {
+                    OrderId = o.OrdId,
+                    CustomerName = o.Usr.Fullname ?? o.Usr.Email ?? "Unknow", // Nếu `Fullname` NULL thì lấy `Username`
+                    EventId = o.EventId, // Nếu NULL, mặc định trả về `0`
+                    OrderDate = o.OrdDate,
+                    OrderStatus = o.OrdStatus.OrdStatusName,
+                    TotalPrice = o.TotalOrdPrice,
+                    CreatedAt = o.CreatedAt,
+
+                    // Danh sách sản phẩm trong đơn hàng
+                    Products = o.OrderDetails.Select(od => new OrderProductDto
+                    {
+                        ProductId = od.Prod.ProductId,
+                        ProductName = od.Prod.ProductName,
+                        Quantity = od.Quantity,
+                        UnitPrice = od.SellPrice
+                    }).ToList()
+                })
+                .ToListAsync(cancellationToken);
+
+            return (orders, totalItems);
+        }
     }
 }

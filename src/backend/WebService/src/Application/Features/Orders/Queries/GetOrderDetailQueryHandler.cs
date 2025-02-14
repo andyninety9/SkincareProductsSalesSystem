@@ -10,7 +10,7 @@ using Domain.DTOs;
 using Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Orders.Queries
+namespace Application.Features.Orders.Queries
 {
     public sealed record GetOrderDetailQuery(
         long OrderId
