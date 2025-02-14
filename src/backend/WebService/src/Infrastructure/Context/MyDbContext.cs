@@ -665,6 +665,7 @@ public partial class MyDbContext : DbContext
 
             entity.HasOne(d => d.SkinType).WithMany(p => p.ResultQuizzes)
                 .HasForeignKey(d => d.SkinTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("resultquiz_skintypeid_foreign");
 
             entity.HasOne(d => d.Usr).WithMany(p => p.ResultQuizzes)

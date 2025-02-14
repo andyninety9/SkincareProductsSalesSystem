@@ -62,5 +62,8 @@ namespace Application.Constant
         // Server related messages
         public static string INTERNAL_SERVER_ERROR = "An unexpected error occurred on the server.";
         public static string INTERNAL_SERVER_MEDIATOR_ERROR = "An error occurred: Mediator is not initialized.";
+
+        // Event related messages
+        public static string GET_SUCCESS_EVENTS = "Events retrieved successfully.";
     }
 }

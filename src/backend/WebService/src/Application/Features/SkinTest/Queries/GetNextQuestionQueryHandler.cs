@@ -60,7 +60,7 @@ namespace Application.Products.Queries
                     SkinTypeId = skinTypeId ?? 0
                 });
             }
-            
+
 
             // ✅ 3. Lấy câu hỏi tiếp theo trong cùng category, tránh câu hỏi đã trả lời
             var currentQuestion = await _questionRepository.GetQuestionByIdAsync(request.QuestionId);
