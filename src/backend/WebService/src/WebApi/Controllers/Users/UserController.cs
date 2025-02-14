@@ -3,6 +3,8 @@ using Application.Attributes;
 using Application.Common.Enum;
 using Application.Common.Paginations;
 using Application.Constant;
+using Application.Features.Orders.Queries;
+using Application.Features.Orders.Queries.Validator;
 using Application.Users.Commands;
 using Application.Users.Queries;
 using MediatR;
@@ -411,6 +413,65 @@ namespace WebApi.Controllers.Users
 
         //POST: api/User/create-address
         //Authorization: Bearer token
+
+
+        // GET: api/user/orders-history?keyword={string}&page={int}&limit={int}
+        // Authorization: Bearer token
+        // Role: Customer
+        // Query String: ?keyword={string}&page={int}&limit={int}&fromDate={ISO8601}&toDate={ISO8601}
+        [HttpGet("orders-history")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Customer)]
+        public async Task<IActionResult> GetOrdersHistory(
+            CancellationToken cancellationToken,
+            [FromQuery] string keyword,
+            [FromQuery] int page = 1,
+            [FromQuery] int limit = 10,
+            [FromQuery] string? fromDate = null,
+            [FromQuery] string? toDate = null)
+        {
+            if (page <= 0 || limit <= 0)
+            {
+                return BadRequest(new { statusCode = 400, message = "Page and limit must be greater than 0." });
+            }
+
+            var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(usrID))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+            }
+
+            var userId = long.Parse(usrID);
+
+            var paginationParams = new PaginationParams { Page = page, PageSize = limit };
+
+            var query = new GetAllUserOrdersHistoryQuery(
+                userId,
+                paginationParams,
+                fromDate ?? string.Empty,
+                toDate ?? string.Empty
+            );
+            var validator = new GetAllUserOrdersHistoryQueryValidator();
+            var validationResult = validator.Validate(query);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error.Description });
+            }
+
+            return Ok(new { statusCode = 200, message = "Get orders history successfully", data = result.Value });
+        }
         
 
 

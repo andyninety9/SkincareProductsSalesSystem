@@ -10,6 +10,14 @@ namespace Domain.Repositories
 {
     public interface IOrderRepository : IRepository<Order>
     {
+
+        Task<(IEnumerable<GetAllOrdersResponse> Orders, int TotalCount)> GetAllUserOrdersHistoryByQueryAsync(
+            long userId,
+            DateTime? fromDate,
+            DateTime? toDate,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken);
         Task<(IEnumerable<GetAllOrdersResponse> Orders, int TotalCount)> GetAllOrdersByQueryAsync(
             string? status,
             long? customerId,
