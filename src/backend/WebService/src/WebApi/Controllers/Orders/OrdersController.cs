@@ -6,7 +6,7 @@ using Application.Attributes;
 using Application.Common.Enum;
 using Application.Common.Paginations;
 using Application.Features.Orders.Queries.Validator;
-using Application.Orders.Queries;
+using Application.Features.Orders.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

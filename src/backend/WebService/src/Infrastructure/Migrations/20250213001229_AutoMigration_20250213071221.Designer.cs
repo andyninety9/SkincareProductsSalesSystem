@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250213001229_AutoMigration_20250213071221")]
+    partial class AutoMigration_20250213071221
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -904,7 +907,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("quizID");
 
-                    b.Property<short>("SkinTypeId")
+                    b.Property<short?>("SkinTypeId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("smallint")
                         .HasColumnName("skinTypeID");
@@ -1562,7 +1565,6 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.SkinType", "SkinType")
                         .WithMany("ResultQuizzes")
                         .HasForeignKey("SkinTypeId")
-                        .IsRequired()
                         .HasConstraintName("resultquiz_skintypeid_foreign");
 
                     b.HasOne("Domain.Entities.User", "Usr")

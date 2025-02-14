@@ -10,5 +10,8 @@ export const routes = {
     review: "product/:id/review",
     contact: "/contact",
     service: "/service",
-    faq:"/faq"
+    faq:"/faq",
+    cart: "/cart",
+    checkout: "/checkout",
+
 }

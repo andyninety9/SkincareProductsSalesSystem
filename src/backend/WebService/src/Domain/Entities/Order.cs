@@ -9,7 +9,7 @@ public partial class Order
 
     public long UsrId { get; set; }
 
-    public long ? EventId { get; set; }
+    public long? EventId { get; set; }
 
     public DateTime OrdDate { get; set; }
 
@@ -23,7 +23,7 @@ public partial class Order
 
     public virtual ICollection<DeliveryDetail> DeliveryDetails { get; set; } = new List<DeliveryDetail>();
 
-    public virtual Event Event { get; set; } = null!;
+    public virtual Event? Event { get; set; }
 
     public virtual OrderStatus OrdStatus { get; set; } = null!;
 

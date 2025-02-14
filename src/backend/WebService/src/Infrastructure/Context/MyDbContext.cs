@@ -341,7 +341,6 @@ public partial class MyDbContext : DbContext
 
             entity.HasOne(d => d.Event).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.EventId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("order_eventid_foreign");
 
             entity.HasOne(d => d.OrdStatus).WithMany(p => p.Orders)

@@ -10,7 +10,7 @@ using Domain.DTOs;
 using Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Products.Queries
+namespace Application.Features.Reviews.Queries
 {
     public sealed record GetAllProductReviewQuery(
         string? Keyword,

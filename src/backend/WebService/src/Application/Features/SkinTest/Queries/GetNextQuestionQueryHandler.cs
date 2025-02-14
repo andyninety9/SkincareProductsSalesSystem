@@ -46,7 +46,21 @@ namespace Application.Products.Queries
 
             // ✅ 2. Save answer key to ResultDetail
             await _resultQuizRepository.SaveUserAnswerAsync(resultQuizId, request.AnswerKeyId);
-            
+            var cateOldQuestion = await _questionRepository.GetCateQuestionAsync(request.QuestionId);
+            var question = await _questionRepository.GetQuestionByIdAsync(request.QuestionId);
+            var score = question?.KeyQuestions?.FirstOrDefault(kq => kq.KeyId == request.AnswerKeyId)?.KeyScore ?? 0;
+            await _resultQuizRepository.UpdateScoreAsync(resultQuizId, score, cateOldQuestion);
+            var isTestComplete = await _resultQuizRepository.IsTestCompleteAsync(resultQuizId);
+            if (isTestComplete)
+            {
+                var skinTypeId = await _resultQuizRepository.GetSkinTypeIdAsync(resultQuizId);
+                return Result<GetNextQuestionResponse>.Success(new GetNextQuestionResponse
+                {
+                    IsFinalQuestion = true,
+                    SkinTypeId = skinTypeId ?? 0
+                });
+            }
+
 
             // ✅ 3. Lấy câu hỏi tiếp theo trong cùng category, tránh câu hỏi đã trả lời
             var currentQuestion = await _questionRepository.GetQuestionByIdAsync(request.QuestionId);
@@ -58,8 +72,8 @@ namespace Application.Products.Queries
             // Lấy danh sách câu hỏi đã trả lời từ QuizDetail
             var answeredQuestions = await _quizRepository.GetAnsweredQuestionsAsync(request.QuizId);
 
-            // Gọi đúng hàm với quizId
-            var nextQuestion = await _questionRepository.GetNextQuestionInCategoryAsync(currentQuestion.CateQuestionId, request.QuizId);
+            var nextQuestion = await _questionRepository.GetNextQuestionAsync(request.QuizId);
+
 
             if (nextQuestion == null)
             {

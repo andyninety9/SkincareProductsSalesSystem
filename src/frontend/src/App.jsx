@@ -15,6 +15,8 @@ import UserLayout from './layout/userLayout/UserLayout';
 import ProductPage from './page/productPage/ProductPage';
 import ProductDetailPage from './page/productDetail/ProductDetailPage';
 import ReviewPage from './page/reviewPage/ReviewPage';
+import CartPage from './page/cartPage/CartPage';
+import CheckOutPage from './page/checkoutPage/CheckoutPage';
 
 function App() {
   const router = createBrowserRouter([
@@ -28,7 +30,7 @@ function App() {
       element: <Register />,
     },
     {
-      path: routes.resetPassword, 
+      path: routes.resetPassword,
       element: <ResetPassword />,
     },
 
@@ -45,6 +47,9 @@ function App() {
         { path: routes.contact, element: <Contact /> },
         { path: routes.service, element: <Service /> },
         { path: routes.faq, element: <Faq /> },
+        { path: routes.cart, element: <CartPage /> },
+        { path: routes.checkout, element: <CheckOutPage /> },
+
       ],
     },
   ]);

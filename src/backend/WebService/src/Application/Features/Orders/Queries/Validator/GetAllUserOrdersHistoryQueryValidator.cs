@@ -1,19 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentValidation;
 
 namespace Application.Features.Orders.Queries.Validator
 {
-    public class GetAllOrdersQueryValidator : AbstractValidator<GetAllOrdersQuery>
+    public class GetAllUserOrdersHistoryQueryValidator : AbstractValidator<GetAllUserOrdersHistoryQuery>
     {
-        private static readonly List<string> ValidStatuses = new List<string>
-        {
-            "Pending", "Processing", "Shipping", "Shipped", "Completed", "Cancelled", "Refunded", "Return Requested",
-            "Return Processing", "Returned", "Return Rejected"
-        };
-
-        public GetAllOrdersQueryValidator()
+        
+        public GetAllUserOrdersHistoryQueryValidator()
         {
             // Validate Page Number (>= 1)
             RuleFor(x => x.PaginationParams.Page)
@@ -22,21 +18,6 @@ namespace Application.Features.Orders.Queries.Validator
             // Validate Page Size (1 - 100)
             RuleFor(x => x.PaginationParams.PageSize)
                 .InclusiveBetween(1, 100).WithMessage("Page size must be between 1 and 100.");
-
-            // Validate Status (Nếu có)
-            RuleFor(x => x.Status)
-                .Must(status => string.IsNullOrEmpty(status) || ValidStatuses.Contains(status))
-                .WithMessage($"Status must be one of: {string.Join(", ", ValidStatuses)}");
-
-            // Validate CustomerId (Nếu có)
-            RuleFor(x => x.CustomerId)
-                .GreaterThan(0).When(x => x.CustomerId.HasValue)
-                .WithMessage("CustomerId must be greater than 0.");
-
-            // Validate EventId (Nếu có)
-            RuleFor(x => x.EventId)
-                .GreaterThan(0).When(x => x.EventId.HasValue)
-                .WithMessage("EventId must be greater than 0.");
 
             // Validate FromDate (Nếu có)
             RuleFor(x => x.FromDate)
@@ -63,10 +44,13 @@ namespace Application.Features.Orders.Queries.Validator
 
         private bool IsValidDateRange(string? fromDate, string? toDate)
         {
-            if (string.IsNullOrEmpty(fromDate) || string.IsNullOrEmpty(toDate))
-                return true; // Không có giá trị để kiểm tra
+            if (DateTime.TryParse(fromDate, out var from) && DateTime.TryParse(toDate, out var to))
+            {
+                return from < to;
+            }
 
-            return DateTime.Parse(fromDate) <= DateTime.Parse(toDate);
+            return true;
         }
+        
     }
 }
