@@ -4,6 +4,7 @@ using Application.Common.Enum;
 using Application.Common.Paginations;
 using Application.Constant;
 using Application.Features.Orders.Queries;
+using Application.Features.Orders.Queries.Validator;
 using Application.Users.Commands;
 using Application.Users.Queries;
 using MediatR;
@@ -450,6 +451,18 @@ namespace WebApi.Controllers.Users
                 fromDate ?? string.Empty,
                 toDate ?? string.Empty
             );
+            var validator = new GetAllUserOrdersHistoryQueryValidator();
+            var validationResult = validator.Validate(query);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
             var result = await _mediator.Send(query, cancellationToken);
 
             if (!result.IsSuccess)
