@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain.DTOs;
 using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Common;
@@ -23,7 +24,7 @@ namespace Infrastructure.Repositories
             // ✅ Lọc theo từ khóa (Keyword)
             if (!string.IsNullOrEmpty(keyword))
             {
-                query = query.Where(e => e.EventName.Contains(keyword) || e.EventDesc.Contains(keyword));
+                query = query.Where(e => e.EventName.Contains(keyword) || (e.EventDesc != null && e.EventDesc.Contains(keyword)));
             }
 
             // ✅ Lọc theo trạng thái sự kiện (Status)
@@ -81,5 +82,42 @@ namespace Infrastructure.Repositories
             return await query.CountAsync();
         }
 
+        public async Task<GetEventDetailResponse> GetEventDetailByIdAsync(long eventId)
+        {
+
+            var query = _context.Events
+                .Include(e => e.EventDetails)
+                .Where(e => e.EventId == eventId)
+                .Select(e => new GetEventDetailResponse
+                {
+                    EventId = e.EventId,
+                    EventName = e.EventName,
+                    StartTime = e.StartTime,
+                    EndTime = e.EndTime,
+                    EventDesc = e.EventDesc ?? string.Empty,
+                    DiscountPercent = (float)e.DiscountPercent,
+                    StatusEvent = e.StatusEvent,
+                    EventDetails = e.EventDetails.Select(ed => new ProductDTO
+                    {
+                        ProductId = ed.Product.ProductId,
+                        ProductName = ed.Product.ProductName,
+                        CateId = ed.Product.CateId,
+                        BrandId = ed.Product.BrandId,
+                        Stocks = ed.Product.Stocks,
+                        CostPrice = ed.Product.CostPrice,
+                        SellPrice = ed.Product.SellPrice,
+                        TotalRating = ed.Product.TotalRating,
+                        Ingredient = ed.Product.Ingredient,
+                        Instruction = ed.Product.Instruction,
+                        ProdStatusId = ed.Product.ProdStatusId, 
+                        CreatedAt = ed.Product.CreatedAt,
+                        ProductDesc = ed.Product.ProductDesc ?? string.Empty,
+                    }).ToList()
+                });
+
+            var result = await query.FirstOrDefaultAsync();
+            return result ?? throw new KeyNotFoundException($"Event with ID {eventId} was not found.");
+            
+        }
     }
 }

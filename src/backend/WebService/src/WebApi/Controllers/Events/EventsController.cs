@@ -77,5 +77,32 @@ namespace WebApi.Controllers.Events
 
             return Ok(new { statusCode = 200, message = "Fetch all events successfully", data = result.Value });
         }
+
+        // GET: api/events/{eventId}
+        [HttpGet("{eventId}")]
+        public async Task<IActionResult> GetEventDetailById([FromRoute] int eventId, CancellationToken cancellationToken = default)
+        {
+            // ✅ Logging request params
+            _logger.LogInformation("Received GET /api/events/{eventId} request with params: EventId={EventId}", eventId);
+
+            // ✅ Khởi tạo Query
+            var query = new GetEventDetailByIdQuery(eventId);
+
+            // ✅ Gọi MediatR để xử lý query
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("BadRequest: Query failed with error: {Error}", result.Error?.Description);
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            // ✅ Logging response
+            _logger.LogInformation("Returning event with ID {EventId}.", eventId);
+
+            return Ok(new { statusCode = 200, message = "Fetch event by ID successfully", data = result.Value });
+        }
+
+        
     }
 }
