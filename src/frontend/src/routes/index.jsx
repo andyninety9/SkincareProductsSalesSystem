@@ -13,5 +13,6 @@ export const routes = {
     faq:"/faq",
     cart: "/cart",
     checkout: "/checkout",
+    event: "/event",
 
 }
