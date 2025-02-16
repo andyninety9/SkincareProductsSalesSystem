@@ -10,9 +10,14 @@ export const routes = {
     review: "product/:id/review",
     cart: "/cart",
     checkout: "/checkout",
+<<<<<<< HEAD
     quiz:"/quiz",
     startQuiz:"/quiz/start",
     contact: "/contact",
     service: "/service",
     faq:"/faq"
+=======
+    event: "/event",
+
+>>>>>>> aba4348 (event page)
 }
