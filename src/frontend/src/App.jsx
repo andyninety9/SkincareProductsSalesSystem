@@ -45,7 +45,7 @@ function App() {
         { path: routes.cart, element: <CartPage /> },
         { path: routes.checkout, element: <CheckOutPage /> },
         { path: routes.quiz, element: <QuizPage /> },
-        // { path: routes.startQuiz, element: <StartQuizPage /> },
+        { path: routes.startQuiz, element: <StartQuizPage /> },
       ],
     },
   ]);
