@@ -15,5 +15,6 @@ export const routes = {
     checkout: "/checkout",
     event: "/event",
     aboutUs: "/about-us",
+    profile: "/profile",
 
 }

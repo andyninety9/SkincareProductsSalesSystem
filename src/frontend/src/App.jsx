@@ -19,6 +19,8 @@ import CartPage from './page/cartPage/CartPage';
 import CheckOutPage from './page/checkoutPage/CheckoutPage';
 import EventPage from './page/eventPage/EventPage';
 import AboutUs from './page/aboutUsPage/AboutUs';
+import ProfilePage from './page/profilePage/ProfilePage';
+
 
 function App() {
   const router = createBrowserRouter([
@@ -52,7 +54,8 @@ function App() {
         { path: routes.cart, element: <CartPage /> },
         { path: routes.checkout, element: <CheckOutPage /> },
         { path: routes.event, element: <EventPage /> },
-        { path: routes.aboutUs, element: <AboutUs /> }
+        { path: routes.aboutUs, element: <AboutUs /> },
+        { path: routes.profile, element: <ProfilePage /> }
 
       ],
     },
