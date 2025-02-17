@@ -28,6 +28,8 @@ using Application.Abstractions.Authorization;
 using Infrastructure.Authorization;
 using Application.Abstractions.Google;
 using Infrastructure.Google;
+using Infrastructure.Delivery;
+using Application.Abstractions.Delivery;
 
 namespace Infrastructure
 {
@@ -77,6 +79,17 @@ namespace Infrastructure
             {
                 DotNetEnv.Env.Load(Path.Combine(solutionDirectory, ".env"));
             }
+
+            // DI Delivery Config
+            services.AddSingleton<GHNDeliveryConfig>();
+            var ghnConfig = services.BuildServiceProvider().GetRequiredService<GHNDeliveryConfig>();
+
+            services.AddHttpClient<IDelivery, GHNDeliveryServices>(client =>
+            {
+                client.BaseAddress = new Uri(ghnConfig.BaseUrl);
+            });
+
+
             //DI AWS IAM Service
             services.AddSingleton<IAMConfig>();
             var iamConfig = services.BuildServiceProvider().GetRequiredService<IAMConfig>();

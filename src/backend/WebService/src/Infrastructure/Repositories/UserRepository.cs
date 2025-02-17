@@ -3,13 +3,16 @@ using Domain.Repositories;
 using Infrastructure.Common;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories
 {
     public class UserRepository :  Repository<User>, IUserRepository
     {
-        public UserRepository(MyDbContext context) : base(context)
+        private readonly ILogger<UserRepository> _logger;
+        public UserRepository(MyDbContext context, ILogger<UserRepository> logger) : base(context)
         {
+            _logger = logger;
         }
 
         public IQueryable<User> GetAllUsers()
@@ -28,7 +31,7 @@ namespace Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                // _logger.LogError(ex, "Error occurred while fetching user by email: {Email}", email);
+                _logger.LogError(ex, "Error occurred while fetching user by email: {Email}", email);
                 throw; // Ném ngoại lệ nếu có lỗi truy vấn cơ sở dữ liệu
             }
         }
