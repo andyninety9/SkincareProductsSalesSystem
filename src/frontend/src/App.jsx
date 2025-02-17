@@ -18,6 +18,7 @@ import ReviewPage from './page/reviewPage/ReviewPage';
 import CartPage from './page/cartPage/CartPage';
 import CheckOutPage from './page/checkoutPage/CheckoutPage';
 import EventPage from './page/eventPage/EventPage';
+import AboutUs from './page/aboutUsPage/AboutUs';
 
 function App() {
   const router = createBrowserRouter([
@@ -47,10 +48,11 @@ function App() {
         { path: routes.review, element: <ReviewPage /> },
         { path: routes.contact, element: <Contact /> },
         { path: routes.service, element: <Service /> },
-        { path: routes.faq, element: <Faq/> },
+        { path: routes.faq, element: <Faq /> },
         { path: routes.cart, element: <CartPage /> },
         { path: routes.checkout, element: <CheckOutPage /> },
         { path: routes.event, element: <EventPage /> },
+        { path: routes.aboutUs, element: <AboutUs /> }
 
       ],
     },
