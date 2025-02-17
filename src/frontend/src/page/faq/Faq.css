@@ -3,7 +3,7 @@
     margin: 20px auto;
     padding: 20px;
     font-family: "Prata", serif;
-    
+
 }
 
 .faq-title {
@@ -73,7 +73,7 @@
     background: transparent !important;
 }
 
-.custom-collapse .ant-collapse-borderless {
+.custom-collapse.ant-collapse-borderless {
     background: transparent !important;
     background-color: transparent !important;
 }

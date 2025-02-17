@@ -19,6 +19,7 @@ export const routes = {
 =======
     event: "/event",
     aboutUs: "/about-us",
+    profile: "/profile",
 
 >>>>>>> aba4348 (event page)
 }
