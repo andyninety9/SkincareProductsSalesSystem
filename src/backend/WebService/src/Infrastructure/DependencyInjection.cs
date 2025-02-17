@@ -47,6 +47,7 @@ namespace Infrastructure
             services.AddScoped<IQuizRepository, QuizRepository>();
             services.AddScoped<IResultQuizRepository, ResultQuizRepository>();
             services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IAddressRepository, AddressRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
