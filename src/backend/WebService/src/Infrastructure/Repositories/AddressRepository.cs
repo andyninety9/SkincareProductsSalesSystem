@@ -16,6 +16,14 @@ namespace Infrastructure.Repositories
         {
         }
 
+        public async Task<bool> ActiveByIdAsync(long addressId)
+        {
+            await _context.Addresses.Where(x => x.AddressId == addressId).ForEachAsync(x => x.IsDefault = !x.IsDefault);
+            await _context.SaveChangesAsync();
+            return true;                
+            
+        }
+
         public async Task<bool> SwitchStatusDefaultAddress(long usrId)
         {
             var addresses = await _context.Addresses.Where(x => x.UsrId == usrId).ToListAsync();

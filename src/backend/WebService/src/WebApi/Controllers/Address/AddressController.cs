@@ -45,10 +45,35 @@ namespace WebApi.Controllers.Address
                 return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
             }
             var command = request with { UsrId = userId };
-            
+
             var result = await _mediator.Send(command, cancellationToken);
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.CREATE_ADDRESS_SUCCESS, data = result.Value });
 
+        }
+
+        // DELETE: api/Address/delete
+        // {
+        //     "addressId": 0
+        // }
+        // [Authorize]
+        [HttpDelete("delete")]
+        public async Task<IActionResult> Delete([FromBody] DeleteAddressCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.DELETE_ADDRESS_SUCCESS, data = result.Value });
+        }
+
+        // PUT: api/Address/active
+        // {
+        //     "addressId": 0
+        // }
+        // [Authorize]
+        [HttpPut("active")]
+        [Authorize]
+        public async Task<IActionResult> Active([FromBody] ActiveAddressCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.ACTIVE_ADDRESS_SUCCESS, data = result.Value });
         }
 
 

@@ -10,5 +10,6 @@ namespace Domain.Repositories
     public interface IAddressRepository : IRepository<Address>
     {
         Task<bool> SwitchStatusDefaultAddress(long usrId);
+        Task<bool> ActiveByIdAsync(long addressId);
     }
 }

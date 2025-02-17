@@ -51,6 +51,8 @@ namespace Application.Constant
         // Address related messages
         public static string CREATE_ADDRESS_SUCCESS = "Address created successfully.";
         public static string CREATE_ADDRESS_FAILED = "Failed to create the address.";
+        public static string DELETE_ADDRESS_SUCCESS = "Address deleted successfully.";
+        public static string ACTIVE_ADDRESS_SUCCESS = "Address activated successfully.";
 
         // Validation related messages
         public static string INVALID_EMAIL = "The provided email is invalid.";
