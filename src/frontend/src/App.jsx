@@ -20,6 +20,8 @@ import Contact from './page/contact/Contact';
 import Service from './page/Service/service';
 import Faq from './page/faq/Faq';
 import EventPage from './page/eventPage/EventPage';
+import AboutUs from './page/aboutUsPage/AboutUs';
+
 function App() {
   const router = createBrowserRouter([
     {
@@ -53,6 +55,8 @@ function App() {
         { path: routes.service, element: <Service /> },
         { path: routes.faq, element: <Faq /> },
         { path: routes.event, element: <EventPage /> },
+        { path: routes.aboutUs, element: <AboutUs /> }
+
       ],
     },
   ]);

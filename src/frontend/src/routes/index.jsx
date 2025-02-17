@@ -18,6 +18,7 @@ export const routes = {
     faq:"/faq"
 =======
     event: "/event",
+    aboutUs: "/about-us",
 
 >>>>>>> aba4348 (event page)
 }
