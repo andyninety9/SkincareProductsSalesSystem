@@ -1,10 +1,7 @@
-using Application.Auth.Commands;
 using Application.Common.Paginations;
-using Application.Constant;
 using Application.Features.Events.Queries;
 using Application.Features.Events.Queries.Validator;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Common;
 

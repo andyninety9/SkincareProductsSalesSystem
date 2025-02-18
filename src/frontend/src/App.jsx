@@ -1,6 +1,5 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { routes } from './routes';
-// import UserLayout from './layout/userLayout/userLayout';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { routes } from "./routes";
 import AboutPage from './page/aboutPage/aboutPage';
 import Login from './page/login/Login';
 import Register from './page/register/Register';
@@ -20,6 +19,8 @@ import CheckOutPage from './page/checkoutPage/CheckoutPage';
 import EventPage from './page/eventPage/EventPage';
 import AboutUs from './page/aboutUsPage/AboutUs';
 import ProfilePage from './page/profilePage/ProfilePage';
+import QuizPage from "./page/quizPage/QuizPage";
+import StartQuizPage from "./page/quizPage/StartQuizPage";
 
 
 function App() {
@@ -38,7 +39,6 @@ function App() {
       element: <ResetPassword />,
     },
 
-
     {
       path: routes.home,
       element: <UserLayout />,
@@ -55,8 +55,9 @@ function App() {
         { path: routes.checkout, element: <CheckOutPage /> },
         { path: routes.event, element: <EventPage /> },
         { path: routes.aboutUs, element: <AboutUs /> },
-        { path: routes.profile, element: <ProfilePage /> }
-
+        { path: routes.profile, element: <ProfilePage /> },
+        { path: routes.quiz, element: <QuizPage /> },
+        { path: routes.startQuiz, element: <StartQuizPage /> },
       ],
     },
   ]);

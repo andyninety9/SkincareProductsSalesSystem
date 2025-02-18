@@ -10,11 +10,12 @@ export const routes = {
     review: "product/:id/review",
     contact: "/contact",
     service: "/service",
-    faq:"/faq",
+    faq: "/faq",
     cart: "/cart",
     checkout: "/checkout",
     event: "/event",
     aboutUs: "/about-us",
     profile: "/profile",
-
+    quiz: "/quiz",
+    startQuiz: "/quiz/start",
 }

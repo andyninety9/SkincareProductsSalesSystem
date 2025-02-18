@@ -48,6 +48,12 @@ namespace Application.Constant
         public static string CHANGE_PASSWORD_SUCCESS = "Password has been changed successfully.";
         public static string CHANGE_PASSWORD_FALSE = "Failed to change the password.";
 
+        // Address related messages
+        public static string CREATE_ADDRESS_SUCCESS = "Address created successfully.";
+        public static string CREATE_ADDRESS_FAILED = "Failed to create the address.";
+        public static string DELETE_ADDRESS_SUCCESS = "Address deleted successfully.";
+        public static string ACTIVE_ADDRESS_SUCCESS = "Address activated successfully.";
+
         // Validation related messages
         public static string INVALID_EMAIL = "The provided email is invalid.";
         public static string INVALID_PASSWORD = "The provided password is invalid.";
