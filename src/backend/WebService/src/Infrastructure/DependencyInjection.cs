@@ -30,6 +30,8 @@ using Application.Abstractions.Google;
 using Infrastructure.Google;
 using Infrastructure.Delivery;
 using Application.Abstractions.Delivery;
+using Infrastructure.VNPay;
+using Application.Abstractions.Payment;
 
 namespace Infrastructure
 {
@@ -51,6 +53,10 @@ namespace Infrastructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+            // Config VNPay & DI VNPayService
+            services.AddSingleton<VNPayConfig>();
+            services.AddScoped<IPaymentService, VNPayService>();
 
             //DI GoogleOAuthService
             services.AddSingleton<GoogleAuthConfig>();
