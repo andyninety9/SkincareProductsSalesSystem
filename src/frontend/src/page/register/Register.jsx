@@ -17,7 +17,7 @@ const Register = () => {
             <HeaderUser />
             <div className="d-flex flex-column" style={{ minHeight: "100%" }}>
                 <div className="login-container d-flex flex-column align-items-center justify-content-center flex-grow-1" style={{ background: "#F6EEF0" }}>
-                    <div className="text-center mb-4">
+                    <div className="text-center mb-4 mt-4">
                         <h2 className="fw-bold" style={{ fontSize: "39px", fontFamily: "'Prata', serif", color: "#5A2D2F" }}>
                             Đăng Ký
                         </h2>
