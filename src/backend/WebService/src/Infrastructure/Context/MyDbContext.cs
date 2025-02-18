@@ -151,6 +151,9 @@ public partial class MyDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("district");
             entity.Property(e => e.IsDefault).HasColumnName("isDefault");
+            entity.Property(e => e.Status)
+                .HasDefaultValue(true)
+                .HasColumnName("status");
             entity.Property(e => e.UsrId).HasColumnName("usrID");
             entity.Property(e => e.Ward)
                 .HasMaxLength(255)

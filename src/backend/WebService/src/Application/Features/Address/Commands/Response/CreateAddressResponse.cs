@@ -8,7 +8,7 @@ namespace Application.Features.Address.Commands.Response
     public class CreateAddressResponse
     {
         public long AddressId { get; set; }
-        public string UsrId { get; set; } = string.Empty;
+        public long UsrId { get; set; }
         public string AddDetail { get; set; } = string.Empty;
         public string Ward { get; set; } = string.Empty;
         public string District { get; set; } = string.Empty;

@@ -1,13 +1,10 @@
 using Application.Abstractions.Messaging;
-using Application.Abstractions.Redis;
 using Application.Abstractions.UnitOfWork;
-using Application.Accounts.Response;
-using Application.Common.Enum;
-using Application.Common.Jwt;
 using Application.Common.ResponseModel;
 using Application.Constant;
 using Application.Features.Address.Commands.Response;
 using AutoMapper;
+using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
@@ -46,15 +43,17 @@ namespace Application.Features.Address.Commands
                     District = command.District,
                     City = command.City,
                     Country = "Việt Nam",
-                    IsDefault = true
+                    IsDefault = false,
+                    Status = true
                 };
 
-                await _addressRepository.SwitchStatusDefaultAddress(command.UsrId);
+                // await _addressRepository.SwitchStatusDefaultAddress(command.UsrId);
                 await _addressRepository.AddAsync(address, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 return Result<CreateAddressResponse>.Success(new CreateAddressResponse
                 {
+                    UsrId = command.UsrId,
                     AddressId = address.AddressId,
                     AddDetail = address.AddDetail,
                     Ward = address.Ward,

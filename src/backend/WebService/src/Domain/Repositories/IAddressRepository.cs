@@ -9,7 +9,7 @@ namespace Domain.Repositories
 {
     public interface IAddressRepository : IRepository<Address>
     {
-        Task<bool> SwitchStatusDefaultAddress(long usrId);
         Task<bool> ActiveByIdAsync(long addressId);
+        Task<bool> ChangeStatusAddressAsync(long addressId, bool status, CancellationToken cancellationToken);
     }
 }

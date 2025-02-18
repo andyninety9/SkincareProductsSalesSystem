@@ -1,46 +1,43 @@
 using Application.Abstractions.Messaging;
-using Application.Abstractions.Redis;
 using Application.Abstractions.UnitOfWork;
-using Application.Accounts.Response;
-using Application.Common.Enum;
-using Application.Common.Jwt;
 using Application.Common.ResponseModel;
-using Application.Constant;
-using Application.Features.Address.Commands.Response;
-using AutoMapper;
 using Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Address.Commands
 {
-    public sealed record ActiveAddressCommand(long AddressId) : ICommand<CreateAddressResponse>;
+    public sealed record DeleteAddressCommand(long AddressId) : ICommand;
 
-    internal sealed class ActiveAddressCommandHandler : ICommandHandler<ActiveAddressCommand, CreateAddressResponse>
+    internal sealed class DeleteAddressCommandHandler : ICommandHandler<DeleteAddressCommand>
     {
-        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<ActiveAddressCommandHandler> _logger;
+        private readonly ILogger<DeleteAddressCommandHandler> _logger;
         private readonly IAddressRepository _addressRepository;
 
-        public ActiveAddressCommandHandler(
+        public DeleteAddressCommandHandler(
             IAddressRepository addressRepository,
-            IMapper mapper,
             IUnitOfWork unitOfWork,
-            ILogger<ActiveAddressCommandHandler> logger)
+            ILogger<DeleteAddressCommandHandler> logger)
         {
-            _mapper = mapper;
             _unitOfWork = unitOfWork;
             _logger = logger;
             _addressRepository = addressRepository;
         }
 
-        public async Task<Result<CreateAddressResponse>> Handle(ActiveAddressCommand command, CancellationToken cancellationToken)
+        public async Task<Result> Handle(DeleteAddressCommand command, CancellationToken cancellationToken)
         {
-            await _addressRepository.SwitchStatusDefaultAddress(command.AddressId);
-            await _addressRepository.ActiveByIdAsync(command.AddressId);
+            var address = await _addressRepository.GetByIdAsync(command.AddressId, cancellationToken);
+            if (address == null)
+            {
+                return Result.Failure(new Error("DeleteAddressCommand", "Address not found."));
+            }
+
+            bool newStatus = false;
+            await _addressRepository.ChangeStatusAddressAsync(command.AddressId, newStatus,cancellationToken);
+            
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result<CreateAddressResponse>.Success(new CreateAddressResponse());
+            return Result.Success();
         }
     }
 }

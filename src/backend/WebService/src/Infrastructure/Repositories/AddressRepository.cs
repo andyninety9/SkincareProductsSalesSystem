@@ -18,21 +18,28 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> ActiveByIdAsync(long addressId)
         {
-            await _context.Addresses.Where(x => x.AddressId == addressId).ForEachAsync(x => x.IsDefault = !x.IsDefault);
-            await _context.SaveChangesAsync();
-            return true;                
-            
-        }
-
-        public async Task<bool> SwitchStatusDefaultAddress(long usrId)
-        {
-            var addresses = await _context.Addresses.Where(x => x.UsrId == usrId).ToListAsync();
-            foreach (var address in addresses)
+            var address = await _context.Addresses.FirstOrDefaultAsync(x => x.AddressId == addressId);
+            if (address != null)
             {
-                address.IsDefault = false;
-            }
+            // Set all addresses IsDefault to false
+            await _context.Addresses.Where(x => x.UsrId == address.UsrId)
+                .ForEachAsync(x => x.IsDefault = false);
+            
+            // Set new default address
+            address.IsDefault = true;
             await _context.SaveChangesAsync();
+            }
             return true;
         }
+
+        public async Task<bool> ChangeStatusAddressAsync(long addressId, bool status, CancellationToken cancellationToken)
+        {
+            await _context.Addresses.Where(x => x.AddressId == addressId).ForEachAsync(x => x.Status = status, cancellationToken: cancellationToken);
+            await _context.Addresses.Where(x => x.AddressId == addressId).ForEachAsync(x => x.IsDefault = false, cancellationToken: cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+
+ 
     }
 }

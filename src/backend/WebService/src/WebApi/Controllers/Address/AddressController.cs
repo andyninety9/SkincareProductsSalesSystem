@@ -60,7 +60,7 @@ namespace WebApi.Controllers.Address
         public async Task<IActionResult> Delete([FromBody] DeleteAddressCommand request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request, cancellationToken);
-            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.DELETE_ADDRESS_SUCCESS, data = result.Value });
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.DELETE_ADDRESS_SUCCESS, data = result.Error.Description });
         }
 
         // PUT: api/Address/active
@@ -73,7 +73,7 @@ namespace WebApi.Controllers.Address
         public async Task<IActionResult> Active([FromBody] ActiveAddressCommand request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request, cancellationToken);
-            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.ACTIVE_ADDRESS_SUCCESS, data = result.Value });
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.ACTIVE_ADDRESS_SUCCESS, data = result.Error.Description });
         }
 
 

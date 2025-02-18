@@ -21,6 +21,8 @@ public partial class Address
 
     public bool IsDefault { get; set; }
 
+    public bool Status { get; set; }
+
     public virtual ICollection<DeliveryDetail> DeliveryDetails { get; set; } = new List<DeliveryDetail>();
 
     public virtual User Usr { get; set; } = null!;
