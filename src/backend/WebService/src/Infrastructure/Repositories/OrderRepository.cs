@@ -129,7 +129,7 @@ namespace Infrastructure.Repositories
                     PaymentId = p.PaymentId,
                     PaymentMethod = p.PaymentMethod,
                     PaymentAmount = p.PaymentAmount,
-                    CreatedAt = p.CreatedAt
+                    // CreatedAt = p.CreatedAt
                 }).FirstOrDefault() ?? new PaymentDto(),
                 Products = order.Order.OrderDetails.Select(od => new OrderProductDto
                 {

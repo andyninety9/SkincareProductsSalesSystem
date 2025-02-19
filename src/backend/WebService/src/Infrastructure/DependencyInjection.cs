@@ -50,13 +50,14 @@ namespace Infrastructure
             services.AddScoped<IResultQuizRepository, ResultQuizRepository>();
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IAddressRepository, AddressRepository>();
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             // Config VNPay & DI VNPayService
             services.AddSingleton<VNPayConfig>();
-            services.AddScoped<IPaymentService, VNPayService>();
+            services.AddScoped<IPaymentVNPayService, VNPayService>();
 
             //DI GoogleOAuthService
             services.AddSingleton<GoogleAuthConfig>();
