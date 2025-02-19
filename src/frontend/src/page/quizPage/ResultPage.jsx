@@ -44,7 +44,17 @@ const ResultPage = () => {
     alt="OSNT"
     style={{ width: "50px", height: "50px"}}
   />
-  <h1 style={{fontWeight:"bold", color:"#FCCAA7", textAlign:"center"}}>OSNT</h1>
+  <h1 
+  style={{
+    fontWeight:"bold", 
+    color:"#FCCAA7", 
+    textAlign:"center", 
+    margin:"0",
+    fontFamily:"Nutino, sans-serif",
+}}
+  >
+    OSNT
+    </h1>
   </div>
           </div>
         </div>
