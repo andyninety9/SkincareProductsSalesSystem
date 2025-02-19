@@ -71,99 +71,17 @@ const ResultPage = () => {
     </Col>
   </Row>
 </Card>
-      {/* Quy trình đề xuất */}
-      {/* <Card style={{ border: "none" }}>
-        <Title level={4}>Quy trình đề xuất</Title>
 
-        <Row gutter={[16, 16]}>
-          <Col span={24}>
-            <Card style={{ border: "none" }}>
-              <Row
-                align="middle"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  flexWrap: "nowrap",
-                  gap: "10px",
-                }}
-                gutter={16}
-              >
-                <Col flex="0 0 150px" style={{ textAlign: "center" }}>
-                  <Image
-                    src="https://image.hsv-tech.io/1987x0/bbx/common/b4ac69d8-c990-4cd8-adab-34a9e6ae08ea.webp"
-                    alt="Tên sản phẩm"
-                    style={{ maxWidth: "100%" }}
-                  />
-                  <Link
-                    style={{
-                      color: "black",
-                      textDecoration: "underline",
-                      marginTop: "10px",
-                    }}
-                  >
-                    Tuỳ chọn khác
-                  </Link>
-                </Col>
-                <Col flex="1">
-                  <Title level={5}>Bước 1 - Tên sản phẩm</Title>
-                  <Paragraph>
-                    Salicylic acid là một thành phần chống viêm có thể cắt xuyên
-                    qua bã nhờn, xâm nhập vào lỗ chân lông và làm sạch mụn đầu
-                    đen...
-                  </Paragraph>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-
-          <Col span={24}>
-            <Card>
-              <Row
-                align="middle"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  flexWrap: "nowrap",
-                }}
-                gutter={16}
-              >
-                <Col flex="0 0 150px" style={{ textAlign: "center" }}>
-                  <Image
-                    src="/path-to-image-2.jpg"
-                    alt="Sản phẩm 2"
-                    style={{ maxWidth: "100%" }}
-                  />
-                  <Link
-                    style={{
-                      color: "black",
-                      textDecoration: "underline",
-                      marginTop: "10px",
-                    }}
-                  >
-                    Tuỳ chọn khác
-                  </Link>
-                </Col>
-                <Col flex="1">
-                  <Title level={5}>Bước 2 - Tên sản phẩm</Title>
-                  <Paragraph>
-                    Salicylic acid là một thành phần chống viêm có thể cắt xuyên
-                    qua bã nhờn, xâm nhập vào lỗ chân lông và làm sạch mụn đầu
-                    đen...
-                  </Paragraph>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-        </Row>
-      </Card> */}
-
+{/* Quy trình đề xuất */}
+<h3>Quy trình đề xuất</h3>
+<hr style={{ border: "1.5px solid #D8959A", margin: "20px 0", borderRadius:"10px" }} />
 <Card style={{ border: "none" }}>
   <Row align="middle" style={{ display: "flex", alignItems: "center", flexWrap: "nowrap", gap: "10px" }}>
     <Col flex="0 0 150px" style={{ textAlign: "center" }}>
       <Image
         src="https://image.hsv-tech.io/1987x0/bbx/common/b4ac69d8-c990-4cd8-adab-34a9e6ae08ea.webp"
         alt="Tên sản phẩm"
-        style={{ maxWidth: "100%" }}
+        style={{ maxWidth: "100%", height: "auto" }}
       />
       <Link
         style={{
