@@ -21,6 +21,7 @@ import AboutUs from './page/aboutUsPage/AboutUs';
 import ProfilePage from './page/profilePage/ProfilePage';
 import QuizPage from "./page/quizPage/QuizPage";
 import StartQuizPage from "./page/quizPage/StartQuizPage";
+import ResultPage from "./page/quizPage/ResultPage";
 
 
 function App() {
@@ -58,6 +59,7 @@ function App() {
         { path: routes.profile, element: <ProfilePage /> },
         { path: routes.quiz, element: <QuizPage /> },
         { path: routes.startQuiz, element: <StartQuizPage /> },
+        { path: routes.resultQuiz, element: <ResultPage /> },
       ],
     },
   ]);
