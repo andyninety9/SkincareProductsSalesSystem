@@ -1,28 +1,27 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { routes } from "./routes";
-// import UserLayout from './layout/userLayout/userLayout';
-import AboutPage from "./page/aboutPage/aboutPage";
-import Login from "./page/login/Login";
-import Register from "./page/register/Register";
-import ResetPassword from "./page/resetPassword/ResetPassword";
-import "./index.css";
-import "bootstrap/dist/css/bootstrap.min.css";
-import HomePage from "./page/homePage/HomePage";
-import UserLayout from "./layout/userLayout/UserLayout";
-import ProductPage from "./page/productPage/ProductPage";
-import ProductDetailPage from "./page/productDetail/ProductDetailPage";
-import ReviewPage from "./page/reviewPage/ReviewPage";
-import CartPage from "./page/cartPage/CartPage";
-import CheckOutPage from "./page/checkoutPage/CheckoutPage";
-import QuizPage from "./page/quizPage/QuizPage";
-import StartQuizPage from "./page/quizPage/StartQuizPage";
+import AboutPage from './page/aboutPage/aboutPage';
+import Login from './page/login/Login';
+import Register from './page/register/Register';
+import ResetPassword from './page/resetPassword/ResetPassword';
 import Contact from './page/contact/Contact';
-import Service from './page/Service/service';
+import Service from './page/service/Service';
 import Faq from './page/faq/Faq';
+import './index.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import HomePage from './page/homePage/HomePage';
+import UserLayout from './layout/userLayout/UserLayout';
+import ProductPage from './page/productPage/ProductPage';
+import ProductDetailPage from './page/productDetail/ProductDetailPage';
+import ReviewPage from './page/reviewPage/ReviewPage';
+import CartPage from './page/cartPage/CartPage';
+import CheckOutPage from './page/checkoutPage/CheckoutPage';
 import EventPage from './page/eventPage/EventPage';
 import AboutUs from './page/aboutUsPage/AboutUs';
 import ProfilePage from './page/profilePage/ProfilePage';
-
+import QuizPage from "./page/quizPage/QuizPage";
+import StartQuizPage from "./page/quizPage/StartQuizPage";
+import ResultPage from "./page/quizPage/ResultPage"; 
 
 function App() {
   const router = createBrowserRouter([
@@ -49,17 +48,17 @@ function App() {
         { path: routes.product, element: <ProductPage /> },
         { path: routes.productDetail, element: <ProductDetailPage /> },
         { path: routes.review, element: <ReviewPage /> },
-        { path: routes.cart, element: <CartPage /> },
-        { path: routes.checkout, element: <CheckOutPage /> },
-        { path: routes.quiz, element: <QuizPage /> },
-        { path: routes.startQuiz, element: <StartQuizPage /> },
         { path: routes.contact, element: <Contact /> },
         { path: routes.service, element: <Service /> },
         { path: routes.faq, element: <Faq /> },
+        { path: routes.cart, element: <CartPage /> },
+        { path: routes.checkout, element: <CheckOutPage /> },
         { path: routes.event, element: <EventPage /> },
         { path: routes.aboutUs, element: <AboutUs /> },
-        { path: routes.profile, element: <ProfilePage /> }
-
+        { path: routes.profile, element: <ProfilePage /> },
+        { path: routes.quiz, element: <QuizPage /> },
+        { path: routes.startQuiz, element: <StartQuizPage /> },
+        { path: routes.resultQuiz, element: <ResultPage /> }, 
       ],
     },
   ]);

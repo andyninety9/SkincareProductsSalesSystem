@@ -7,19 +7,16 @@ export const routes = {
     resetPassword: "/reset-password",
     product: "/product",
     productDetail: "/product/:id",
-    review: "product/:id/review",
-    cart: "/cart",
-    checkout: "/checkout",
-<<<<<<< HEAD
-    quiz:"/quiz",
-    startQuiz:"/quiz/start",
+    review: "/product/:id/review",
     contact: "/contact",
     service: "/service",
-    faq:"/faq"
-=======
+    faq: "/faq",
+    cart: "/cart",
+    checkout: "/checkout",
     event: "/event",
     aboutUs: "/about-us",
     profile: "/profile",
-
->>>>>>> aba4348 (event page)
-}
+    quiz: "/quiz",
+    startQuiz: "/quiz/start",
+    resultQuiz: "/your-skin-type-result" 
+};
