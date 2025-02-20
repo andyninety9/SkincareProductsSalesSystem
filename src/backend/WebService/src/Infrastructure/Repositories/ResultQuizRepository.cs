@@ -17,6 +17,23 @@ namespace Infrastructure.Repositories
         }
         public async Task<long> CreateNewResultAsync(long quizId, long userId)
         {
+            // ✅ 1. Tìm tất cả kết quả cũ của người dùng và quizId
+            var existingResults = await _context.ResultQuizzes
+                .Where(r => r.UsrId == userId && r.IsDefault)
+                .ToListAsync();
+
+            if (existingResults.Any())
+            {
+                // ✅ 2. Cập nhật tất cả kết quả cũ thành IsDefault = false
+                foreach (var result in existingResults)
+                {
+                    result.IsDefault = false;
+                }
+
+                await _context.SaveChangesAsync(); // ✅ Lưu thay đổi trước khi tạo kết quả mới
+            }
+
+            // ✅ 3. Tạo kết quả mới với IsDefault = true
             var newResult = new ResultQuiz
             {
                 QuizId = quizId,
