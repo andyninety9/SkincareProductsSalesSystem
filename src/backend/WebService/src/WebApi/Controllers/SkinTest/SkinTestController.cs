@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Application.Constant;
-using Application.Products.Queries;
+using Application.Features.SkinTest.Queries;
 using Application.SkinTest.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -88,6 +84,34 @@ namespace WebApi.Controllers.SkinTest
             var query = new GetNextQuestionQuery(userId, int.Parse(questionId), int.Parse(answerKeyId), int.Parse(quizId));
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(new { statusCode = 200, message = "Get next question successfully", data = result.Value });
+        }
+
+        // GET /api/skin-test/result?quizId=int
+        [HttpGet("result")]
+        [Authorize]
+        public async Task<IActionResult> GetResult(
+            [FromQuery] string quizId,
+            CancellationToken cancellationToken = default)
+        {
+            if (User == null)
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.USER_INFORMATION_NOT_FOUND });
+            }
+
+            var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(usrID))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+            }
+
+            if (!long.TryParse(usrID, out var userId))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
+            }
+            var query = new GetQuizResultQuery(userId, long.Parse(quizId));
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(new { statusCode = 200, message = "Get result successfully", data = result.Value });
         }
 
     }

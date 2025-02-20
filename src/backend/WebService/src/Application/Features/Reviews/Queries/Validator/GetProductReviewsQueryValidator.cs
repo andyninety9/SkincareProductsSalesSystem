@@ -1,5 +1,3 @@
-using System;
-using Application.Products.Queries;
 using FluentValidation;
 
 namespace Application.Features.Reviews.Queries.Validator

@@ -2,18 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Domain.DTOs;
 using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Common;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories
 {
+
     public class ResultQuizRepository : Repository<ResultQuiz>, IResultQuizRepository
     {
-        public ResultQuizRepository(MyDbContext context) : base(context)
+        private readonly ILogger<ResultQuizRepository> _logger;
+        private readonly IMapper _mapper;
+        public ResultQuizRepository(MyDbContext context, ILogger<ResultQuizRepository> logger, IMapper mapper) : base(context)
         {
+            _logger = logger;
+            _mapper = mapper;
         }
         public async Task<long> CreateNewResultAsync(long quizId, long userId)
         {
@@ -157,5 +165,68 @@ namespace Infrastructure.Repositories
                 .Select(r => r.ResultId)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<GetQuizResultResponse> GetByQuizIdAsync(long quizId)
+        {
+            _logger.LogInformation("Fetching quiz result for QuizId: {QuizId}", quizId);
+
+            // ✅ 1. Truy vấn `ResultQuiz` với `SkinType`, `TreatmentSolutions` và `RecommendFors`
+            var resultQuiz = await _context.ResultQuizzes
+                .Include(r => r.SkinType) // ✅ JOIN SkinType
+                .Include(r => r.SkinType.TreatmentSolutions) // ✅ JOIN TreatmentSolution
+                .Include(r => r.SkinType.RecommendFors) // ✅ JOIN RecommendFor để lấy danh sách sản phẩm khuyến nghị
+                .Where(r => r.QuizId == quizId)
+                .OrderByDescending(r => r.CreateAt) // ✅ Lấy kết quả mới nhất
+                .FirstOrDefaultAsync();
+
+            // ✅ 2. Kiểm tra nếu không tìm thấy `ResultQuiz`
+            if (resultQuiz == null)
+            {
+                _logger.LogError("No quiz result found for QuizId: {QuizId}", quizId);
+                throw new KeyNotFoundException($"No quiz result found for QuizId {quizId}.");
+            }
+
+            // ✅ 3. Kiểm tra nếu `SkinType` không tồn tại
+            var skinType = resultQuiz.SkinType;
+            if (skinType == null)
+            {
+                _logger.LogWarning("QuizId {QuizId} has no associated SkinType.", quizId);
+                throw new KeyNotFoundException($"No SkinType found for QuizId {quizId}.");
+            }
+
+            // ✅ 4. Lấy liệu trình chăm sóc da nếu có
+            string treatmentSolution = skinType.TreatmentSolutions?.FirstOrDefault()?.SolutionContent ?? "No treatment solution available.";
+
+            // ✅ 5. Lấy danh sách sản phẩm khuyến nghị nếu có
+            var recommendedProducts = skinType.RecommendFors != null
+                ? _mapper.Map<List<ProductDTO>>(skinType.RecommendFors.ToList())
+                : new List<ProductDTO>();
+
+            // ✅ 6. Trả về response với kiểm tra null hợp lý
+            var response = new GetQuizResultResponse
+            {
+                ResultId = resultQuiz.ResultId,
+                QuizId = resultQuiz.QuizId,
+                UsrId = resultQuiz.UsrId,
+                ResultScore = new ResultScoreDto
+                {
+                    Odscore = resultQuiz.Odscore,
+                    Pnpscore = resultQuiz.Pnpscore,
+                    Srscore = resultQuiz.Srscore,
+                    Wtscore = resultQuiz.Wtscore
+                },
+                SkinTypeCode = skinType.SkinTypeCodes ?? "Unknown",
+                SkinTypeName = skinType.SkinTypeName ?? "Unknown",
+                SkinTypeDesc = skinType.SkinTypeDesc ?? "No description available.",
+                TreatmentSolution = treatmentSolution,
+                RecommendedProducts = recommendedProducts,
+                IsDefault = resultQuiz.IsDefault,
+                CreateAt = resultQuiz.CreateAt
+            };
+
+            _logger.LogInformation("Successfully fetched quiz result for QuizId: {QuizId}", quizId);
+            return response;
+        }
+
     }
 }

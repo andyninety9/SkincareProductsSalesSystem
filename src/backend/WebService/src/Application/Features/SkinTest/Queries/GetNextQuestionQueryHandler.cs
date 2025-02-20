@@ -9,7 +9,7 @@ using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Products.Queries
+namespace Application.Features.SkinTest.Queries
 {
     public sealed record GetNextQuestionQuery(long UserId, int QuestionId, int AnswerKeyId, long QuizId) : IQuery<GetNextQuestionResponse>;
 
