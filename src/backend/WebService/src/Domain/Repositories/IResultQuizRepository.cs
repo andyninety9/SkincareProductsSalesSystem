@@ -17,5 +17,6 @@ namespace Domain.Repositories
         Task<int?> GetSkinTypeIdAsync(long resultId);
         Task<long> GetResultQuizIdByQuizIdAsync(long quizId);
         Task<GetQuizResultResponse> GetByQuizIdAsync(long quizId);
+        Task<ResultQuiz> GetResultQuizByUserId(long userId);
     }
 }

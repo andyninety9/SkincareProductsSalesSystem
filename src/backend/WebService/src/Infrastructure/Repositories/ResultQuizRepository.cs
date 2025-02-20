@@ -250,5 +250,12 @@ namespace Infrastructure.Repositories
             return response;
         }
 
+        public Task<ResultQuiz?> GetResultQuizByUserId(long userId)
+        {
+            return _context.ResultQuizzes
+                .Include(r => r.SkinType)
+                .Where(r => r.UsrId == userId && r.IsDefault) 
+                .FirstOrDefaultAsync();
+        }
     }
 }
