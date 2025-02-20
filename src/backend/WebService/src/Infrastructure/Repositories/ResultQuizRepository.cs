@@ -172,21 +172,22 @@ namespace Infrastructure.Repositories
 
             // ✅ 1. Truy vấn `ResultQuiz` với `SkinType`, `TreatmentSolutions` và `RecommendFors`
             var resultQuiz = await _context.ResultQuizzes
-                .Include(r => r.SkinType) // ✅ JOIN SkinType
-                .Include(r => r.SkinType.TreatmentSolutions) // ✅ JOIN TreatmentSolution
-                .Include(r => r.SkinType.RecommendFors) // ✅ JOIN RecommendFor để lấy danh sách sản phẩm khuyến nghị
-                .Where(r => r.QuizId == quizId)
-                .OrderByDescending(r => r.CreateAt) // ✅ Lấy kết quả mới nhất
-                .FirstOrDefaultAsync();
+    .AsNoTracking()
+    .Include(r => r.SkinType)
+        .ThenInclude(st => st.TreatmentSolutions)
+    .Include(r => r.SkinType)
+        .ThenInclude(st => st.RecommendFors)
+            .ThenInclude(rf => rf.Prod) // ✅ Đảm bảo lấy dữ liệu từ bảng Product
+    .Where(r => r.QuizId == quizId)
+    .OrderByDescending(r => r.CreateAt)
+    .FirstOrDefaultAsync();
 
-            // ✅ 2. Kiểm tra nếu không tìm thấy `ResultQuiz`
             if (resultQuiz == null)
             {
                 _logger.LogError("No quiz result found for QuizId: {QuizId}", quizId);
                 throw new KeyNotFoundException($"No quiz result found for QuizId {quizId}.");
             }
 
-            // ✅ 3. Kiểm tra nếu `SkinType` không tồn tại
             var skinType = resultQuiz.SkinType;
             if (skinType == null)
             {
@@ -194,15 +195,34 @@ namespace Infrastructure.Repositories
                 throw new KeyNotFoundException($"No SkinType found for QuizId {quizId}.");
             }
 
-            // ✅ 4. Lấy liệu trình chăm sóc da nếu có
+            // ✅ 2. Lấy liệu trình chăm sóc da nếu có
             string treatmentSolution = skinType.TreatmentSolutions?.FirstOrDefault()?.SolutionContent ?? "No treatment solution available.";
 
-            // ✅ 5. Lấy danh sách sản phẩm khuyến nghị nếu có
-            var recommendedProducts = skinType.RecommendFors != null
-                ? _mapper.Map<List<ProductDTO>>(skinType.RecommendFors.ToList())
-                : new List<ProductDTO>();
+            // ✅ 3. Lấy danh sách sản phẩm khuyến nghị
+            var recommendedProducts = await _context.RecommendFors
+    .Where(r => r.SkinTypeId == skinType.SkinTypeId)
+    .Include(r => r.Prod)
+        .ThenInclude(p => p.ProductImages) // ✅ Load danh sách ảnh
+    .Select(r => new ProductDTO
+    {
+        ProductId = r.Prod.ProductId,
+        ProductName = r.Prod.ProductName,
+        ProductDesc = r.Prod.ProductDesc,
+        SellPrice = r.Prod.SellPrice,
+        Ingredient = r.Prod.Ingredient,
+        Instruction = r.Prod.Instruction,
+        CateId = r.Prod.CateId,
+        ProductImages = r.Prod.ProductImages.ToList() // ✅ Load danh sách ảnh sản phẩm
+    })
+    .ToListAsync();
 
-            // ✅ 6. Trả về response với kiểm tra null hợp lý
+
+            // ✅ 4. Phân loại sản phẩm theo từng bước chăm sóc da
+            var recommendedProductsStep1 = recommendedProducts.Where(p => p.CateId == 1).ToList(); // Step 1: Làm sạch
+            var recommendedProductsStep2 = recommendedProducts.Where(p => p.CateId == 2).ToList(); // Step 2: Dưỡng ẩm
+            var recommendedProductsStep3 = recommendedProducts.Where(p => p.CateId == 11).ToList(); // Step 3: Bảo vệ
+
+            // ✅ 5. Tạo response
             var response = new GetQuizResultResponse
             {
                 ResultId = resultQuiz.ResultId,
@@ -219,7 +239,9 @@ namespace Infrastructure.Repositories
                 SkinTypeName = skinType.SkinTypeName ?? "Unknown",
                 SkinTypeDesc = skinType.SkinTypeDesc ?? "No description available.",
                 TreatmentSolution = treatmentSolution,
-                RecommendedProducts = recommendedProducts,
+                Cleansers = recommendedProductsStep1,
+                Toners = recommendedProductsStep2,
+                Moisturizers = recommendedProductsStep3,
                 IsDefault = resultQuiz.IsDefault,
                 CreateAt = resultQuiz.CreateAt
             };

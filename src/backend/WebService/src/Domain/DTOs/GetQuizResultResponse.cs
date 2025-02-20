@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Domain.DTOs
 {
@@ -22,11 +20,32 @@ namespace Domain.DTOs
         public string SkinTypeDesc { get; set; } = string.Empty;
 
         public string TreatmentSolution { get; set; } = string.Empty;
-        public List<ProductDTO> RecommendedProducts { get; set; } = new();
+
+        /// <summary>
+        /// List of Cleansers (Step 1)
+        /// </summary>
+        public List<ProductDTO> Cleansers { get; set; } = new();
+
+        /// <summary>
+        /// List of Toners (Step 2)
+        /// </summary>
+        public List<ProductDTO> Toners { get; set; } = new();
+
+        /// <summary>
+        /// List of Moisturizers (Step 3)
+        /// </summary>
+        public List<ProductDTO> Moisturizers { get; set; } = new();
+
         public bool IsDefault { get; set; }
 
         public DateTime CreateAt { get; set; }
 
-
+        // ✅ Trả về danh sách trống nếu dữ liệu bị null
+        public GetQuizResultResponse()
+        {
+            Cleansers ??= new List<ProductDTO>();
+            Toners ??= new List<ProductDTO>();
+            Moisturizers ??= new List<ProductDTO>();
+        }
     }
 }

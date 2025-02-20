@@ -39,26 +39,6 @@ namespace Application.Features.SkinTest.Queries
         {
             var resultQuiz = await _resultQuizRepository.GetByQuizIdAsync(request.QuizId);
 
-            // GetQuizResultResponse response = new()
-            // {
-            //     ResultId = resultQuiz.ResultId,
-            //     QuizId = resultQuiz.QuizId,
-            //     UsrId = resultQuiz.UsrId,
-            //     ResultScore = new ResultScoreDto
-            //     {
-            //         Odscore = resultQuiz.Odscore,
-            //         Pnpscore = resultQuiz.Pnpscore,
-            //         Srscore = resultQuiz.Srscore,
-            //         Wtscore = resultQuiz.Wtscore
-            //     },
-            //     SkinTypeName = resultQuiz.SkinType.SkinTypeName,
-            //     SkinTypeDesc = resultQuiz.SkinType.SkinTypeDesc,
-            //     TreatmentSolution = resultQuiz.SkinType.TreatmentSolutions?.FirstOrDefault()?.SolutionContent ?? string.Empty,
-            //     RecommendedProducts = _mapper.Map<List<ProductDTO>>(resultQuiz.SkinType.RecommendFors.ToList()),
-            //     IsDefault = resultQuiz.IsDefault,
-            //     CreateAt = resultQuiz.CreateAt
-            // };
-
             return Result<GetQuizResultResponse>.Success(resultQuiz);
            
         }
