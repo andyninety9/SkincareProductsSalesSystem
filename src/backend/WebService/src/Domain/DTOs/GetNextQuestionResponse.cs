@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Domain.Entities;
 
 namespace Domain.DTOs
 {
@@ -18,6 +19,8 @@ namespace Domain.DTOs
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<KeyQuestionResponse>? KeyQuestions { get; set; }
+
+        public ResultScoreDto? ResultQuiz { get; set; }
 
         public bool IsFinalQuestion { get; set; }
 

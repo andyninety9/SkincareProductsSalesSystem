@@ -5,6 +5,7 @@ using Application.Common.ResponseModel;
 using Application.Features.Products.Response;
 using AutoMapper;
 using Domain.DTOs;
+using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
@@ -50,13 +51,23 @@ namespace Application.Products.Queries
             var question = await _questionRepository.GetQuestionByIdAsync(request.QuestionId);
             var score = question?.KeyQuestions?.FirstOrDefault(kq => kq.KeyId == request.AnswerKeyId)?.KeyScore ?? 0;
             await _resultQuizRepository.UpdateScoreAsync(resultQuizId, score, cateOldQuestion);
+            var resultQuiz = await _resultQuizRepository.GetByIdAsync(resultQuizId, cancellationToken);
+            ResultScoreDto resultScore = new()
+            {
+                Odscore = resultQuiz.Odscore,
+                Pnpscore = resultQuiz.Pnpscore,
+                Srscore = resultQuiz.Srscore,
+                Wtscore = resultQuiz.Wtscore
+            };
             var isTestComplete = await _resultQuizRepository.IsTestCompleteAsync(resultQuizId);
             if (isTestComplete)
             {
                 var skinTypeId = await _resultQuizRepository.GetSkinTypeIdAsync(resultQuizId);
                 return Result<GetNextQuestionResponse>.Success(new GetNextQuestionResponse
                 {
+                    QuizId = request.QuizId,
                     IsFinalQuestion = true,
+                    ResultQuiz = resultScore ,
                     SkinTypeId = skinTypeId ?? 0
                 });
             }
@@ -80,6 +91,8 @@ namespace Application.Products.Queries
                 return Result<GetNextQuestionResponse>.Failure<GetNextQuestionResponse>(new Error("NoMoreQuestions", "No more questions available."));
             }
 
+          
+
             return Result<GetNextQuestionResponse>.Success(new GetNextQuestionResponse
             {
                 QuestionNumber = answeredQuestions.Count + 1,
@@ -91,7 +104,9 @@ namespace Application.Products.Queries
                     KeyId = kq.KeyId,
                     KeyContent = kq.KeyContent,
                     KeyScore = kq.KeyScore
-                }).ToList()
+                }).ToList(),
+                ResultQuiz = resultScore ,
+
             });
         }
 
