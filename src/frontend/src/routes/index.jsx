@@ -7,7 +7,7 @@ export const routes = {
     resetPassword: "/reset-password",
     product: "/product",
     productDetail: "/product/:id",
-    review: "product/:id/review",
+    review: "/product/:id/review",
     contact: "/contact",
     service: "/service",
     faq: "/faq",
@@ -18,5 +18,5 @@ export const routes = {
     profile: "/profile",
     quiz: "/quiz",
     startQuiz: "/quiz/start",
-    resultQuiz: "/your-skin-type-result",
-}
+    resultQuiz: "/your-skin-type-result" 
+};
