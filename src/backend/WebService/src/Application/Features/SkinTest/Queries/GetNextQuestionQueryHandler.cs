@@ -82,6 +82,7 @@ namespace Application.Products.Queries
 
             return Result<GetNextQuestionResponse>.Success(new GetNextQuestionResponse
             {
+                QuestionNumber = answeredQuestions.Count + 1,
                 QuizId = request.QuizId,
                 QuestionId = nextQuestion.QuestionId,
                 QuestionText = nextQuestion.QuestionContent,
