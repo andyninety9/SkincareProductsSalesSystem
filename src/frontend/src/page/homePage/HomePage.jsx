@@ -15,6 +15,7 @@ import {
 import { CiCircleChevLeft, CiCircleChevRight } from "react-icons/ci";
 import ObjectSlider from "../../component/objectSlider/slider";
 
+
 export default function HomePage() {
   const prevRef = useRef(null);
   const nextRef = useRef(null);

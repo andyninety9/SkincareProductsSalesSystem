@@ -18,4 +18,5 @@ export const routes = {
     profile: "/profile",
     quiz: "/quiz",
     startQuiz: "/quiz/start",
+    mangeOrder: "/manage-order"
 }

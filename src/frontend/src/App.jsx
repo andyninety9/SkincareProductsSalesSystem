@@ -21,6 +21,7 @@ import AboutUs from './page/aboutUsPage/AboutUs';
 import ProfilePage from './page/profilePage/ProfilePage';
 import QuizPage from "./page/quizPage/QuizPage";
 import StartQuizPage from "./page/quizPage/StartQuizPage";
+import ManageOrderPage from "./page/mangeOrder/ManageOrder";
 
 
 function App() {
@@ -37,6 +38,10 @@ function App() {
     {
       path: routes.resetPassword,
       element: <ResetPassword />,
+    },
+    {
+      path: routes.mangeOrder,
+      element: <ManageOrderPage />,
     },
 
     {
