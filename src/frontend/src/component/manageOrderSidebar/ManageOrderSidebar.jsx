@@ -1,28 +1,13 @@
 import React from "react";
 import { Layout, Menu } from "antd";
-import { CommentOutlined, CopyOutlined } from "@ant-design/icons";
+import { CommentOutlined, ContainerOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import "./ManageOrderSidebar.css";
 
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
-
-const CustomSubMenuTitle = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    background: #D8959B;
-    border-radius: 28px;
-    color: white;
-    width: 100%;
-    cursor: pointer;
-    
-    &:hover {
-        background: #c67f89;
-    }
-`;
+const [selectedKey, setSelectedKey] = useState("1");
 const ManageOrderSidebar = () => {
     return (
         <Sider
@@ -46,10 +31,12 @@ const ManageOrderSidebar = () => {
             <Menu
                 mode="inline"
                 defaultOpenKeys={["sub1"]}
+                selectedKeys={[selectedKey]}
+                onClick={(e) => setSelectedKey(e.key)}
                 style={{ flex: 1, borderRight: 0 }}
             >
 
-                <SubMenu key="sub1" icon={<CopyOutlined />} title="Manage Orders">
+                <SubMenu key="sub1" icon={<ContainerOutlined />} title="Manage Orders">
 
                     <Menu.Item key="1">Manage Order Status</Menu.Item>
                     <Menu.Item key="2">Manage Cancel Order</Menu.Item>
@@ -68,7 +55,6 @@ const ManageOrderSidebar = () => {
                     textAlign: "center",
                     fontSize: 12,
                     padding: "12px 0",
-                    borderTop: "1px solid #f0f0f0",
                     position: "absolute",
                     bottom: 0,
                     width: "100%",

@@ -6,7 +6,7 @@ import EyeInvisibleOutlined from "@ant-design/icons/lib/icons/EyeInvisibleOutlin
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
 import { useState } from "react";
 
-const orders = Array.from({ length: 10 }, (_, index) => ({
+const orders = Array.from({ length: 50 }, (_, index) => ({
     orderNumber: (12345678 + index).toString(),
     dateTime: "20/01/2025",
     customerName: "Abc",
@@ -17,6 +17,8 @@ const orders = Array.from({ length: 10 }, (_, index) => ({
 
 export default function ManageOrder() {
     const [visibleOrders, setVisibleOrders] = useState({});
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 10;
 
     const toggleVisibility = (orderNumber) => {
         setVisibleOrders(prev => ({
@@ -96,11 +98,39 @@ export default function ManageOrder() {
                                 </Card>
                             ))}
                         </div>
-                        <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "16px" }}>
+                        <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "30px", marginTop: "30px" }}>
                             <Input placeholder="Tìm kiếm khách hàng ..." style={{ width: "450px" }} suffix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />} />
+                            <Button
+                                style={{
+                                    backgroundColor: "#AEBCFF",
+                                    borderColor: "#AEBCFF",
+                                    borderRadius: "12px",
+                                    width: "150px",
+                                    marginLeft: "auto",
+                                }}
+                            >
+                                Pending
+                            </Button>
                         </div>
-                        <div style={{ width: "100%", overflowX: "auto" }}>
-                            <Table dataSource={orders} columns={columns} pagination={{ pageSize: 10 }} rowKey="orderNumber" scroll={{ x: "100%" }} />
+                        <div style={{ width: "100%", }}>
+                            <Table
+                                dataSource={orders}
+                                columns={columns}
+                                rowKey="orderNumber"
+                                scroll={{ x: "100%" }}
+                                pagination={{
+                                    position: ["bottomCenter"],
+                                    current: currentPage,
+                                    pageSize: 10,
+                                    total: orders.length,
+                                    showSizeChanger: true,
+                                    pageSizeOptions: ["10", "20", "30"],
+                                    onChange: (page) => setCurrentPage(page),
+                                    onChange: (page) => setCurrentPage(page),
+                                }}
+
+
+                            />
                         </div>
                     </div>
                 </div>
