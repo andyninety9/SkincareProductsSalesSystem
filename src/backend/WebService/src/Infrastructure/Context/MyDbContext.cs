@@ -872,6 +872,9 @@ public partial class MyDbContext : DbContext
 
             entity.Property(e => e.VoucherId).HasColumnName("voucherID");
             entity.Property(e => e.UsrId).HasColumnName("usrID");
+            entity.Property(e => e.VoucherCode)
+                .HasColumnType("character varying(10)[]")
+                .HasColumnName("voucherCode");
             entity.Property(e => e.VoucherDesc).HasColumnName("voucherDesc");
             entity.Property(e => e.VoucherDiscount).HasColumnName("voucherDiscount");
 
