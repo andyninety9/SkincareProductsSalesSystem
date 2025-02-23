@@ -11,9 +11,9 @@ public partial class Question
 
     public string QuestionContent { get; set; } = null!;
 
-    public long AnsId { get; set; }
-
     public DateOnly CreatedAt { get; set; }
+
+    public bool StatusQuestion { get; set; }
 
     public virtual CategoryQuestion CateQuestion { get; set; } = null!;
 
