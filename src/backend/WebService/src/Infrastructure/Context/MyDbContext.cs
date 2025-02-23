@@ -536,14 +536,14 @@ public partial class MyDbContext : DbContext
             entity.ToTable("Question");
 
             entity.Property(e => e.QuestionId).HasColumnName("questionID");
-            entity.Property(e => e.AnsId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("ansID");
             entity.Property(e => e.CateQuestionId)
                 .ValueGeneratedOnAdd()
                 .HasColumnName("cateQuestionID");
             entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
             entity.Property(e => e.QuestionContent).HasColumnName("questionContent");
+            entity.Property(e => e.StatusQuestion)
+                .HasDefaultValue(true)
+                .HasColumnName("statusQuestion");
 
             entity.HasOne(d => d.CateQuestion).WithMany(p => p.Questions)
                 .HasForeignKey(d => d.CateQuestionId)

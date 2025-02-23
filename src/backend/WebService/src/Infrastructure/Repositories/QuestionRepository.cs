@@ -105,6 +105,7 @@ namespace Infrastructure.Repositories
             // ✅ 1. Lấy danh sách câu hỏi đã trả lời từ QuizDetail theo quizId
             var answeredQuestions = await _context.QuizDetails
                 .Where(qd => qd.QuizId == quizId)
+                .Where(qd => _context.Questions.Any(q => q.QuestionId == qd.QuestId && q.StatusQuestion))
                 .Select(qd => qd.QuestId)
                 .ToListAsync();
 
@@ -154,5 +155,19 @@ namespace Infrastructure.Repositories
                 .Select(q => q.CateQuestionId.ToString())
                 .FirstOrDefaultAsync();
         }
+
+        public Task<bool> DeleteByStatusAsync(short questionId)
+        {
+            var question = _context.Questions.Find(questionId);
+            if (question == null)
+            {
+                return Task.FromResult(false);
+            }
+
+            question.StatusQuestion = false;
+            _context.Questions.Update(question);
+            return Task.FromResult(true);
+        }
+
     }
 }
