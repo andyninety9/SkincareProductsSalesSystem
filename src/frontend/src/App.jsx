@@ -43,6 +43,10 @@ function App() {
       path: routes.mangeOrder,
       element: <ManageOrderPage />,
     },
+    {
+      path: routes.mangeComment,
+      element: <ManageCommentPage />,
+    },
 
     {
       path: routes.home,

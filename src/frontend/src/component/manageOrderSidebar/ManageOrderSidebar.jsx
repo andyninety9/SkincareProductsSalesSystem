@@ -1,14 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { Layout, Menu } from "antd";
 import { CommentOutlined, ContainerOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import "./ManageOrderSidebar.css";
 
 
+
 const { Sider } = Layout;
 const { SubMenu } = Menu;
-const [selectedKey, setSelectedKey] = useState("1");
+
 const ManageOrderSidebar = () => {
+    const [selectedKey, setSelectedKey] = useState("1");
+
     return (
         <Sider
             width={250}
