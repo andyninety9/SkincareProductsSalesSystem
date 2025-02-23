@@ -169,5 +169,26 @@ namespace Infrastructure.Repositories
             return Task.FromResult(true);
         }
 
+        public Task<Question?> UpdateQuestionAsync(short questionId, short? cateQuestionId, string? questionContent)
+        {
+            var question = _context.Questions.Find(questionId);
+            if (question == null)
+            {
+                return Task.FromResult<Question?>(null);
+            }
+
+            if (cateQuestionId.HasValue)
+            {
+                question.CateQuestionId = cateQuestionId.Value;
+            }
+
+            if (!string.IsNullOrEmpty(questionContent))
+            {
+                question.QuestionContent = questionContent;
+            }
+
+            _context.Questions.Update(question);
+            return Task.FromResult<Question?>(question);
+        }
     }
 }
