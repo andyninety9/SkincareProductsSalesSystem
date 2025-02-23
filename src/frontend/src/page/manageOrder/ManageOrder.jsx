@@ -83,7 +83,7 @@ export default function ManageOrder() {
                         flexDirection: "column",
                         alignItems: "center",
                         overflowY: "auto",
-                        marginLeft: "250px"  
+                        marginLeft: "250px"
                     }}
                 >
                     <div style={{ maxWidth: "100%", margin: "0 auto" }}>
@@ -93,8 +93,8 @@ export default function ManageOrder() {
 
                             {[...Array(4)].map((_, i) => (
                                 <Card key={i} style={{ textAlign: "center", width: "180px", backgroundColor: "#FFFCFC", height: "120px", borderRadius: "12px" }}>
-                                    <h2 style={{ fontSize: "14px", fontFamily: "Nunito, sans-serif" }}>Total Orders</h2>
-                                    <p style={{ fontSize: "20px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>123</p>
+                                    <h2 style={{ fontSize: "18px", fontFamily: "Nunito, sans-serif" }}>Total Orders</h2>
+                                    <p style={{ fontSize: "40px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>123</p>
                                 </Card>
                             ))}
                         </div>
@@ -125,7 +125,7 @@ export default function ManageOrder() {
                                     total: orders.length,
                                     pageSizeOptions: ["10", "20", "30"],
                                     onChange: (page) => setCurrentPage(page),
-                                  
+
                                 }}
 
 

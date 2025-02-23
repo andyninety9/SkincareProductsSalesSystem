@@ -21,8 +21,8 @@ import AboutUs from './page/aboutUsPage/AboutUs';
 import ProfilePage from './page/profilePage/ProfilePage';
 import QuizPage from "./page/quizPage/QuizPage";
 import StartQuizPage from "./page/quizPage/StartQuizPage";
-import ManageOrderPage from "./page/mangeOrder/ManageOrder";
-
+import ManageOrderPage from "./page/manageOrder/ManageOrder";
+import ManageCommentPage from "./page/manageComment/ManageComment";
 import ResultPage from "./page/quizPage/ResultPage";
 
 function App() {
@@ -41,11 +41,11 @@ function App() {
       element: <ResetPassword />,
     },
     {
-      path: routes.mangeOrder,
+      path: routes.manageOrder,
       element: <ManageOrderPage />,
     },
     {
-      path: routes.mangeComment,
+      path: routes.manageComment,
       element: <ManageCommentPage />,
     },
 
