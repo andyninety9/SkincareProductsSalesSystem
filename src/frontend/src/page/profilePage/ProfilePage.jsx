@@ -90,7 +90,8 @@ const ProfilePage = () => {
             backgroundSize: "cover",
             alignItems: "flex-end",
             height: "80vh",
-            position: "relative"
+            position: "relative",
+
         }}>
 
             <Card style={{ width: 250, minHeight: 450, textAlign: "center", marginTop: 1000 }}>
@@ -134,7 +135,7 @@ const ProfilePage = () => {
                 />
             </Card>
 
-            <Card style={{ width: 500, minHeight: 450, marginLeft: 20, marginTop: 50, display: "flex", flexDirection: "column", mamrginBottom:"15px" }}>
+            <Card style={{ width: 500, minHeight: 450, marginLeft: 20, marginTop: 50, display: "flex", flexDirection: "column", mamrginBottom: "15px" }}>
                 <Tabs
                     activeKey={activeTab}
                     onChange={setActiveTab}
@@ -202,7 +203,7 @@ const ProfilePage = () => {
                             )}
                         />
                     </TabPane>
-                    <TabPane tab={<span style={{ color: activeTab === "4" ? "#D8959A" : "gray" }}>Cài Đặt</span>} key="4">Cài đặt tài khoản
+                    <TabPane tab={<span style={{ color: activeTab === "4" ? "#D8959A" : "gray" }}>Cài Đặt</span>} key="4">
                         <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "10px" }}>
                             <Button type="primary" style={{ backgroundColor: "#D8959A", borderColor: "#D8959A" }}>Ngôn Ngữ: Tiếng Việt </Button>
                             <Button type="primary" style={{ backgroundColor: "#C87E83", borderColor: "#C87E83" }}>Chế độ: Sáng</Button>
