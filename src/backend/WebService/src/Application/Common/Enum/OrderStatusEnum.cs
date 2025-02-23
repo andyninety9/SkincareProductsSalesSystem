@@ -1,6 +1,6 @@
 namespace Application.Common.Enum
 {
-    public enum OrderStatusEnum
+    public enum OrderStatusEnum : short
     {
         Pending = 1,
         Processing = 2,

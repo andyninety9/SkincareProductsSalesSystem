@@ -11,6 +11,10 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Common;
+using Application.Features.Orders.Commands;
+using Application.Constant;
+using System.Security.Claims;
+using Domain.DTOs;
 
 namespace WebApi.Controllers.Orders
 {
@@ -104,9 +108,9 @@ namespace WebApi.Controllers.Orders
         {
             try
             {
-                
+
                 var query = new GetOrderDetailQuery(id);
-             
+
                 var result = await _mediator.Send(query, cancellationToken);
 
                 if (!result.IsSuccess)
@@ -129,6 +133,66 @@ namespace WebApi.Controllers.Orders
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error in GetOrderById");
+                return StatusCode(500, new
+                {
+                    statusCode = 500,
+                    message = "An unexpected error occurred.",
+                    details = ex.Message
+                });
+            }
+        }
+
+        // PATCH: /api/orders/{id}/next-status
+        // Body: { "note": "string" }
+        // Header: Authorization: Bearer {token}
+        // Role: Admin, Staff
+        [HttpPatch("{orderId}/next-status")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> NextStatus(long orderId, [FromBody] NextStatusOrderRequest request, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (User == null)
+                {
+                    return Unauthorized(new { statusCode = 401, message = IConstantMessage.USER_INFORMATION_NOT_FOUND });
+                }
+
+                var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(usrID))
+                {
+                    return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+                }
+
+                if (!long.TryParse(usrID, out var userId))
+                {
+                    return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
+                }
+                var command = new NextStatusOrderCommand(userId, orderId, request.Note);
+
+                var result = await _mediator.Send(command, cancellationToken);
+
+                if (!result.IsSuccess)
+                {
+                    return StatusCode(500, new
+                    {
+                        statusCode = 500,
+                        message = "An error occurred while updating order status.",
+                        details = result.Error
+                    });
+                }
+
+                return Ok(new
+                {
+                    statusCode = 200,
+                    message = "Order status updated successfully.",
+                    data = result.Value
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error in NextStatus");
                 return StatusCode(500, new
                 {
                     statusCode = 500,

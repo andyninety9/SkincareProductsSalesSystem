@@ -5,6 +5,7 @@ using Application.Features.Users.Response;
 using Application.Features.Products.Response;
 using Domain.Entities;
 using Domain.DTOs;
+using Application.Features.Orders.Response;
 
 namespace Application.Common.Mapper
 {
@@ -17,6 +18,10 @@ namespace Application.Common.Mapper
             CreateMap<User, GetMeResponse>();
             CreateMap<User, GetAllUsersResponse>();
             CreateMap<GetAllUsersResponse, User>();
+
+            // Mapping for Order
+            CreateMap<Order, ChangeOrderStatusResponse>();
+            CreateMap<ChangeOrderStatusResponse, Order>();
 
             CreateMap<User, GetAllUsersResponse>()
                 .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Usr.Role.RoleId))
