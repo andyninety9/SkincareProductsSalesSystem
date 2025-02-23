@@ -24,6 +24,8 @@ namespace Application.Common.Mapper
             CreateMap<PaymentDto, Payment>();
             CreateMap<Question, CreateQuestionCommand>();
             CreateMap<CreateQuestionCommand, Question>();
+            CreateMap<Question, UpdateQuestionCommand>();
+            CreateMap<UpdateQuestionCommand, Question>();
 
             
 
