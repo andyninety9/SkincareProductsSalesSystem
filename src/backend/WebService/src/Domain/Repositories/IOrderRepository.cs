@@ -29,6 +29,8 @@ namespace Domain.Repositories
             CancellationToken cancellationToken);
         Task<OrderDetailResponse?> GetOrderByIdAsync(long orderId, CancellationToken cancellationToken);
 
+        Task<Order?> NextStatusOrderAsync(long orderId, CancellationToken cancellationToken);
+
 
     }
 }

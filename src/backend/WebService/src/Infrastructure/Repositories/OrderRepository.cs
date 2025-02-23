@@ -3,19 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Common.Enum;
 using Domain.DTOs;
 using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Common;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories
 {
     public class OrderRepository : Repository<Order>, IOrderRepository
     {
-        public OrderRepository(MyDbContext context) : base(context)
+        private readonly ILogger<OrderRepository> _logger;
+        public OrderRepository(MyDbContext context, ILogger<OrderRepository> logger) : base(context)
         {
+            _logger = logger;
         }
 
         public async Task<(IEnumerable<GetAllOrdersResponse> Orders, int TotalCount)> GetAllOrdersByQueryAsync(
@@ -221,5 +225,70 @@ namespace Infrastructure.Repositories
 
             return (orders, totalItems);
         }
+
+        public async Task<Order?> NextStatusOrderAsync(long orderId, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Checking NextStatusOrderAsync for OrderID: {OrderId}", orderId);
+
+            // 1. Kiểm tra orderId hợp lệ
+            if (orderId <= 0)
+            {
+                _logger.LogWarning("Invalid Order ID: {OrderId}", orderId);
+                return null;
+            }
+
+            // 2. Lấy đơn hàng từ database
+            var order = await _context.Orders
+                .Include(o => o.OrdStatus)
+                .FirstOrDefaultAsync(o => o.OrdId == orderId, cancellationToken);
+
+            if (order == null)
+            {
+                _logger.LogWarning("Order not found: {OrderId}", orderId);
+                return null;
+            }
+
+            // 3. Kiểm tra nếu trạng thái hiện tại không hợp lệ
+            if (!Enum.IsDefined(typeof(OrderStatusEnum), order.OrdStatusId))
+            {
+                _logger.LogWarning("Invalid status found for Order ID {OrderId}: {StatusId}", order.OrdId, order.OrdStatusId);
+                return null;
+            }
+
+            if ((OrderStatusEnum)order.OrdStatusId == OrderStatusEnum.Completed)
+            {
+                _logger.LogInformation("Order {OrderId} is already completed. No status update needed.", order.OrdId);
+                return null;
+            }
+
+            // 4. Cập nhật trạng thái mới
+            order.OrdStatusId = (short)(((OrderStatusEnum)order.OrdStatusId switch
+            {
+                OrderStatusEnum.Pending => OrderStatusEnum.Processing,
+                OrderStatusEnum.Processing => OrderStatusEnum.Shipping,
+                OrderStatusEnum.Shipping => OrderStatusEnum.Shipped,
+                OrderStatusEnum.Shipped => OrderStatusEnum.Completed,
+                _ => (OrderStatusEnum)order.OrdStatusId
+            }));
+
+
+            order.UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
+
+            // 5. Lưu thay đổi vào database
+            var changes = await _context.SaveChangesAsync(cancellationToken);
+            if (changes == 0)
+            {
+                _logger.LogWarning("No changes saved for Order ID {OrderId}", order.OrdId);
+            }
+            else
+            {
+                _logger.LogInformation("Order ID {OrderId} updated successfully to status {StatusId}.", order.OrdId, order.OrdStatusId);
+            }
+
+            // 6. Trả về đơn hàng sau khi cập nhật
+            return order;
+        }
+
+
     }
 }
