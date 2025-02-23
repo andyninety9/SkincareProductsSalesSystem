@@ -9,9 +9,9 @@ namespace Domain.DTOs
     {
         public long QuizId { get; set; } // Mã bài kiểm tra mới
         public int QuestionId { get; set; }
-        public string QuestionText { get; set; }
-        public string Category { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public List<KeyQuestionResponse> KeyQuestions { get; set; }
+        public string QuestionText { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public List<KeyQuestionResponse> KeyQuestions { get; set; } = new List<KeyQuestionResponse>();
     }
 }

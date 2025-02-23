@@ -19,6 +19,9 @@ namespace Application.Common.Mapper
             CreateMap<GetAllUsersResponse, User>();
             CreateMap<Event, GetAllEventsResponse>();
             CreateMap<GetAllEventsResponse, Event>();
+            CreateMap<Payment, PaymentDto>();
+            CreateMap<PaymentDto, Payment>();
+            
 
             CreateMap<User, GetAllUsersResponse>()
                 .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Usr.Role.RoleId))

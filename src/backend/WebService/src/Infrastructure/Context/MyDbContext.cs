@@ -332,6 +332,9 @@ public partial class MyDbContext : DbContext
                 .HasColumnType("timestamp(0) without time zone")
                 .HasColumnName("createdAt");
             entity.Property(e => e.EventId).HasColumnName("eventID");
+            entity.Property(e => e.IsPaid)
+                .HasDefaultValue(false)
+                .HasColumnName("isPaid");
             entity.Property(e => e.OrdDate)
                 .HasColumnType("timestamp(0) without time zone")
                 .HasColumnName("ordDate");
@@ -435,6 +438,9 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.PaymentMethod)
                 .HasColumnType("character varying")
                 .HasColumnName("paymentMethod");
+            entity.Property(e => e.PaymentStatus)
+                .HasDefaultValue(false)
+                .HasColumnName("paymentStatus");
 
             entity.HasOne(d => d.Order).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.OrderId)
@@ -866,6 +872,9 @@ public partial class MyDbContext : DbContext
 
             entity.Property(e => e.VoucherId).HasColumnName("voucherID");
             entity.Property(e => e.UsrId).HasColumnName("usrID");
+            entity.Property(e => e.VoucherCode)
+                .HasColumnType("character varying(10)[]")
+                .HasColumnName("voucherCode");
             entity.Property(e => e.VoucherDesc).HasColumnName("voucherDesc");
             entity.Property(e => e.VoucherDiscount).HasColumnName("voucherDiscount");
 

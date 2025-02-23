@@ -21,6 +21,8 @@ public partial class Order
 
     public DateTime UpdatedAt { get; set; }
 
+    public bool? IsPaid { get; set; }
+
     public virtual ICollection<DeliveryDetail> DeliveryDetails { get; set; } = new List<DeliveryDetail>();
 
     public virtual Event? Event { get; set; }

@@ -23,6 +23,7 @@ import QuizPage from "./page/quizPage/QuizPage";
 import StartQuizPage from "./page/quizPage/StartQuizPage";
 import ManageOrderPage from "./page/mangeOrder/ManageOrder";
 
+import ResultPage from "./page/quizPage/ResultPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -67,6 +68,7 @@ function App() {
         { path: routes.profile, element: <ProfilePage /> },
         { path: routes.quiz, element: <QuizPage /> },
         { path: routes.startQuiz, element: <StartQuizPage /> },
+        { path: routes.resultQuiz, element: <ResultPage /> },
       ],
     },
   ]);

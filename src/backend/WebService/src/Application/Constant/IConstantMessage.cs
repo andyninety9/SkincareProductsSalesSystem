@@ -65,6 +65,10 @@ namespace Application.Constant
         // Email related messages
         public static string EMAIL_VERIFICATION_SUCCESS = "Email has been successfully verified.";
 
+        // Payment related messages
+        public static string CREATE_PAYMENT_SUCCESS = "Payment created successfully.";
+        public static string PAYMENT_RETURN_SUCCESS = "Payment returned successfully.";
+
         // Server related messages
         public static string INTERNAL_SERVER_ERROR = "An unexpected error occurred on the server.";
         public static string INTERNAL_SERVER_MEDIATOR_ERROR = "An error occurred: Mediator is not initialized.";
