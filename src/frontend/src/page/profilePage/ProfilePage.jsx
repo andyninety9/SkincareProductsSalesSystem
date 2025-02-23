@@ -5,6 +5,7 @@ import Profile1 from "../../assets/profile1.png";
 import AboutUs3 from "../../assets/aboutUs3.png";
 import "antd/dist/reset.css";
 import "./ProfilePage.css";
+import OrderHistory from "../../assets/orderHistory.png";
 
 const { TabPane } = Tabs;
 
@@ -37,6 +38,35 @@ const initialAddresses = [
 
 ];
 
+const orders = [
+    {
+        id: "#123456",
+        name: "Nguyen Van Yeah",
+        date: "20/01/2025",
+        price: "120.000 vnd - 1 món",
+        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
+        status: "Pending",
+        image: OrderHistory,
+    },
+    {
+        id: "#123456",
+        name: "Nguyen Van Yeah",
+        date: "20/01/2025",
+        price: "120.000 vnd - 1 món",
+        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
+        status: "Pending",
+        image: OrderHistory,
+    },
+    {
+        id: "#123456",
+        name: "Nguyen Van Yeah",
+        date: "20/01/2025",
+        price: "120.000 vnd - 1 món",
+        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
+        status: "Pending",
+        image: OrderHistory,
+    }
+];
 
 const ProfilePage = () => {
     const [addresses, setAddresses] = useState(initialAddresses);
@@ -133,7 +163,40 @@ const ProfilePage = () => {
                         <Button type="dashed" style={{ width: "100%", backgroundColor: "#C87E83", borderColor: "#C87E83", color: "#fff" }}>Thêm địa chỉ mới</Button>
                     </TabPane>
                     <TabPane tab={<span style={{ color: activeTab === "2" ? "#D8959A" : "gray" }}>Mã Khuyến Mãi</span>} key="2">Nội dung mã khuyến mãi</TabPane>
-                    <TabPane tab={<span style={{ color: activeTab === "3" ? "#D8959A" : "gray" }}>Lịch Sử Mua Hàng</span>} key="3">Lịch sử mua hàng</TabPane>
+                    <TabPane tab={<span style={{ color: activeTab === "3" ? "#D8959A" : "gray" }}>Lịch Sử Mua Hàng</span>} key="3">
+                        <List
+                            dataSource={orders}
+                            renderItem={(order) => (
+                                <List.Item style={{ display: "flex", alignItems: "center", padding: 10, borderBottom: "1px solid #ddd" }}>
+                                    <img src={order.image} alt="Product" style={{ width: 80, height: 80, borderRadius: 10, marginRight: 15 }} />
+                                    <div style={{ flex: 1 }}>
+                                        <strong>{order.name}</strong>
+                                        <p style={{ margin: 0 }}>{order.date}</p>
+                                        <p style={{ fontWeight: "bold", color: "#D8959A" }}>{order.price}</p>
+                                        <p style={{ margin: 0, color: "gray", fontSize: "10px" }}>{order.address}</p>
+                                    </div>
+                                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <p style={{ color: "#D8959A", fontSize: "20px", margin: 0 }}>
+          {order.id}
+        </p>
+        <Tag
+          color="#D8959A"
+          style={{
+            borderRadius: 5,
+            height: "30px",
+            width: "70px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {order.status}
+        </Tag>
+      </div>
+                                </List.Item>
+                            )}
+                        />
+                    </TabPane>
                     <TabPane tab={<span style={{ color: activeTab === "4" ? "#D8959A" : "gray" }}>Cài Đặt</span>} key="4">Cài đặt tài khoản</TabPane>
                 </Tabs>
             </Card>
