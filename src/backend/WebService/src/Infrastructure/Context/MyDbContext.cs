@@ -151,6 +151,9 @@ public partial class MyDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("district");
             entity.Property(e => e.IsDefault).HasColumnName("isDefault");
+            entity.Property(e => e.Status)
+                .HasDefaultValue(true)
+                .HasColumnName("status");
             entity.Property(e => e.UsrId).HasColumnName("usrID");
             entity.Property(e => e.Ward)
                 .HasMaxLength(255)
@@ -329,6 +332,9 @@ public partial class MyDbContext : DbContext
                 .HasColumnType("timestamp(0) without time zone")
                 .HasColumnName("createdAt");
             entity.Property(e => e.EventId).HasColumnName("eventID");
+            entity.Property(e => e.IsPaid)
+                .HasDefaultValue(false)
+                .HasColumnName("isPaid");
             entity.Property(e => e.OrdDate)
                 .HasColumnType("timestamp(0) without time zone")
                 .HasColumnName("ordDate");
@@ -341,7 +347,6 @@ public partial class MyDbContext : DbContext
 
             entity.HasOne(d => d.Event).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.EventId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("order_eventid_foreign");
 
             entity.HasOne(d => d.OrdStatus).WithMany(p => p.Orders)
@@ -433,6 +438,9 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.PaymentMethod)
                 .HasColumnType("character varying")
                 .HasColumnName("paymentMethod");
+            entity.Property(e => e.PaymentStatus)
+                .HasDefaultValue(false)
+                .HasColumnName("paymentStatus");
 
             entity.HasOne(d => d.Order).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.OrderId)
@@ -528,14 +536,14 @@ public partial class MyDbContext : DbContext
             entity.ToTable("Question");
 
             entity.Property(e => e.QuestionId).HasColumnName("questionID");
-            entity.Property(e => e.AnsId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("ansID");
             entity.Property(e => e.CateQuestionId)
                 .ValueGeneratedOnAdd()
                 .HasColumnName("cateQuestionID");
             entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
             entity.Property(e => e.QuestionContent).HasColumnName("questionContent");
+            entity.Property(e => e.StatusQuestion)
+                .HasDefaultValue(true)
+                .HasColumnName("statusQuestion");
 
             entity.HasOne(d => d.CateQuestion).WithMany(p => p.Questions)
                 .HasForeignKey(d => d.CateQuestionId)
@@ -864,6 +872,9 @@ public partial class MyDbContext : DbContext
 
             entity.Property(e => e.VoucherId).HasColumnName("voucherID");
             entity.Property(e => e.UsrId).HasColumnName("usrID");
+            entity.Property(e => e.VoucherCode)
+                .HasColumnType("character varying(10)[]")
+                .HasColumnName("voucherCode");
             entity.Property(e => e.VoucherDesc).HasColumnName("voucherDesc");
             entity.Property(e => e.VoucherDiscount).HasColumnName("voucherDiscount");
 

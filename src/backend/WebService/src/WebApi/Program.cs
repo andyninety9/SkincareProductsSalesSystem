@@ -3,7 +3,6 @@ using Application;
 using Infrastructure;
 using Infrastructure.Context;
 using Infrastructure.Utils;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;

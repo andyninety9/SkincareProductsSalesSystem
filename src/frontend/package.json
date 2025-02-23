@@ -10,15 +10,28 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@fontsource/marko-one": "^5.1.1",
+    "@fontsource/nunito": "^5.1.1",
+    "@heroicons/react": "^2.2.0",
+    "@mui/icons-material": "^6.4.3",
     "@reduxjs/toolkit": "^2.5.0",
-    "antd": "^5.23.2",
+    "@tailwindcss/vite": "^4.0.4",
+    "antd": "^5.24.0",
     "axios": "^1.7.9",
+    "bootstrap": "^5.3.3",
     "dotenv": "^16.4.7",
+    "formik": "^2.4.6",
     "react": "^18.3.1",
+    "react-bootstrap": "^2.10.9",
     "react-dom": "^18.3.1",
+    "react-icons": "^5.4.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.1.3",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "swiper": "^11.2.3",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -30,6 +43,8 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
+    "sass": "^1.84.0",
+    "sass-embedded": "^1.83.4",
     "vite": "^6.0.5"
   }
 }

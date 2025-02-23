@@ -8,10 +8,10 @@ namespace Domain.DTOs
     public class GetAllOrdersResponse
     {
         public long OrderId { get; set; }
-        public string CustomerName { get; set; }
+        public string? CustomerName { get; set; }
         public long ? EventId { get; set; }
         public DateTime OrderDate { get; set; }
-        public string OrderStatus { get; set; }
+        public required string OrderStatus { get; set; }
         public double TotalPrice { get; set; }
         public DateTime CreatedAt { get; set; }
         // public string DeliveryStatus { get; set; } // Trạng thái giao hàng (nếu có)

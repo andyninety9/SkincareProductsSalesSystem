@@ -48,6 +48,12 @@ namespace Application.Constant
         public static string CHANGE_PASSWORD_SUCCESS = "Password has been changed successfully.";
         public static string CHANGE_PASSWORD_FALSE = "Failed to change the password.";
 
+        // Address related messages
+        public static string CREATE_ADDRESS_SUCCESS = "Address created successfully.";
+        public static string CREATE_ADDRESS_FAILED = "Failed to create the address.";
+        public static string DELETE_ADDRESS_SUCCESS = "Address deleted successfully.";
+        public static string ACTIVE_ADDRESS_SUCCESS = "Address activated successfully.";
+
         // Validation related messages
         public static string INVALID_EMAIL = "The provided email is invalid.";
         public static string INVALID_PASSWORD = "The provided password is invalid.";
@@ -59,8 +65,21 @@ namespace Application.Constant
         // Email related messages
         public static string EMAIL_VERIFICATION_SUCCESS = "Email has been successfully verified.";
 
+        // Payment related messages
+        public static string CREATE_PAYMENT_SUCCESS = "Payment created successfully.";
+        public static string PAYMENT_RETURN_SUCCESS = "Payment returned successfully.";
+
+        // Question related messages
+        public static string CREATE_QUESTION_SUCCESS = "Question created successfully.";
+        public static string DELETE_QUESTION_SUCCESS = "Question deleted successfully.";
+        public static string UPDATE_QUESTION_SUCCESS = "Question updated successfully.";
+        public static string UPDATE_QUESTION_FALSE = "Failed to update the question.";
+
         // Server related messages
         public static string INTERNAL_SERVER_ERROR = "An unexpected error occurred on the server.";
         public static string INTERNAL_SERVER_MEDIATOR_ERROR = "An error occurred: Mediator is not initialized.";
+
+        // Event related messages
+        public static string GET_SUCCESS_EVENTS = "Events retrieved successfully.";
     }
 }

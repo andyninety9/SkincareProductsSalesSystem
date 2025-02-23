@@ -102,7 +102,6 @@ namespace WebApi.Controllers.Users
                 {
                     return StatusCode(500, new { statusCode = 500, message = IConstantMessage.INTERNAL_SERVER_MEDIATOR_ERROR });
                 }
-                System.Console.WriteLine("user id: " + userId);
 
                 var updatedCommand = command with { UsrId = userId };
                 var result = await _mediator.Send(updatedCommand, cancellationToken);
@@ -472,6 +471,8 @@ namespace WebApi.Controllers.Users
 
             return Ok(new { statusCode = 200, message = "Get orders history successfully", data = result.Value });
         }
+
+        
         
 
 

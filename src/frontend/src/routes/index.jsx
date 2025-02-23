@@ -1,4 +1,22 @@
 export const routes = {
     home: "/",
     about: "/about",
-}
+    login: "/login",
+    register: "/register",
+    forgotPassword: "/forgot-password",
+    resetPassword: "/reset-password",
+    product: "/product",
+    productDetail: "/product/:id",
+    review: "/product/:id/review",
+    contact: "/contact",
+    service: "/service",
+    faq: "/faq",
+    cart: "/cart",
+    checkout: "/checkout",
+    event: "/event",
+    aboutUs: "/about-us",
+    profile: "/profile",
+    quiz: "/quiz",
+    startQuiz: "/quiz/start",
+    resultQuiz: "/your-skin-type-result" 
+};

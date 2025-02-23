@@ -6,6 +6,7 @@ using Application.Abstractions.Messaging;
 using Application.Common.ResponseModel;
 using Application.Features.Users.Response;
 using AutoMapper;
+using Domain.DTOs;
 using Domain.Repositories;
 using MediatR;
 
@@ -16,19 +17,36 @@ namespace Application.Users.Queries
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IAccountRepository _accountRepository;
+        private readonly IAccountStatusRepository _accountStatusRepository;
+        private readonly IRoleRepository _roleRepository;
+        private readonly IResultQuizRepository _resultQuizRepository;
 
-        public GetMeQueryHandler(IUserRepository userRepository, IMapper mapper)
+        public GetMeQueryHandler(IUserRepository userRepository, IMapper mapper, IAccountRepository accountRepository, IAccountStatusRepository accountStatusRepository, IRoleRepository roleRepository, IResultQuizRepository resultQuizRepository)
         {
             _userRepository = userRepository;
+            _accountRepository = accountRepository;
+            _accountStatusRepository = accountStatusRepository;
+            _roleRepository = roleRepository;
+            _resultQuizRepository = resultQuizRepository;
             _mapper = mapper;
         }
 
 
         public async Task<Result<GetMeResponse>> Handle(GetMeQuery request, CancellationToken cancellationToken)
         {
-            GetMeResponse response = new GetMeResponse();
             var user = await _userRepository.GetUserByAccountId(request.usrID);
-            return Result<GetMeResponse>.Success(_mapper.Map(user, response));
+            var account = await _accountRepository.GetByIdAsync(request.usrID, cancellationToken);
+            var accountStatus = await _accountStatusRepository.GetAccountStatusById(account.AccStatusId);
+            var role = await _roleRepository.GetRoleById(account.RoleId);
+            var resultQuiz = await _resultQuizRepository.GetResultQuizByUserId(request.usrID);
+            
+            GetMeResponse response = _mapper.Map<GetMeResponse>(user);
+            response.AccountStatus = accountStatus.StatusName;
+            response.Role = role.RoleName;
+            response.SkinType = resultQuiz.SkinType.SkinTypeCodes;
+            
+            return Result<GetMeResponse>.Success(response);
         }
     }
 }

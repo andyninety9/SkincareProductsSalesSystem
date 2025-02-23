@@ -6,6 +6,7 @@ using Application.Features.Products.Response;
 using Domain.Entities;
 using Domain.DTOs;
 using Application.Features.Orders.Response;
+using Application.Features.Question.Commands;
 
 namespace Application.Common.Mapper
 {
@@ -18,6 +19,16 @@ namespace Application.Common.Mapper
             CreateMap<User, GetMeResponse>();
             CreateMap<User, GetAllUsersResponse>();
             CreateMap<GetAllUsersResponse, User>();
+            CreateMap<Event, GetAllEventsResponse>();
+            CreateMap<GetAllEventsResponse, Event>();
+            CreateMap<Payment, PaymentDto>();
+            CreateMap<PaymentDto, Payment>();
+            CreateMap<Question, CreateQuestionCommand>();
+            CreateMap<CreateQuestionCommand, Question>();
+            CreateMap<Question, UpdateQuestionCommand>();
+            CreateMap<UpdateQuestionCommand, Question>();
+
+            
 
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();

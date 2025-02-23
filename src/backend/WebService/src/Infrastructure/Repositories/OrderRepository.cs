@@ -133,7 +133,7 @@ namespace Infrastructure.Repositories
                     PaymentId = p.PaymentId,
                     PaymentMethod = p.PaymentMethod,
                     PaymentAmount = p.PaymentAmount,
-                    CreatedAt = p.CreatedAt
+                    // CreatedAt = p.CreatedAt
                 }).FirstOrDefault() ?? new PaymentDto(),
                 Products = order.Order.OrderDetails.Select(od => new OrderProductDto
                 {
@@ -142,12 +142,12 @@ namespace Infrastructure.Repositories
                     Quantity = od.Quantity,
                     UnitPrice = od.SellPrice
                 }).ToList(),
-                ShippingAddress = new AddressDto
+                ShippingAddress = order.Address != null ? new AddressDto
                 {
                     AddressId = order.Address.AddressId,
                     Detail = order.Address.AddDetail + ", " + order.Address.Ward + ", " + order.Address.District + ", " + order.Address.City + ", " + order.Address.Country
                     // IsDefault = order.ShippingAddress.IsDefault
-                },
+                } : new AddressDto(),
                 Delivery = order.Order.DeliveryDetails.Select(d => new DeliveryDto
                 {
                     DeliveryId = d.DeliId,

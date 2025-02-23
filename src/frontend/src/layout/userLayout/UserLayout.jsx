@@ -1,15 +1,15 @@
 import React from 'react'
 
 import { Outlet } from 'react-router-dom'
-import HeaderUser from '../../component/header/headerUser'
-import FooterUser from '../../component/footer/footerUser'
+import HeaderUser from '../../component/header/HeaderUser'
+import FooterUser from '../../component/footer/FooterUser'
 
 export default function UserLayout() {
     return (
         <>
-            <HeaderUser/>
+            <HeaderUser />
             <Outlet />
-            <FooterUser/>
+            <FooterUser />
         </>
     )
 }
