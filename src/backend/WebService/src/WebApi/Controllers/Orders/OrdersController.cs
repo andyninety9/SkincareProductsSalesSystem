@@ -19,6 +19,7 @@ using Amazon.SimpleEmail.Model;
 using Application.Features.Orders.Commands.Validator;
 using Application.Features.Orders.Commands.Response;
 using Application.Common.ResponseModel;
+using Application.Features.ProductCategory.Commands;
 
 namespace WebApi.Controllers.Orders
 {
@@ -319,6 +320,57 @@ namespace WebApi.Controllers.Orders
             });
         }
 
+        // POST: /api/orders/cancel
+        // Body: { "orderId": long, "note": "string" }
+        // Header: Authorization: Bearer {token}
+        // Role: Customer
+        [HttpPost("cancel")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Customer)]
+        public async Task<IActionResult> CancelOrder([FromBody] CancelOrderCommand command, CancellationToken cancellationToken)
+        {
+            if (User == null)
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.USER_INFORMATION_NOT_FOUND });
+            }
 
+            var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(usrID))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+            }
+
+            if (!long.TryParse(usrID, out var userId))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
+            }
+
+            // **🔹 Chạy Validator trước khi gửi tới Mediator**
+            var validator = new CancelOrderCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = new List<Error> { new Error("ValidationFailed", "Validation errors occurred") };
+                errors.AddRange(validationResult.Errors.Select(e => new Error(e.PropertyName, e.ErrorMessage)));
+
+                var validationFailure = Result.Failure<CancelOrderResponse>(errors.First());
+
+                return HandleFailure(validationFailure);
+            }
+
+            // Gán UserId từ token vào command
+            var cancelCommand = command with { UserId = userId};
+            var result = await _mediator.Send(cancelCommand, cancellationToken);
+
+            return result.IsFailure ? HandleFailure(result) : Ok(new
+            {
+                statusCode = 200,
+                message = "Order canceled successfully",
+                data = result.Value
+            });
+
+        }
     }
 }
