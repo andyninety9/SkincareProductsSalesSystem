@@ -81,5 +81,9 @@ namespace Application.Constant
 
         // Event related messages
         public static string GET_SUCCESS_EVENTS = "Events retrieved successfully.";
+
+        // Review related messages
+        public static string CHANGE_STATUS_REVIEW_SUCCESS = "Review status changed successfully.";
+        public static string DELETE_REVIEW_SUCCESS = "Review deleted successfully.";
     }
 }
