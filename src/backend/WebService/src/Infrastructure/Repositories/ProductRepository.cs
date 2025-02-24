@@ -86,5 +86,17 @@ namespace Infrastructure.Repositories
                 .Include(p => p.Reviews)
                 .FirstOrDefaultAsync(p => p.ProductId == productId, cancellationToken);
         }
+
+        public async Task<IEnumerable<Product>> GetProductByListIdAsync(List<long> listProductId, CancellationToken cancellationToken)
+        {
+            return await _context.Set<Product>()
+                .Include(p => p.Brand)
+                .Include(p => p.Cate)
+                .Include(p => p.ProdStatus)
+                .Include(p => p.ProductImages)
+                .Include(p => p.Reviews)
+                .Where(p => listProductId.Contains(p.ProductId))
+                .ToListAsync(cancellationToken);
+        }
     }
 }
