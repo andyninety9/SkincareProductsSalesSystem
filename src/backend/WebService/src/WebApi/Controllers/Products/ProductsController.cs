@@ -194,7 +194,42 @@ namespace WebApi.Controllers.Products
             return Ok(new { statusCode = 200, message = "Create category successfully", data = result.Value });
         }
 
+        // POST: /api/products/category/update
+        // Header: Authorization: Bearer {token}
+        // Body: {short: int, cateName: string}
+        // Role: Manager, Staff
+        [HttpPost("category/update")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> UpdateCategory([FromBody] UpdateProductCategoryCommand command, CancellationToken cancellationToken = default)
+        {
+            // _logger.LogInformation("Received POST /api/products/category/update request with Id={Id}, CategoryName={CategoryName}", command.Id, command.CategoryName);
 
+            var validator = new UpdateProductCategoryCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                _logger.LogWarning("Validation failed for POST /api/products/category/update. Errors: {Errors}", validationResult.Errors);
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("BadRequest: Command failed for POST /api/products/category/update with error: {Error}", result.Error?.Description);
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            _logger.LogInformation("Category updated successfully with Id={CategoryId}.", result.Value);
+            return Ok(new { statusCode = 200, message = "Update category successfully", data = result.Value });
+        }
 
     }
 }

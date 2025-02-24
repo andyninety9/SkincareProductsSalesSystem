@@ -5,6 +5,6 @@ namespace Domain.Repositories
 {
     public interface ICategoryProductRepository : IRepository<CategoryProduct>
     {
-        
+        Task<CategoryProduct> GetCategoryByIdAsync(short categoryId, CancellationToken cancellationToken);
     }
 }

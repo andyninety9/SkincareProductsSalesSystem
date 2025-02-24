@@ -10,24 +10,25 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Features.ProductCategory.Commands
 {
-    public sealed record CreateProductCategoryCommand
+    public sealed record UpdateProductCategoryCommand
     (
+        short CategoryId,
         string CategoryName
     ) : ICommand<CreateProductResponse>;
 
-    internal sealed class CreateProductCategoryCommandHandler : ICommandHandler<CreateProductCategoryCommand, CreateProductResponse>
+    internal sealed class UpdateProductCategoryCommandHandler : ICommandHandler<UpdateProductCategoryCommand, CreateProductResponse>
     {
 
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<CreateProductCategoryCommandHandler> _logger;
+        private readonly ILogger<UpdateProductCategoryCommandHandler> _logger;
         private readonly IdGeneratorService _idGenerator;
         private readonly ICategoryProductRepository _categoryProductRepository;
 
-        public CreateProductCategoryCommandHandler(
+        public UpdateProductCategoryCommandHandler(
             IMapper mapper,
             IUnitOfWork unitOfWork,
-            ILogger<CreateProductCategoryCommandHandler> logger,
+            ILogger<UpdateProductCategoryCommandHandler> logger,
             IdGeneratorService idGenerator, ICategoryProductRepository categoryProductRepository)
         {
             _mapper = mapper;
@@ -37,26 +38,27 @@ namespace Application.Features.ProductCategory.Commands
             _categoryProductRepository = categoryProductRepository;
         }
 
-        public async Task<Result<CreateProductResponse>> Handle(CreateProductCategoryCommand command, CancellationToken cancellationToken)
+        public async Task<Result<CreateProductResponse>> Handle(UpdateProductCategoryCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                CategoryProduct newCategoryProduct = new()
+                var categoryProduct = await _categoryProductRepository.GetCategoryByIdAsync(command.CategoryId, cancellationToken);
+                if (categoryProduct == null)
                 {
-                    CateProdId = _idGenerator.GenerateShortId(),
-                    CateProdName = command.CategoryName,
-                    CateProdStatus = true
-                };
+                    return Result<CreateProductResponse>.Failure<CreateProductResponse>(new Error("ProductCategory.NotFound", "Product category not found"));
+                }
 
-                await _categoryProductRepository.AddAsync(newCategoryProduct, cancellationToken);
+                categoryProduct.CateProdName = command.CategoryName;
+                _categoryProductRepository.Update(categoryProduct);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 return Result<CreateProductResponse>.Success(new CreateProductResponse
                 {
-                    CategoryId = newCategoryProduct.CateProdId,
-                    CategoryName = newCategoryProduct.CateProdName,
-                    CategoryStatus = newCategoryProduct.CateProdStatus
+                    CategoryId = categoryProduct.CateProdId,
+                    CategoryName = categoryProduct.CateProdName,
+                    CategoryStatus = categoryProduct.CateProdStatus
                 });
+                
             }
             catch (Exception e)
             {
