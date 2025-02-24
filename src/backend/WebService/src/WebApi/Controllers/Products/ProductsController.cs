@@ -231,5 +231,41 @@ namespace WebApi.Controllers.Products
             return Ok(new { statusCode = 200, message = "Update category successfully", data = result.Value });
         }
 
+        // DELETE: /api/products/category/delete
+        // Header: Authorization: Bearer {token}
+        // Body: {id: int}
+        // Role: Manager, Staff
+        [HttpDelete("category/delete")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> DeleteCategory([FromBody] DeleteProductCategoryCommand command, CancellationToken cancellationToken = default)
+        {
+            // _logger.LogInformation("Received DELETE /api/products/category/delete request with Id={Id}", command.Id);
+
+            var validator = new DeleteProductCategoryCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                _logger.LogWarning("Validation failed for DELETE /api/products/category/delete. Errors: {Errors}", validationResult.Errors);
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("BadRequest: Command failed for DELETE /api/products/category/delete with error: {Error}", result.Error?.Description);
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            _logger.LogInformation("Category deleted successfully with Id={CategoryId}.", result.Value);
+            return Ok(new { statusCode = 200, message = "Delete category successfully", data = result.Value });
+
+        }
     }
 }
