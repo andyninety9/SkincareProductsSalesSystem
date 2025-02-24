@@ -11,3 +11,15 @@ docker-compose -f docker-compose-production-v1.yml -p swp-webapi up --build -d
 - `-p`: Sets the project name
 - `--build`: Build images before starting containers
 - `-d`: Run containers in detached mode (background)
+
+## Building for MacBook M Series (Apple Silicon)
+
+For MacBook M-series processors (Apple Silicon), use the following command to build with the correct architecture:
+
+```bash
+docker buildx build --platform linux/amd64 -t web-service-swp:amd ./WebService
+```
+
+- `--platform`: Specifies target platform architecture
+- `-t`: Tags the built image
+- `./WebService`: Build context directory
