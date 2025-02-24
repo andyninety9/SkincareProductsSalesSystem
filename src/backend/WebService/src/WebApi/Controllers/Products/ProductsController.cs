@@ -3,6 +3,8 @@ using Application.Common.Enum;
 using Application.Common.Paginations;
 using Application.Features.ProductCategory.Commands;
 using Application.Features.ProductCategory.Commands.Validator;
+using Application.Features.ProductCategory.Queries;
+using Application.Features.ProductCategory.Queries.Validator;
 using Application.Features.Products.Queries;
 using Application.Features.Products.Queries.Validator;
 
@@ -266,6 +268,40 @@ namespace WebApi.Controllers.Products
             _logger.LogInformation("Category deleted successfully with Id={CategoryId}.", result.Value);
             return Ok(new { statusCode = 200, message = "Delete category successfully", data = result.Value });
 
+        }
+
+        // GET: /api/products/categories?keyword=string&page=int&pageSize=int
+
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetCategories([FromQuery] string? keyword, [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        {
+            // _logger.LogInformation("Received GET /api/products/categories request");
+
+            PaginationParams paginationParams = new() { Page = page, PageSize = pageSize };
+            var query = new GetAllProductCategoryQuery(keyword, paginationParams);
+
+            var validator = new GetAllProductCategoryQueryValidator();
+            var validationResult = validator.Validate(query);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("BadRequest: Query failed for GET /api/products/categories with error: {Error}", result.Error?.Description);
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            _logger.LogInformation("Returning {CategoryCount} categories.", result.Value.Items.Count);
+            return Ok(new { statusCode = 200, message = "Fetch all categories successfully", data = result.Value });
         }
     }
 }

@@ -7,6 +7,7 @@ using Domain.Entities;
 using Domain.DTOs;
 using Application.Features.Orders.Response;
 using Application.Features.Question.Commands;
+using Application.Features.ProductCategory.Queries.Response;
 
 namespace Application.Common.Mapper
 {
@@ -27,6 +28,9 @@ namespace Application.Common.Mapper
             CreateMap<CreateQuestionCommand, Question>();
             CreateMap<Question, UpdateQuestionCommand>();
             CreateMap<UpdateQuestionCommand, Question>();
+            CreateMap<GetAllProductCategoryResponse, CategoryProduct>();
+            CreateMap<CategoryProduct, GetAllProductCategoryResponse>();
+
 
             
 

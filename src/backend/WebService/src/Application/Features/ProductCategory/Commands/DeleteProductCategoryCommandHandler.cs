@@ -57,15 +57,15 @@ namespace Application.Features.ProductCategory.Commands
                     CategoryName = categoryProduct.CateProdName,
                     CategoryStatus = categoryProduct.CateProdStatus
                 });
-                
+
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Error occurred while creating product category");
                 return Result<CreateProductResponse>.Failure<CreateProductResponse>(new Error("ProductCategory.CreateError", e.Message));
             }
-           
         }
+        
 
     }
 }
