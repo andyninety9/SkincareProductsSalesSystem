@@ -1,4 +1,8 @@
+using Application.Attributes;
+using Application.Common.Enum;
 using Application.Common.Paginations;
+using Application.Features.ProductCategory.Commands;
+using Application.Features.ProductCategory.Commands.Validator;
 using Application.Features.Products.Queries;
 using Application.Features.Products.Queries.Validator;
 
@@ -8,6 +12,7 @@ using Application.Features.Reviews.Queries.Validator;
 
 // using Application.Features.Reviews.Queries.Validator;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Common;
 
@@ -152,6 +157,43 @@ namespace WebApi.Controllers.Products
             _logger.LogInformation("Returning {ReviewCount} reviews for product with Id={ProductId}.", result.Value.Items.Count, id);
             return Ok(new { statusCode = 200, message = "Fetch product reviews successfully", data = result.Value });
         }
+
+        // POST: /api/products/category/create
+        // Header: Authorization: Bearer {token}
+        // Body: {cateName: string}
+        // Role: Manager, Staff 
+        [HttpPost("category/create")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> CreateCategory([FromBody] CreateProductCategoryCommand command, CancellationToken cancellationToken = default)
+        {
+            // _logger.LogInformation("Received POST /api/products/category/create request with CategoryName={CategoryName}", command.CategoryName);
+
+            var validator = new CreateProductCategoryCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                _logger.LogWarning("Validation failed for POST /api/products/category/create. Errors: {Errors}", validationResult.Errors);
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("BadRequest: Command failed for POST /api/products/category/create with error: {Error}", result.Error?.Description);
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            _logger.LogInformation("Category created successfully with Id={CategoryId}.", result.Value);
+            return Ok(new { statusCode = 200, message = "Create category successfully", data = result.Value });
+        }
+
 
 
     }
