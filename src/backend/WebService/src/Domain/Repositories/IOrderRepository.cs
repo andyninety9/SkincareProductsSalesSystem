@@ -30,6 +30,7 @@ namespace Domain.Repositories
         Task<OrderDetailResponse?> GetOrderByIdAsync(long orderId, CancellationToken cancellationToken);
 
         Task<Order?> NextStatusOrderAsync(long orderId, CancellationToken cancellationToken);
+        Task<Order?> ReverseStatusOrderAsync(long orderId, CancellationToken cancellationToken);
 
 
     }

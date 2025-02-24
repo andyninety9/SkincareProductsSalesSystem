@@ -80,7 +80,7 @@ namespace WebApi.Controllers.Events
         public async Task<IActionResult> GetEventDetailById([FromRoute] int eventId, CancellationToken cancellationToken = default)
         {
             // ✅ Logging request params
-            _logger.LogInformation("Received GET /api/events/{eventId} request with params: EventId={EventId}", eventId);
+            _logger.LogInformation("Received GET /api/events/{EventId} request with params: EventId={EventId}", eventId);
 
             // ✅ Khởi tạo Query
             var query = new GetEventDetailByIdQuery(eventId);

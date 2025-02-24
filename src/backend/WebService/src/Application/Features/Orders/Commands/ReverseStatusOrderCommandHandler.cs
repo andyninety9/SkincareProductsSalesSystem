@@ -10,22 +10,22 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Orders.Commands
 {
-    public sealed record NextStatusOrderCommand(
+    public sealed record ReverseStatusOrderCommand(
         long UserId,
         long OrderId,
         string? Note
     ) : ICommand<ChangeOrderStatusResponse>;
-    internal sealed class NextStatusOrderCommandHandler : ICommandHandler<NextStatusOrderCommand, ChangeOrderStatusResponse>
+    internal sealed class ReverseStatusOrderCommandHandler : ICommandHandler<ReverseStatusOrderCommand, ChangeOrderStatusResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ILogger<NextStatusOrderCommandHandler> _logger;
+        private readonly ILogger<ReverseStatusOrderCommandHandler> _logger;
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderLogRepository _orderLogRepository;
         private readonly IdGeneratorService _idGeneratorService;
 
 
-        public NextStatusOrderCommandHandler(IMapper mapper, IUnitOfWork unitOfWork, ILogger<NextStatusOrderCommandHandler> logger, IOrderRepository orderRepository, IOrderLogRepository orderLogRepository, IdGeneratorService idGeneratorService)
+        public ReverseStatusOrderCommandHandler(IMapper mapper, IUnitOfWork unitOfWork, ILogger<ReverseStatusOrderCommandHandler> logger, IOrderRepository orderRepository, IOrderLogRepository orderLogRepository, IdGeneratorService idGeneratorService)
         {
 
             _mapper = mapper;
@@ -35,11 +35,11 @@ namespace Application.Features.Orders.Commands
             _orderLogRepository = orderLogRepository;
             _idGeneratorService = idGeneratorService;
         }
-        public async Task<Result<ChangeOrderStatusResponse>> Handle(NextStatusOrderCommand command, CancellationToken cancellationToken)
+        public async Task<Result<ChangeOrderStatusResponse>> Handle(ReverseStatusOrderCommand command, CancellationToken cancellationToken)
         {
             try
             {
-            var updatedOrder = await _orderRepository.NextStatusOrderAsync(command.OrderId, cancellationToken);
+            var updatedOrder = await _orderRepository.ReverseStatusOrderAsync(command.OrderId, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             if (updatedOrder is null)
             {

@@ -230,14 +230,12 @@ namespace Infrastructure.Repositories
         {
             _logger.LogInformation("Checking NextStatusOrderAsync for OrderID: {OrderId}", orderId);
 
-            // 1. Kiểm tra orderId hợp lệ
             if (orderId <= 0)
             {
                 _logger.LogWarning("Invalid Order ID: {OrderId}", orderId);
                 return null;
             }
 
-            // 2. Lấy đơn hàng từ database
             var order = await _context.Orders
                 .Include(o => o.OrdStatus)
                 .FirstOrDefaultAsync(o => o.OrdId == orderId, cancellationToken);
@@ -248,7 +246,6 @@ namespace Infrastructure.Repositories
                 return null;
             }
 
-            // 3. Kiểm tra nếu trạng thái hiện tại không hợp lệ
             if (!Enum.IsDefined(typeof(OrderStatusEnum), order.OrdStatusId))
             {
                 _logger.LogWarning("Invalid status found for Order ID {OrderId}: {StatusId}", order.OrdId, order.OrdStatusId);
@@ -261,7 +258,6 @@ namespace Infrastructure.Repositories
                 return null;
             }
 
-            // 4. Cập nhật trạng thái mới
             order.OrdStatusId = (short)(((OrderStatusEnum)order.OrdStatusId switch
             {
                 OrderStatusEnum.Pending => OrderStatusEnum.Processing,
@@ -274,7 +270,6 @@ namespace Infrastructure.Repositories
 
             order.UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
 
-            // 5. Lưu thay đổi vào database
             var changes = await _context.SaveChangesAsync(cancellationToken);
             if (changes == 0)
             {
@@ -285,10 +280,63 @@ namespace Infrastructure.Repositories
                 _logger.LogInformation("Order ID {OrderId} updated successfully to status {StatusId}.", order.OrdId, order.OrdStatusId);
             }
 
-            // 6. Trả về đơn hàng sau khi cập nhật
             return order;
         }
 
+        public async Task<Order?> ReverseStatusOrderAsync(long orderId, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Checking NextStatusOrderAsync for OrderID: {OrderId}", orderId);
 
+            if (orderId <= 0)
+            {
+                _logger.LogWarning("Invalid Order ID: {OrderId}", orderId);
+                return null;
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.OrdStatus)
+                .FirstOrDefaultAsync(o => o.OrdId == orderId, cancellationToken);
+
+            if (order == null)
+            {
+                _logger.LogWarning("Order not found: {OrderId}", orderId);
+                return null;
+            }
+
+            if (!Enum.IsDefined(typeof(OrderStatusEnum), order.OrdStatusId))
+            {
+                _logger.LogWarning("Invalid status found for Order ID {OrderId}: {StatusId}", order.OrdId, order.OrdStatusId);
+                return null;
+            }
+
+            if ((OrderStatusEnum)order.OrdStatusId == OrderStatusEnum.Pending)
+            {
+                _logger.LogInformation("Order {OrderId} is already pending. No status update needed.", order.OrdId);
+                return null;
+            }
+
+            order.OrdStatusId = (short)(((OrderStatusEnum)order.OrdStatusId switch
+            {
+                OrderStatusEnum.Completed => OrderStatusEnum.Shipped,
+                OrderStatusEnum.Shipped => OrderStatusEnum.Shipping,
+                OrderStatusEnum.Shipping => OrderStatusEnum.Processing,
+                OrderStatusEnum.Processing => OrderStatusEnum.Pending,
+                _ => (OrderStatusEnum)order.OrdStatusId
+            }));
+
+            order.UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
+
+            var changes = await _context.SaveChangesAsync(cancellationToken);
+            if (changes == 0)
+            {
+                _logger.LogWarning("No changes saved for Order ID {OrderId}", order.OrdId);
+            }
+            else
+            {
+                _logger.LogInformation("Order ID {OrderId} updated successfully to status {StatusId}.", order.OrdId, order.OrdStatusId);
+            }
+
+            return order;
+        }
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Domain.DTOs
 {
-    public class NextStatusOrderRequest
+    public class ChangeStatusOrderRequest
     {
         public string Note { get; set; } = string.Empty;
     }
