@@ -1,8 +1,9 @@
 import { useState } from "react";
 import SelectBox from "../../component/button/Button.jsx";
-import Button from "../../component/button/Button.jsx";
 import CardProduct from "../../component/cardProduct/card.jsx";
 import CustomPagination from "../../component/pagination/CustomPagination.jsx";
+import banner from "../../assets/productbanner.png";
+import { Button } from "antd";
 
 const categories = [
     { name: "Da thường", image: "/src/assets/da-thuong.jpg" },
@@ -34,7 +35,7 @@ export default function ProductPage() {
             <div className="banner" style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", padding: "0", margin: "0" }}>
                 {/* Ảnh banner */}
                 <img
-                    src="https://kyliecosmetics.com/cdn/shop/collections/PLP_banners_cosmic_PLP_desktop_FR_REV_1.jpg?crop=center&height=1077&v=1709333467&width=1920"
+                    src={banner}
                     alt="Banner"
                     className="banner-image"
                     style={{ width: "100%", height: "auto", objectFit: "cover" }}
@@ -80,9 +81,47 @@ export default function ProductPage() {
 
                 {/* Filters */}
                 <div className="filters" style={{ display: "flex", gap: "15px", alignItems: "center" }}>
-                    <SelectBox style={{ width: "350px" }} content={"Phân loại theo:"} />
-                    <Button text="Lọc" style={{ backgroundColor: "#D8959A", color: "white", padding: "8px 16px" }} />
-                </div>
+    <select
+        style={{
+            width: "200px", // Điều chỉnh chiều rộng cho vừa
+            height: "35px", // Điều chỉnh chiều cao cho vừa
+            padding: "10px 15px",
+            backgroundColor: "#F6F6F6", // Màu nền sáng hơn
+            border: "1px solid #E0E0E0", // Đường viền mỏng và nhẹ
+            borderRadius: "30px", // Tạo viền bo tròn để mềm mại hơn
+            fontSize: "10px",
+            fontWeight: "400",
+            color: "#666", // Màu chữ xám tối
+            appearance: "none", // Tắt mặc định của dropdown trên trình duyệt
+            outline: "none", // Loại bỏ outline khi chọn
+            boxShadow: "none", // Không có bóng đổ
+        }}
+    >
+       <option value="featured">Nổi bật</option>
+<option value="best-selling">Bán chạy nhất</option>
+<option value="price-high-to-low">Giá (Từ cao đến thấp)</option>
+<option value="price-low-to-high">Giá (Từ thấp đến cao)</option>
+
+    </select>
+    <Button
+        style={{
+            backgroundColor: "#D8959A", // Màu hồng giống trong ảnh
+            height: "35px",
+            width: "50px",
+            color: "white",
+            padding: "12px 24px",
+            borderRadius: "35px", // Viền bo tròn như dropdown
+            fontSize: "10px",
+            fontWeight: "500",
+            textTransform: "uppercase",
+            border: "none", // Không có đường viền
+            cursor: "pointer", // Hiệu ứng con trỏ khi hover
+        }}
+    >
+        Lọc
+    </Button>
+</div>
+
             </div>
 
 
