@@ -32,3 +32,5 @@ docker buildx build --platform linux/amd64 -t api-gateway-swp:amd ./ApiGateway
 -   `--platform`: Specifies target platform architecture
 -   `-t`: Tags the built image
 -   `./WebService`: Build context directory
+
+
