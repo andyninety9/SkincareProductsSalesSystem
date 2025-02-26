@@ -18,5 +18,7 @@ export const routes = {
     profile: "/profile",
     quiz: "/quiz",
     startQuiz: "/quiz/start",
-    resultQuiz: "/your-skin-type-result" 
+    manageOrder: "/manage-order",
+    manageComment: "/manage-comment",
+    resultQuiz: "/your-skin-type-result"
 };

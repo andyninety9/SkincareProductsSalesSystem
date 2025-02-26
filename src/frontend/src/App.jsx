@@ -21,7 +21,9 @@ import AboutUs from './page/aboutUsPage/AboutUs';
 import ProfilePage from './page/profilePage/ProfilePage';
 import QuizPage from "./page/quizPage/QuizPage";
 import StartQuizPage from "./page/quizPage/StartQuizPage";
-import ResultPage from "./page/quizPage/ResultPage"; 
+import ManageOrderPage from "./page/manageOrder/ManageOrder";
+import ManageCommentPage from "./page/manageComment/ManageComment";
+import ResultPage from "./page/quizPage/ResultPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -37,6 +39,14 @@ function App() {
     {
       path: routes.resetPassword,
       element: <ResetPassword />,
+    },
+    {
+      path: routes.manageOrder,
+      element: <ManageOrderPage />,
+    },
+    {
+      path: routes.manageComment,
+      element: <ManageCommentPage />,
     },
 
     {
@@ -58,7 +68,7 @@ function App() {
         { path: routes.profile, element: <ProfilePage /> },
         { path: routes.quiz, element: <QuizPage /> },
         { path: routes.startQuiz, element: <StartQuizPage /> },
-        { path: routes.resultQuiz, element: <ResultPage /> }, 
+        { path: routes.resultQuiz, element: <ResultPage /> },
       ],
     },
   ]);

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { MailOutlined, PhoneOutlined, CalendarOutlined } from "@ant-design/icons";
-import { Card, Avatar, Input, Tabs, List, Button, Tag } from "antd";
+import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col } from "antd";
 import Profile1 from "../../assets/profile1.png";
 import AboutUs3 from "../../assets/aboutUs3.png";
 import "antd/dist/reset.css";
 import "./ProfilePage.css";
+import OrderHistory from "../../assets/orderHistory.png";
 
 const { TabPane } = Tabs;
 
@@ -18,7 +19,6 @@ const userInfo = {
 };
 
 const initialAddresses = [
-
     {
         title: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
         details: "Số 432, nằm ngay đầu đường, có xe nước",
@@ -34,9 +34,44 @@ const initialAddresses = [
         details: "Số 121, quẹo trái xong phải xong trái xong phải",
         default: false
     }
-
 ];
 
+const orders = [
+    {
+        id: "#123456",
+        name: "Nguyen Van Yeah",
+        date: "20/01/2025",
+        price: "120.000 vnd - 1 món",
+        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
+        status: "Pending",
+        image: OrderHistory,
+    },
+    {
+        id: "#123456",
+        name: "Nguyen Van Yeah",
+        date: "20/01/2025",
+        price: "120.000 vnd - 1 món",
+        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
+        status: "Pending",
+        image: OrderHistory,
+    },
+    {
+        id: "#123456",
+        name: "Nguyen Van Yeah",
+        date: "20/01/2025",
+        price: "120.000 vnd - 1 món",
+        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
+        status: "Pending",
+        image: OrderHistory,
+    }
+];
+
+const promoCodes = [
+    { code: "SALE50", description: "Giảm 50% cho đơn hàng trên 500.000đ", expiry: "30/06/2025", status: "Còn hiệu lực" },
+    { code: "FREESHIP", description: "Miễn phí vận chuyển cho đơn từ 200.000đ", expiry: "15/07/2025", status: "Còn hiệu lực" },
+    { code: "WELCOME10", description: "Giảm 10% cho khách hàng mới", expiry: "01/05/2025", status: "Hết hạn" },
+    { code: "NEWYEAR", description: "Giảm 20% cho đơn hàng đầu tiên trong năm mới", expiry: "01/01/2026", status: "Còn hiệu lực" }
+];
 
 const ProfilePage = () => {
     const [addresses, setAddresses] = useState(initialAddresses);
@@ -45,6 +80,7 @@ const ProfilePage = () => {
     const handleSelectDefault = (index) => {
         setAddresses(addresses.map((addr, i) => ({ ...addr, default: i === index })));
     };
+
     return (
         <div style={{
             display: "flex",
@@ -54,10 +90,11 @@ const ProfilePage = () => {
             backgroundSize: "cover",
             alignItems: "flex-end",
             height: "80vh",
-            position: "relative"
+            position: "relative",
+
         }}>
 
-            <Card style={{ width: 300, minHeight: 500, textAlign: "center", marginTop: 1000 }}>
+            <Card style={{ width: 250, minHeight: 450, textAlign: "center", marginTop: 1000 }}>
                 <Avatar size={100} src={userInfo.avatar} style={{ border: "3px solid #D8959A", }} />
                 <h3 style={{ fontFamily: "'Nunito', sans-serif", color: "#D8959A", fontSize: "20px", marginTop: "10px" }}>{userInfo.name}</h3>
                 <p>{userInfo.gender}</p>
@@ -98,11 +135,12 @@ const ProfilePage = () => {
                 />
             </Card>
 
-            <Card style={{ width: 500, minHeight: 500, marginLeft: 20, marginTop: 50 }}>
+            <Card style={{ width: 500, minHeight: 450, marginLeft: 20, marginTop: 50, display: "flex", flexDirection: "column", mamrginBottom: "15px" }}>
                 <Tabs
                     activeKey={activeTab}
                     onChange={setActiveTab}
                     tabBarStyle={{ '--antd-wave-shadow-color': '#D8959A' }}
+                    style={{ flexGrow: 1 }}
                 >
                     <TabPane tab={<span style={{ color: activeTab === "1" ? "#D8959A" : "gray" }}>Địa Chỉ</span>} key="1">
                         <List
@@ -132,9 +170,49 @@ const ProfilePage = () => {
                         <Button type="primary" style={{ width: "100%", marginBottom: 10, backgroundColor: "#D8959A", borderColor: "#D8959A" }}>Xem Thêm</Button>
                         <Button type="dashed" style={{ width: "100%", backgroundColor: "#C87E83", borderColor: "#C87E83", color: "#fff" }}>Thêm địa chỉ mới</Button>
                     </TabPane>
-                    <TabPane tab={<span style={{ color: activeTab === "2" ? "#D8959A" : "gray" }}>Mã Khuyến Mãi</span>} key="2">Nội dung mã khuyến mãi</TabPane>
-                    <TabPane tab={<span style={{ color: activeTab === "3" ? "#D8959A" : "gray" }}>Lịch Sử Mua Hàng</span>} key="3">Lịch sử mua hàng</TabPane>
-                    <TabPane tab={<span style={{ color: activeTab === "4" ? "#D8959A" : "gray" }}>Cài Đặt</span>} key="4">Cài đặt tài khoản</TabPane>
+                    <TabPane tab={<span style={{ color: activeTab === "2" ? "#D8959A" : "gray" }}>Mã Khuyến Mãi</span>} key="2">
+                        <Row gutter={[16, 16]}>
+                            {promoCodes.slice(0, 4).map((item, index) => (
+                                <Col span={11} key={index} style={{ marginBottom: 16, marginRight: 18 }}>
+                                    <Card style={{ borderRadius: 10, padding: 10, boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", textAlign: "center", height: "100%" }}>
+                                        <h4 style={{ color: "#D8959A", fontWeight: "bold" }}>{item.code} <span style={{ float: "right", fontSize: "10px" }}>{item.discount}</span></h4>
+                                        <p style={{ color: "gray", fontSize: "10px" }}>{item.description}</p>
+                                        <Button type="primary" style={{ backgroundColor: "#D8959A", borderColor: "#D8959A", width: "100%" }}>Lưu ngay</Button>
+                                    </Card>
+                                </Col>
+                            ))}
+                        </Row>
+                    </TabPane>
+                    <TabPane tab={<span style={{ color: activeTab === "3" ? "#D8959A" : "gray" }}>Lịch Sử Mua Hàng</span>} key="3">
+                        <List
+                            dataSource={orders}
+                            renderItem={(order) => (
+                                <List.Item style={{ display: "flex", alignItems: "center", padding: 10, borderBottom: "1px solid #ddd" }}>
+                                    <img src={order.image} alt="Product" style={{ width: 80, height: 80, borderRadius: 10, marginRight: 15 }} />
+                                    <div style={{ flex: 1 }}>
+                                        <strong>{order.name}</strong>
+                                        <p style={{ margin: 0 }}>{order.date}</p>
+                                        <p style={{ fontWeight: "bold", color: "#D8959A" }}>{order.price}</p>
+                                        <p style={{ marginTop: -2, color: "gray", fontSize: "10px" }}>{order.address}</p>
+                                    </div>
+                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", marginBottom: "50px" }}>
+                                        <p style={{ color: "#D8959A", margin: 0, fontSize: "17px" }}>{order.id}</p>
+                                        <Tag color="#D8959A" style={{ borderRadius: 5, height: "30px", display: "flex", alignItems: "center", justifyContent: "center" }}>{order.status}</Tag>
+                                    </div>
+                                </List.Item>
+                            )}
+                        />
+                    </TabPane>
+                    <TabPane tab={<span style={{ color: activeTab === "4" ? "#D8959A" : "gray" }}>Cài Đặt</span>} key="4">
+                        <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "10px" }}>
+                            <Button type="primary" style={{ backgroundColor: "#D8959A", borderColor: "#D8959A" }}>Ngôn Ngữ: Tiếng Việt </Button>
+                            <Button type="primary" style={{ backgroundColor: "#C87E83", borderColor: "#C87E83" }}>Chế độ: Sáng</Button>
+                            <Button type="primary" style={{ backgroundColor: "#D8959A", borderColor: "#D8959A" }}>Cập Nhật Thông Tin </Button>
+                            <Button type="primary" style={{ backgroundColor: "#C87E83", borderColor: "#C87E83" }}>Thay đổi mật khẩu</Button>
+
+                        </div>
+
+                    </TabPane>
                 </Tabs>
             </Card>
         </div>
