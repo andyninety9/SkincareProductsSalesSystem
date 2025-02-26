@@ -15,6 +15,9 @@ namespace Domain.Repositories
         Task<Question?> GetQuestionByIdAsync(int questionId);
         Task<string> GetCateQuestionAsync(int questionId);
         Task<Question?> GetNextQuestionAsync(long quizId);
+        Task<bool> DeleteByStatusAsync(short questionId);
+
+        Task<Question?> UpdateQuestionAsync(short questionId, short? cateQuestionId, string? questionContent);
 
     }
 }

@@ -5,6 +5,7 @@ using Application.Features.Users.Response;
 using Application.Features.Products.Response;
 using Domain.Entities;
 using Domain.DTOs;
+using Application.Features.Question.Commands;
 
 namespace Application.Common.Mapper
 {
@@ -21,6 +22,11 @@ namespace Application.Common.Mapper
             CreateMap<GetAllEventsResponse, Event>();
             CreateMap<Payment, PaymentDto>();
             CreateMap<PaymentDto, Payment>();
+            CreateMap<Question, CreateQuestionCommand>();
+            CreateMap<CreateQuestionCommand, Question>();
+            CreateMap<Question, UpdateQuestionCommand>();
+            CreateMap<UpdateQuestionCommand, Question>();
+
             
 
             CreateMap<User, GetAllUsersResponse>()
