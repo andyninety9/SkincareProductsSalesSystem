@@ -8,6 +8,7 @@ import { useState } from "react";
 
 const comments = Array.from({ length: 50 }, (_, index) => ({
     commentNumber: (123 + index).toString(),
+    userId: index + 1,
     dateTime: "20/01/2025",
     customerName: "Abc",
     items: "Kem Đánh Răng",
@@ -28,6 +29,7 @@ export default function ManageComment() {
 
     const columns = [
         { title: "Comment ID", dataIndex: "commentNumber", key: "commentNumber", align: "center" },
+        { title: "User ID", dataIndex: "userId", key: "userId", align: "center" },
         { title: "Ngày bình luận", dataIndex: "dateTime", key: "dateTime", align: "center" },
         { title: "Người bình luận", dataIndex: "customerName", key: "customerName", align: "center" },
         { title: "Sản phẩm", dataIndex: "items", key: "items", align: "center" },
