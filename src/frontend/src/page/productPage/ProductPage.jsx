@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SelectBox from "../../component/button/Button.jsx";
 import CardProduct from "../../component/cardProduct/card.jsx";
 import CustomPagination from "../../component/pagination/CustomPagination.jsx";
@@ -13,34 +13,44 @@ const categories = [
     { name: "Da nhạy cảm", image: "/src/assets/da-nhay-cam.jpg" },
 ];
 
-// Danh sách sản phẩm mẫu
-const products = Array.from({ length: 24 }, (_, index) => ({
-    id: index + 1,
-    img: "https://product.hstatic.net/1000360941/product/toner-innisfree-hoa-anh-dao_3400df3de24543f3958a7e5b704ab8ac_master.jpg",
-    name: `Sản phẩm ${index + 1}`,
-    desc: "Mô tả ngắn về sản phẩm",
-    price: (Math.random() * 50 + 10).toFixed(2),
-}));
-
 export default function ProductPage() {
     const [page, setPage] = useState(1);
     const pageSize = 12; // Số sản phẩm mỗi trang
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Cắt danh sách sản phẩm theo trang hiện tại
-    const displayedProducts = products.slice((page - 1) * pageSize, page * pageSize);
+    // Fetch dữ liệu từ API
+    useEffect(() => {
+        const fetchProducts = async () => {
+            setLoading(true);
+            try {
+                const response = await fetch(
+                    `https://your-api-url.com/api/products?limit=${pageSize}&page=${page}`
+                );
+                const data = await response.json();
+                if (data.statusCode === 200) {
+                    setProducts(data.data.items || []);
+                }
+            } catch (error) {
+                console.error("Lỗi khi lấy dữ liệu sản phẩm:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, [page]);
 
     return (
         <div className="product-page" style={{ margin: "0", maxWidth: "1440px" }}>
             {/* Banner */}
             <div className="banner" style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", padding: "0", margin: "0" }}>
-                {/* Ảnh banner */}
                 <img
                     src={banner}
                     alt="Banner"
                     className="banner-image"
                     style={{ width: "100%", height: "auto", objectFit: "cover" }}
                 />
-
                 <div
                     style={{
                         position: "absolute",
@@ -56,8 +66,6 @@ export default function ProductPage() {
                 </div>
             </div>
 
-
-
             {/* Categories and Filters */}
             <div
                 className="categories-filters"
@@ -70,7 +78,6 @@ export default function ProductPage() {
                     margin: "20px auto",
                 }}
             >
-                {/* Categories */}
                 <div className="categories" style={{ display: "flex", gap: "20px" }}>
                     {categories.map((cat, index) => (
                         <div key={index} className="category-item" style={{ textAlign: "center" }}>
@@ -81,72 +88,76 @@ export default function ProductPage() {
 
                 {/* Filters */}
                 <div className="filters" style={{ display: "flex", gap: "15px", alignItems: "center" }}>
-    <select
-        style={{
-            width: "200px", // Điều chỉnh chiều rộng cho vừa
-            height: "35px", // Điều chỉnh chiều cao cho vừa
-            padding: "10px 15px",
-            backgroundColor: "#F6F6F6", // Màu nền sáng hơn
-            border: "1px solid #E0E0E0", // Đường viền mỏng và nhẹ
-            borderRadius: "30px", // Tạo viền bo tròn để mềm mại hơn
-            fontSize: "10px",
-            fontWeight: "400",
-            color: "#666", // Màu chữ xám tối
-            appearance: "none", // Tắt mặc định của dropdown trên trình duyệt
-            outline: "none", // Loại bỏ outline khi chọn
-            boxShadow: "none", // Không có bóng đổ
-        }}
-    >
-       <option value="featured">Nổi bật</option>
-<option value="best-selling">Bán chạy nhất</option>
-<option value="price-high-to-low">Giá (Từ cao đến thấp)</option>
-<option value="price-low-to-high">Giá (Từ thấp đến cao)</option>
-
-    </select>
-    <Button
-        style={{
-            backgroundColor: "#D8959A", // Màu hồng giống trong ảnh
-            height: "35px",
-            width: "50px",
-            color: "white",
-            padding: "12px 24px",
-            borderRadius: "35px", // Viền bo tròn như dropdown
-            fontSize: "10px",
-            fontWeight: "500",
-            textTransform: "uppercase",
-            border: "none", // Không có đường viền
-            cursor: "pointer", // Hiệu ứng con trỏ khi hover
-        }}
-    >
-        Lọc
-    </Button>
-</div>
-
+                    <select
+                        style={{
+                            width: "200px",
+                            height: "35px",
+                            padding: "10px 15px",
+                            backgroundColor: "#F6F6F6",
+                            border: "1px solid #E0E0E0",
+                            borderRadius: "30px",
+                            fontSize: "10px",
+                            fontWeight: "400",
+                            color: "#666",
+                            appearance: "none",
+                            outline: "none",
+                            boxShadow: "none",
+                        }}
+                    >
+                        <option value="featured">Nổi bật</option>
+                        <option value="best-selling">Bán chạy nhất</option>
+                        <option value="price-high-to-low">Giá (Từ cao đến thấp)</option>
+                        <option value="price-low-to-high">Giá (Từ thấp đến cao)</option>
+                    </select>
+                    <Button
+                        style={{
+                            backgroundColor: "#D8959A",
+                            height: "35px",
+                            width: "50px",
+                            color: "white",
+                            padding: "12px 24px",
+                            borderRadius: "35px",
+                            fontSize: "10px",
+                            fontWeight: "500",
+                            textTransform: "uppercase",
+                            border: "none",
+                            cursor: "pointer",
+                        }}
+                    >
+                        Lọc
+                    </Button>
+                </div>
             </div>
-
 
             {/* Products Grid */}
-            <div
-                className="product-grid"
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)", // 4 cột
-                    gap: "20px",
-                    marginTop: "30px",
-                    maxWidth: "calc(100% - 40px)", // Giới hạn chiều rộng, trừ đi padding 2 bên
-                    width: "100%", // Đảm bảo không bị co hẹp
-                    padding: "0 20px", // Padding hai bên
-                    justifyContent: "center", // Đảm bảo grid nằm giữa
-                    alignItems: "center", // Căn giữa theo chiều dọc (nếu cần)
-                    marginLeft: "auto",
-                    marginRight: "auto", // Giúp căn giữa chính xác
-                }}
-            >
-                {displayedProducts.map((product) => (
-                    <CardProduct key={product.id} product={product} />
-                ))}
-            </div>
-
+            {loading ? (
+                <div style={{ textAlign: "center", margin: "50px 0" }}>Đang tải...</div>
+            ) : (
+                <div
+                    className="product-grid"
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(4, 1fr)",
+                        gap: "20px",
+                        marginTop: "30px",
+                        maxWidth: "calc(100% - 40px)",
+                        width: "100%",
+                        padding: "0 20px",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginLeft: "auto",
+                        marginRight: "auto",
+                    }}
+                >
+                    {products.length > 0 ? (
+                        products.map((product) => <CardProduct key={product.productId} product={product} />)
+                    ) : (
+                        <div style={{ textAlign: "center", width: "100%", gridColumn: "span 4" }}>
+                            Không có sản phẩm nào.
+                        </div>
+                    )}
+                </div>
+            )}
 
             <div style={{ marginBottom: "5%" }}>
                 <CustomPagination
@@ -157,7 +168,6 @@ export default function ProductPage() {
                     onPageChange={setPage}
                 />
             </div>
-
         </div>
     );
 }
