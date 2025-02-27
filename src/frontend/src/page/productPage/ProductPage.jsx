@@ -25,7 +25,7 @@ export default function ProductPage() {
             setLoading(true);
             try {
                 const response = await fetch(
-                    `https://your-api-url.com/api/products?limit=${pageSize}&page=${page}`
+                    `products?limit=${pageSize}&page=${page}`
                 );
                 const data = await response.json();
                 if (data.statusCode === 200) {
@@ -42,7 +42,7 @@ export default function ProductPage() {
     }, [page]);
 
     return (
-        <div className="product-page" style={{ margin: "0", maxWidth: "1440px" }}>
+        <div className="product-page" style={{ margin: "0", maxWidth: "100%" }}>
             {/* Banner */}
             <div className="banner" style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", padding: "0", margin: "0" }}>
                 <img
