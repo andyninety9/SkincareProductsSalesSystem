@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Application.Attributes;
 using Application.Common.Enum;
 using Application.Common.Paginations;
@@ -15,14 +11,16 @@ using Application.Features.Orders.Commands;
 using Application.Constant;
 using System.Security.Claims;
 using Domain.DTOs;
-using Amazon.SimpleEmail.Model;
 using Application.Features.Orders.Commands.Validator;
 using Application.Features.Orders.Commands.Response;
 using Application.Common.ResponseModel;
-using Application.Features.ProductCategory.Commands;
 
 namespace WebApi.Controllers.Orders
 {
+    /// <summary>
+    /// Orders Controller for managing order-related operations.
+    /// Provides endpoints for retrieving, updating, and canceling orders.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class OrdersController : ApiController
@@ -33,9 +31,26 @@ namespace WebApi.Controllers.Orders
             _logger = logger;
         }
 
-        //GET: /api/orders?status={status}&customerId={customerId}&eventId={eventId}&fromDate={fromDate}&toDate={toDate}&page={page}&pageSize={pageSize}
-        //Header: Authorization: Bearer {token}
-        //Role: Admin, Staff
+        /// <summary>
+        /// Retrieves a paginated list of orders based on filters.
+        /// </summary>
+        /// <param name="status">Optional order status filter.</param>
+        /// <param name="customerId">Optional customer ID filter.</param>
+        /// <param name="eventId">Optional event ID filter.</param>
+        /// <param name="fromDate">Optional start date filter (yyyy-MM-dd).</param>
+        /// <param name="toDate">Optional end date filter (yyyy-MM-dd).</param>
+        /// <param name="page">Page number for pagination (default: 1).</param>
+        /// <param name="pageSize">Number of records per page (default: 10).</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a paginated list of orders matching the filters.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/orders?status=Pending&customerId=123&eventId=456&fromDate=2023-01-01&toDate=2023-12-31&page=1&pageSize=10
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpGet]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
@@ -103,9 +118,20 @@ namespace WebApi.Controllers.Orders
             }
         }
 
-        //GET: /api/orders/{id}
-        //Header: Authorization: Bearer {token}
-        //Role: Admin, Staff
+        /// <summary>
+        /// Retrieves details of a specific order by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the order.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the details of the requested order.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/orders/{id}
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpGet("{id}")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
@@ -147,10 +173,24 @@ namespace WebApi.Controllers.Orders
             }
         }
 
-        // PATCH: /api/orders/{id}/next-status
-        // Body: { "note": "string" }
-        // Header: Authorization: Bearer {token}
-        // Role: Admin, Staff
+        /// <summary>
+        /// Updates the order status to the next stage.
+        /// </summary>
+        /// <param name="orderId">The ID of the order to be updated.</param>
+        /// <param name="request">Update request containing a note.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the updated order details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PATCH /api/orders/{orderId}/next-status
+        ///     {
+        ///         "note": "Proceeding to next status."
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpPatch("{orderId}/next-status")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
@@ -207,10 +247,24 @@ namespace WebApi.Controllers.Orders
             }
         }
 
-        // PATCH: /api/orders/{id}/reverse-status
-        // Body: { "note": "string" }
-        // Header: Authorization: Bearer {token}
-        // Role: Admin, Staff
+        /// <summary>
+        /// Reverses the status of an order.
+        /// </summary>
+        /// <param name="orderId">The ID of the order to be reversed.</param>
+        /// <param name="request">Reversal request containing a note.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the updated order details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PATCH /api/orders/{orderId}/reverse-status
+        ///     {
+        ///         "note": "Reversing the status."
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpPatch("{orderId}/reverse-status")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
@@ -268,10 +322,28 @@ namespace WebApi.Controllers.Orders
             }
         }
 
-        // POST: /api/orders/create
-        // Body: { "orderItems": [ { "productId": 0, "quantity": 0 } ] }
-        // Header: Authorization: Bearer {token}
-        // Role: Customer
+        /// <summary>
+        /// Creates a new order.
+        /// </summary>
+        /// <param name="command">Order creation request containing order items.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the details of the created order.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/orders/create
+        ///     {
+        ///         "orderItems": [
+        ///             {
+        ///                 "productId": 1,
+        ///                 "quantity": 2
+        ///             }
+        ///         ]
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpPost("create")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Customer)]
@@ -320,10 +392,24 @@ namespace WebApi.Controllers.Orders
             });
         }
 
-        // POST: /api/orders/cancel
-        // Body: { "orderId": long, "note": "string" }
-        // Header: Authorization: Bearer {token}
-        // Role: Customer
+        /// <summary>
+        /// Cancels an order.
+        /// </summary>
+        /// <param name="command">Cancellation request containing the order ID and note.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the cancellation process.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/orders/cancel
+        ///     {
+        ///         "orderId": 123,
+        ///         "note": "Customer request."
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpPost("cancel")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Customer)]
