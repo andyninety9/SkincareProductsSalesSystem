@@ -14,6 +14,7 @@ namespace WebApi.Controllers.Events
     [Route("api/[controller]")]
     public class EventsController : ApiController
     {
+        
         private readonly ILogger<EventsController> _logger;
         public EventsController(IMediator mediator, ILogger<EventsController> logger) : base(mediator)
         {

@@ -10,6 +10,10 @@ using WebApi.Common;
 
 namespace WebApi.Controllers.Question
 {
+    /// <summary>
+    /// Question Controller for managing questions.
+    /// Provides endpoints for creating, updating, and deleting questions.
+    /// </summary>
     [Route("api/[controller]")]
     public class QuestionController : ApiController
     {
@@ -19,13 +23,27 @@ namespace WebApi.Controllers.Question
             _logger = logger;
         }
 
-        // POST: api/Question/create
-        // {
-        //    "cateQuestionId": 0,
-        //     "questionContent": "string"
-        // }
-        // header: Authorization: Bearer token
-        // Role: Admin
+        /// <summary>
+        /// Creates a new question.
+        /// </summary>
+        /// <param name="request">Question creation request containing category ID and question content.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the created question details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/Question/create
+        ///     {
+        ///         "cateQuestionId": 1,
+        ///         "questionContent": "What is AI?"
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        ///
+        /// Role:
+        /// - Admin
+        /// </remarks>
         [HttpPost("create")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager)]
@@ -35,13 +53,26 @@ namespace WebApi.Controllers.Question
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.CREATE_QUESTION_SUCCESS, data = result.Value });
         }
 
-        // DELETE: api/Question/delete
-        // {
-        //     "questionId": 0
-        // }
-        // header: Authorization: Bearer token
-        // Role: Admin
-
+        /// <summary>
+        /// Deletes a question.
+        /// </summary>
+        /// <param name="request">Deletion request containing the question ID.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the deletion process.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE /api/Question/delete
+        ///     {
+        ///         "questionId": 1
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        ///
+        /// Role:
+        /// - Admin
+        /// </remarks>
         [HttpDelete("delete")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager)]
@@ -51,14 +82,28 @@ namespace WebApi.Controllers.Question
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.DELETE_QUESTION_SUCCESS, data = result.Value });
         }
 
-        // POST: api/Question/update
-        // {
-        //     "questionId": 0,
-        //     "cateQuestionId": 0,
-        //     "questionContent": "string"
-        // }
-        // header: Authorization: Bearer token
-        // Role: Admin
+        /// <summary>
+        /// Updates an existing question.
+        /// </summary>
+        /// <param name="request">Update request containing question ID, category ID, and updated content.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the updated question details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/Question/update
+        ///     {
+        ///         "questionId": 1,
+        ///         "cateQuestionId": 2,
+        ///         "questionContent": "What is Machine Learning?"
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        ///
+        /// Role:
+        /// - Admin
+        /// </remarks>
         [HttpPost("update")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager)]

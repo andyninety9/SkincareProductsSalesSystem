@@ -7,12 +7,8 @@ using Application.Features.ProductCategory.Queries;
 using Application.Features.ProductCategory.Queries.Validator;
 using Application.Features.Products.Queries;
 using Application.Features.Products.Queries.Validator;
-
-// using Application.Features.Products.Queries.Validator;
 using Application.Features.Reviews.Queries;
 using Application.Features.Reviews.Queries.Validator;
-
-// using Application.Features.Reviews.Queries.Validator;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +16,9 @@ using WebApi.Common;
 
 namespace WebApi.Controllers.Products
 {
+    /// <summary>
+    ///  Products Controller for handling product-related operations.
+    /// <summary/> 
     [ApiController]
     [Route("api/[controller]")]
     public class ProductsController : ApiController
@@ -34,7 +33,24 @@ namespace WebApi.Controllers.Products
 
 
 
-        // GET: /api/products?keyword=string&cateId=int&brandId=int&fromDate=string&toDate=string&page=int&pageSize=int
+        /// <summary>
+        /// Retrieves a paginated list of products based on filters.
+        /// </summary>
+        /// <param name="keyword">Optional search keyword for product name.</param>
+        /// <param name="cateId">Optional category ID filter.</param>
+        /// <param name="brandId">Optional brand ID filter.</param>
+        /// <param name="fromDate">Optional start date filter (yyyy-MM-dd).</param>
+        /// <param name="toDate">Optional end date filter (yyyy-MM-dd).</param>
+        /// <param name="page">Page number for pagination (default: 1).</param>
+        /// <param name="pageSize">Number of records per page (default: 10).</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a paginated list of products matching the filters.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/products?keyword=laptop&cateId=1&brandId=2&fromDate=2023-01-01&toDate=2023-12-31&page=1&pageSize=10
+        ///
+        /// </remarks>
         [HttpGet]
         public async Task<IActionResult> GetProducts(
             [FromQuery] string? keyword,
@@ -80,7 +96,18 @@ namespace WebApi.Controllers.Products
             return Ok(new { statusCode = 200, message = "Fetch all products successfully", data = result.Value });
         }
 
-        // GET: /api/products/{id}
+        /// <summary>
+        /// Retrieves details of a specific product by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the product.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the details of the requested product.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/products/{id}
+        ///
+        /// </remarks>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProductById(int id, CancellationToken cancellationToken = default)
         {
@@ -117,8 +144,23 @@ namespace WebApi.Controllers.Products
             return Ok(new { statusCode = 200, message = "Fetch product by Id successfully", data = result.Value });
         }
 
-        // ==========Reviews Management==========
-        // GET: /api/products/{id}/reviews?keyword=string&fromDate=string&toDate=string&page=int&pageSize=int
+        /// <summary>
+        /// Retrieves product reviews based on filters.
+        /// </summary>
+        /// <param name="id">The ID of the product.</param>
+        /// <param name="keyword">Optional search keyword for reviews.</param>
+        /// <param name="fromDate">Optional start date filter (yyyy-MM-dd).</param>
+        /// <param name="toDate">Optional end date filter (yyyy-MM-dd).</param>
+        /// <param name="page">Page number for pagination (default: 1).</param>
+        /// <param name="pageSize">Number of records per page (default: 10).</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a paginated list of reviews for the specified product.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/products/{id}/reviews?keyword=good&fromDate=2023-01-01&toDate=2023-12-31&page=1&pageSize=10
+        ///
+        /// </remarks>
         [HttpGet("{id}/reviews")]
         public async Task<IActionResult> GetProductReviews(
             int id,
@@ -129,8 +171,6 @@ namespace WebApi.Controllers.Products
             [FromQuery] int pageSize = 10,
             CancellationToken cancellationToken = default)
         {
-            // _logger.LogInformation("Received GET /api/products/{ProductId}/reviews request with Id={ProductId}, Keyword={Keyword}, FromDate={FromDate}, ToDate={ToDate}, Page={Page}, PageSize={PageSize}",
-            //     id, keyword, fromDate, toDate, page, pageSize);
 
             var paginationParams = new PaginationParams { Page = page, PageSize = pageSize };
             var query = new GetAllProductReviewQuery(keyword, paginationParams, id, fromDate, toDate);
@@ -160,10 +200,23 @@ namespace WebApi.Controllers.Products
             return Ok(new { statusCode = 200, message = "Fetch product reviews successfully", data = result.Value });
         }
 
-        // POST: /api/products/category/create
-        // Header: Authorization: Bearer {token}
-        // Body: {cateName: string}
-        // Role: Manager, Staff 
+        /// <summary>
+        /// Creates a new product category.
+        /// </summary>
+        /// <param name="command">Category creation request containing category name.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the created category details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/products/category/create
+        ///     {
+        ///         "cateName": "Electronics"
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpPost("category/create")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
@@ -196,16 +249,29 @@ namespace WebApi.Controllers.Products
             return Ok(new { statusCode = 200, message = "Create category successfully", data = result.Value });
         }
 
-        // POST: /api/products/category/update
-        // Header: Authorization: Bearer {token}
-        // Body: {short: int, cateName: string}
-        // Role: Manager, Staff
+        /// <summary>
+        /// Updates an existing product category.
+        /// </summary>
+        /// <param name="command">Category update request containing category ID and new name.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the updated category details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/products/category/update
+        ///     {
+        ///         "id": 1,
+        ///         "cateName": "Updated Category"
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpPost("category/update")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
         public async Task<IActionResult> UpdateCategory([FromBody] UpdateProductCategoryCommand command, CancellationToken cancellationToken = default)
         {
-            // _logger.LogInformation("Received POST /api/products/category/update request with Id={Id}, CategoryName={CategoryName}", command.Id, command.CategoryName);
 
             var validator = new UpdateProductCategoryCommandValidator();
             var validationResult = validator.Validate(command);
@@ -233,10 +299,23 @@ namespace WebApi.Controllers.Products
             return Ok(new { statusCode = 200, message = "Update category successfully", data = result.Value });
         }
 
-        // DELETE: /api/products/category/delete
-        // Header: Authorization: Bearer {token}
-        // Body: {id: int}
-        // Role: Manager, Staff
+        /// <summary>
+        /// Deletes a product category.
+        /// </summary>
+        /// <param name="command">Category deletion request containing category ID.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the deletion process.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE /api/products/category/delete
+        ///     {
+        ///         "id": 1
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpDelete("category/delete")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
@@ -270,13 +349,24 @@ namespace WebApi.Controllers.Products
 
         }
 
-        // GET: /api/products/categories?keyword=string&page=int&pageSize=int
-
+        /// <summary>
+        /// Retrieves a paginated list of product categories.
+        /// </summary>
+        /// <param name="keyword">Optional search keyword for category name.</param>
+        /// <param name="page">Page number for pagination (default: 1).</param>
+        /// <param name="pageSize">Number of records per page (default: 10).</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a paginated list of product categories.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/products/categories?keyword=electronics&page=1&pageSize=10
+        ///
+        /// </remarks>
         [HttpGet("categories")]
         public async Task<IActionResult> GetCategories([FromQuery] string? keyword, [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
         {
-            // _logger.LogInformation("Received GET /api/products/categories request");
 
             PaginationParams paginationParams = new() { Page = page, PageSize = pageSize };
             var query = new GetAllProductCategoryQuery(keyword, paginationParams);
