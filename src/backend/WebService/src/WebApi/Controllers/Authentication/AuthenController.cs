@@ -7,6 +7,10 @@ using WebApi.Common;
 
 namespace WebApi.Controllers.Authentication
 {
+    /// <summary>
+    /// Authentication Controller for user account management.
+    /// Provides endpoints for user registration, login, token management, and account verification.
+    /// </summary>
     [Route("api/[controller]")]
     public class AuthenController : ApiController
     {
