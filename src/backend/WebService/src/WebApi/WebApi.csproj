@@ -7,6 +7,8 @@
 
     <BaseOutputPath>$(MSBuildProjectDirectory)\Build\bin\</BaseOutputPath>
     <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)\Build\obj\</BaseIntermediateOutputPath>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,7 +20,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.json" Version="9.0.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.0" />
   </ItemGroup>
 
