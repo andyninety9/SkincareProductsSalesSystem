@@ -9,6 +9,10 @@ using Application.Constant;
 
 namespace WebApi.Controllers.Payment
 {
+    /// <summary>
+    /// Payment Controller for handling payment-related operations.
+    /// Provides endpoints for creating payments and processing payment returns.
+    /// </summary>
     [Route("api/[controller]")]
     public class PaymentController : ApiController
     {
@@ -18,15 +22,26 @@ namespace WebApi.Controllers.Payment
             _logger = logger;
         }
 
-        // POST: api/Payment/create
-        // {
-        //     "orderId": 0,
-        //     "paymentMethod": 0,
-        //     "paymentStatus": 0,
-        //     "paymentAmount": 0,
-        //     "paymentDate": "2021-09-29T07:00:00.000Z"
-        // }
-        // [Authorize]
+        /// <summary>
+        /// Creates a new payment for an order.
+        /// </summary>
+        /// <param name="paymentRequest">Payment details including order ID, payment method, status, amount, and date.</param>
+        /// <returns>Returns the payment URL if successful.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/Payment/create
+        ///     {
+        ///         "orderId": 123,
+        ///         "paymentMethod": 1,
+        ///         "paymentStatus": 0,
+        ///         "paymentAmount": 500,
+        ///         "paymentDate": "2023-09-29T07:00:00.000Z"
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpPost("create")]
         [Authorize]
         public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentCommand paymentRequest)
@@ -52,7 +67,19 @@ namespace WebApi.Controllers.Payment
             });
         }
 
-        // PaymentReturn
+        /// <summary>
+        /// Handles the return from a payment provider.
+        /// </summary>
+        /// <param name="paymentDto">Payment return details containing order ID and provider response.</param>
+        /// <returns>Returns the payment confirmation details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/Payment/payment-return?orderId=123&status=success
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpGet("payment-return")]
         [Authorize]
         public async Task<IActionResult> PaymentReturn([FromQuery] PaymentReturnCommand paymentDto)
