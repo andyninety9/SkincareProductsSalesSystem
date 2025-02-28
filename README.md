@@ -33,4 +33,21 @@ docker buildx build --platform linux/amd64 -t api-gateway-swp:amd ./ApiGateway
 -   `-t`: Tags the built image
 -   `./WebService`: Build context directory
 
+## Tagging Images After Build
+
+To tag an image after it has been built, use the `docker tag` command. Here is an example:
+
+```bash
+docker tag source_image:tag target_image:tag
+```
+
+-   `source_image:tag`: The name and tag of the existing image
+-   `target_image:tag`: The new name and tag for the image
+
+For example, to tag the `web-service-swp:amd` image as `web-service-swp:latest`, use the following command:
+
+```bash
+docker tag web-service-swp:amd web-service-swp:latest
+```
+
 
