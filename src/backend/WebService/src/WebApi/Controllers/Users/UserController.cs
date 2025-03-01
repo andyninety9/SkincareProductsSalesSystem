@@ -48,8 +48,6 @@ namespace WebApi.Controllers.Users
                     return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
                 }
 
-                // System.Console.WriteLine(usrID);
-
                 if (_mediator == null)
                 {
                     return StatusCode(500, new { statusCode = 500, message = IConstantMessage.INTERNAL_SERVER_MEDIATOR_ERROR });
