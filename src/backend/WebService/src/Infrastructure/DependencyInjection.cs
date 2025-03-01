@@ -59,6 +59,7 @@ namespace Infrastructure
             services.AddScoped<ICategoryProductRepository, CategoryProductRepository>();
             services.AddScoped<IReturnProductRepository, ReturnProductRepository>();
             services.AddScoped<IReturnProductDetailRepository, ReturnProductDetailRepository>();
+            services.AddScoped<IProductImageRepository, ProductImageRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
