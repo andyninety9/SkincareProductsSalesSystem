@@ -7,6 +7,10 @@ using WebApi.Common;
 
 namespace WebApi.Controllers.Review
 {
+    /// <summary>
+    /// Review Controller for managing product reviews.
+    /// Provides endpoints for deleting reviews.
+    /// </summary>
     [Route("api/[controller]")]
     public class ReviewController : ApiController
     {
@@ -14,11 +18,27 @@ namespace WebApi.Controllers.Review
         {
         }
 
-        // PATCH: api/review/delete
-        // Header: Authorization: Bearer {token}
-        // Role: Manage, Staff
-        // Body{long reviewId}
-
+        /// <summary>
+        /// Deletes a review by changing its status.
+        /// </summary>
+        /// <param name="request">Request containing the review ID.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the deletion process.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE /api/review/delete
+        ///     {
+        ///         "reviewId": 12345
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        ///
+        /// Role:
+        /// - Manager
+        /// - Staff
+        /// </remarks>
         [HttpDelete("delete")]
         public async Task<IActionResult> ChangeStatus([FromBody] DeleteReviewCommand request, CancellationToken cancellationToken)
         {
