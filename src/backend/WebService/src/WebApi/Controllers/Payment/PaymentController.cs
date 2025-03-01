@@ -32,11 +32,9 @@ namespace WebApi.Controllers.Payment
         ///
         ///     POST /api/Payment/create
         ///     {
-        ///         "orderId": 123,
-        ///         "paymentMethod": 1,
-        ///         "paymentStatus": 0,
-        ///         "paymentAmount": 500,
-        ///         "paymentDate": "2023-09-29T07:00:00.000Z"
+        ///         "OrderId": "681688735040929792",
+        ///         "PaymentAmount": 2750000,
+        ///         "PaymentMethod": "VNPay"
         ///     }
         ///
         /// Headers:
