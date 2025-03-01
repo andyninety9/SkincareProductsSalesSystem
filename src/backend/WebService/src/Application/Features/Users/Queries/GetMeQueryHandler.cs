@@ -36,16 +36,6 @@ namespace Application.Users.Queries
 
         public async Task<Result<GetMeResponse>> Handle(GetMeQuery request, CancellationToken cancellationToken)
         {
-            // var user = await _userRepository.GetUserByAccountId(request.usrID);
-            // var account = await _accountRepository.GetByIdAsync(request.usrID, cancellationToken);
-            // var accountStatus = await _accountStatusRepository.GetAccountStatusById(account.AccStatusId);
-            // var role = await _roleRepository.GetRoleById(account.RoleId);
-            // var resultQuiz = await _resultQuizRepository.GetResultQuizByUserId(request.usrID);
-
-            // GetMeResponse response = _mapper.Map<GetMeResponse>(user);
-            // response.AccountStatus = accountStatus.StatusName;
-            // response.Role = role.RoleName;
-            // response.SkinType = resultQuiz.SkinType.SkinTypeCodes;
             GetMeResponse response = new GetMeResponse();
             var user = await _userRepository.GetByIdAsync(request.usrID, cancellationToken);
             var account = await _accountRepository.GetByIdAsync(request.usrID, cancellationToken);

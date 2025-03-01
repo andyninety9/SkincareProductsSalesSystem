@@ -134,30 +134,50 @@ namespace Infrastructure.JWT
         public bool IsTokenValid(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfigOptions.Value.JwtKey));
-
-            var validationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = key,
-                ValidateIssuer = true,
-                ValidIssuer = _jwtConfigOptions.Value.JwtIssuer,
-                ValidateAudience = true,
-                ValidAudience = _jwtConfigOptions.Value.JwtAudience,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero // Không cho phép sai lệch thời gian
-            };
 
             try
             {
-                // Xác thực token
-                tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
-                return true; // Token hợp lệ
+                // ✅ Giải mã token trước để kiểm tra `exp`
+                var jwtToken = tokenHandler.ReadJwtToken(token);
+                var expClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp)?.Value;
+
+                if (expClaim == null || !long.TryParse(expClaim, out var expUnix))
+                {
+                    return false; // ❌ Không có thông tin hết hạn trong token
+                }
+
+                var expirationTime = DateTimeOffset.FromUnixTimeSeconds(expUnix).UtcDateTime;
+                if (expirationTime <= DateTime.UtcNow)
+                {
+                    return false; // ❌ Token đã hết hạn
+                }
+
+                // ✅ Nếu token chưa hết hạn, tiến hành xác thực với `ValidateToken()`
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfigOptions.Value.JwtKey));
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = key,
+                    ValidateIssuer = true,
+                    ValidIssuer = _jwtConfigOptions.Value.JwtIssuer,
+                    ValidateAudience = true,
+                    ValidAudience = _jwtConfigOptions.Value.JwtAudience,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero // Không cho phép sai lệch thời gian
+                };
+
+                tokenHandler.ValidateToken(token, validationParameters, out _);
+                return true; // ✅ Token hợp lệ
             }
-            catch
+            catch (SecurityTokenExpiredException)
             {
-                return false; // Token không hợp lệ
+                return false; // ❌ Token hết hạn
+            }
+            catch (Exception)
+            {
+                return false; // ❌ Token không hợp lệ
             }
         }
+
     }
 }
