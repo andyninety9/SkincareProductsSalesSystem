@@ -11,6 +11,10 @@ using WebApi.Common;
 
 namespace WebApi.Controllers.Return
 {
+    /// <summary>
+    /// Return Controller for handling product return requests.
+    /// Provides endpoints for customers to request returns.
+    /// </summary>
     [Route("api/[controller]")]
     public class ReturnController : ApiController
     {
@@ -18,10 +22,36 @@ namespace WebApi.Controllers.Return
         {
         }
 
-        // POST: api/return/create
-        // Header: Authorization: Bearer {token}
-        // Role: Customer
-        // Body{List<ReturnProduct> listReturnProduct, long orderId, string reason}
+        /// <summary>
+        /// Creates a return request for a specific order.
+        /// </summary>
+        /// <param name="request">Return request containing order ID and a list of return products.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the return request creation.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/return/create
+        ///     {
+        ///         "ordId": 68167683437861276,
+        ///         "returnProducts": [
+        ///             {
+        ///                 "productId": 6,
+        ///                 "quantity": 1
+        ///             },
+        ///             {
+        ///                 "productId": 7,
+        ///                 "quantity": 1
+        ///             }
+        ///         ]
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        ///
+        /// Role:
+        /// - Customer
+        /// </remarks>
         [HttpPost("create")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Customer)]
