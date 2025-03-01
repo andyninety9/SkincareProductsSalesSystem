@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Application.Features.Products.Response
+namespace Application.Features.Products.Commands.Response
 {
     public class UpdateProductImageResponse
     {

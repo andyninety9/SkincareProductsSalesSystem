@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Domain.DTOs;
 
 namespace Application.Features.Products.Response
 {
@@ -23,7 +24,7 @@ namespace Application.Features.Products.Response
         public string StatusName { get; set; } = null!;
 
         // **Danh sách ảnh sản phẩm**
-        public List<string> Images { get; set; } = new();
+        public List<ProductImageDto> Images { get; set; } = new();
 
         // **Số lượng đánh giá**
         public int ReviewCount { get; set; }

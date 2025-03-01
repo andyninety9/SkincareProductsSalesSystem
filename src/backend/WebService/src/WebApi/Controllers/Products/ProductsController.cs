@@ -405,14 +405,14 @@ namespace WebApi.Controllers.Products
         /// <returns>Returns the uploaded image url.</returns>
         /// <remarks>
         /// Sample request:
-        ///    POST /api/products/upload
+        ///    POST /api/products/upload-image
         ///    {
         ///    "imageUrl": "https://www.example.com/image.jpg"
         ///    }
         ///    Headers:
         ///    - Authorization: Bearer {token}
         ///    </remarks>
-        [HttpPost("upload")]
+        [HttpPost("upload-image")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
         public async Task<IActionResult> UploadImage([FromBody] UploadProductImageUrlCommand command, CancellationToken cancellationToken = default)
@@ -438,5 +438,50 @@ namespace WebApi.Controllers.Products
 
             return Ok(new { statusCode = 200, message = "Upload image successfully", data = result.Value });
         }
+
+        /// <summary>
+        /// Deletes a product image.
+        /// </summary>
+        /// <param productId="long">Image deletion request containing product ID and imageId.</param>
+        /// <param imageId="long">Image deletion request containing product ID and imageId.</param>
+        /// <param cancellationToken="CancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the deletion process.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///   DELETE /api/products/delete-image
+        ///   {
+        ///   "productId": 1,
+        ///   "imageId": 1
+        ///   }
+        ///   Headers:
+        ///   - Authorization: Bearer {token}
+        ///   </remarks>
+        [HttpDelete("delete-image")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> DeleteImage([FromBody] DeleteProductImageUrlCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new DeleteProductImageCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Delete image successfully", data = result.Value });
+        }
+        
     }
 }
