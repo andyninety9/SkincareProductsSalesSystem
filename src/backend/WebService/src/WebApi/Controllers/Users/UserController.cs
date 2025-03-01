@@ -15,7 +15,10 @@ using WebApi.DTOs;
 
 namespace WebApi.Controllers.Users
 {
-
+    /// <summary>
+    /// User Controller for managing user-related operations.
+    /// Provides endpoints for retrieving user details, updating profile, managing authentication, and handling user accounts.
+    /// </summary>
     [Route("api/[controller]")]
     public class UserController : ApiController
     {
@@ -23,8 +26,19 @@ namespace WebApi.Controllers.Users
         {
         }
 
-        // GET: api/User/get-me
-        // Authorization: Bearer token
+        /// <summary>
+        /// Retrieves the authenticated user's details.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns user details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/User/get-me
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpGet("get-me")]
         [Authorize]
         public async Task<IActionResult> GetMe(CancellationToken cancellationToken)
@@ -70,9 +84,27 @@ namespace WebApi.Controllers.Users
             }
         }
 
-        // POST: api/User/update-me
-        // Authorization: Bearer token
-        // Body: { "fullname": "string", "gender": "string", "email": "string", "phoneNumber": "string", "dob": "string:ISO8601"}
+        /// <summary>
+        /// Updates the authenticated user's profile.
+        /// </summary>
+        /// <param name="command">Update request containing user information.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the updated user details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/User/update-me
+        ///     {
+        ///         "fullname": "John Doe",
+        ///         "gender": "Male",
+        ///         "email": "johndoe@example.com",
+        ///         "phoneNumber": "123456789",
+        ///         "dob": "2000-01-01"
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpPost("update-me")]
         [Authorize]
         public async Task<IActionResult> UpdateMe([FromBody] UpdateMeCommand command, CancellationToken cancellationToken)
@@ -120,9 +152,22 @@ namespace WebApi.Controllers.Users
             }
         }
 
-        //POST: api/User/change-avatar
-        //Authorization: Bearer token
-        //Body: { AvatarFile: "file" }
+        /// <summary>
+        /// Changes the user's avatar.
+        /// </summary>
+        /// <param name="request">Request containing the avatar file.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the updated avatar details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/User/change-avatar
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// Body:
+        /// - `AvatarFile`: File upload
+        /// </remarks>
         [HttpPost("change-avatar")]
         [Authorize]
         public async Task<IActionResult> ChangeAvatar([FromForm] ChangeAvatarRequest request, CancellationToken cancellationToken)
@@ -177,9 +222,23 @@ namespace WebApi.Controllers.Users
                 return StatusCode(500, new { statusCode = 500, message = "An unexpected error occurred." });
             }
         }
-        //POST: api/User/change-cover
-        //Authorization: Bearer token
-        //Body: { CoverFile: "file" }
+
+        /// <summary>
+        /// Changes the user's cover photo.
+        /// </summary>
+        /// <param name="request">Request containing the cover photo file.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the updated cover photo details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/User/change-cover
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// Body:
+        /// - `CoverFile`: File upload
+        /// </remarks>
         [HttpPost("change-cover")]
         [Authorize]
         public async Task<IActionResult> ChangeCover([FromForm] ChangeCoverRequest request, CancellationToken cancellationToken)
@@ -235,9 +294,25 @@ namespace WebApi.Controllers.Users
             }
         }
 
-        //POST: api/User/change-password
-        //Authorization: Bearer token
-        //Body: { "oldPassword": "string", "newPassword": "string", "confirmPassword": "string" }
+        /// <summary>
+        /// Changes the user's password.
+        /// </summary>
+        /// <param name="request">Request containing the old and new passwords.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a success message if the password change is successful.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/User/change-password
+        ///     {
+        ///         "oldPassword": "oldPass123",
+        ///         "newPassword": "newPass456",
+        ///         "confirmPassword": "newPass456"
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
         [HttpPost("change-password")]
         [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand request, CancellationToken cancellationToken)
@@ -284,10 +359,25 @@ namespace WebApi.Controllers.Users
             }
         }
 
-        // GET: api/User/all-users?page={int}&limit={int}
-        // Authorization: Bearer token
-        // Role: Manager, Staff
-        // Query String: ?page={int}&limit={int}
+        /// <summary>
+        /// Retrieves a paginated list of all users.
+        /// </summary>
+        /// <param name="page">Page number for pagination (default: 1).</param>
+        /// <param name="limit">Number of records per page (default: 10).</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a paginated list of users.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/User/all-users?page=1&limit=10
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        ///
+        /// Role:
+        /// - Manager
+        /// - Staff
+        /// </remarks>
         [HttpGet("all-users")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
@@ -309,10 +399,31 @@ namespace WebApi.Controllers.Users
             return Ok(new { statusCode = 200, message = "Get all users successfully", data = result.Value });
         }
 
-        //GET: api/User/search-users?keyword={string}&page={int}&limit={int}
-        //Authorization: Bearer token
-        //Role: Manager, Staff
-        //Query String: ?keyword={string}&page={int}&limit={int}&gender={string}&status={int}&role={int}&fromDate={ISO8601}&toDate={ISO8601}
+        /// <summary>
+        /// Searches for users based on filters.
+        /// </summary>
+        /// <param name="keyword">Search keyword.</param>
+        /// <param name="page">Page number for pagination (default: 1).</param>
+        /// <param name="limit">Number of records per page (default: 10).</param>
+        /// <param name="gender">Optional gender filter.</param>
+        /// <param name="status">Optional account status filter.</param>
+        /// <param name="role">Optional role filter.</param>
+        /// <param name="fromDate">Optional start date filter.</param>
+        /// <param name="toDate">Optional end date filter.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a paginated list of users matching the filters.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/User/search-users?keyword=John&page=1&limit=10&gender=Male&status=1&role=2&fromDate=2023-01-01&toDate=2023-12-31
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        ///
+        /// Role:
+        /// - Manager
+        /// - Staff
+        /// </remarks>
         [HttpGet("search-users")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
@@ -351,10 +462,30 @@ namespace WebApi.Controllers.Users
             return Ok(new { statusCode = 200, message = "Search users successfully", data = result.Value });
         }
 
-        //POST: api/User/create-user
-        //Authorization: Bearer token
-        //Role: Manager
-        //Body: { "fullname": "string", "username": "string", "email": "string", "phone": "string", roleId: "short"}
+        /// <summary>
+        /// Creates a new user.
+        /// </summary>
+        /// <param name="command">User creation request containing user details.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the created user details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/User/create-user
+        ///     {
+        ///         "fullname": "John Doe",
+        ///         "username": "johndoe",
+        ///         "email": "johndoe@example.com",
+        ///         "phone": "123456789",
+        ///         "roleId": 2
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        ///
+        /// Role:
+        /// - Manager
+        /// </remarks>
         [HttpPost("create-user")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager)]
@@ -370,9 +501,24 @@ namespace WebApi.Controllers.Users
             return Ok(new { statusCode = 200, message = "Create user successfully", data = result.Value });
         }
 
-        //DELETE: api/User/deactive-user/{id}
-        //Authorization: Bearer token
-        //Role: Manager, Staff
+        /// <summary>
+        /// Deactivates a user account.
+        /// </summary>
+        /// <param name="id">The ID of the user to be deactivated.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the deactivation process.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE /api/User/deactive-user/123
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        ///
+        /// Role:
+        /// - Manager
+        /// - Staff
+        /// </remarks>
         [HttpDelete("deactive-user/{id}")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
@@ -389,9 +535,24 @@ namespace WebApi.Controllers.Users
             return Ok(new { statusCode = 200, message = "Delete user successfully" });
         }
 
-        //PATCH: api/User/active-user/{id}
-        //Authorization: Bearer token
-        //Role: Manager, Staff
+        /// <summary>
+        /// Activates a user account.
+        /// </summary>
+        /// <param name="id">The ID of the user to be activated.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the activation process.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PATCH /api/User/active-user/123
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        ///
+        /// Role:
+        /// - Manager
+        /// - Staff
+        /// </remarks>
         [HttpPatch("active-user/{id}")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
@@ -408,14 +569,28 @@ namespace WebApi.Controllers.Users
             return Ok(new { statusCode = 200, message = "Active user successfully" });
         }
 
-        //POST: api/User/create-address
-        //Authorization: Bearer token
 
-
-        // GET: api/user/orders-history?keyword={string}&page={int}&limit={int}
-        // Authorization: Bearer token
-        // Role: Customer
-        // Query String: ?keyword={string}&page={int}&limit={int}&fromDate={ISO8601}&toDate={ISO8601}
+        /// <summary>
+        /// Retrieves the order history of the authenticated user.
+        /// </summary>
+        /// <param name="keyword">Optional search keyword.</param>
+        /// <param name="page">Page number for pagination (default: 1).</param>
+        /// <param name="limit">Number of records per page (default: 10).</param>
+        /// <param name="fromDate">Optional start date filter (ISO8601 format).</param>
+        /// <param name="toDate">Optional end date filter (ISO8601 format).</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a paginated list of the user's order history.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/User/orders-history?keyword=shoes&page=1&limit=10&fromDate=2023-01-01&toDate=2023-12-31
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        ///
+        /// Role:
+        /// - Customer
+        /// </remarks>
         [HttpGet("orders-history")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Customer)]
@@ -469,10 +644,5 @@ namespace WebApi.Controllers.Users
 
             return Ok(new { statusCode = 200, message = "Get orders history successfully", data = result.Value });
         }
-
-        
-        
-
-
     }
 }
