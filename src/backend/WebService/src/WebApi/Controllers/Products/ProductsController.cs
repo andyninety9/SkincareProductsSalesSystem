@@ -5,6 +5,8 @@ using Application.Features.ProductCategory.Commands;
 using Application.Features.ProductCategory.Commands.Validator;
 using Application.Features.ProductCategory.Queries;
 using Application.Features.ProductCategory.Queries.Validator;
+using Application.Features.Products.Commands;
+using Application.Features.Products.Commands.Validator;
 using Application.Features.Products.Queries;
 using Application.Features.Products.Queries.Validator;
 using Application.Features.Reviews.Queries;
@@ -392,6 +394,49 @@ namespace WebApi.Controllers.Products
 
             _logger.LogInformation("Returning {CategoryCount} categories.", result.Value.Items.Count);
             return Ok(new { statusCode = 200, message = "Fetch all categories successfully", data = result.Value });
+        }
+
+        /// <summary>
+        /// uploads a product image.
+        /// </summary>
+        /// <param productId=long>The product id.</param>
+        /// <param imageUrl="string">The image url file.</param>
+        /// <param cancellationToken="CancellationToken">Cancellation token.</param>
+        /// <returns>Returns the uploaded image url.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///    POST /api/products/upload
+        ///    {
+        ///    "imageUrl": "https://www.example.com/image.jpg"
+        ///    }
+        ///    Headers:
+        ///    - Authorization: Bearer {token}
+        ///    </remarks>
+        [HttpPost("upload")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> UploadImage([FromBody] UploadProductImageUrlCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new UpdateProductImageCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Upload image successfully", data = result.Value });
         }
     }
 }
