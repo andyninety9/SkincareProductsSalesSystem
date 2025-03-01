@@ -88,5 +88,10 @@ namespace Application.Constant
 
         // Return related messages
         public static string CREATE_RETURN_SUCCESS = "Return created successfully.";
+        public static string GET_RETURN_SUCCESS = "Returns retrieved successfully.";
+        public static string GET_RETURN_DETAIL_SUCCESS = "Return details retrieved successfully.";
+        public static string UPDATE_RETURN_SUCCESS = "Return updated successfully.";
+        public static string DELETE_RETURN_SUCCESS = "Return deleted successfully.";
+        public static string GET_RETURN_LIST_SUCCESS = "Return list retrieved successfully.";
     }
 }
