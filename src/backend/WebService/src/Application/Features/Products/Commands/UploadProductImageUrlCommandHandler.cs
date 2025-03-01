@@ -3,7 +3,7 @@ using Application.Abstractions.UnitOfWork;
 using Application.Common;
 using Application.Common.ResponseModel;
 using Application.Features.ProductCategory.Commands.Response;
-using Application.Features.Products.Response;
+using Application.Features.Products.Commands.Response;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Repositories;
@@ -52,7 +52,7 @@ namespace Application.Features.Products.Commands
                 }
                 var listImageProducts = await _productImageRepository.GetAllAsync(cancellationToken);
                 List<ProductImage> productImagesByProductId = listImageProducts.Where(x => x.ProdId == command.ProductId).ToList();
-                if (productImagesByProductId.Count() > 5)
+                if (productImagesByProductId.Count() > 4)
                 {
                     return Result<UpdateProductImageResponse>.Failure<UpdateProductImageResponse>(new Error("ProductImageLimit", "You can only upload 5 images for a product"));
                 }
