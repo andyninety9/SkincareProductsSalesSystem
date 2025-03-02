@@ -5,6 +5,7 @@ using Application.Common.Paginations;
 using Application.Constant;
 using Application.Features.Orders.Queries;
 using Application.Features.Orders.Queries.Validator;
+using Application.Features.Users.Queries;
 using Application.Users.Commands;
 using Application.Users.Queries;
 using MediatR;
@@ -643,6 +644,47 @@ namespace WebApi.Controllers.Users
             }
 
             return Ok(new { statusCode = 200, message = "Get orders history successfully", data = result.Value });
+        }
+
+        /// <summary>
+        /// Retrieves user vouchers.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a list of user vouchers.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///   GET /api/User/vouchers
+        ///   Headers:
+        ///   Authorization: Bearer {token}
+        ///   Role:
+        ///   Customer
+        /// </remarks>
+        /// <response code="200">Returns a list of user vouchers.</response>
+        /// <response code="400">If the request is invalid.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="500">If an unexpected error occurs.</response>
+        [HttpGet("vouchers")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Customer)]
+        public async Task<IActionResult> GetUserVouchers(CancellationToken cancellationToken)
+        {
+            var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(usrID))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+            }
+
+            var userId = long.Parse(usrID);
+
+            var query = new GetUserVouchersQuery(userId);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error.Description });
+            }
+
+            return Ok(new { statusCode = 200, message = "Get user vouchers successfully", data = result.Value });
         }
     }
 }

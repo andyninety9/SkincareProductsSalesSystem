@@ -13,7 +13,9 @@ public partial class Voucher
 
     public string VoucherDesc { get; set; } = null!;
 
-    public List<string> VoucherCode { get; set; } = null!;
+    public string VoucherCode { get; set; } = null!;
+
+    public bool StatusVoucher { get; set; }
 
     public virtual User Usr { get; set; } = null!;
 }

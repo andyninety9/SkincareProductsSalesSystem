@@ -536,9 +536,7 @@ public partial class MyDbContext : DbContext
             entity.ToTable("Question");
 
             entity.Property(e => e.QuestionId).HasColumnName("questionID");
-            entity.Property(e => e.CateQuestionId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("cateQuestionID");
+            entity.Property(e => e.CateQuestionId).HasColumnName("cateQuestionID");
             entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
             entity.Property(e => e.QuestionContent).HasColumnName("questionContent");
             entity.Property(e => e.StatusQuestion)
@@ -870,10 +868,15 @@ public partial class MyDbContext : DbContext
 
             entity.ToTable("Voucher");
 
-            entity.Property(e => e.VoucherId).HasColumnName("voucherID");
+            entity.Property(e => e.VoucherId)
+                .ValueGeneratedNever()
+                .HasColumnName("voucherID");
+            entity.Property(e => e.StatusVoucher)
+                .HasDefaultValue(true)
+                .HasColumnName("statusVoucher");
             entity.Property(e => e.UsrId).HasColumnName("usrID");
             entity.Property(e => e.VoucherCode)
-                .HasColumnType("character varying(10)[]")
+                .HasMaxLength(255)
                 .HasColumnName("voucherCode");
             entity.Property(e => e.VoucherDesc).HasColumnName("voucherDesc");
             entity.Property(e => e.VoucherDiscount).HasColumnName("voucherDiscount");
