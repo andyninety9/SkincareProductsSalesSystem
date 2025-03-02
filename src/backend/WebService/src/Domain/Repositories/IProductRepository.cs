@@ -11,8 +11,9 @@ namespace Domain.Repositories
     {
         Task<(IEnumerable<Product> Products, int TotalCount)> GetAllProductByQueryAsync(
             string? keyword,
-            int? cateId,
-            int? brandId,
+            long? cateId,
+            long? brandId,
+            long? skinTypeId,
             DateTime? fromDate,
             DateTime? toDate,
             int page,
