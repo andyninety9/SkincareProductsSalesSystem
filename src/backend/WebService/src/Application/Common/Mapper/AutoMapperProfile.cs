@@ -8,6 +8,7 @@ using Domain.DTOs;
 using Application.Features.Orders.Response;
 using Application.Features.Question.Commands;
 using Application.Features.ProductCategory.Queries.Response;
+using Application.Features.SkinTypes.Queries.Response;
 
 namespace Application.Common.Mapper
 {
@@ -30,6 +31,8 @@ namespace Application.Common.Mapper
             CreateMap<UpdateQuestionCommand, Question>();
             CreateMap<GetAllProductCategoryResponse, CategoryProduct>();
             CreateMap<CategoryProduct, GetAllProductCategoryResponse>();
+            CreateMap<SkinType, GetAllSkinTypesResponse>();
+            CreateMap<GetAllSkinTypesResponse, SkinType>();
 
 
             
@@ -37,6 +40,8 @@ namespace Application.Common.Mapper
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();
             CreateMap<ChangeOrderStatusResponse, Order>();
+
+            
 
             CreateMap<User, GetAllUsersResponse>()
                 .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Usr.Role.RoleId))
