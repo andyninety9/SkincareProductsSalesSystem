@@ -2,7 +2,7 @@
     "Routes": [
         {
             "UpstreamPathTemplate": "/api/{everything}",
-            "UpstreamHttpMethod": ["Get", "Post", "Put", "Delete"],
+            "UpstreamHttpMethod": ["Get", "Post", "Put", "Delete", "Patch"],
             "DownstreamScheme": "https",
             "DownstreamHostAndPorts": [
                 {
@@ -14,7 +14,7 @@
         },
         {
             "UpstreamPathTemplate": "/swagger/{everything}",
-            "UpstreamHttpMethod": ["Get"],
+            "UpstreamHttpMethod": ["Get", "Post", "Put", "Delete", "Patch"],
             "DownstreamScheme": "https",
             "DownstreamHostAndPorts": [
                 {
@@ -26,7 +26,7 @@
         },
         {
             "UpstreamPathTemplate": "/swagger/v1/swagger.json",
-            "UpstreamHttpMethod": ["Get"],
+            "UpstreamHttpMethod": ["Get", "Post", "Put", "Delete", "Patch"],
             "DownstreamScheme": "https",
             "DownstreamHostAndPorts": [
                 {
