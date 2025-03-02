@@ -41,6 +41,7 @@ namespace WebApi.Controllers.Products
         /// <param name="keyword">Optional search keyword for product name.</param>
         /// <param name="cateId">Optional category ID filter.</param>
         /// <param name="brandId">Optional brand ID filter.</param>
+        /// <param name="skinTypeId">Optional Skintype filter.</param>
         /// <param name="fromDate">Optional start date filter (yyyy-MM-dd).</param>
         /// <param name="toDate">Optional end date filter (yyyy-MM-dd).</param>
         /// <param name="page">Page number for pagination (default: 1).</param>
@@ -56,8 +57,9 @@ namespace WebApi.Controllers.Products
         [HttpGet]
         public async Task<IActionResult> GetProducts(
             [FromQuery] string? keyword,
-            [FromQuery] int? cateId,
-            [FromQuery] int? brandId,
+            [FromQuery] long? cateId,
+            [FromQuery] long? brandId,
+            [FromQuery] long? skinTypeId,
             [FromQuery] string? fromDate,
             [FromQuery] string? toDate,
             [FromQuery] int page = 1,
@@ -74,7 +76,7 @@ namespace WebApi.Controllers.Products
             }
 
             var paginationParams = new PaginationParams { Page = page, PageSize = pageSize };
-            var query = new GetAllProductsQuery(keyword, paginationParams, cateId, brandId, fromDate, toDate);
+            var query = new GetAllProductsQuery(keyword, paginationParams, cateId, brandId, skinTypeId, fromDate, toDate);
             var validator = new GetAllProductsQueryValidator();
             var validationResult = validator.Validate(query);
 
