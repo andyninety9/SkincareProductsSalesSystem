@@ -16,8 +16,9 @@ namespace Application.Features.Products.Queries
     public sealed record GetAllProductsQuery(
         string? Keyword,
         PaginationParams PaginationParams,
-        int? CateId,
-        int? BrandId,
+        long? CateId,
+        long? BrandId,
+        long? SkinTypeId,
         string? FromDate,
         string? ToDate) : IQuery<PagedResult<GetAllProductsResponse>>;
 
@@ -60,7 +61,7 @@ namespace Application.Features.Products.Queries
                 }
 
                 var (products, totalItems) = await _productRepository.GetAllProductByQueryAsync(
-                    request.Keyword, request.CateId, request.BrandId, fromDateTime, toDateTime,
+                    request.Keyword, request.CateId, request.BrandId, request.SkinTypeId, fromDateTime, toDateTime,
                     request.PaginationParams.Page, request.PaginationParams.PageSize, cancellationToken);
 
                 if (!products.Any())
