@@ -1,0 +1,19 @@
+.ant-select-selector {
+    border-color: #D8959A !important;
+}
+
+.ant-select-selector:hover, 
+.ant-select-selector:focus, 
+.ant-select-selector:active {
+    border-color: #D8959A !important;
+    box-shadow: 0 0 5px rgba(216, 149, 154, 0.5) !important;
+}
+
+.ant-select-dropdown {
+    border-radius: 8px !important;
+}
+
+.ant-select-item-option-selected {
+    background-color: #FCE4E6 !important;
+    color: #D8959A !important;
+}

@@ -20,9 +20,12 @@ const handleBefore = async (config) => {
             try {
                 const refreshToken = Cookies.get('refreshToken');
                 const encodedRefreshToken = encodeURIComponent(refreshToken);
+                // const response = await axios.post(
+                //     `https://localhost:5001/api/Authentication/refresh-token?refreshToken=${encodedRefreshToken}`
+                // );
                 const response = await axios.post(
-                    `https://localhost:5001/api/Authentication/refresh-token?refreshToken=${encodedRefreshToken}`
-                );
+                    `https://www.mavid.store/api/Authentication/refresh-token?refreshToken=${encodedRefreshToken}`
+                );                
                 console.log(response);
                 accessToken = response.data.token;
                 Cookies.set('accessToken', response.data?.token, {
