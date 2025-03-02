@@ -44,48 +44,45 @@ namespace Application.Features.Products.Commands
         {
             try
             {
+                // ✅ Kiểm tra xem sản phẩm có tồn tại không
                 var product = await _productRepository.GetByIdAsync(command.ProductId, cancellationToken);
                 if (product == null)
                 {
                     return Result<DeleteProductImageResponse>.Failure<DeleteProductImageResponse>(new Error("ProductNotFound", "Product not found"));
                 }
 
-                var listProductImages = await _productImageRepository.GetAllAsync(cancellationToken);
-                var productImagesByProductId = listProductImages.Where(x => x.ProdId == command.ProductId).ToList();
-                var productImage = productImagesByProductId.FirstOrDefault(x => x.ProdImageId == command.ImageId);
+                // ✅ Chỉ truy vấn ảnh liên quan đến ProductId từ DB
+                var productImage = await _productImageRepository.GetByProductAndImageIdAsync(command.ProductId, command.ImageId, cancellationToken);
                 if (productImage == null)
                 {
                     return Result<DeleteProductImageResponse>.Failure<DeleteProductImageResponse>(new Error("ProductImageNotFound", "Product image not found"));
                 }
 
+                // ✅ Xóa ảnh
                 await _productImageRepository.DeleteByIdAsync(command.ImageId, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
-                
-                productImagesByProductId.Remove(productImage);
-                List<ProductImageDto> productImages = new List<ProductImageDto>();
-                foreach (var item in productImagesByProductId)
-                {
-                    productImages.Add(new ProductImageDto
-                    {
-                        ProdImageId = item.ProdImageId,
-                        ProdImageUrl = item.ProdImageUrl
-                    });
-                    
-                }
+
+                // ✅ Lấy danh sách ảnh còn lại sau khi xóa
+                var productImages = await _productImageRepository.GetImagesByProductIdAsync(command.ProductId, cancellationToken);
+
+                _logger.LogInformation("✅ Successfully deleted product image: ImageId={ImageId}, ProductId={ProductId}", command.ImageId, command.ProductId);
+
                 return Result<DeleteProductImageResponse>.Success(new DeleteProductImageResponse
                 {
                     ProductId = command.ProductId,
-                    ProductImages = productImages
+                    ProductImages = productImages.Select(x => new ProductImageDto
+                    {
+                        ProdImageId = x.ProdImageId,
+                        ProdImageUrl = x.ProdImageUrl
+                    }).ToList()
                 });
             }
             catch (Exception e)
             {
-
                 _logger.LogError(e, "❌ Error occurred while deleting product image: ImageId={ImageId}, ProductId={ProductId}", command.ImageId, command.ProductId);
                 return Result<DeleteProductImageResponse>.Failure<DeleteProductImageResponse>(new Error("DeleteProductImageError", "Error occurred while deleting product image"));
             }
         }
-
 
 
     }
