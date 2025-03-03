@@ -57,7 +57,7 @@ function App() {
         { path: routes.home, element: <HomePage /> },
         { path: routes.about, element: <AboutPage /> },
         { path: routes.product, element: <MainLayout /> },
-        { path: routes.productDetail, element: <ProductDetailPage /> },
+        { path: "/product/:id", element: <ProductDetailPage /> },
         { path: routes.review, element: <ReviewPage /> },
         { path: routes.contact, element: <Contact /> },
         { path: routes.service, element: <Service /> },
