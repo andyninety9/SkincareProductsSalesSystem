@@ -26,13 +26,13 @@ const Register = () => {
                 }, 5000);
             }
         } catch (error) {
-             if (error.response.data.errors != null) {
-                 toast.error(error.response.data.errors[0].description);
-             } else if (error.response.data.detail != null) {
-                 toast.error(error.response.data.detail);
-             } else {
-                 toast.error('False to register');
-             }
+            if (error.response.data.errors != null) {
+                toast.error(error.response.data.errors[0].description);
+            } else if (error.response.data.detail != null) {
+                toast.error(error.response.data.detail);
+            } else {
+                toast.error('False to register');
+            }
         }
     };
     return (
