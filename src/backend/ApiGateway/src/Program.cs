@@ -8,11 +8,14 @@ var builder = WebApplication.CreateBuilder(args);
 var corsPolicy = "AllowAllOrigins";
 
 // Config CORS
+var allowedOrigins = builder.Environment.IsDevelopment()
+    ? new[] { "http://localhost:5173" } // 🔥 Khi chạy local
+    : new[] { "https://website-mavidstore-aiw8e6oxq-andyninety9s-projects.vercel.app" };
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(corsPolicy, policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // 🚀 Chỉ định domain frontend (không đổi)
+        policy.WithOrigins(allowedOrigins) // 🚀 Chỉ định domain frontend (không đổi)
               .AllowAnyMethod() // Cho phép tất cả phương thức HTTP
               .AllowAnyHeader() // Chấp nhận mọi loại header
               .AllowCredentials(); // 🔥 Cho phép gửi Cookie / Authorization
