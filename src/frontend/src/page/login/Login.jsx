@@ -27,8 +27,6 @@ const Login = () => {
         // console.log(values);
         try {
             const response = await api.post('authen/login', values);
-            //   console.log(response.data);
-            //   console.log(response.data?.data.accessToken);
             Cookies.set('accessToken', response.data?.data.accessToken, {
                 expires: 3,
                 secure: true,
@@ -94,7 +92,12 @@ const Login = () => {
                         validationSchema={Yup.object({
                             username: Yup.string().required('Tên đăng nhập không được để trống'),
                             password: Yup.string()
-                                .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
+                                .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
+                                .max(100, 'Mật khẩu không được dài quá 100 ký tự')
+                                .matches(
+                                    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,100}$/,
+                                    'Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt'
+                                )
                                 .required('Mật khẩu không được để trống'),
                         })}
                         onSubmit={(values, { setSubmitting }) => {
