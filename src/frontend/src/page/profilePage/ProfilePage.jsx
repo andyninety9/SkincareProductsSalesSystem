@@ -1,22 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import api from "../../config/api";
 import { MailOutlined, PhoneOutlined, CalendarOutlined } from "@ant-design/icons";
 import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col } from "antd";
-import Profile1 from "../../assets/profile1.png";
-import AboutUs3 from "../../assets/aboutUs3.png";
 import "antd/dist/reset.css";
 import "./ProfilePage.css";
-import OrderHistory from "../../assets/orderHistory.png";
 
 const { TabPane } = Tabs;
 
-const userInfo = {
-    name: "Nguyen Van Yeah",
-    gender: "Male",
-    email: "NguyenvanYeah@gmail.com",
-    phone: "0912345678",
-    dob: "01-05-2002",
-    avatar: AboutUs3
-};
+const promoCodes = [
+    { code: "SALE50", description: "Giảm 50% cho đơn hàng trên 500.000đ", expiry: "30/06/2025", status: "Còn hiệu lực" },
+    { code: "FREESHIP", description: "Miễn phí vận chuyển cho đơn từ 200.000đ", expiry: "15/07/2025", status: "Còn hiệu lực" },
+    { code: "WELCOME10", description: "Giảm 10% cho khách hàng mới", expiry: "01/05/2025", status: "Hết hạn" },
+    { code: "NEWYEAR", description: "Giảm 20% cho đơn hàng đầu tiên trong năm mới", expiry: "01/01/2026", status: "Còn hiệu lực" }
+];
 
 const initialAddresses = [
     {
@@ -44,7 +41,7 @@ const orders = [
         price: "120.000 vnd - 1 món",
         address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
         status: "Pending",
-        image: OrderHistory,
+
     },
     {
         id: "#123456",
@@ -53,7 +50,7 @@ const orders = [
         price: "120.000 vnd - 1 món",
         address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
         status: "Pending",
-        image: OrderHistory,
+
     },
     {
         id: "#123456",
@@ -62,42 +59,56 @@ const orders = [
         price: "120.000 vnd - 1 món",
         address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
         status: "Pending",
-        image: OrderHistory,
+
     }
 ];
 
-const promoCodes = [
-    { code: "SALE50", description: "Giảm 50% cho đơn hàng trên 500.000đ", expiry: "30/06/2025", status: "Còn hiệu lực" },
-    { code: "FREESHIP", description: "Miễn phí vận chuyển cho đơn từ 200.000đ", expiry: "15/07/2025", status: "Còn hiệu lực" },
-    { code: "WELCOME10", description: "Giảm 10% cho khách hàng mới", expiry: "01/05/2025", status: "Hết hạn" },
-    { code: "NEWYEAR", description: "Giảm 20% cho đơn hàng đầu tiên trong năm mới", expiry: "01/01/2026", status: "Còn hiệu lực" }
-];
-
 const ProfilePage = () => {
-    const [addresses, setAddresses] = useState(initialAddresses);
+    const [userInfo, setUserInfo] = useState(null);
+    const [addresses, setAddresses] = useState([]);
     const [activeTab, setActiveTab] = useState("1");
+    const [loading, setLoading] = useState(true);
 
-    const handleSelectDefault = (index) => {
-        setAddresses(addresses.map((addr, i) => ({ ...addr, default: i === index })));
-    };
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const response = await api.get("https://www.mavid.store/api/User/get-me");
+                if (response.data.statusCode === 200) {
+                    setUserInfo(response.data.data);
+                }
+            } catch (error) {
+                console.error("Error fetching user info:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserInfo();
+    }, []);
+
+    if (loading) {
+        return <div style={{ textAlign: "center", marginTop: "50px" }}>Loading...</div>;
+    }
+
+    if (!userInfo) {
+        return <div style={{ textAlign: "center", marginTop: "50px" }}>No user data available.</div>;
+    }
 
     return (
         <div style={{
             display: "flex",
             justifyContent: "center",
             padding: 40,
-            background: `url(${Profile1}) no-repeat center center`,
+            background: `url(${userInfo.coverUrl}) no-repeat center center`,
             backgroundSize: "cover",
             alignItems: "flex-end",
             height: "80vh",
             position: "relative",
-
         }}>
-
             <Card style={{ width: 250, minHeight: 450, textAlign: "center", marginTop: 1000 }}>
-                <Avatar size={100} src={userInfo.avatar} style={{ border: "3px solid #D8959A", }} />
+                <Avatar size={100} src={userInfo.avatarUrl} style={{ border: "3px solid #D8959A", }} />
                 <h3 style={{ fontFamily: "'Nunito', sans-serif", color: "#D8959A", fontSize: "20px", marginTop: "10px" }}>{userInfo.name}</h3>
-                <p>{userInfo.gender}</p>
+                <p>{userInfo.fullname}</p>
                 <Input
                     prefix={<MailOutlined />}
                     value={userInfo.email}
@@ -215,8 +226,23 @@ const ProfilePage = () => {
                     </TabPane>
                 </Tabs>
             </Card>
-        </div>
+        </div >
     );
+};
+
+const inputStyle = {
+    marginBottom: 10,
+    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+    border: "none",
+    color: "black",
+    backgroundColor: "white"
+};
+
+const buttonStyle = {
+    width: "100%",
+    backgroundColor: "#D8959A",
+    borderColor: "#D8959A",
+    color: "#fff"
 };
 
 export default ProfilePage;
