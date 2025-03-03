@@ -147,7 +147,7 @@ export default function ProductPage() {
     return (
         <div className="product-page" style={{ margin: '0', maxWidth: '1440px' }}>
             <div className="banner" style={{ position: 'relative', textAlign: 'center' }}>
-                <img src={banner} alt="Banner" style={{ width: '100%', objectFit: 'cover' }} />
+                <img src={banner} alt="Banner" style={{ width: '100%', objectFit: 'cover', height: '200px' }} />
                 <h2
                     style={{
                         position: 'absolute',
