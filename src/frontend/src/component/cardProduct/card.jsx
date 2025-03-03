@@ -2,6 +2,11 @@ import './card.scss';
 import { Rate } from 'antd';
 
 export default function CardProduct({ product }) {
+    // 🔥 Hàm định dạng số theo VND
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    };
+
     return (
         <div className="cardProduct">
             <img
@@ -20,7 +25,10 @@ export default function CardProduct({ product }) {
                     <p>{product?.productDesc}</p>
                 </div>
 
-                <div className="cardProduct-content-right">{product?.sellPrice} đ</div>
+                {/* 🔥 Format `sellPrice` thành số tiền VND */}
+                <div className="cardProduct-content-right">
+                    {product?.sellPrice ? formatCurrency(product.sellPrice) : 'Liên hệ'}
+                </div>
             </div>
         </div>
     );
