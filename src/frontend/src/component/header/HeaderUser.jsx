@@ -114,9 +114,9 @@ const HeaderUser = () => {
             </span>
             <Link 
             to={routes.product}
-            className="text-dark text-decoration-none"
-            style={{ whiteSpace: "nowrap" }}
-            >
+          className="text-dark text-decoration-none"
+          style={{ whiteSpace: "nowrap" }}
+            >          
             Sản phẩm
             </Link>
             <span
