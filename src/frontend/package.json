@@ -9,7 +9,7 @@
         "lint": "eslint .",
         "preview": "vite preview"
     },
-    "proxy": "http://localhost:5173",
+    "proxy": "https://website-mavidstore-swp-git-fe-prod-1196a5-andyninety9s-projects.vercel.app/",
     "dependencies": {
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.0",
