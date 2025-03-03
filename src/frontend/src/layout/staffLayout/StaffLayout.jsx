@@ -1,4 +1,3 @@
-import React from 'react';
 import HeaderStaff from '../../component/header/HeaderStaff';
 import SidebarStaff from '../../component/Sidebar/SidebarStaff';
 import { Outlet } from 'react-router-dom';
