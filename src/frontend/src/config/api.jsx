@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 
-const baseUrl = 'https://www.mavid.store/api/';
+const baseUrl = 'https://api-gateway-swp-v1-0-0.onrender.com/api/';
 
 const config = {
     baseUrl,
@@ -23,10 +23,10 @@ const handleBefore = async (config) => {
                 // const response = await axios.post(
                 //     `https://localhost:5001/api/Authentication/refresh-token?refreshToken=${encodedRefreshToken}`
                 // );
-                const response = await axios.post(
-                    `https://www.mavid.store/api/Authentication/refresh-token?refreshToken=${encodedRefreshToken}`
-                );                
-                console.log(response);
+                const response = await axios.post(`${baseUrl}/authen/refresh-token`, {
+                    refreshToken: refreshToken,
+                });
+                // console.log(response);
                 accessToken = response.data.token;
                 Cookies.set('accessToken', response.data?.token, {
                     expires: 7,
