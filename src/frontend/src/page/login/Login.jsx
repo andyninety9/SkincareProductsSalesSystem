@@ -34,9 +34,9 @@ const Login = () => {
       });
 
       const decodedToken = jwtDecode(response.data?.data.accessToken);
-      // console.log(decodedToken.sub);
+      console.log(decodedToken.sub);
       // console.log(decodedToken);
-      const decodedRefreshToken = jwtDecode(response.data?.data.refreshToken);
+      // const decodedRefreshToken = jwtDecode(response.data?.data.refreshToken);
       // console.log("refreshToken", decodedRefreshToken);
 
       const userGetMe = await api.get("user/get-me");

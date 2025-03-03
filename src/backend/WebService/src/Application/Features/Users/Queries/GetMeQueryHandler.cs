@@ -8,6 +8,7 @@ using Application.Common.ResponseModel;
 using Application.Features.Users.Response;
 using AutoMapper;
 using Domain.DTOs;
+using Domain.Entities;
 using Domain.Repositories;
 using MediatR;
 
@@ -46,7 +47,11 @@ namespace Application.Users.Queries
             var accountStatus = await _accountStatusRepository.GetAccountStatusById(account.AccStatusId);
             var role = await _roleRepository.GetRoleById(account.RoleId);
             var resultQuizs = await _resultQuizRepository.GetAllAsync(cancellationToken);
-            var resultQuiz = resultQuizs.FirstOrDefault(x => x.UsrId == request.usrID && x.IsDefault == true);
+            ResultQuiz? resultQuiz = null;
+            if (resultQuizs != null)
+            {
+                resultQuiz = resultQuizs.FirstOrDefault(x => x.UsrId == request.usrID && x.IsDefault == true);
+            }
             response = new()
             {
                 Fullname = user.Fullname ?? string.Empty,
@@ -58,7 +63,7 @@ namespace Application.Users.Queries
                 CoverUrl = user.CoverUrl,
                 AccountStatus = accountStatus.StatusName,
                 Role = role.RoleName,
-                SkinType = resultQuiz?.SkinType.SkinTypeCodes,
+                SkinType = resultQuiz?.SkinType?.SkinTypeCodes,
                 RewardPoint = user.RewardPoint,
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt
