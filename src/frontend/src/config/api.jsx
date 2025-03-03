@@ -2,7 +2,8 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 
-const baseUrl = 'https://www.mavid.store/api/';
+const baseUrl = 'https://api-gateway-swp-v1-0-0.onrender.com/api/';
+// const baseUrl = 'https://www.mavid.store/api/';
 
 const config = {
     baseUrl,
