@@ -33,6 +33,8 @@ public partial class Product
 
     public DateTime UpdatedAt { get; set; }
 
+    public string? ProdUseFor { get; set; }
+
     public virtual Brand Brand { get; set; } = null!;
 
     public virtual CategoryProduct Cate { get; set; } = null!;

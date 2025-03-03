@@ -468,6 +468,7 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.Ingredient).HasColumnName("ingredient");
             entity.Property(e => e.Instruction).HasColumnName("instruction");
             entity.Property(e => e.ProdStatusId).HasColumnName("prodStatusID");
+            entity.Property(e => e.ProdUseFor).HasColumnName("prodUseFor");
             entity.Property(e => e.ProductDesc).HasColumnName("productDesc");
             entity.Property(e => e.ProductName)
                 .HasMaxLength(255)
