@@ -112,7 +112,13 @@ const HeaderUser = () => {
             >
               ✨
             </span>
+            <Link 
+            to={routes.product}
+            className="text-dark text-decoration-none"
+            style={{ whiteSpace: "nowrap" }}
+            >
             Sản phẩm
+            </Link>
             <span
               style={{ display: "inline-block", transform: "translateY(-6px)" }}
             >
