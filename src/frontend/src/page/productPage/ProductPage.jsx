@@ -215,11 +215,6 @@ export default function ProductPage() {
                                                 // console.log('🔄 Reset bộ lọc loại da');
                                             } else {
                                                 setSkinTypeId(skinType.skinTypeId); // 🔥 Chỉ cập nhật nếu chọn loại da mới
-                                                // console.log(
-                                                //     '🎉 Loại da được chọn:',
-                                                //     skinType.skinTypeCodes,
-                                                //     skinType.skinTypeId
-                                                // );
                                             }
                                         }}
                                     />
