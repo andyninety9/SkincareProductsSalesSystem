@@ -2,7 +2,34 @@
 import './card.scss';
 import { Rate } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
+CardProduct.propTypes = {
+    product: PropTypes.shape({
+        productId: PropTypes.number,
+        images: PropTypes.arrayOf(
+            PropTypes.shape({
+                prodImageId: PropTypes.number,
+                prodImageUrl: PropTypes.string,
+            })
+        ),
+        productName: PropTypes.string,
+        productDesc: PropTypes.string,
+        sellPrice: PropTypes.number,
+        costPrice: PropTypes.number,
+        stocks: PropTypes.number,
+        totalRating: PropTypes.number,
+        ingredient: PropTypes.string,
+        instruction: PropTypes.string,
+        prodUseFor: PropTypes.string,
+        brandName: PropTypes.string,
+        categoryName: PropTypes.string,
+        statusName: PropTypes.string,
+        createdAt: PropTypes.string,
+        updatedAt: PropTypes.string,
+        reviewCount: PropTypes.number
+    }),
+};
 export default function CardProduct({ product }) {
     const navigate = useNavigate();
 
