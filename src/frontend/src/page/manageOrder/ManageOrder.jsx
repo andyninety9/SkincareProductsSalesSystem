@@ -1,6 +1,6 @@
 import { Table, Button, Input, Card } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
-import ManageOrderSidebar from "../../component/ManageOrderSidebar/ManageOrderSidebar";
+import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
 import EyeInvisibleOutlined from "@ant-design/icons/lib/icons/EyeInvisibleOutlined";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";

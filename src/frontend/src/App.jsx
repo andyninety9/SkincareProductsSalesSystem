@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { routes } from './routes';
-import AboutPage from './page/aboutPage/aboutPage';
+import AboutPage from './page/aboutPage/AboutPage';
 import Login from './page/login/Login';
 import Register from './page/register/Register';
 import ResetPassword from './page/resetPassword/ResetPassword';
@@ -15,7 +15,7 @@ import UserLayout from './layout/userLayout/UserLayout';
 import ProductDetailPage from './page/productDetail/ProductDetailPage';
 import ReviewPage from './page/reviewPage/ReviewPage';
 import CartPage from './page/cartPage/CartPage';
-import CheckOutPage from './page/checkoutPage/CheckoutPage';
+import CheckOutPage from './page/checkOutPage/CheckOutPage';
 import EventPage from './page/eventPage/EventPage';
 import AboutUs from './page/aboutUsPage/AboutUs';
 import ProfilePage from './page/profilePage/ProfilePage';
