@@ -11,7 +11,7 @@ import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HomePage from './page/homePage/HomePage';
 import UserLayout from './layout/userLayout/UserLayout';
-import ProductPage from './page/productPage/ProductPage';
+// import ProductPage from './page/productPage/ProductPage';
 import ProductDetailPage from './page/productDetail/ProductDetailPage';
 import ReviewPage from './page/reviewPage/ReviewPage';
 import CartPage from './page/cartPage/CartPage';
@@ -24,6 +24,7 @@ import StartQuizPage from "./page/quizPage/StartQuizPage";
 import ManageOrderPage from "./page/manageOrder/ManageOrder";
 import ManageCommentPage from "./page/manageComment/ManageComment";
 import ResultPage from "./page/quizPage/ResultPage";
+import MainLayout from "./layout/mainLayout/mainLayout";
 
 function App() {
   const router = createBrowserRouter([
@@ -55,7 +56,7 @@ function App() {
       children: [
         { path: routes.home, element: <HomePage /> },
         { path: routes.about, element: <AboutPage /> },
-        { path: routes.product, element: <ProductPage /> },
+        { path: routes.product, element: <MainLayout /> },
         { path: routes.productDetail, element: <ProductDetailPage /> },
         { path: routes.review, element: <ReviewPage /> },
         { path: routes.contact, element: <Contact /> },

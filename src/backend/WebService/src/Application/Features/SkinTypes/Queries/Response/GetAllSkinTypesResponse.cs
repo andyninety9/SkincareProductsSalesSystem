@@ -7,7 +7,7 @@ namespace Application.Features.SkinTypes.Queries.Response
 {
     public class GetAllSkinTypesResponse
     {
-
+        public short SkinTypeId { get; set; }
         /// <summary>
         /// Mã loại da (ví dụ: &quot;OSPT&quot;, &quot;DRNW&quot;).
         /// </summary>
