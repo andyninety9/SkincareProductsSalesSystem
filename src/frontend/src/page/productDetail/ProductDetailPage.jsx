@@ -19,28 +19,31 @@ export default function ProductDetailPage() {
     //     "https://product.hstatic.net/1000301613/product/kem-duong-innisfree_323d8d42e3644ab9bb37b10e2a55c996.jpg",
     //     "https://image.hsv-tech.io/1987x0/bbx/common/5eb80ef5-c2f4-4ecc-af58-7b081f40b2b0.webp",
     // ];
-    const reviews = [
-        {
-            title: "Best cream ever",
-            date: "15/01/2025",
-            rating: 5,
-            image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBmZb7Pxj3VQtYcPZIiSBgD0oJ33YWWiwabg&s",
-            content: "The way this cream feels on my it's pure heaven. It hydrates so good and it lasts for hours. I usually wear it during the day but last night was the first time I used it as a night moisturizer. I twist and turn during sleep and when I woke, I was still fully moisturized.",
-        },
-        {
-            title: "Great product",
-            date: "10/01/2025",
-            rating: 4,
-            image: "https://storage.beautyfulls.com/uploads-1/sg-press/600x/innisfree-green-tea-balancing-cream-ex-152085.webp",
-            content: "Perfect!!! The way this cream feels on my it's pure heaven. It hydrates so good and it lasts for hours. I usually wear it during the day but last night was the first time I used it as a night moisturizer. I twist and turn during sleep and when I woke, I was still fully moisturized.",
-        },
-    ];
+    // const reviews = [
+    //     {
+    //         title: "Best cream ever",
+    //         date: "15/01/2025",
+    //         rating: 5,
+    //         image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBmZb7Pxj3VQtYcPZIiSBgD0oJ33YWWiwabg&s",
+    //         content: "The way this cream feels on my it's pure heaven. It hydrates so good and it lasts for hours. I usually wear it during the day but last night was the first time I used it as a night moisturizer. I twist and turn during sleep and when I woke, I was still fully moisturized.",
+    //     },
+    //     {
+    //         title: "Great product",
+    //         date: "10/01/2025",
+    //         rating: 4,
+    //         image: "https://storage.beautyfulls.com/uploads-1/sg-press/600x/innisfree-green-tea-balancing-cream-ex-152085.webp",
+    //         content: "Perfect!!! The way this cream feels on my it's pure heaven. It hydrates so good and it lasts for hours. I usually wear it during the day but last night was the first time I used it as a night moisturizer. I twist and turn during sleep and when I woke, I was still fully moisturized.",
+    //     },
+    // ];
 
     // const [mainImage, setMainImage] = useState(productImages[0]);
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [mainImage, setMainImage] = useState("");
+    const [reviews, setReviews] = useState([]);
+    const [visibleReviews, setVisibleReviews] = useState(5);
+
 
     useEffect(() => {
         const fetchProductDetail = async () => {
@@ -55,8 +58,21 @@ export default function ProductDetailPage() {
                 console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
             }
         };
+        const fetchReviews = async () => {
+            try {
+                const response = await api.get(`Products/${id}/reviews`);
+                if (response.data && response.data.data.items) {
+                    setReviews(response.data.data.items);
+                }
+            } catch (error) {
+                console.error("Lỗi khi lấy đánh giá sản phẩm:", error);
+            }
+        };
 
-        if (id) fetchProductDetail();
+        if (id) {
+            fetchProductDetail();
+            fetchReviews();
+        }
     }, [id]);
 
     if (!product) return <p>Đang tải dữ liệu...</p>;
@@ -65,6 +81,9 @@ export default function ProductDetailPage() {
     const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
     const averageRating = calculateAverageRating(reviews);
 
+    const loadMoreReviews = () => {
+        setVisibleReviews(prev => prev + 5);
+    };
 
     return (
         <div>
@@ -209,9 +228,9 @@ export default function ProductDetailPage() {
                     </div>
                 </div>
                 {/* Phần công dụng, cách sử dụng và thành phần (Ảnh 1 bên, chữ 1 bên) */}
-                <div style={{ marginTop: "50px"}}>
-                    <div style={{ backgroundColor: "#F6EEF0", borderTopLeftRadius: "30px", borderTopRightRadius: "30px", marginLeft:"10" }}>
-                    <Row gutter={[20, 20]} style={{ marginLeft: "0", marginRight: "0" }}>
+                <div style={{ marginTop: "50px" }}>
+                    <div style={{ backgroundColor: "#F6EEF0", borderTopLeftRadius: "30px", borderTopRightRadius: "30px", marginLeft: "10" }}>
+                        <Row gutter={[20, 20]} style={{ marginLeft: "0", marginRight: "0" }}>
                             <Col xs={24} md={12} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                                 <img
                                     src={product.images && product.images.length > 0 ? product.images[0] : "https://via.placeholder.com/400"}
@@ -237,7 +256,7 @@ export default function ProductDetailPage() {
                     </div>
 
                     <div style={{ backgroundColor: "#D8959A" }}>
-                    <Row gutter={[20, 20]} style={{ marginLeft: "0", marginRight: "0" }}>
+                        <Row gutter={[20, 20]} style={{ marginLeft: "0", marginRight: "0" }}>
                             <Col xs={24} md={12} style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
                                 <div style={{ width: "80%", padding: "0 50px" }}>
                                     <h2 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "10px", marginTop: "30px" }}>Cách sử dụng</h2>
@@ -262,7 +281,7 @@ export default function ProductDetailPage() {
                     </div>
 
                     <div style={{ backgroundColor: "#D8959A", borderBottomLeftRadius: "30px", borderBottomRightRadius: "30px" }}>
-                    <Row gutter={[20, 20]} style={{ marginLeft: "0", marginRight: "0" }}>
+                        <Row gutter={[20, 20]} style={{ marginLeft: "0", marginRight: "0" }}>
                             <Col xs={24} md={12} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                                 <img
                                     src={product.images && product.images.length > 2 ? product.images[2] : "https://via.placeholder.com/400"}
@@ -290,63 +309,57 @@ export default function ProductDetailPage() {
 
             </div>
             {/* Phần đánh giá */}
-            <div style={{
-                maxWidth: "1440px",
-                backgroundColor: "#F6EEF0",
-            }}>
-                <div style={{
-                    maxWidth: "1100px",
-                    margin: "auto",
-                    padding: "20px 250px",
-                }}>
-                    <div style={{ marginTop: "50px" }}>
-                        <div>
-                            <h2 style={{ fontSize: "35px", fontWeight: "bold", marginBottom: "20px", color: "#A76A6E", textAlign: "center" }}>
-                                Đánh giá sản phẩm
-                            </h2>
-                            {/* Hiển thị đánh giá trung bình */}
-                            <div style={{ fontSize: "16px", marginBottom: "20px", textAlign: "center" }}>
-                                {/* <span style={{ fontWeight: "bold" }}>Đánh giá trung bình: </span> */}
-                                <Rate value={parseFloat(averageRating)} disabled style={{ color: "#A76A6E" }} />
-                                <span style={{ fontSize: "14px", color: "#A76A6E", marginLeft: "10px" }}>
-                                    {averageRating} / 5
-                                </span>
-                            </div>
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                            {reviews.map((review, index) => (
-                                <div key={index} style={{ display: "flex", flexDirection: "row", borderBottom: "1px solid #ddd", paddingBottom: "20px" }}>
-                                    {/* Phần đánh giá và nội dung */}
-                                    <div style={{ flex: 1, display: "flex", flexDirection: "column", marginRight: "20px", width: "40%%" }}>
-                                        {/* Hiển thị sao đánh giá */}
-                                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                            <Rate value={review.rating} disabled style={{ color: "#A76A6E" }} />
-                                            {/* <span style={{ fontSize: "25px", color: "#A76A6E" }}>{review.title}</span> */}
-                                            <span style={{ fontSize: "14px", color: "#666" }}>({review.date})</span>
-                                        </div>
-                                        <span style={{ fontSize: "25px", color: "#A76A6E", marginTop: "10px" }}>{review.title}</span>
-                                        {/* Hiển thị nội dung đánh giá */}
-                                        <p style={{ fontSize: "16px", color: "#333", lineHeight: "1.6", marginTop: "5px" }}>
-                                            {review.content}
-                                        </p>
+            <div style={{ maxWidth: "100%", backgroundColor: "#F6EEF0" }}>
+                <div style={{ maxWidth: "1100px", margin: "auto", padding: "20px 250px" }}>
+                    <h2 style={{ fontSize: "35px", fontWeight: "bold", marginBottom: "20px", color: "#A76A6E", textAlign: "center" }}>Đánh giá sản phẩm</h2>
+                    <div style={{ fontSize: "16px", marginBottom: "20px", textAlign: "center" }}>
+                        <Rate value={parseFloat(averageRating)} disabled style={{ color: "#A76A6E" }} />
+                        <span style={{ fontSize: "14px", color: "#A76A6E", marginLeft: "10px" }}>
+                            {reviews.length > 0 ? `${reviews.length} đánh giá` : "Chưa có đánh giá"}
+                        </span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                        {reviews.slice(0, visibleReviews).map((review, index) => (
+                            <div key={index} style={{ display: "flex", flexDirection: "row", borderBottom: "1px solid #ddd", paddingBottom: "20px" }}>
+                                <div style={{ flex: 1, display: "flex", flexDirection: "column", marginRight: "20px", width: "40%" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                        <Rate value={review.rating} disabled style={{ color: "#A76A6E" }} />
+                                        <span style={{ fontSize: "14px", color: "#666" }}>
+                                            ({new Date(review.updatedAt).toLocaleString("vi-VN", { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })})
+                                        </span>
                                     </div>
-
-                                    {/* Phần hình ảnh */}
-                                    <div style={{ flexShrink: 0 }}>
-                                        <img
-                                            src={review.image}
-                                            alt="Review"
-                                            style={{ width: "200px", height: "auto", borderRadius: "5px" }}
-                                        />
-                                    </div>
+                                    <span style={{ fontSize: "25px", color: "#A76A6E", marginTop: "10px" }}>{review.title}</span>
+                                    <p style={{ fontSize: "16px", color: "#333", lineHeight: "1.6", marginTop: "5px" }}>
+                                        {review.reviewContent}
+                                    </p>
                                 </div>
-                            ))}
+                                <div style={{ flexShrink: 0 }}>
+                                    <img
+                                        src={product.image}
+                                        alt="Review"
+                                        style={{ width: "200px", height: "auto", borderRadius: "5px" }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    {visibleReviews < reviews.length && (
+                        <div style={{ display: "flex", justifyContent: "center", paddingTop: "2%" }}>
+                            <button
+                                onClick={loadMoreReviews}
+                                style={{
+                                    backgroundColor: "#A76A6E",
+                                    color: "white",
+                                    padding: "10px 20px",
+                                    borderRadius: "5px",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    fontSize: "15px"
+                                }}>
+                                Tải thêm
+                            </button>
                         </div>
-                    </div>
-                    <p style={{ color: "#A76A6E", textAlign: "center", paddingTop: "2%" }}>2/10 đánh giá</p>
-                    <div style={{ display: "flex", justifyContent: "center", paddingTop: "2%" }}>
-                        <button style={{ backgroundColor: "#A76A6E", color: "white", padding: "10px 20px", borderRadius: "5px", border: "none", cursor: "pointer", fontSize: "15px" }}>Xem tất cả đánh giá</button>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>
