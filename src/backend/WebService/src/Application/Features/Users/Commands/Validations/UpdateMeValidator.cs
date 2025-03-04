@@ -26,9 +26,9 @@ namespace Application.Features.Users.Commands.Validations
             });
 
             // Validate PhoneNumber only if it is provided
-            When(x => !string.IsNullOrEmpty(x.PhoneNumber), () =>
+            When(x => !string.IsNullOrEmpty(x.Phone), () =>
             {
-                RuleFor(x => x.PhoneNumber)
+                RuleFor(x => x.Phone)
                     .Matches(@"^(0|84|\+84)([3|5|7|8|9])([0-9]{8})$")
                     .WithMessage("Phone number must be in Vietnamese format (e.g., 0912345678, +84912345678, 84912345678)");
             });

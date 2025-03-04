@@ -99,7 +99,7 @@ namespace WebApi.Controllers.Users
         ///         "fullname": "John Doe",
         ///         "gender": "Male",
         ///         "email": "johndoe@example.com",
-        ///         "phoneNumber": "123456789",
+        ///         "phone": "123456789",
         ///         "dob": "2000-01-01"
         ///     }
         ///
