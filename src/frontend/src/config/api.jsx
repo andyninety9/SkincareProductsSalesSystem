@@ -10,7 +10,7 @@ const config = {
     timeout: 3000000,
 };
 const api = axios.create(config);
-api.defaults.baseURL = baseUrl;
+api.defaults.baseUrl = baseUrl;
 
 const handleBefore = async (config) => {
     let accessToken = Cookies.get('accessToken')?.replaceAll('"', '');
