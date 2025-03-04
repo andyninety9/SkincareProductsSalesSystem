@@ -74,7 +74,7 @@ const ProfilePage = () => {
     const refreshUserData = async () => {
         try {
             setLoading(true);
-            const response = await api.get("https://api-gateway-swp-v1-0-0.onrender.com/api/User/get-me");
+            const response = await api.get("https://www.mavid.store/api/user/get-me");
             if (response.data.statusCode === 200) {
                 const data = response.data.data;
                 // Log the response to debug (optional, can remove after verification)
@@ -97,6 +97,7 @@ const ProfilePage = () => {
             setLoading(false);
         }
     };
+
 
     useEffect(() => {
         refreshUserData();
@@ -270,6 +271,7 @@ const ProfilePage = () => {
 
     );
 };
+
 
 
 
