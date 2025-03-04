@@ -17,12 +17,14 @@ const ProfilePage = () => {
     const [activeTab, setActiveTab] = useState("1");
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [orders, setOrders] = useState([]); // Only using state, removed static const
+    const [loadingOrders, setLoadingOrders] = useState(true);
 
     const handleSelectDefault = (index) => {
         setAddresses((prevAddresses) =>
             prevAddresses.map((address, i) => ({
                 ...address,
-                default: i === index, // Chỉ đặt `true` cho địa chỉ được chọn, các địa chỉ khác sẽ `false`
+                default: i === index,
             }))
         );
     };
@@ -32,7 +34,7 @@ const ProfilePage = () => {
             setLoadingPromos(true);
             const response = await api.get("https://api-gateway-swp-v1-0-0.onrender.com/api/User/vouchers");
             if (response.data.statusCode === 200) {
-                setPromoCodes(response.data.data || []);
+                setPromoCodes(Array.isArray(response.data.data) ? response.data.data : []);
             }
         } catch (error) {
             console.error("Error fetching promo codes:", error);
@@ -41,9 +43,21 @@ const ProfilePage = () => {
         }
     };
 
-    useEffect(() => {
-        fetchPromoCodes();
-    }, []);
+    const fetchOrderHistory = async () => {
+        try {
+            setLoadingOrders(true);
+            const response = await api.get("https://api-gateway-swp-v1-0-0.onrender.com/api/User/orders-history");
+            console.log("Order history response:", response.data); // Debug log
+            if (response.data.statusCode === 200) {
+                setOrders(Array.isArray(response.data.data) ? response.data.data : []);
+            }
+        } catch (error) {
+            console.error("Error fetching order history:", error);
+            setOrders([]); 
+        } finally {
+            setLoadingOrders(false);
+        }
+    };
 
     const refreshUserData = async () => {
         try {
@@ -51,7 +65,6 @@ const ProfilePage = () => {
             const response = await api.get("https://api-gateway-swp-v1-0-0.onrender.com/api/User/get-me");
             if (response.data.statusCode === 200) {
                 const data = response.data.data;
-                // Log the response to debug (optional, can remove after verification)
                 console.log("User data from API:", data);
                 setUserInfo({
                     ...data,
@@ -73,7 +86,9 @@ const ProfilePage = () => {
     };
 
     useEffect(() => {
+        fetchPromoCodes();
         refreshUserData();
+        fetchOrderHistory();
     }, []);
 
     if (loading) {
@@ -86,7 +101,6 @@ const ProfilePage = () => {
 
     return (
         <div style={{ width: "100%", position: "relative" }}>
-            {/* Background Image */}
             <div
                 style={{
                     width: "100%",
@@ -94,15 +108,16 @@ const ProfilePage = () => {
                     background: `url(${userInfo.coverUrl}) no-repeat center center`,
                     backgroundSize: "cover",
                     marginBottom: 10
-
                 }}
             />
             <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
                 <Card style={{
-                    width: 250, textAlign: "center", top: "50%", transform: "translateY(-50%)",
+                    width: 250,
+                    textAlign: "center",
+                    top: "50%",
+                    transform: "translateY(-50%)",
                 }}>
-
-                    <Avatar size={100} src={userInfo.avatarUrl} style={{ border: "3px solid #D8959A", }} />
+                    <Avatar size={100} src={userInfo.avatarUrl} style={{ border: "3px solid #D8959A" }} />
                     <h3 style={{ fontFamily: "'Nunito', sans-serif", color: "#D8959A", fontSize: "20px", marginTop: "10px" }}>
                         {userInfo.name}
                     </h3>
@@ -150,7 +165,14 @@ const ProfilePage = () => {
                     />
                 </Card>
 
-                <Card style={{ width: 500, marginLeft: 20, display: "flex", flexDirection: "column", top: "50%", transform: "translateY(-50%)" }}>
+                <Card style={{
+                    width: 500,
+                    marginLeft: 20,
+                    display: "flex",
+                    flexDirection: "column",
+                    top: "50%",
+                    transform: "translateY(-50%)"
+                }}>
                     <Tabs
                         activeKey={activeTab}
                         onChange={setActiveTab}
@@ -164,9 +186,13 @@ const ProfilePage = () => {
                                     <List.Item
                                         style={{
                                             border: item.default ? "1px solid #D8959A" : "1px solid #ddd",
-                                            marginBottom: 10, padding: 10,
-                                            background: "#fff", borderRadius: 5,
-                                            display: "flex", justifyContent: "space-between", alignItems: "center"
+                                            marginBottom: 10,
+                                            padding: 10,
+                                            background: "#fff",
+                                            borderRadius: 5,
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center"
                                         }}>
                                         <div>
                                             <strong>{item.title}</strong>
@@ -175,15 +201,30 @@ const ProfilePage = () => {
                                         <Tag
                                             color={item.default ? "#D8959A" : "gray"}
                                             onClick={() => handleSelectDefault(index)}
-                                            style={{ cursor: "pointer", border: item.default ? "1px solid #D8959A" : "1px solid #ddd", backgroundColor: item.default ? "#fff" : "transparent", color: item.default ? "#D8959A" : "gray" }}
+                                            style={{
+                                                cursor: "pointer",
+                                                border: item.default ? "1px solid #D8959A" : "1px solid #ddd",
+                                                backgroundColor: item.default ? "#fff" : "transparent",
+                                                color: item.default ? "#D8959A" : "gray"
+                                            }}
                                         >
                                             Mặc Định
                                         </Tag>
                                     </List.Item>
                                 )}
                             />
-                            <Button type="primary" style={{ width: "100%", marginBottom: 10, backgroundColor: "#D8959A", borderColor: "#D8959A" }}>Xem Thêm</Button>
-                            <Button type="dashed" style={{ width: "100%", backgroundColor: "#C87E83", borderColor: "#C87E83", color: "#fff" }}>Thêm địa chỉ mới</Button>
+                            <Button
+                                type="primary"
+                                style={{ width: "100%", marginBottom: 10, backgroundColor: "#D8959A", borderColor: "#D8959A" }}
+                            >
+                                Xem Thêm
+                            </Button>
+                            <Button
+                                type="dashed"
+                                style={{ width: "100%", backgroundColor: "#C87E83", borderColor: "#C87E83", color: "#fff" }}
+                            >
+                                Thêm địa chỉ mới
+                            </Button>
                         </TabPane>
                         <TabPane tab={<span style={{ color: activeTab === "2" ? "#D8959A" : "gray" }}>Mã Khuyến Mãi</span>} key="2">
                             {loadingPromos ? (
@@ -199,44 +240,76 @@ const ProfilePage = () => {
                                                     <p style={{ fontSize: "10px", color: item.status === "Còn hiệu lực" ? "green" : "red" }}>
                                                         {item.expiry} - {item.status}
                                                     </p>
-                                                    <Button type="primary" style={{ backgroundColor: "#D8959A", borderColor: "#D8959A", width: "100%" }}>Lưu ngay</Button>
+                                                    <Button
+                                                        type="primary"
+                                                        style={{ backgroundColor: "#D8959A", borderColor: "#D8959A", width: "100%" }}
+                                                    >
+                                                        Lưu ngay
+                                                    </Button>
                                                 </Card>
                                             </Col>
                                         ))
                                     ) : (
-                                        <div style={{ textAlign: "center", width: "100%", padding: "20px" }}>Không có mã khuyến mãi nào.</div>
+                                        <div style={{ textAlign: "center", width: "100%", padding: "20px" }}>
+                                            Không có mã khuyến mãi nào.
+                                        </div>
                                     )}
                                 </Row>
                             )}
                         </TabPane>
                         <TabPane tab={<span style={{ color: activeTab === "3" ? "#D8959A" : "gray" }}>Lịch Sử Mua Hàng</span>} key="3">
-                            <List
-                                dataSource={orders}
-                                renderItem={(order) => (
-                                    <List.Item style={{ display: "flex", alignItems: "center", padding: 10, borderBottom: "1px solid #ddd" }}>
-                                        <img src={order.image} alt="Product" style={{ width: 80, height: 80, borderRadius: 10, marginRight: 15 }} />
-                                        <div style={{ flex: 1 }}>
-                                            <strong>{order.name}</strong>
-                                            <p style={{ margin: 0 }}>{order.date}</p>
-                                            <p style={{ fontWeight: "bold", color: "#D8959A" }}>{order.price}</p>
-                                            <p style={{ marginTop: -2, color: "gray", fontSize: "10px" }}>{order.address}</p>
-                                        </div>
-                                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", marginBottom: "50px" }}>
-                                            <p style={{ color: "#D8959A", margin: 0, fontSize: "17px" }}>{order.id}</p>
-                                            <Tag color="#D8959A" style={{ borderRadius: 5, height: "30px", display: "flex", alignItems: "center", justifyContent: "center" }}>{order.status}</Tag>
-                                        </div>
-                                    </List.Item>
-                                )}
-                            />
+                            {loadingOrders ? (
+                                <div style={{ textAlign: "center", padding: "20px" }}>Đang tải...</div>
+                            ) : orders.length === 0 ? (
+                                <div style={{ textAlign: "center", padding: "20px" }}>Không có lịch sử mua hàng.</div>
+                            ) : (
+                                <List
+                                    dataSource={orders}
+                                    renderItem={(order) => (
+                                        <List.Item style={{ display: "flex", alignItems: "center", padding: 10, borderBottom: "1px solid #ddd" }}>
+                                            <img
+                                                src={order.image || "default-image-url.jpg"}
+                                                alt="Product"
+                                                style={{ width: 80, height: 80, borderRadius: 10, marginRight: 15 }}
+                                            />
+                                            <div style={{ flex: 1 }}>
+                                                <strong>{order.name}</strong>
+                                                <p style={{ margin: 0 }}>{order.date}</p>
+                                                <p style={{ fontWeight: "bold", color: "#D8959A" }}>{order.price}</p>
+                                                <p style={{ marginTop: -2, color: "gray", fontSize: "10px" }}>{order.address}</p>
+                                            </div>
+                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", marginBottom: "50px" }}>
+                                                <p style={{ color: "#D8959A", margin: 0, fontSize: "17px" }}>{order.id}</p>
+                                                <Tag
+                                                    color="#D8959A"
+                                                    style={{ borderRadius: 5, height: "30px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                                                >
+                                                    {order.status}
+                                                </Tag>
+                                            </div>
+                                        </List.Item>
+                                    )}
+                                />
+                            )}
                         </TabPane>
                         <TabPane tab={<span style={{ color: activeTab === "4" ? "#D8959A" : "gray" }}>Cài Đặt</span>} key="4">
                             <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "10px" }}>
-                                <Button type="primary" style={{ backgroundColor: "#D8959A", borderColor: "#D8959A" }}>Ngôn Ngữ: Tiếng Việt </Button>
-                                <Button type="primary" style={{ backgroundColor: "#C87E83", borderColor: "#C87E83" }}>Chế độ: Sáng</Button>
-                                <Button type="primary" onClick={() => setIsModalVisible(true)} style={{ backgroundColor: "#D8959A", borderColor: "#D8959A" }}>
+                                <Button type="primary" style={{ backgroundColor: "#D8959A", borderColor: "#D8959A" }}>
+                                    Ngôn Ngữ: Tiếng Việt
+                                </Button>
+                                <Button type="primary" style={{ backgroundColor: "#C87E83", borderColor: "#C87E83" }}>
+                                    Chế độ: Sáng
+                                </Button>
+                                <Button
+                                    type="primary"
+                                    onClick={() => setIsModalVisible(true)}
+                                    style={{ backgroundColor: "#D8959A", borderColor: "#D8959A" }}
+                                >
                                     Cập Nhật Thông Tin
                                 </Button>
-                                <Button type="primary" style={{ backgroundColor: "#C87E83", borderColor: "#C87E83" }}>Thay đổi mật khẩu</Button>
+                                <Button type="primary" style={{ backgroundColor: "#C87E83", borderColor: "#C87E83" }}>
+                                    Thay đổi mật khẩu
+                                </Button>
                             </div>
                         </TabPane>
                     </Tabs>
@@ -249,10 +322,7 @@ const ProfilePage = () => {
                 userInfo={userInfo}
                 refreshUserData={refreshUserData}
             />
-
         </div>
-
-
     );
 };
 
@@ -271,36 +341,6 @@ const initialAddresses = [
         title: "Nguyễn Văn Linh, Ninh Kiều, Cần Thơ",
         details: "Số 121, quẹo trái xong phải xong trái xong phải",
         default: false
-    }
-];
-
-const orders = [
-    {
-        id: "#123456",
-        name: "Nguyen Van Yeah",
-        date: "20/01/2025",
-        price: "120.000 vnd - 1 món",
-        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
-        status: "Pending",
-
-    },
-    {
-        id: "#123456",
-        name: "Nguyen Van Yeah",
-        date: "20/01/2025",
-        price: "120.000 vnd - 1 món",
-        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
-        status: "Pending",
-
-    },
-    {
-        id: "#123456",
-        name: "Nguyen Van Yeah",
-        date: "20/01/2025",
-        price: "120.000 vnd - 1 món",
-        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
-        status: "Pending",
-
     }
 ];
 
