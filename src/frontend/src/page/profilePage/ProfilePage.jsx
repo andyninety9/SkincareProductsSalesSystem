@@ -17,7 +17,7 @@ const ProfilePage = () => {
     const [activeTab, setActiveTab] = useState("1");
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [orders, setOrders] = useState([]); // Only using state, removed static const
+    const [orders, setOrders] = useState([]);
     const [loadingOrders, setLoadingOrders] = useState(true);
 
     const handleSelectDefault = (index) => {
@@ -53,7 +53,7 @@ const ProfilePage = () => {
             }
         } catch (error) {
             console.error("Error fetching order history:", error);
-            setOrders([]); 
+            setOrders([]);
         } finally {
             setLoadingOrders(false);
         }
