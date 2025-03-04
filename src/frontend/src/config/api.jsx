@@ -3,14 +3,16 @@ import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 
 // Get base URL from environment variables
+
 const baseUrl = 'https://www.mavid.store/api/';
 // console.log('ENV: ' + import.meta.env.NODE_ENV);
+
 const config = {
     baseUrl,
     timeout: 3000000,
 };
 const api = axios.create(config);
-api.defaults.baseURL = baseUrl;
+api.defaults.baseUrl = baseUrl;
 
 const handleBefore = async (config) => {
     let accessToken = Cookies.get('accessToken')?.replaceAll('"', '');
