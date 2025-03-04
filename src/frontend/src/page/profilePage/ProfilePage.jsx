@@ -47,7 +47,7 @@ const ProfilePage = () => {
         try {
             setLoadingOrders(true);
             const response = await api.get("https://api-gateway-swp-v1-0-0.onrender.com/api/User/orders-history");
-            console.log("Order history response:", response.data); // Debug log
+            console.log("Order history response:", response.data);
             if (response.data.statusCode === 200) {
                 setOrders(Array.isArray(response.data.data) ? response.data.data : []);
             }
