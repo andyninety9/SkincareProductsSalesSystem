@@ -75,13 +75,6 @@ export default function QuizPage() {
         }
     };
 
-    const handlePrevious = () => {
-        if (currentQuestion > 0) {
-            setCurrentQuestion(currentQuestion - 1);
-            setSelectedAnswer(null);
-        }
-    };
-
     const showExitModal = () => {
         setIsExitModalVisible(true);
     };
@@ -212,28 +205,15 @@ export default function QuizPage() {
                     <span style={{ backgroundColor: 'transparent' }}>Tiếp theo</span>
                 </Button>
 
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        marginTop: '16px',
-                    }}>
-                    {answeredQuestions.map((id, index) => (
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '5px', marginTop: '16px', flexWrap: 'wrap' }}>
+                {answeredQuestions.map((answered, index) => (
+                    answered ? (
                         <HeartFilled key={index} style={{ color: '#E57373', fontSize: '24px' }} />
-                    ))}
-                </div>
-
-                <p
-                    style={{
-                        marginTop: '16px',
-                        cursor: answeredQuestions.length === 0 ? 'default' : 'pointer',
-                        color: answeredQuestions.length === 0 ? '#D3D3D3' : '#E57373',
-                        fontWeight: 'bold',
-                    }}
-                    onClick={answeredQuestions.length === 0 ? undefined : handlePrevious}>
-                    ← Câu hỏi trước
-                </p>
+                    ) : (
+                        <HeartOutlined key={index} style={{ color: 'gray', fontSize: '24px' }} />
+                    )
+                ))}
+            </div>
             </div>
         </div>
     );
