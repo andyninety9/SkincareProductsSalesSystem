@@ -1,4 +1,5 @@
-Target the entire modal wrapper to set the background .ant-modal {
+Target the entire modal wrapper to set the background
+.ant-modal {
     background-color: #F6EEF0 !important;
 }
 
@@ -43,14 +44,4 @@ Target the entire modal wrapper to set the background .ant-modal {
 
 .ant-select-dropdown {
     background-color: #F6EEF0 !important;
-}
-
-.custom-border-bottom {
-    background-color: #F6EEF0;
-    border-bottom: 0.5px solid #C87E83 !important;
-}
-
-.custom-border {
-    background-color: #F6EEF0;
-    border: 0.5px solid #C87E83 !important;
 }

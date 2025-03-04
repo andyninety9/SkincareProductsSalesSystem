@@ -3,10 +3,15 @@ import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 
 // Get base URL from environment variables
+<<<<<<< HEAD
 
 const baseUrl = 'https://www.mavid.store/api/';
 // console.log('ENV: ' + import.meta.env.NODE_ENV);
 
+=======
+const baseUrl = import.meta.env.BACK_END_BASE_URL || 'https://www.mavid.store/api/';
+console.log('ENV: ' + import.meta.env.NODE_ENV);
+>>>>>>> parent of fe2ef5b (REF: update API base URL and enhance profile update modal functionality)
 const config = {
     baseUrl,
     timeout: 3000000,
