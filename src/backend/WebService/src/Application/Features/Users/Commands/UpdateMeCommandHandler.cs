@@ -1,10 +1,13 @@
+using System.Threading.Tasks;
 using Application.Abstractions.AWS;
 using Application.Abstractions.Messaging;
 using Application.Abstractions.UnitOfWork;
+using Application.Common;
 using Application.Common.Email;
 using Application.Common.Jwt;
 using Application.Common.ResponseModel;
 using Application.Constant;
+using Application.Features.Users.Response;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Repositories;
@@ -15,7 +18,7 @@ namespace Application.Users.Commands
     public sealed record UpdateMeCommand(
         long UsrId,
         string? Fullname,
-        string? Phone,
+        string? PhoneNumber,
         string? Email,
         string? Gender,
         string? Dob
@@ -53,7 +56,7 @@ namespace Application.Users.Commands
                 return Result.Failure(new Error("UpdateMe", IConstantMessage.EMAIL_ALREADY_EXISTS));
             }
 
-            if (!string.IsNullOrEmpty(command.Phone) && await _userRepository.IsExistedPhone(command.Phone))
+            if (!string.IsNullOrEmpty(command.PhoneNumber) && await _userRepository.IsExistedPhone(command.PhoneNumber))
             {
                 return Result.Failure(new Error("UpdateMe", IConstantMessage.PHONE_NUMBER_EXISTED));
             }
@@ -85,9 +88,9 @@ namespace Application.Users.Commands
                 await SendVerificationEmailAsync(command, emailVerifyToken);
             }
 
-            if (!string.IsNullOrEmpty(command.Phone))
+            if (!string.IsNullOrEmpty(command.PhoneNumber))
             {
-                user.Phone = command.Phone;
+                user.Phone = command.PhoneNumber;
             }
 
             if (!string.IsNullOrEmpty(command.Gender) && short.TryParse(command.Gender, out short inputGender))

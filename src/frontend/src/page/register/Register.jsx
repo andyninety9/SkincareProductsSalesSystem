@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { FaUser, FaLock, FaEnvelope, FaPhone } from 'react-icons/fa';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import HeaderUser from '../../component/header/HeaderUser';
 import FooterUser from '../../component/footer/FooterUser';
 import '../../index.css';
@@ -13,7 +13,6 @@ import toast from 'react-hot-toast';
 const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const navigate = useNavigate();
 
     const handleRegister = async (values) => {
         try {
@@ -23,8 +22,8 @@ const Register = () => {
                 // Redirect to login page after successful registration
                 toast.success('Register successfully! Please check your email to verify your account');
                 setTimeout(() => {
-                    navigate('/login');
-                }, 1000);
+                    window.location.href = '/login';
+                }, 5000);
             }
         } catch (error) {
             if (error.response.data.errors != null) {
