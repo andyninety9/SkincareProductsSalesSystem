@@ -9,67 +9,41 @@ import "./ProfilePage.css";
 
 const { TabPane } = Tabs;
 
-const promoCodes = [
-    { code: "SALE50", description: "Giảm 50% cho đơn hàng trên 500.000đ", expiry: "30/06/2025", status: "Còn hiệu lực" },
-    { code: "FREESHIP", description: "Miễn phí vận chuyển cho đơn từ 200.000đ", expiry: "15/07/2025", status: "Còn hiệu lực" },
-    { code: "WELCOME10", description: "Giảm 10% cho khách hàng mới", expiry: "01/05/2025", status: "Hết hạn" },
-    { code: "NEWYEAR", description: "Giảm 20% cho đơn hàng đầu tiên trong năm mới", expiry: "01/01/2026", status: "Còn hiệu lực" }
-];
-
-const initialAddresses = [
-    {
-        title: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
-        details: "Số 432, nằm ngay đầu đường, có xe nước",
-        default: true
-    },
-    {
-        title: "Nhà tao, Quận tao, Thành Phố tao, Việt Nam",
-        details: "Số nhà tao",
-        default: false
-    },
-    {
-        title: "Nguyễn Văn Linh, Ninh Kiều, Cần Thơ",
-        details: "Số 121, quẹo trái xong phải xong trái xong phải",
-        default: false
-    }
-];
-
-const orders = [
-    {
-        id: "#123456",
-        name: "Nguyen Van Yeah",
-        date: "20/01/2025",
-        price: "120.000 vnd - 1 món",
-        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
-        status: "Pending",
-
-    },
-    {
-        id: "#123456",
-        name: "Nguyen Van Yeah",
-        date: "20/01/2025",
-        price: "120.000 vnd - 1 món",
-        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
-        status: "Pending",
-
-    },
-    {
-        id: "#123456",
-        name: "Nguyen Van Yeah",
-        date: "20/01/2025",
-        price: "120.000 vnd - 1 món",
-        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
-        status: "Pending",
-
-    }
-];
-
 const ProfilePage = () => {
+    const [promoCodes, setPromoCodes] = useState([]);
+    const [loadingPromos, setLoadingPromos] = useState(true);
     const [userInfo, setUserInfo] = useState({});
     const [addresses, setAddresses] = useState(initialAddresses);
     const [activeTab, setActiveTab] = useState("1");
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const handleSelectDefault = (index) => {
+        setAddresses((prevAddresses) =>
+            prevAddresses.map((address, i) => ({
+                ...address,
+                default: i === index, // Chỉ đặt `true` cho địa chỉ được chọn, các địa chỉ khác sẽ `false`
+            }))
+        );
+    };
+
+    const fetchPromoCodes = async () => {
+        try {
+            setLoadingPromos(true);
+            const response = await api.get("https://api-gateway-swp-v1-0-0.onrender.com/api/User/vouchers");
+            if (response.data.statusCode === 200) {
+                setPromoCodes(response.data.data || []);
+            }
+        } catch (error) {
+            console.error("Error fetching promo codes:", error);
+        } finally {
+            setLoadingPromos(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchPromoCodes();
+    }, []);
 
     const refreshUserData = async () => {
         try {
@@ -212,17 +186,28 @@ const ProfilePage = () => {
                             <Button type="dashed" style={{ width: "100%", backgroundColor: "#C87E83", borderColor: "#C87E83", color: "#fff" }}>Thêm địa chỉ mới</Button>
                         </TabPane>
                         <TabPane tab={<span style={{ color: activeTab === "2" ? "#D8959A" : "gray" }}>Mã Khuyến Mãi</span>} key="2">
-                            <Row gutter={[16, 16]}>
-                                {promoCodes.slice(0, 4).map((item, index) => (
-                                    <Col span={11} key={index} style={{ marginBottom: 16, marginRight: 18 }}>
-                                        <Card style={{ borderRadius: 10, padding: 10, boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", textAlign: "center", height: "100%" }}>
-                                            <h4 style={{ color: "#D8959A", fontWeight: "bold" }}>{item.code} <span style={{ float: "right", fontSize: "10px" }}>{item.discount}</span></h4>
-                                            <p style={{ color: "gray", fontSize: "10px" }}>{item.description}</p>
-                                            <Button type="primary" style={{ backgroundColor: "#D8959A", borderColor: "#D8959A", width: "100%" }}>Lưu ngay</Button>
-                                        </Card>
-                                    </Col>
-                                ))}
-                            </Row>
+                            {loadingPromos ? (
+                                <div style={{ textAlign: "center", padding: "20px" }}>Đang tải...</div>
+                            ) : (
+                                <Row gutter={[16, 16]}>
+                                    {promoCodes.length > 0 ? (
+                                        promoCodes.map((item, index) => (
+                                            <Col span={11} key={index} style={{ marginBottom: 16, marginRight: 18 }}>
+                                                <Card style={{ borderRadius: 10, padding: 10, boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", textAlign: "center", height: "100%" }}>
+                                                    <h4 style={{ color: "#D8959A", fontWeight: "bold" }}>{item.code}</h4>
+                                                    <p style={{ color: "gray", fontSize: "12px" }}>{item.description}</p>
+                                                    <p style={{ fontSize: "10px", color: item.status === "Còn hiệu lực" ? "green" : "red" }}>
+                                                        {item.expiry} - {item.status}
+                                                    </p>
+                                                    <Button type="primary" style={{ backgroundColor: "#D8959A", borderColor: "#D8959A", width: "100%" }}>Lưu ngay</Button>
+                                                </Card>
+                                            </Col>
+                                        ))
+                                    ) : (
+                                        <div style={{ textAlign: "center", width: "100%", padding: "20px" }}>Không có mã khuyến mãi nào.</div>
+                                    )}
+                                </Row>
+                            )}
                         </TabPane>
                         <TabPane tab={<span style={{ color: activeTab === "3" ? "#D8959A" : "gray" }}>Lịch Sử Mua Hàng</span>} key="3">
                             <List
@@ -271,6 +256,52 @@ const ProfilePage = () => {
     );
 };
 
+const initialAddresses = [
+    {
+        title: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
+        details: "Số 432, nằm ngay đầu đường, có xe nước",
+        default: true
+    },
+    {
+        title: "Nhà tao, Quận tao, Thành Phố tao, Việt Nam",
+        details: "Số nhà tao",
+        default: false
+    },
+    {
+        title: "Nguyễn Văn Linh, Ninh Kiều, Cần Thơ",
+        details: "Số 121, quẹo trái xong phải xong trái xong phải",
+        default: false
+    }
+];
 
+const orders = [
+    {
+        id: "#123456",
+        name: "Nguyen Van Yeah",
+        date: "20/01/2025",
+        price: "120.000 vnd - 1 món",
+        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
+        status: "Pending",
+
+    },
+    {
+        id: "#123456",
+        name: "Nguyen Van Yeah",
+        date: "20/01/2025",
+        price: "120.000 vnd - 1 món",
+        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
+        status: "Pending",
+
+    },
+    {
+        id: "#123456",
+        name: "Nguyen Van Yeah",
+        date: "20/01/2025",
+        price: "120.000 vnd - 1 món",
+        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
+        status: "Pending",
+
+    }
+];
 
 export default ProfilePage;
