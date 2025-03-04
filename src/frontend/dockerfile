@@ -1,0 +1,39 @@
+# Sử dụng Node.js LTS phiên bản mới nhất
+FROM node:18 AS build
+
+# Đặt thư mục làm việc trong container
+WORKDIR /app
+
+# Sao chép package.json và package-lock.json trước để tối ưu hóa cache
+COPY package.json package-lock.json* ./
+
+# Xóa cache cũ trước khi cài đặt
+RUN npm cache clean --force && npm install
+
+# Sao chép toàn bộ source code vào container
+COPY . .
+
+# Build dự án
+RUN npm run build
+
+# ---- Production Stage ----
+FROM nginx:alpine
+
+# Đặt thư mục làm việc
+WORKDIR /usr/share/nginx/html
+
+# Xóa các file mặc định của nginx
+RUN rm -rf ./*
+
+# Sao chép output của Vite build vào Nginx
+COPY --from=build /app/dist .
+
+# Sao chép file cấu hình Nginx tùy chỉnh
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Mở cổng 80
+EXPOSE 80
+
+# Khởi chạy Nginx
+CMD ["nginx", "-g", "daemon off;"]
+

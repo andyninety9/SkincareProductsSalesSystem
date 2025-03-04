@@ -15,6 +15,7 @@ namespace Application.Features.Products.Response
         public double? TotalRating { get; set; }
         public string Ingredient { get; set; } = null!;
         public string Instruction { get; set; } = null!;
+        public string? ProdUseFor { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 

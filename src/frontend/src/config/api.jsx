@@ -2,14 +2,17 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 
+// Get base URL from environment variables
+
 const baseUrl = 'https://www.mavid.store/api/';
+// console.log('ENV: ' + import.meta.env.NODE_ENV);
 
 const config = {
     baseUrl,
     timeout: 3000000,
 };
 const api = axios.create(config);
-api.defaults.baseURL = baseUrl;
+api.defaults.baseUrl = baseUrl;
 
 const handleBefore = async (config) => {
     let accessToken = Cookies.get('accessToken')?.replaceAll('"', '');
@@ -23,10 +26,10 @@ const handleBefore = async (config) => {
                 // const response = await axios.post(
                 //     `https://localhost:5001/api/Authentication/refresh-token?refreshToken=${encodedRefreshToken}`
                 // );
-                const response = await axios.post(
-                    `https://www.mavid.store/api/Authentication/refresh-token?refreshToken=${encodedRefreshToken}`
-                );                
-                console.log(response);
+                const response = await axios.post(`${baseUrl}/authen/refresh-token`, {
+                    refreshToken: refreshToken,
+                });
+                // console.log(response);
                 accessToken = response.data.token;
                 Cookies.set('accessToken', response.data?.token, {
                     expires: 7,

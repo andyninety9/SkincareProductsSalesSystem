@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 // SwiperSlider.js
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -14,10 +15,10 @@ const ObjectSlider = ({
   height,
 }) => {
   return (
-    <div className="swiper-area">
+    <div className="swiper-area" style={{ height: height}}>
       <CiCircleChevLeft className={`custom-prev ${navigationClass}`} />
       <Swiper
-        style={{ height: height }}
+        style={{ height: height, padding: '20px 10px' }}
         slidesPerView={slidesPerView}
         spaceBetween={spaceBetween}
         navigation={{

@@ -147,7 +147,7 @@ export default function ProductPage() {
     return (
         <div className="product-page" style={{ margin: '0', maxWidth: '1440px' }}>
             <div className="banner" style={{ position: 'relative', textAlign: 'center' }}>
-                <img src={banner} alt="Banner" style={{ width: '100%', objectFit: 'cover', height: '200px' }} />
+                <img src={banner} alt="Banner" style={{ width: '100%', objectFit: 'cover', height: 'fit-content' }} />
                 <h2
                     style={{
                         position: 'absolute',
@@ -215,11 +215,6 @@ export default function ProductPage() {
                                                 // console.log('🔄 Reset bộ lọc loại da');
                                             } else {
                                                 setSkinTypeId(skinType.skinTypeId); // 🔥 Chỉ cập nhật nếu chọn loại da mới
-                                                // console.log(
-                                                //     '🎉 Loại da được chọn:',
-                                                //     skinType.skinTypeCodes,
-                                                //     skinType.skinTypeId
-                                                // );
                                             }
                                         }}
                                     />
