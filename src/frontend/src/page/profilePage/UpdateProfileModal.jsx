@@ -12,7 +12,7 @@ const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => 
     const handleUpdate = async (values) => {
         setLoading(true);
         try {
-            const response = await api.put("https://api-gateway-swp-v1-0-0.onrender.com/api/User/update-me", values);
+            const response = await api.post('User/update-me', values);
             if (response.data.statusCode === 200) {
                 message.success("Thông tin đã được cập nhật thành công!");
                 refreshUserData();
