@@ -24,7 +24,7 @@ const handleBefore = async (config) => {
                 // const response = await axios.post(
                 //     `https://localhost:5001/api/Authentication/refresh-token?refreshToken=${encodedRefreshToken}`
                 // );
-                const response = await axios.post(`${baseUrl}/authen/refresh-token`, {
+                const response = await axios.post(`${baseUrl}authen/refresh-token`, {
                     refreshToken: refreshToken,
                 });
                 // console.log(response);
