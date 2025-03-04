@@ -5,14 +5,51 @@ import api from "../../config/api";
 
 const { Option } = Select;
 
+// Mapping for gender values
+const genderMap = {
+    Male: "1",
+    Female: "2",
+    Other: "3"
+};
+
+// Reverse mapping for display
+const reverseGenderMap = {
+    "1": "Male",
+    "2": "Female",
+    "3": "Other"
+};
+
 const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
     const handleUpdate = async (values) => {
+        const payload = {};
+
+        if (values.fullname && values.fullname !== userInfo.fullname) {
+            payload.fullname = values.fullname;
+        }
+        if (values.gender && values.gender !== genderMap[userInfo.gender]) {
+            payload.gender = values.gender;
+        }
+        if (values.phone && values.phone !== userInfo.phone) {
+            payload.phone = values.phone;
+        }
+        if (values.dob && values.dob !== (userInfo.dob ? userInfo.dob.split('T')[0] : "")) {
+            payload.dob = values.dob;
+        }
+
+        // If no fields changed, stop the update
+        if (Object.keys(payload).length === 0) {
+            message.info("Không có thay đổi nào để cập nhật.");
+            return;
+        }
+
+
         setLoading(true);
         try {
-            const response = await api.put("https://api-gateway-swp-v1-0-0.onrender.com/api/User/update-me", values);
+            const response = await api.post("https://api-gateway-swp-v1-0-0.onrender.com/api/User/update-me", payload);
+
             if (response.data.statusCode === 200) {
                 message.success("Thông tin đã được cập nhật thành công!");
                 refreshUserData();
@@ -22,11 +59,28 @@ const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => 
             }
         } catch (error) {
             console.error("Error updating user info:", error);
-            message.error("Có lỗi xảy ra. Vui lòng thử lại sau!");
+            if (error.response) {
+                console.log("Server error response:", error.response.data);
+
+                // Handle specific error messages from API
+                if (error.response.data.detail === "The provided phone number is already registered.") {
+                    message.error("Số điện thoại này đã được đăng ký. Vui lòng chọn số khác.");
+                } else if (error.response.data.errors) {
+                    message.error(error.response.data.errors[0]?.description || "Có lỗi xảy ra. Vui lòng thử lại sau!");
+                } else {
+                    message.error("Có lỗi xảy ra. Vui lòng thử lại sau!");
+                }
+            } else {
+                message.error("Có lỗi xảy ra. Vui lòng thử lại sau!");
+            }
         } finally {
             setLoading(false);
         }
     };
+
+    const initialGender = userInfo.gender ? genderMap[userInfo.gender] || "" : "";
+
+    const isGenderEditable = !userInfo.gender;
 
     return (
         <Modal
@@ -37,6 +91,9 @@ const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => 
                         fontSize: '39px',
                         fontFamily: "'Nunito', serif",
                         color: '#5A2D2F',
+                        backgroundColor: '#F6EEF0',
+                        padding: '10px 0',
+                        margin: 0
                     }}
                 >
                     Cập Nhật Thông Tin
@@ -56,10 +113,9 @@ const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => 
                 layout="vertical"
                 initialValues={{
                     fullname: userInfo.fullname || "",
-                    gender: userInfo.gender || "",
-                    email: userInfo.email || "",
-                    phoneNumber: userInfo.phone || "",
-                    dob: userInfo.dob || ""
+                    gender: initialGender,
+                    phone: userInfo.phone || "",
+                    dob: userInfo.dob ? userInfo.dob.split("T")[0] : ""
                 }}
                 onFinish={handleUpdate}
                 style={{
@@ -82,7 +138,7 @@ const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => 
                     style={{ marginBottom: '10px' }}
                 >
                     <Input
-                        className="form-control border-0 border-bottom rounded-0"
+                        className="form-control border-0 border-bottom rounded-0 custom-border-bottom"
                         style={{
                             backgroundColor: '#F6EEF0',
                             borderBottom: '1px solid #C87E83'
@@ -105,6 +161,7 @@ const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => 
                     style={{ marginBottom: '10px' }}
                 >
                     <Select
+                        disabled={!isGenderEditable} // Disable if gender is not null/undefined
                         style={{
                             backgroundColor: '#F6EEF0',
                         }}
@@ -112,34 +169,10 @@ const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => 
                             backgroundColor: '#F6EEF0'
                         }}
                     >
-                        <Option value="Male">Nam</Option>
-                        <Option value="Female">Nữ</Option>
-                        <Option value="Other">Khác</Option>
+                        <Option value="1">Nam</Option>
+                        <Option value="2">Nữ</Option>
+                        <Option value="3">Khác</Option>
                     </Select>
-                </Form.Item>
-
-                <Form.Item
-                    label={
-                        <label style={{
-                            fontSize: '14px',
-                            color: '#C87E83',
-                            fontFamily: "'Nunito', sans-serif"
-                        }}>
-                            Email
-                        </label>
-                    }
-                    name="email"
-                    rules={[{ required: true, type: "email", message: "Vui lòng nhập email hợp lệ!" }]}
-                    style={{ marginBottom: '10px' }}
-                >
-                    <Input
-                        disabled
-                        className="form-control border-0 border-bottom rounded-0"
-                        style={{
-                            backgroundColor: '#F6EEF0',
-                            borderBottom: '1px solid #C87E83'
-                        }}
-                    />
                 </Form.Item>
 
                 <Form.Item
@@ -152,19 +185,22 @@ const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => 
                             Số Điện Thoại
                         </label>
                     }
-                    name="phoneNumber"
-                    rules={[{ required: true, message: "Vui lòng nhập số điện thoại!" }]}
+                    name="phone"
+                    rules={[
+                        { required: true, message: "Vui lòng nhập số điện thoại!" },
+                        { pattern: /^[0-9]{9,}$/, message: "Số điện thoại phải là số và có ít nhất 9 chữ số!" }
+                    ]}
                     style={{ marginBottom: '10px' }}
                 >
                     <Input
-                        className="form-control border-0 border-bottom rounded-0"
+                        disabled={userInfo.phone === form.getFieldValue("phone")} // Disable if phone hasn't changed
+                        className="form-control border-0 border-bottom rounded-0 custom-border-bottom"
                         style={{
                             backgroundColor: '#F6EEF0',
                             borderBottom: '1px solid #C87E83'
                         }}
                     />
                 </Form.Item>
-
                 <Form.Item
                     label={
                         <label style={{
@@ -181,7 +217,7 @@ const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => 
                 >
                     <Input
                         type="date"
-                        className="form-control border-0 border-bottom rounded-0"
+                        className="form-control border-0 border-bottom rounded-0 custom-border-bottom"
                         style={{
                             backgroundColor: '#F6EEF0',
                             borderBottom: '1px solid #C87E83'
@@ -193,9 +229,9 @@ const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => 
                     <Button
                         htmlType="submit"
                         loading={loading}
-                        className="d-flex align-items-center justify-content-center"
+                        className="d-flex align-items-center justify-content-center mx-auto"
                         style={{
-                            width: '80%',
+                            width: '60%',
                             height: '45px',
                             borderRadius: '10px',
                             border: '1px solid #5A2D2F',
