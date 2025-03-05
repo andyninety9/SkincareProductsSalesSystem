@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaHeart, FaSearch, FaShoppingBag } from 'react-icons/fa';
 import { routes } from '../../routes';
 import dropdownImage from '../../assets/dropdown.webp';
@@ -10,21 +10,18 @@ import api from '../../config/api';
 import { toast } from 'react-hot-toast';
 
 const HeaderUser = () => {
+    const navigate = useNavigate();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     let closeTimeout = null;
 
     let user = null;
     try {
-        const userCookie = Cookies.get('user');
-        if (userCookie) {
-            user = JSON.parse(userCookie);
-        }
+        user = JSON.parse(Cookies.get('user')) || null;
     } catch (error) {
-        console.error('Error parsing user cookie:', error);
-        // Consider removing the invalid cookie
-        // Cookies.remove('user');
+        console.error('failed to parse user', error);
     }
+    // console.log(user);
 
     const fetchLogout = async () => {
         try {
@@ -33,10 +30,13 @@ const HeaderUser = () => {
             });
 
             if (response.status === 200) {
+                // Chỉ xóa token nếu logout thành công
                 Cookies.remove('accessToken');
                 Cookies.remove('refreshToken');
                 Cookies.remove('user');
+
                 toast.success('Logout successfully');
+                console.log('Logout success:', response);
             } else {
                 toast.error('Logout failed');
                 console.error('Logout failed:', response);
@@ -93,7 +93,11 @@ const HeaderUser = () => {
 
                     <FaHeart className="fs-5 text-secondary cursor-pointer" />
                     <FaSearch className="fs-5 text-secondary cursor-pointer" />
-                    <FaShoppingBag className="fs-5 text-secondary cursor-pointer" />
+                    <FaShoppingBag
+                        style={{ cursor: 'pointer' }}
+                        className="fs-5 text-secondary cursor-pointer"
+                        onClick={() => navigate(routes.cart)}
+                    />
                 </div>
             </div>
 

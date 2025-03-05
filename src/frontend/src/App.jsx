@@ -26,6 +26,7 @@ import ManageCommentPage from './page/manageComment/ManageComment';
 import ResultPage from './page/quizPage/ResultPage';
 import MainLayout from './layout/mainLayout/mainLayout';
 import { Toaster } from 'react-hot-toast';
+import OrderProcess from './page/orderProcess/orderProcess';
 
 function App() {
     const router = createBrowserRouter([
@@ -71,6 +72,7 @@ function App() {
                 { path: routes.quiz, element: <QuizPage /> },
                 { path: routes.startQuiz, element: <StartQuizPage /> },
                 { path: routes.resultQuiz, element: <ResultPage /> },
+                { path: '/payment-return', element: <OrderProcess /> },
             ],
         },
     ]);

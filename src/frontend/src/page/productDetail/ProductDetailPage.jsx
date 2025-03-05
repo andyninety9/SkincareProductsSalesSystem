@@ -5,6 +5,10 @@ import '@fontsource/nunito';
 import './ProductDetailPage.scss';
 import api from '../../config/api';
 import { useParams } from 'react-router-dom';
+import { dispatch } from './../../../node_modules/react-hot-toast/src/core/store';
+import { useDispatch } from 'react-redux';
+import { addToCart, clearCart } from '../../redux/feature/cartSlice';
+import toast from 'react-hot-toast';
 const { Panel } = Collapse;
 
 const calculateAverageRating = (reviews) => {
@@ -13,6 +17,7 @@ const calculateAverageRating = (reviews) => {
 };
 
 export default function ProductDetailPage() {
+    const dispatch = useDispatch();
     // const [mainImage, setMainImage] = useState(productImages[0]);
     const { id } = useParams();
     const [product, setProduct] = useState(null);
@@ -53,8 +58,11 @@ export default function ProductDetailPage() {
 
     if (!product) return <p>Đang tải dữ liệu...</p>;
 
-    const increaseQuantity = () => setQuantity(quantity + 1);
-    const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
+    const handleAddToCart = () => {
+        dispatch(addToCart(product));
+        // dispatch(clearCart());
+        toast.success('Đã thêm vào giỏ hàng!');
+    };
     const averageRating = calculateAverageRating(reviews);
 
     const loadMoreReviews = () => {
@@ -139,7 +147,12 @@ export default function ProductDetailPage() {
                         <p style={{ fontSize: '14px', color: '#888', marginBottom: '10px' }}>
                             Sản phẩm &gt; {product.categoryName || 'Danh mục'}
                         </p>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                            }}>
                             <h1
                                 style={{
                                     fontSize: '30px',
@@ -151,9 +164,20 @@ export default function ProductDetailPage() {
                                 {product.brandName}
                             </h1>
                             {/* Icon yêu thích */}
-                            <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div
+                                style={{
+                                    marginBottom: '20px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                }}>
                                 <HeartOutlined style={{ fontSize: '25px', color: '#333', cursor: 'pointer' }} />
-                                <span style={{ fontSize: '14px', color: '#666', textAlign: 'center' }}>
+                                <span
+                                    style={{
+                                        fontSize: '14px',
+                                        color: '#666',
+                                        textAlign: 'center',
+                                    }}>
                                     Best seller
                                 </span>
                             </div>
@@ -169,12 +193,24 @@ export default function ProductDetailPage() {
                             {product.productName}
                         </h2>
 
-                        <p style={{ fontSize: '14px', color: '#666', marginBottom: '15px', lineHeight: '1.6' }}>
+                        <p
+                            style={{
+                                fontSize: '14px',
+                                color: '#666',
+                                marginBottom: '15px',
+                                lineHeight: '1.6',
+                            }}>
                             {product.productDesc}
                         </p>
 
                         {/* Đánh giá */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                marginBottom: '20px',
+                            }}>
                             <Rate defaultValue={product.totalRating || 3} disabled style={{ color: '#D8959A' }} />
                             <span style={{ fontSize: '14px', color: '#666' }}>
                                 ({product.reviewCount || 0} đánh giá)
@@ -192,11 +228,11 @@ export default function ProductDetailPage() {
                                     height: '45px', // Cùng chiều cao với nút Add to Cart
                                     justifyContent: 'space-between',
                                 }}>
-                                <button onClick={decreaseQuantity} style={quantityButtonStyle}>
+                                <button onClick={''} style={quantityButtonStyle} disabled>
                                     −
                                 </button>
                                 <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{quantity}</span>
-                                <button onClick={increaseQuantity} style={quantityButtonStyle}>
+                                <button onClick={''} style={quantityButtonStyle} disabled>
                                     +
                                 </button>
                             </div>
@@ -210,7 +246,8 @@ export default function ProductDetailPage() {
                                     width: '80%',
                                     height: '45px',
                                     fontSize: '18px',
-                                }}>
+                                }}
+                                onClick={handleAddToCart}>
                                 Mua ngay - {product.sellPrice ? `${product.sellPrice.toLocaleString()} VND` : 'Liên hệ'}
                             </Button>
                         </div>
@@ -219,7 +256,12 @@ export default function ProductDetailPage() {
                             <Collapse expandIconPosition="end" style={{ border: 'none', background: 'transparent' }}>
                                 <Panel
                                     header={
-                                        <span style={{ fontWeight: 'bold', color: '#a06f6f', fontSize: '20px' }}>
+                                        <span
+                                            style={{
+                                                fontWeight: 'bold',
+                                                color: '#a06f6f',
+                                                fontSize: '20px',
+                                            }}>
                                             Chi tiết
                                         </span>
                                     }
@@ -228,7 +270,12 @@ export default function ProductDetailPage() {
                                 </Panel>
                                 <Panel
                                     header={
-                                        <span style={{ fontWeight: 'bold', color: '#a06f6f', fontSize: '20px' }}>
+                                        <span
+                                            style={{
+                                                fontWeight: 'bold',
+                                                color: '#a06f6f',
+                                                fontSize: '20px',
+                                            }}>
                                             Thành phần
                                         </span>
                                     }
@@ -252,7 +299,11 @@ export default function ProductDetailPage() {
                             <Col
                                 xs={24}
                                 md={12}
-                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}>
                                 <img
                                     src={
                                         product.images && product.images.length > 0
@@ -272,9 +323,18 @@ export default function ProductDetailPage() {
                             <Col
                                 xs={24}
                                 md={12}
-                                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                }}>
                                 <div style={{ width: '80%', padding: '0 50px' }}>
-                                    <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '10px' }}>
+                                    <h2
+                                        style={{
+                                            fontSize: '24px',
+                                            fontWeight: 'bold',
+                                            marginBottom: '10px',
+                                        }}>
                                         Công dụng
                                     </h2>
                                     <p style={{ fontSize: '16px', lineHeight: '1.6' }}>
@@ -290,7 +350,11 @@ export default function ProductDetailPage() {
                             <Col
                                 xs={24}
                                 md={12}
-                                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                }}>
                                 <div style={{ width: '80%', padding: '0 50px' }}>
                                     <h2
                                         style={{
@@ -309,7 +373,11 @@ export default function ProductDetailPage() {
                             <Col
                                 xs={24}
                                 md={12}
-                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}>
                                 <img
                                     src={
                                         product.images && product.images.length > 1
@@ -338,7 +406,11 @@ export default function ProductDetailPage() {
                             <Col
                                 xs={24}
                                 md={12}
-                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}>
                                 <img
                                     src={
                                         product.images && product.images.length > 2
@@ -358,7 +430,11 @@ export default function ProductDetailPage() {
                             <Col
                                 xs={24}
                                 md={12}
-                                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                }}>
                                 <div style={{ width: '80%', padding: '0 50px' }}>
                                     <h2
                                         style={{
@@ -391,7 +467,12 @@ export default function ProductDetailPage() {
                         }}>
                         Đánh giá sản phẩm
                     </h2>
-                    <div style={{ fontSize: '16px', marginBottom: '20px', textAlign: 'center' }}>
+                    <div
+                        style={{
+                            fontSize: '16px',
+                            marginBottom: '20px',
+                            textAlign: 'center',
+                        }}>
                         <Rate value={parseFloat(averageRating)} disabled style={{ color: '#A76A6E' }} />
                         <span style={{ fontSize: '14px', color: '#A76A6E', marginLeft: '10px' }}>
                             {reviews.length > 0 ? `${reviews.length} đánh giá` : 'Chưa có đánh giá'}
@@ -415,7 +496,12 @@ export default function ProductDetailPage() {
                                         marginRight: '20px',
                                         width: '40%',
                                     }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '10px',
+                                        }}>
                                         <Rate value={review.rating} disabled style={{ color: '#A76A6E' }} />
                                         <span style={{ fontSize: '14px', color: '#666' }}>
                                             (
@@ -429,10 +515,21 @@ export default function ProductDetailPage() {
                                             )
                                         </span>
                                     </div>
-                                    <span style={{ fontSize: '25px', color: '#A76A6E', marginTop: '10px' }}>
+                                    <span
+                                        style={{
+                                            fontSize: '25px',
+                                            color: '#A76A6E',
+                                            marginTop: '10px',
+                                        }}>
                                         {review.title}
                                     </span>
-                                    <p style={{ fontSize: '16px', color: '#333', lineHeight: '1.6', marginTop: '5px' }}>
+                                    <p
+                                        style={{
+                                            fontSize: '16px',
+                                            color: '#333',
+                                            lineHeight: '1.6',
+                                            marginTop: '5px',
+                                        }}>
                                         {review.reviewContent}
                                     </p>
                                 </div>
@@ -444,14 +541,23 @@ export default function ProductDetailPage() {
                                                 : 'default-image-url.jpg'
                                         }
                                         alt="Review"
-                                        style={{ width: '100px', height: 'auto', borderRadius: '5px' }}
+                                        style={{
+                                            width: '100px',
+                                            height: 'auto',
+                                            borderRadius: '5px',
+                                        }}
                                     />
                                 </div>
                             </div>
                         ))}
                     </div>
                     {visibleReviews < reviews.length && (
-                        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '2%' }}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                paddingTop: '2%',
+                            }}>
                             <button
                                 onClick={loadMoreReviews}
                                 style={{

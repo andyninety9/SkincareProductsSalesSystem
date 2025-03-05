@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
     return (
-        <footer className="py-4 px-5 mt-auto" style={{ backgroundColor: '#F6EEF0', borderTop: '0.5px solid #5A2D2F' }}>
+        <footer className="py-4 px-5 mt-auto" style={{ backgroundColor: '#F6EEF0', borderTop: '0.5px solid #5A2D2F', marginTop: '50px' }}>
             <div className="container d-flex justify-content-between">
                 <div style={{ maxWidth: '300px' }}>
                     <h2 className="fw-bold fs-4" style={{ fontFamily: 'Marko One', fontSize: '2rem' }}>
