@@ -26,7 +26,6 @@ import ManageCommentPage from './page/manageComment/ManageComment';
 import ResultPage from './page/quizPage/ResultPage';
 import MainLayout from './layout/mainLayout/mainLayout';
 import { Toaster } from 'react-hot-toast';
-import OrderConfirmPage from './page/orderConfirmPage/OrderConfirmPage';
 import OrderProcess from './page/orderProcess/orderProcess';
 
 function App() {
@@ -75,14 +74,6 @@ function App() {
                 { path: routes.resultQuiz, element: <ResultPage /> },
                 { path: '/payment-return', element: <OrderProcess /> },
             ],
-        },
-        {
-            path: routes.checkOutPage,
-            element: <CheckOutPage />,
-        },
-        {
-            path: routes.orderConfirmPage,
-            element: <OrderConfirmPage />,
         },
     ]);
 
