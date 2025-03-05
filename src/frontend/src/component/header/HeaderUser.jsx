@@ -8,9 +8,13 @@ import '@fontsource/marko-one';
 import Cookies from 'js-cookie';
 import api from '../../config/api';
 import { toast } from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { clearCart } from '../../redux/feature/cartSlice';
+import { resetQuiz } from '../../redux/feature/quizSlice';
 
 const HeaderUser = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     let closeTimeout = null;
@@ -30,20 +34,23 @@ const HeaderUser = () => {
             });
 
             if (response.status === 200) {
-                // Chỉ xóa token nếu logout thành công
-                Cookies.remove('accessToken');
-                Cookies.remove('refreshToken');
-                Cookies.remove('user');
-
                 toast.success('Logout successfully');
                 console.log('Logout success:', response);
             } else {
-                toast.error('Logout failed');
                 console.error('Logout failed:', response);
             }
         } catch (error) {
             toast.error('Error logging out');
             console.error('Error:', error);
+        } finally {
+            Cookies.remove('accessToken');
+            Cookies.remove('refreshToken');
+            Cookies.remove('user');
+            // Clear the cart state in Redux
+            dispatch(clearCart());
+            dispatch(resetQuiz());
+
+            navigate(routes.home);
         }
     };
 
