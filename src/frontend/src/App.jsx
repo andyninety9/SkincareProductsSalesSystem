@@ -26,6 +26,7 @@ import ManageCommentPage from './page/manageComment/ManageComment';
 import ResultPage from './page/quizPage/ResultPage';
 import MainLayout from './layout/mainLayout/mainLayout';
 import { Toaster } from 'react-hot-toast';
+import OrderConfirmPage from './page/orderConfirmPage/OrderConfirmPage';
 
 function App() {
     const router = createBrowserRouter([
@@ -72,6 +73,14 @@ function App() {
                 { path: routes.startQuiz, element: <StartQuizPage /> },
                 { path: routes.resultQuiz, element: <ResultPage /> },
             ],
+        },
+        {
+            path: routes.checkOutPage,
+            element: <CheckOutPage />,
+        },
+        {
+            path: routes.orderConfirmPage,
+            element: <OrderConfirmPage />,
         },
     ]);
 
