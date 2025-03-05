@@ -58,41 +58,22 @@ namespace Application.Features.Payment.Commands
 
             try
             {
-                // ✅ 1. Kiểm tra Payment có tồn tại không
-                var payment = await _paymentRepository.GetByIdAsync(command.OrderId, cancellationToken);
+                var payment = await _paymentRepository.GetPaymentByOrderIdAsync(command.OrderId);
                 if (payment == null)
                 {
                     _logger.LogError("Payment not found for Order ID: {OrderId}", command.OrderId);
                     return Result<PaymentResponseDto>.Failure<PaymentResponseDto>(new Error("PaymentNotFound", "Payment record not found."));
+                }else if(payment.PaymentStatus == true){
+                    _logger.LogError("Payment already verified for Order ID: {OrderId}", command.OrderId);
+                    return Result<PaymentResponseDto>.Failure<PaymentResponseDto>(new Error("PaymentAlreadyVerified", "Payment record already verified."));
                 }
 
-                // ✅ 2. Kiểm tra SecureHash để đảm bảo request hợp lệ
-                var parameters = new Dictionary<string, string>
+                if (command.Vnp_TransactionStatus == "00") 
                 {
-                    { "vnp_OrderId", command.OrderId.ToString() }
-                };
-                if (!_paymentVNPayService.VerifySecureHash(command.Vnp_SecureHash, parameters))
-                {
-                    _logger.LogError("Secure hash verification failed for Order ID: {OrderId}", command.OrderId);
-                    return Result<PaymentResponseDto>.Failure<PaymentResponseDto>(new Error("SecureHashInvalid", "Secure hash verification failed."));
-                }
-
-                // ✅ 3. Kiểm tra trạng thái giao dịch từ VNPay
-                var transactionStatus = await _paymentVNPayService.CheckTransactionStatus(command.OrderId.ToString());
-
-                if (!transactionStatus.Success)
-                {
-                    _logger.LogError("Failed to verify transaction from VNPay for Order ID: {OrderId}", command.OrderId);
-                    return Result<PaymentResponseDto>.Failure<PaymentResponseDto>(new Error("TransactionVerificationFailed", transactionStatus.Message));
-                }
-
-                // ✅ 4. Xác định trạng thái thanh toán từ `TransactionStatus`
-                if (command.Vnp_TransactionStatus == "00") // Thành công
-                {
-                    payment.PaymentStatus = true; // Đã thanh toán
+                    payment.PaymentStatus = true; 
                     payment.PaymentMethod = command.Method;
                     payment.PaymentAmount = command.Vnp_Amount;
-                    payment.CreatedAt = DateTime.UtcNow; // ✅ Cập nhật thời gian cập nhật
+                    payment.CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified); 
                 }
                 else
                 {
@@ -107,8 +88,8 @@ namespace Application.Features.Payment.Commands
                 // ✅ 5. Trả về kết quả thanh toán
                 return Result<PaymentResponseDto>.Success(new PaymentResponseDto
                 {
-                    Success = transactionStatus.Success,
-                    Message = transactionStatus.Success ? "Payment successfully verified." : "Payment failed.",
+                    Success = payment.PaymentStatus,
+                    Message = payment.PaymentStatus ? "Payment successfully verified." : "Payment failed.",
                     TransactionId = command.OrderId.ToString(),
                 });
             }

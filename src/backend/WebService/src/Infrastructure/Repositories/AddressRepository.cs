@@ -40,6 +40,9 @@ namespace Infrastructure.Repositories
             return true;
         }
 
- 
+        public Task<IEnumerable<Address>> GetAllAddressByUserId(long userId)
+        {
+            return Task.FromResult(_context.Addresses.Where(x => x.UsrId == userId).AsEnumerable());
+        }
     }
 }

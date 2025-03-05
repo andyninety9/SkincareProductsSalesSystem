@@ -11,5 +11,6 @@ namespace Domain.Repositories
     {
         Task<bool> ActiveByIdAsync(long addressId);
         Task<bool> ChangeStatusAddressAsync(long addressId, bool status, CancellationToken cancellationToken);
+        Task<IEnumerable<Address>> GetAllAddressByUserId(long userId);
     }
 }

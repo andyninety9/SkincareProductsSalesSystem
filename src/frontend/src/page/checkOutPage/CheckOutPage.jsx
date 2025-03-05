@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './CheckOutPage.scss';
 import { Col, Container, Row } from 'react-bootstrap';
 import { useForm } from 'antd/es/form/Form';
@@ -6,89 +6,49 @@ import { Form, Input, Radio, Select } from 'antd';
 import Title from 'antd/es/typography/Title';
 import { Link } from 'react-router-dom';
 import { routes } from '../../routes';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectCartItems } from '../../redux/feature/cartSlice';
 import api from '../../config/api';
 import Cookies from 'js-cookie';
+import { clearCart } from '../../redux/feature/cartSlice';
 
 export default function CheckOutPage() {
     const [form] = useForm();
+    const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems);
     const totalAmount = cartItems.reduce((total, item) => {
         return total + item.sellPrice * item.quantity;
     }, 0);
-    // const cartItems = [
-    //   {
-    //     id: 1,
-    //     img: "https://images.girlslife.com/posts/041/41861/pinkbeautyproductsskincareinnisfreecherryblossom.png",
-    //     brandName: "dior",
-    //     name: "Serum La Roche-Posay Giảm Thâm Nám & Dưỡng Sáng Da 30ml",
-    //     quantity: "23",
-    //     price: 250000,
-    //     total: 2565405,
-    //   },
-    //   {
-    //     id: 1,
-    //     img: "https://images.girlslife.com/posts/041/41861/pinkbeautyproductsskincareinnisfreecherryblossom.png",
-    //     brandName: "dior",
-    //     name: "Serum La Roche-Posay Giảm Thâm Nám & Dưỡng Sáng Da 30ml",
-    //     quantity: "23",
-    //     price: 250000,
-    //     total: 2565405,
-    //   },
-    //   {
-    //     id: 1,
-    //     img: "https://images.girlslife.com/posts/041/41861/pinkbeautyproductsskincareinnisfreecherryblossom.png",
-    //     brandName: "dior",
-    //     name: "Suar rua mat",
-    //     quantity: "23",
-    //     price: 250000,
-    //     total: 2565405,
-    //   },
-    //   {
-    //     id: 1,
-    //     img: "https://hips.hearstapps.com/vader-prod.s3.amazonaws.com/1721749856-1721299452-allies-of-skin-peptides-firming-daily-treatment-6698f1b735c1e.png?crop=0.625xw:0.785xh;0.191xw,0.215xh&resize=980:*",
-    //     brandName: "dior",
-    //     name: "Suar rua mat",
-    //     quantity: "23",
-    //     price: 250000,
-    //     total: 2565405,
-    //   },
-    // ];
+    const [userAddress, setUserAddress] = React.useState([]);
 
-    const user = JSON.parse(Cookies.get('user'));
-    console.log(user);
-    const userAddress = [
-        {
-            id: '1',
-            address: '1231231231/1312312312 ',
-            ward: 'phường 11',
-            district: 'quan3',
-            province: 'tphcm',
-        },
-        {
-            id: '2',
-            address: '65656 ',
-            ward: 'phường 11',
-            district: 'quan2',
-            province: 'dalat',
-        },
-    ];
+    // const user = JSON.parse(Cookies.get('user'));
 
     const handleAddressChange = (value) => {
-        const selectedAddress = userAddress.find((address) => address.id === value);
+        const selectedAddress = userAddress.find((address) => address.addressId === value);
         if (selectedAddress) {
             form.setFieldsValue({
-                province: selectedAddress.province,
+                province: selectedAddress.city,
                 district: selectedAddress.district,
-                address: selectedAddress.address,
+                address: selectedAddress.addDetail,
                 ward: selectedAddress.ward,
             });
         }
     };
 
+    const handleFetchAddress = async () => {
+        try {
+            const response = await api.get('address/get-all-address');
+            if (response.data.statusCode === 200) {
+                setUserAddress(response.data.data.items);
+            }
+            
+            // setUserAddress(response.data.data);
+        } catch (error) {
+            console.error('Failed to fetch address:', error.response.data);
+        }
+    };
+
     const handleCheckout = async (values) => {
-        // values.userId = user.usrId;
         values.eventId = 5;
         values.orderItems = cartItems.map((item) => ({
             productId: item.productId,
@@ -96,7 +56,6 @@ export default function CheckOutPage() {
             sellPrice: item.sellPrice,
         }));
 
-        console.log(values);
         try {
             const response = await api.post('Orders/create', values);
             console.log(response.data);
@@ -108,21 +67,26 @@ export default function CheckOutPage() {
                     PaymentMethod: values.paymentMethod,
                     PaymentAmount: totalAmount,
                 };
-                console.log(paymentCreate);
                 try {
                     const responsePayment = await api.post('Payment/create', paymentCreate);
-                    console.log(responsePayment.data);
                     const paymentUrl = responsePayment.data.data.paymentUrl;
+                    // Clear the cart after successful payment initiation
+                    
+                    dispatch(clearCart());
                     window.location.assign(paymentUrl);
                 } catch (error) {
                     console.log('Failed to create payment:', error.response.data);
                 }
             }
-            console.log(values);
         } catch (error) {
             console.error('Failed to checkout:', error.response.data);
         }
     };
+
+    useEffect(() => {
+        handleFetchAddress();
+        // console.log(userAddress);
+    }, []);
 
     return (
         <Container>
@@ -143,8 +107,8 @@ export default function CheckOutPage() {
                         <Form.Item name="userAddress" rules={[{ required: true, message: 'Chọn địa chỉ' }]}>
                             <Select size="large" placeholder="Chọn địa chỉ nhận hàng" onChange={handleAddressChange}>
                                 {userAddress.map((address, index) => (
-                                    <Select.Option value={address.id} key={index}>
-                                        {address.address}, {address.ward}, {address.district}, {address.district}
+                                    <Select.Option value={address.addressId} key={index}>
+                                        {address.addDetail}, {address.ward}, {address.district}, {address.city}
                                     </Select.Option>
                                 ))}
                             </Select>

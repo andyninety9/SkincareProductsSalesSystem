@@ -15,6 +15,10 @@ namespace Infrastructure.Repositories
         {
         }
 
-        
+        public async Task<Payment?> GetPaymentByOrderIdAsync(long id)
+        {
+            return await Task.FromResult(_context.Payments.FirstOrDefault(p => p.OrderId == id));
+            
+        }
     }
 }
