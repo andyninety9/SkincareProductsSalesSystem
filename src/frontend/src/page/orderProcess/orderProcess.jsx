@@ -16,18 +16,22 @@ export default function OrderProcess() {
 
     const handlePaymentReturn = async () => {
         try {
+            
             const response = await api.get('Payment/payment-return', {
                 params: {
-                    OrderId: paramsCheck.OrderId,
-                    Vnp_TransactionStatus: paramsCheck.Vnp_TransactionStatus,
-                    Vnp_SecureHash: paramsCheck.Vnp_SecureHash,
-                    Vnp_Amount: paramsCheck.Vnp_Amount,
-                    Method: paramsCheck.Method,
+                    orderId: paramsCheck.OrderId,
+                    vnp_TransactionStatus: paramsCheck.Vnp_TransactionStatus,
+                    vnp_SecureHash: paramsCheck.Vnp_SecureHash,
+                    vnp_Amount: paramsCheck.Vnp_Amount,
+                    methodMethod: paramsCheck.Method,
                 },
             });
 
-            console.log(response.data);
-            setPaymentStatus(response.data);
+            console.log(response.data.data);
+            if (response.data.data) {
+                const { success, message } = response.data.data;
+                setPaymentStatus({ success, message });
+            } else setPaymentStatus(response.data);
         } catch (error) {
             console.error('Failed to process payment:', error);
             setPaymentStatus({ success: false, message: 'Có lỗi xảy ra khi xử lý thanh toán.' });
