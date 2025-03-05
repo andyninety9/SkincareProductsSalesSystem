@@ -3,6 +3,7 @@ import { notification } from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons/lib/icons/CheckCircleOutlined";
 import { CloseCircleOutlined } from "@ant-design/icons/lib/icons/CloseCircleOutlined";
 
+// eslint-disable-next-line react/prop-types
 const Notification = ({ type, message }) => {
   const [api, contextHolder] = notification.useNotification();
 

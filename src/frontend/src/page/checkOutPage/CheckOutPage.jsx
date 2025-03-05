@@ -6,48 +6,21 @@ import { Form, Input, Radio, Select } from 'antd';
 import Title from 'antd/es/typography/Title';
 import { Link } from 'react-router-dom';
 import { routes } from '../../routes';
+import { useSelector } from 'react-redux';
+import { selectCartItems } from '../../redux/feature/cartSlice';
+import api from '../../config/api';
+import Cookies from 'js-cookie';
+
 export default function CheckOutPage() {
     const [form] = useForm();
+    const cartItems = useSelector(selectCartItems);
+    const totalAmount = cartItems.reduce((total, item) => {
+        return total + item.sellPrice * item.quantity;
+    }, 0);
 
-    const cartItems = [
-        {
-            id: 1,
-            img: 'https://images.girlslife.com/posts/041/41861/pinkbeautyproductsskincareinnisfreecherryblossom.png',
-            brandName: 'dior',
-            name: 'Serum La Roche-Posay Giảm Thâm Nám & Dưỡng Sáng Da 30ml',
-            quantity: '23',
-            price: 250000,
-            total: 2565405,
-        },
-        {
-            id: 1,
-            img: 'https://images.girlslife.com/posts/041/41861/pinkbeautyproductsskincareinnisfreecherryblossom.png',
-            brandName: 'dior',
-            name: 'Serum La Roche-Posay Giảm Thâm Nám & Dưỡng Sáng Da 30ml',
-            quantity: '23',
-            price: 250000,
-            total: 2565405,
-        },
-        {
-            id: 1,
-            img: 'https://images.girlslife.com/posts/041/41861/pinkbeautyproductsskincareinnisfreecherryblossom.png',
-            brandName: 'dior',
-            name: 'Suar rua mat',
-            quantity: '23',
-            price: 250000,
-            total: 2565405,
-        },
-        {
-            id: 1,
-            img: 'https://hips.hearstapps.com/vader-prod.s3.amazonaws.com/1721749856-1721299452-allies-of-skin-peptides-firming-daily-treatment-6698f1b735c1e.png?crop=0.625xw:0.785xh;0.191xw,0.215xh&resize=980:*',
-            brandName: 'dior',
-            name: 'Suar rua mat',
-            quantity: '23',
-            price: 250000,
-            total: 2565405,
-        },
-    ];
 
+    const user = JSON.parse(Cookies.get('user'));
+    console.log(user);
     const userAddress = [
         {
             id: '1',
@@ -77,6 +50,43 @@ export default function CheckOutPage() {
         }
     };
 
+    const handleCheckout = async (values) => {
+        // values.userId = user.usrId;
+        values.eventId = 5;
+        values.orderItems = cartItems.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            sellPrice: item.sellPrice,
+        }));
+
+        console.log(values);
+        try {
+            const response = await api.post('Orders/create', values);
+            console.log(response.data);
+
+            if (response.data.statusCode === 201) {
+                const OrderId = BigInt(response.data.data.ordId).toString();
+                const paymentCreate = {
+                    OrderId,
+                    PaymentMethod: values.paymentMethod,
+                    PaymentAmount: totalAmount,
+                };
+                console.log(paymentCreate);
+                try {
+                    const responsePayment = await api.post('Payment/create', paymentCreate);
+                    console.log(responsePayment.data);
+                    const paymentUrl = responsePayment.data.data.paymentUrl;
+                    window.location.assign(paymentUrl);
+                } catch (error) {
+                    console.log('Failed to create payment:', error.response.data);
+                }
+            }
+            console.log(values);
+        } catch (error) {
+            console.error('Failed to checkout:', error.response.data);
+        }
+    };
+
     return (
         <Container>
             <Link to={routes.cartPage} style={{ textDecoration: 'none', color: 'black' }}>
@@ -84,7 +94,7 @@ export default function CheckOutPage() {
             </Link>
             <Row className="order-checkout">
                 <Col xs={6} className="order-checkout-info">
-                    <Form form={form} layout="vertical" className="form-checkout">
+                    <Form form={form} layout="vertical" className="form-checkout" onFinish={handleCheckout}>
                         <h4
                             style={{
                                 fontWeight: 'bold',
@@ -103,15 +113,15 @@ export default function CheckOutPage() {
                             </Select>
                         </Form.Item>
 
-                        <Form.Item name="perfume_Name" rules={[{ required: true, message: 'Nhập Email' }]}>
+                        <Form.Item name="email" rules={[{ required: true, message: 'Nhập Email' }]}>
                             <Input placeholder="Email" size="large" />
                         </Form.Item>
 
-                        <Form.Item name="perfume_Name">
+                        <Form.Item name="name">
                             <Input placeholder="Họ và Tên" size="large" />
                         </Form.Item>
 
-                        <Form.Item name="perfume_Name">
+                        <Form.Item name="phone">
                             <Input placeholder="Số điện thoại" size="large" />
                         </Form.Item>
 
@@ -136,11 +146,14 @@ export default function CheckOutPage() {
                         </Form.Item>
 
                         <div className="order-method">
-                            <Form.Item className="order-method-pay">
+                            <Form.Item
+                                className="order-method-pay"
+                                name="paymentMethod"
+                                rules={[{ required: true, message: 'Chọn phướng thức thanh toán' }]}>
                                 <div>
                                     <h5 className="font-bold">Thanh toán</h5>
                                     <Radio.Group className="radio-group1">
-                                        <Radio value="VNPAY" className="border-bottom">
+                                        <Radio value="VNPay" className="border-bottom">
                                             Thanh toán qua VNPAY
                                         </Radio>
                                         <Radio value="COD">Thanh toán khi nhận hàng (COD)</Radio>
@@ -148,7 +161,9 @@ export default function CheckOutPage() {
                                 </div>
                             </Form.Item>
 
-                            <Form.Item className="order-method-ship">
+                            <Form.Item
+                                className="order-method-ship"
+                                rules={[{ required: true, message: 'Chọn phướng thức vận chuyển' }]}>
                                 <div>
                                     <h5 className="font-bold">Vận chuyển</h5>
                                     <Radio.Group className="radio-group2">
@@ -181,7 +196,7 @@ export default function CheckOutPage() {
                     <div className="confirm-receipt">
                         <div className="confirm-receipt-title">
                             <h5 style={{ fontWeight: 'bold' }}>Đơn hàng</h5>
-                            <span>(2 sản phẩm)</span>
+                            <span>({cartItems.length} sản phẩm)</span>
                         </div>
                         <div className="confirm-receipt-items">
                             {cartItems.map((item, index) => (
@@ -195,14 +210,15 @@ export default function CheckOutPage() {
                   <p>{item.price.toLocaleString()} đ</p> */}
                                     <div className="confirm-receipt-items-row-part1">
                                         <div className="confirm-receipt-items-row-part1-img">
-                                            <img src={item.img} alt="" />
+                                            <img src={item.images[0]} alt="" />
                                         </div>
                                         <div className="confirm-receipt-items-row-part1-name">
-                                            <p>{item.name}</p>
+                                            <p>{item.productName}</p>
+                                            <p>Số lượng: {item.quantity} </p>
                                         </div>
                                     </div>
                                     <div className="confirm-receipt-items-row-part2">
-                                        <p className="font-bold">{item.price.toLocaleString()} đ</p>
+                                        <p className="font-bold">{item.sellPrice.toLocaleString()} đ</p>
                                     </div>
                                 </div>
                             ))}
@@ -214,7 +230,7 @@ export default function CheckOutPage() {
                         <div className="confirm-receipt-price">
                             <div className="confirm-receipt-price-spacebetween">
                                 <p>Tạm tính: </p>
-                                <span className="font-bold">1.380.000 đ</span>
+                                <span className="font-bold">{totalAmount.toLocaleString()} đ</span>
                             </div>
                             <div className="confirm-receipt-price-spacebetween">
                                 <p>Phí vận chuyển </p>
@@ -223,9 +239,9 @@ export default function CheckOutPage() {
                         </div>
                         <div className="confirm-receipt-total">
                             <h5>Tổng cộng</h5>
-                            <span className="font-bold">1.380.000 đ</span>
+                            <span className="font-bold">{totalAmount.toLocaleString()} đ</span>
                         </div>
-                        <div className="confirm-receipt-button">
+                        <div className="confirm-receipt-button" onClick={() => form.submit()}>
                             <button>Đặt hàng</button>
                         </div>
                     </div>
