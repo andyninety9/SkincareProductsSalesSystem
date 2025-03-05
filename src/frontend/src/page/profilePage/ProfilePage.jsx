@@ -3,7 +3,7 @@ import axios from "axios";
 import api from "../../config/api";
 import { MailOutlined, PhoneOutlined, CalendarOutlined } from "@ant-design/icons";
 import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col, Modal, Form } from "antd";
-// import UpdateProfileModal from "./UpdateProfileModal";
+import UpdateProfileModal from "./UpdateProfileModal";
 import "antd/dist/reset.css";
 import "./ProfilePage.css";
 
@@ -269,12 +269,12 @@ const ProfilePage = () => {
                 </Card>
             </div>
 
-            {/* <UpdateProfileModal
+            <UpdateProfileModal
                 visible={isModalVisible}
                 onClose={() => setIsModalVisible(false)}
                 userInfo={userInfo}
                 refreshUserData={refreshUserData}
-            /> */}
+            />
 
         </div>
 
