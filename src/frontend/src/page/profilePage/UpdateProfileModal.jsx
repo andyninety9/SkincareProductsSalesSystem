@@ -48,7 +48,7 @@ const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => 
 
         setLoading(true);
         try {
-            const response = await api.post("https://api-gateway-swp-v1-0-0.onrender.com/api/User/update-me", payload);
+            const response = await api.post("https://www.mavid.store/api/User/update-me", payload);
 
             if (response.data.statusCode === 200) {
                 message.success("Thông tin đã được cập nhật thành công!");

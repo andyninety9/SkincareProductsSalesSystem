@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 
 // Get base URL from environment variables
-const baseUrl = import.meta.env.BACK_END_BASE_URL || 'https://api-gateway-swp-v1-0-0.onrender.com/api/';
+const baseUrl = import.meta.env.BACK_END_BASE_URL || 'https://www.mavid.store/api/';
 console.log('ENV: ' + import.meta.env.NODE_ENV);
 const config = {
     baseUrl,
