@@ -53,6 +53,8 @@ namespace Application.Constant
         public static string CREATE_ADDRESS_FAILED = "Failed to create the address.";
         public static string DELETE_ADDRESS_SUCCESS = "Address deleted successfully.";
         public static string ACTIVE_ADDRESS_SUCCESS = "Address activated successfully.";
+        public static string ACTIVE_ADDRESS_FAILED = "Failed to activate the address.";
+        public static string GET_ADDRESS_SUCCESS = "Addresses retrieved successfully.";
 
         // Validation related messages
         public static string INVALID_EMAIL = "The provided email is invalid.";

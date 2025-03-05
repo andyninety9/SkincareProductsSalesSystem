@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Application.Abstractions.Payment;
 using Domain.DTOs;
 using Microsoft.Extensions.Options;
@@ -28,20 +29,76 @@ namespace Infrastructure.VNPay
 
         public bool VerifySecureHash(string secureHash, Dictionary<string, string> parameters)
         {
-            // ✅ Bỏ `vnp_SecureHash` và `vnp_SecureHashType` khi hash
-            var sortedParams = parameters
-                .Where(p => p.Key != "vnp_SecureHash" && p.Key != "vnp_SecureHashType")
-                .OrderBy(p => p.Key)
-                .ToDictionary(k => k.Key, v => v.Value);
+            try
+            {
+                Console.WriteLine("========== Debug: VerifySecureHash ==========");
+                Console.WriteLine("🔹 Received SecureHash (Raw): '" + secureHash + "'");
 
-            // ✅ Tạo query string từ dictionary (Encode URL để tránh lỗi ký tự đặc biệt)
-            string queryString = string.Join("&", sortedParams.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
+                // 1️⃣ Loại bỏ `vnp_SecureHash`, `vnp_SecureHashType`, `method`, `orderId`
+                var sortedParams = new SortedList<string, string>(new VnPayCompare());
 
-            // ✅ Tạo lại SecureHash để so sánh
-            string expectedHash = HmacSHA512(_config.VNPayHashSecret, queryString);
+                foreach (var param in parameters)
+                {
+                    if (!string.IsNullOrEmpty(param.Value)
+                        && param.Key != "vnp_SecureHash"
+                        && param.Key != "vnp_SecureHashType"
+                        && param.Key != "method"
+                        && !param.Key.StartsWith("orderId")) // Loại bỏ orderId
+                    {
+                        sortedParams.Add(param.Key, param.Value);
+                    }
+                }
 
-            return expectedHash.Equals(secureHash, StringComparison.OrdinalIgnoreCase);
+                // 2️⃣ Kiểm tra `vnp_Amount` có cần chia lại 100 không
+                if (sortedParams.ContainsKey("vnp_Amount"))
+                {
+                    long amount = long.Parse(sortedParams["vnp_Amount"]);
+                    if (amount % 100 == 0) // Nếu giá trị có thể chia hết cho 100 thì chia lại
+                    {
+                        sortedParams["vnp_Amount"] = (amount / 100).ToString();
+                    }
+                }
+
+                // 3️⃣ Debug: Hiển thị danh sách tham số sau khi sắp xếp
+                Console.WriteLine("🔹 Sorted Parameters for SecureHash:");
+                foreach (var kvp in sortedParams)
+                {
+                    Console.WriteLine($"{kvp.Key} = {kvp.Value}");
+                }
+
+                // 4️⃣ Tạo query string
+                var queryString = string.Join("&", sortedParams.Select(kv => $"{WebUtility.UrlEncode(kv.Key)}={WebUtility.UrlEncode(kv.Value)}"));
+                Console.WriteLine("🔹 Query String: " + queryString);
+
+                // 5️⃣ Tạo SecureHash mong đợi
+                string expectedHash = HmacSHA512(_config.VNPayHashSecret, queryString);
+                Console.WriteLine("🔹 Expected SecureHash (Raw): '" + expectedHash + "'");
+
+                // 6️⃣ Chuẩn hóa SecureHash trước khi so sánh
+                secureHash = secureHash.Trim().ToLower();
+                expectedHash = expectedHash.Trim().ToLower();
+
+                // Nếu có khoảng trắng hoặc ký tự lạ, loại bỏ
+                secureHash = Regex.Replace(secureHash, @"\s+", "");
+                expectedHash = Regex.Replace(expectedHash, @"\s+", "");
+
+                Console.WriteLine("🔹 Processed SecureHash: '" + secureHash + "'");
+                Console.WriteLine("🔹 Processed ExpectedHash: '" + expectedHash + "'");
+
+                // 7️⃣ So sánh lại
+                bool isValid = expectedHash.Equals(secureHash, StringComparison.OrdinalIgnoreCase);
+                Console.WriteLine("✅ SecureHash Match: " + isValid);
+
+                return isValid;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in VerifySecureHash: " + ex.Message);
+                return false;
+            }
         }
+
+
 
 
 
@@ -74,8 +131,8 @@ namespace Infrastructure.VNPay
         public async Task<PaymentResponseDto> CheckTransactionStatus(string orderId)
         {
             _requestData.Clear();
-            var requestId = DateTime.Now.Ticks.ToString();
-            var createDate = DateTime.Now.ToString("yyyyMMddHHmmss");
+            var requestId = DateTime.UtcNow.Ticks.ToString();
+            var createDate = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
             var clientIp = GetClientIPAddress();
 
             AddRequestData("vnp_RequestId", requestId);
@@ -83,35 +140,40 @@ namespace Infrastructure.VNPay
             AddRequestData("vnp_Command", "querydr");
             AddRequestData("vnp_TmnCode", _config.VNPayTmnCode);
             AddRequestData("vnp_TxnRef", orderId);
-            AddRequestData("vnp_OrderInfo", $"Query transaction {orderId}");
-            AddRequestData("vnp_TransactionNo", "123456");
-            AddRequestData("vnp_TransactionDate", createDate);
             AddRequestData("vnp_CreateDate", createDate);
+            AddRequestData("vnp_TransactionDate", createDate);
             AddRequestData("vnp_IpAddr", clientIp);
 
-            // Create checksum
-            var data =
-                $"{requestId}|2.1.0|querydr|{_config.VNPayTmnCode}|{orderId}|{createDate}|{createDate}|{clientIp}|Query transaction {orderId}";
+            // Tạo SecureHash
+            var data = $"{requestId}|2.1.0|querydr|{_config.VNPayTmnCode}|{orderId}|{createDate}|{clientIp}";
             var secureHash = HmacSHA512(_hashSecret, data);
             AddRequestData("vnp_SecureHash", secureHash);
 
-            var content = new StringContent(
-                JsonSerializer.Serialize(_requestData),
-                Encoding.UTF8,
-                "application/json"
-            );
+            var content = new StringContent(JsonSerializer.Serialize(_requestData), Encoding.UTF8, "application/json");
 
-            var response =
-                await _httpClient.PostAsync("https://sandbox.vnpayment.vn/merchant_webapi/api/transaction", content);
-            var result = await response.Content.ReadAsStringAsync();
+            try
+            {
+                var response = await _httpClient.PostAsync("https://sandbox.vnpayment.vn/merchant_webapi/api/transaction", content);
+                response.EnsureSuccessStatusCode(); // Ném lỗi nếu HTTP status code không thành công
 
-            var jsonDoc = JsonDocument.Parse(result);
-            var resultCode = jsonDoc.RootElement.GetProperty("vnp_TransactionStatus").GetString();
-            var message = jsonDoc.RootElement.GetProperty("vnp_Message").GetString();
-            if (resultCode == "01")
-                return new PaymentResponseDto { Success = true, Message = message };
-            return new PaymentResponseDto { Success = false, Message = message };
+                var result = await response.Content.ReadAsStringAsync();
+                var jsonDoc = JsonDocument.Parse(result);
+
+                string resultCode = jsonDoc.RootElement.GetProperty("vnp_TransactionStatus").GetString();
+                string message = jsonDoc.RootElement.GetProperty("vnp_Message").GetString();
+
+                return new PaymentResponseDto
+                {
+                    Success = resultCode == "00",
+                    Message = message
+                };
+            }
+            catch (Exception ex)
+            {
+                return new PaymentResponseDto { Success = false, Message = $"Lỗi khi kiểm tra trạng thái giao dịch: {ex.Message}" };
+            }
         }
+
 
         private static string DoubleToString(double value)
         {
@@ -160,17 +222,28 @@ namespace Infrastructure.VNPay
 
         public static string HmacSHA512(string key, string inputData)
         {
-            var hash = new StringBuilder();
-            var keyBytes = Encoding.UTF8.GetBytes(key);
-            var inputBytes = Encoding.UTF8.GetBytes(inputData);
-            using (var hmac = new HMACSHA512(keyBytes))
+            try
             {
-                var hashValue = hmac.ComputeHash(inputBytes);
-                foreach (var theByte in hashValue) hash.Append(theByte.ToString("x2"));
-            }
+                Console.WriteLine("========== Debug: HmacSHA512 ==========");
+                Console.WriteLine("🔹 Key: " + key);
+                Console.WriteLine("🔹 Input Data: " + inputData);
 
-            return hash.ToString();
+                using (var hmac = new HMACSHA512(Encoding.UTF8.GetBytes(key)))
+                {
+                    byte[] hashValue = hmac.ComputeHash(Encoding.UTF8.GetBytes(inputData));
+                    string hashString = BitConverter.ToString(hashValue).Replace("-", "").ToLower(); // Đảm bảo là chữ thường
+
+                    Console.WriteLine("✅ Generated Hash: " + hashString);
+                    return hashString;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Error in HmacSHA512: " + ex.Message);
+                return string.Empty;
+            }
         }
+
     }
 
 }

@@ -17,44 +17,7 @@ export default function CheckOutPage() {
     const totalAmount = cartItems.reduce((total, item) => {
         return total + item.sellPrice * item.quantity;
     }, 0);
-    // const cartItems = [
-    //   {
-    //     id: 1,
-    //     img: "https://images.girlslife.com/posts/041/41861/pinkbeautyproductsskincareinnisfreecherryblossom.png",
-    //     brandName: "dior",
-    //     name: "Serum La Roche-Posay Giảm Thâm Nám & Dưỡng Sáng Da 30ml",
-    //     quantity: "23",
-    //     price: 250000,
-    //     total: 2565405,
-    //   },
-    //   {
-    //     id: 1,
-    //     img: "https://images.girlslife.com/posts/041/41861/pinkbeautyproductsskincareinnisfreecherryblossom.png",
-    //     brandName: "dior",
-    //     name: "Serum La Roche-Posay Giảm Thâm Nám & Dưỡng Sáng Da 30ml",
-    //     quantity: "23",
-    //     price: 250000,
-    //     total: 2565405,
-    //   },
-    //   {
-    //     id: 1,
-    //     img: "https://images.girlslife.com/posts/041/41861/pinkbeautyproductsskincareinnisfreecherryblossom.png",
-    //     brandName: "dior",
-    //     name: "Suar rua mat",
-    //     quantity: "23",
-    //     price: 250000,
-    //     total: 2565405,
-    //   },
-    //   {
-    //     id: 1,
-    //     img: "https://hips.hearstapps.com/vader-prod.s3.amazonaws.com/1721749856-1721299452-allies-of-skin-peptides-firming-daily-treatment-6698f1b735c1e.png?crop=0.625xw:0.785xh;0.191xw,0.215xh&resize=980:*",
-    //     brandName: "dior",
-    //     name: "Suar rua mat",
-    //     quantity: "23",
-    //     price: 250000,
-    //     total: 2565405,
-    //   },
-    // ];
+    
 
     const user = JSON.parse(Cookies.get('user'));
     console.log(user);
@@ -84,6 +47,17 @@ export default function CheckOutPage() {
                 address: selectedAddress.address,
                 ward: selectedAddress.ward,
             });
+        }
+    };
+
+    const handleFetchAddress = async () => { 
+        try {
+            const response = await api.get('Users/address');
+            console.log(response.data);
+            // setUserAddress(response.data.data);
+            
+        }catch (error) {
+            console.error('Failed to fetch address:', error.response.data);
         }
     };
 

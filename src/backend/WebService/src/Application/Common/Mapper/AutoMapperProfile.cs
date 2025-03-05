@@ -9,6 +9,7 @@ using Application.Features.Orders.Response;
 using Application.Features.Question.Commands;
 using Application.Features.ProductCategory.Queries.Response;
 using Application.Features.SkinTypes.Queries.Response;
+using Application.Features.Address.Queries.Response;
 
 namespace Application.Common.Mapper
 {
@@ -40,6 +41,10 @@ namespace Application.Common.Mapper
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();
             CreateMap<ChangeOrderStatusResponse, Order>();
+
+            // Mapping for Address
+            CreateMap<Address, GetAllUserAddressResponse>();
+            CreateMap<GetAllUserAddressResponse, Address>();
 
             
 

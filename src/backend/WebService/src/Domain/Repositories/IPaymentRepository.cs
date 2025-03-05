@@ -9,6 +9,7 @@ namespace Domain.Repositories
 {
     public interface IPaymentRepository : IRepository<Payment>
     {
+        Task<Payment> GetPaymentByOrderIdAsync(long id);
         
     }
 }

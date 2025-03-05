@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Application.Auth.Commands;
+using Application.Common.Paginations;
 using Application.Constant;
 using Application.Features.Address.Commands;
+using Application.Features.Address.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +19,7 @@ namespace WebApi.Controllers.Address
     [Route("api/[controller]")]
     public class AddressController : ApiController
     {
-        
+
         public AddressController(IMediator mediator) : base(mediator)
         {
         }
@@ -108,6 +110,54 @@ namespace WebApi.Controllers.Address
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.ACTIVE_ADDRESS_SUCCESS, data = result.Error.Description });
         }
 
+        /// <summary>
+        /// Gets all addresses of the authenticated user.
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <param page="int">Page.</param>
+        /// <param pageSize="int">Pagesize.</param>
+        /// <returns>Returns all addresses of the authenticated user.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///    GET /api/Address/getAll
+        /// Headers:
+        ///    Authorization: Bearer token
+        ///    Content-Type: application/json
+        ///    Accept: application/json
+        ///    Request Body: None
+        /// </remarks>
+        [HttpGet("get-all-address")]
+        [Authorize]
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken,
+            [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (User == null)
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.USER_INFORMATION_NOT_FOUND });
+            }
 
+            var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(usrID))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+            }
+
+            if (!long.TryParse(usrID, out var userId))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
+            }
+
+            PaginationParams paginationParams = new()
+            {
+                Page = page,
+                PageSize = pageSize
+            };
+
+            var result = await _mediator.Send(new GetAllUserAddressQuery(userId, paginationParams), cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_ADDRESS_SUCCESS, data = result.Value });
+        }
     }
 }
