@@ -16,11 +16,15 @@ const HeaderUser = () => {
 
     let user = null;
     try {
-        user = JSON.parse(Cookies.get('user')) || null;
+        const userCookie = Cookies.get('user');
+        if (userCookie) {
+            user = JSON.parse(userCookie);
+        }
     } catch (error) {
-        console.error('failed to parse user', error);
+        console.error('Error parsing user cookie:', error);
+        // Consider removing the invalid cookie
+        // Cookies.remove('user');
     }
-    // console.log(user);
 
     const fetchLogout = async () => {
         try {
@@ -29,13 +33,10 @@ const HeaderUser = () => {
             });
 
             if (response.status === 200) {
-                // Chỉ xóa token nếu logout thành công
                 Cookies.remove('accessToken');
                 Cookies.remove('refreshToken');
                 Cookies.remove('user');
-
                 toast.success('Logout successfully');
-                console.log('Logout success:', response);
             } else {
                 toast.error('Logout failed');
                 console.error('Logout failed:', response);
