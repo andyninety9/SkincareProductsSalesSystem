@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain.Common;
+using Domain.DTOs;
 using Domain.Entities;
 
 namespace Domain.Repositories
@@ -15,5 +16,7 @@ namespace Domain.Repositories
         Task<bool> IsTestCompleteAsync(long resultId);
         Task<int?> GetSkinTypeIdAsync(long resultId);
         Task<long> GetResultQuizIdByQuizIdAsync(long quizId);
+        Task<GetQuizResultResponse> GetByQuizIdAsync(long quizId);
+        Task<ResultQuiz> GetResultQuizByUserId(long userId);
     }
 }

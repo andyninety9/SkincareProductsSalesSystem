@@ -24,8 +24,9 @@ namespace Infrastructure.Repositories
 
         public async Task<(IEnumerable<Product> Products, int TotalCount)> GetAllProductByQueryAsync(
             string? keyword,
-            int? cateId,
-            int? brandId,
+            long? cateId,
+            long? brandId,
+            long? skinTypeId,
             DateTime? fromDate,
             DateTime? toDate,
             int page,
@@ -38,6 +39,7 @@ namespace Infrastructure.Repositories
                 .Include(p => p.ProdStatus)
                 .Include(p => p.ProductImages)
                 .Include(p => p.Reviews)
+                .Include(p => p.RecommendFors)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(keyword))
@@ -65,6 +67,11 @@ namespace Infrastructure.Repositories
                 query = query.Where(p => p.CreatedAt <= toDate.Value);
             }
 
+            if (skinTypeId.HasValue)
+            {
+                query = query.Where(p => p.RecommendFors.Any(r => r.SkinTypeId == skinTypeId.Value));
+            }
+
             int totalItems = await query.CountAsync(cancellationToken);
             var products = await query
                 .Skip((page - 1) * pageSize)
@@ -85,6 +92,18 @@ namespace Infrastructure.Repositories
                 .Include(p => p.ProductImages)
                 .Include(p => p.Reviews)
                 .FirstOrDefaultAsync(p => p.ProductId == productId, cancellationToken);
+        }
+
+        public async Task<IEnumerable<Product>> GetProductByListIdAsync(List<long> listProductId, CancellationToken cancellationToken)
+        {
+            return await _context.Set<Product>()
+                .Include(p => p.Brand)
+                .Include(p => p.Cate)
+                .Include(p => p.ProdStatus)
+                .Include(p => p.ProductImages)
+                .Include(p => p.Reviews)
+                .Where(p => listProductId.Contains(p.ProductId))
+                .ToListAsync(cancellationToken);
         }
     }
 }

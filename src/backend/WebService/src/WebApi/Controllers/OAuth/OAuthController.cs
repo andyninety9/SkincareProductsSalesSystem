@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace WebApi.Controllers.OAuth
 {
+    /// <summary>
+    /// OAuth Controller for handling authentication via third-party providers.
+    /// Provides endpoints for authenticating users using Google OAuth.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class OAuthController : ApiController
@@ -16,11 +20,22 @@ namespace WebApi.Controllers.OAuth
         }
 
         /// <summary>
-        /// Xác thực Google OAuth bằng ID Token
+        /// Authenticates a user via Google OAuth using an ID Token.
         /// </summary>
-        /// <param name="request">Google OAuth ID Token</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>Thông tin người dùng & JWT Token</returns>
+        /// <param name="request">Google OAuth ID Token.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns user information and JWT token upon successful authentication.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/OAuth/google
+        ///     {
+        ///         "idToken": "string"
+        ///     }
+        ///
+        /// Headers:
+        /// - Content-Type: application/json
+        /// </remarks>
         [HttpPost("google")]
         public async Task<IActionResult> Google([FromBody] GoogleOAuthCommand request, CancellationToken cancellationToken)
         {

@@ -5,6 +5,10 @@ using Application.Features.Users.Response;
 using Application.Features.Products.Response;
 using Domain.Entities;
 using Domain.DTOs;
+using Application.Features.Orders.Response;
+using Application.Features.Question.Commands;
+using Application.Features.ProductCategory.Queries.Response;
+using Application.Features.SkinTypes.Queries.Response;
 
 namespace Application.Common.Mapper
 {
@@ -21,6 +25,22 @@ namespace Application.Common.Mapper
             CreateMap<GetAllEventsResponse, Event>();
             CreateMap<Payment, PaymentDto>();
             CreateMap<PaymentDto, Payment>();
+            CreateMap<Question, CreateQuestionCommand>();
+            CreateMap<CreateQuestionCommand, Question>();
+            CreateMap<Question, UpdateQuestionCommand>();
+            CreateMap<UpdateQuestionCommand, Question>();
+            CreateMap<GetAllProductCategoryResponse, CategoryProduct>();
+            CreateMap<CategoryProduct, GetAllProductCategoryResponse>();
+            CreateMap<SkinType, GetAllSkinTypesResponse>();
+            CreateMap<GetAllSkinTypesResponse, SkinType>();
+
+
+            
+
+            // Mapping for Order
+            CreateMap<Order, ChangeOrderStatusResponse>();
+            CreateMap<ChangeOrderStatusResponse, Order>();
+
             
 
             CreateMap<User, GetAllUsersResponse>()
@@ -36,13 +56,26 @@ namespace Application.Common.Mapper
                 .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand.BrandName))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Cate.CateProdName))
                 .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.ProdStatus.ProdStatusName))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.ProductImages.Select(i => i.ProdImageUrl).ToList()))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.ProductImages.Select(i => new ProductImageDto
+                {
+                    ProdImageId = i.ProdImageId,
+                    ProdImageUrl = i.ProdImageUrl
+                }).ToList()))
                 .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews.Count()));
 
             CreateMap<GetAllProductsResponse, Product>();
 
             // Mapping cho ProductImage nếu cần
             CreateMap<ProductImage, string>().ConvertUsing(src => src.ProdImageUrl);
+            CreateMap<ProductImage, ProductImageDto>()
+            .ForMember(dest => dest.ProdImageUrl, opt => opt.MapFrom(src => src.ProdImageUrl))
+            .ForMember(dest => dest.ProdImageId, opt => opt.MapFrom(src => src.ProdImageId))
+            .ReverseMap();
+            CreateMap<ProductImageDto, ProductImage>()
+            .ForMember(dest => dest.ProdImageUrl, opt => opt.MapFrom(src => src.ProdImageUrl))
+            .ForMember(dest => dest.ProdImageId, opt => opt.MapFrom(src => src.ProdImageId))
+            .ReverseMap();
+
             CreateMap<Product, GetProductResponse>()
                 .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand.BrandName))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Cate.CateProdName))

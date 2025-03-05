@@ -41,16 +41,27 @@ namespace Infrastructure
         {
 
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IAccountStatusRepository, AccountStatusRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IReviewRepository, ReviewRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IOrderLogRepository, OrderLogRepository>();
             services.AddScoped<IQuestionRepository, QuestionRepository>();
             services.AddScoped<IQuizRepository, QuizRepository>();
             services.AddScoped<IResultQuizRepository, ResultQuizRepository>();
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IAddressRepository, AddressRepository>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+            services.AddScoped<IWarantyOrderRepository, WarantyOrderRepository>();
+            services.AddScoped<ICategoryProductRepository, CategoryProductRepository>();
+            services.AddScoped<IReturnProductRepository, ReturnProductRepository>();
+            services.AddScoped<IReturnProductDetailRepository, ReturnProductDetailRepository>();
+            services.AddScoped<IProductImageRepository, ProductImageRepository>();
+            services.AddScoped<ISkinTypeRepository, SkinTypeRepository>();
+            services.AddScoped<IVoucherRepository, VoucherRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

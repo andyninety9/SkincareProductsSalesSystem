@@ -10,21 +10,35 @@ using WebApi.Common;
 
 namespace WebApi.Controllers.Address
 {
+    /// <summary>
+    /// Address Controller for managing user addresses.
+    /// Provides endpoints for creating, deleting, and activating addresses.
+    /// </summary>
     [Route("api/[controller]")]
     public class AddressController : ApiController
     {
+        
         public AddressController(IMediator mediator) : base(mediator)
         {
         }
 
-        // POST: api/Address/create
-        // {
-        //     "address": "string",
-        //     "city": "string",
-        //     "district": "string",
-        //     "ward": "string"
-        // }
-        // [Authorize]
+        /// <summary>
+        /// Creates a new address for the authenticated user.
+        /// </summary>
+        /// <param name="request">Address details including street, city, district, and ward.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the created address information.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/Address/create
+        ///     {
+        ///         "address": "string",
+        ///         "city": "string",
+        ///         "district": "string",
+        ///         "ward": "string"
+        ///     }
+        /// </remarks>
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] CreateAddressCommand request, CancellationToken cancellationToken)
         {
@@ -51,11 +65,20 @@ namespace WebApi.Controllers.Address
 
         }
 
-        // DELETE: api/Address/delete
-        // {
-        //     "addressId": 0
-        // }
-        // [Authorize]
+        /// <summary>
+        /// Deletes an address.
+        /// </summary>
+        /// <param name="request">Address deletion request containing address ID.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns status of the deletion process.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE /api/Address/delete
+        ///     {
+        ///         "addressId": 0
+        ///     }
+        /// </remarks>
         [HttpDelete("delete")]
         public async Task<IActionResult> Delete([FromBody] DeleteAddressCommand request, CancellationToken cancellationToken)
         {
@@ -63,11 +86,20 @@ namespace WebApi.Controllers.Address
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.DELETE_ADDRESS_SUCCESS, data = result.Error.Description });
         }
 
-        // PUT: api/Address/active
-        // {
-        //     "addressId": 0
-        // }
-        // [Authorize]
+        /// <summary>
+        /// Activates an address.
+        /// </summary>
+        /// <param name="request">Address activation request containing address ID.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns status of the activation process.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT /api/Address/active
+        ///     {
+        ///         "addressId": 0
+        ///     }
+        /// </remarks>
         [HttpPut("active")]
         [Authorize]
         public async Task<IActionResult> Active([FromBody] ActiveAddressCommand request, CancellationToken cancellationToken)

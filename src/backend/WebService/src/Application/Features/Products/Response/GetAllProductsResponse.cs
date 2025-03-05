@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Domain.DTOs;
 
 namespace Application.Features.Products.Response
 {
@@ -14,6 +15,7 @@ namespace Application.Features.Products.Response
         public double? TotalRating { get; set; }
         public string Ingredient { get; set; } = null!;
         public string Instruction { get; set; } = null!;
+        public string? ProdUseFor { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
@@ -23,7 +25,7 @@ namespace Application.Features.Products.Response
         public string StatusName { get; set; } = null!;
 
         // **Danh sách ảnh sản phẩm**
-        public List<string> Images { get; set; } = new();
+        public List<ProductImageDto> Images { get; set; } = new();
 
         // **Số lượng đánh giá**
         public int ReviewCount { get; set; }

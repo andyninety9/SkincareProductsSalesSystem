@@ -69,11 +69,29 @@ namespace Application.Constant
         public static string CREATE_PAYMENT_SUCCESS = "Payment created successfully.";
         public static string PAYMENT_RETURN_SUCCESS = "Payment returned successfully.";
 
+        // Question related messages
+        public static string CREATE_QUESTION_SUCCESS = "Question created successfully.";
+        public static string DELETE_QUESTION_SUCCESS = "Question deleted successfully.";
+        public static string UPDATE_QUESTION_SUCCESS = "Question updated successfully.";
+        public static string UPDATE_QUESTION_FALSE = "Failed to update the question.";
+
         // Server related messages
         public static string INTERNAL_SERVER_ERROR = "An unexpected error occurred on the server.";
         public static string INTERNAL_SERVER_MEDIATOR_ERROR = "An error occurred: Mediator is not initialized.";
 
         // Event related messages
         public static string GET_SUCCESS_EVENTS = "Events retrieved successfully.";
+
+        // Review related messages
+        public static string CHANGE_STATUS_REVIEW_SUCCESS = "Review status changed successfully.";
+        public static string DELETE_REVIEW_SUCCESS = "Review deleted successfully.";
+
+        // Return related messages
+        public static string CREATE_RETURN_SUCCESS = "Return created successfully.";
+        public static string GET_RETURN_SUCCESS = "Returns retrieved successfully.";
+        public static string GET_RETURN_DETAIL_SUCCESS = "Return details retrieved successfully.";
+        public static string UPDATE_RETURN_SUCCESS = "Return updated successfully.";
+        public static string DELETE_RETURN_SUCCESS = "Return deleted successfully.";
+        public static string GET_RETURN_LIST_SUCCESS = "Return list retrieved successfully.";
     }
 }

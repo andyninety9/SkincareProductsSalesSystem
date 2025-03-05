@@ -436,6 +436,12 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("eventID");
 
+                    b.Property<bool?>("IsPaid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("isPaid");
+
                     b.Property<DateTime>("OrdDate")
                         .HasColumnType("timestamp(0) without time zone")
                         .HasColumnName("ordDate");
@@ -642,6 +648,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("smallint")
                         .HasColumnName("prodStatusID");
 
+                    b.Property<string>("ProdUseFor")
+                        .HasColumnType("text")
+                        .HasColumnName("prodUseFor");
+
                     b.Property<string>("ProductDesc")
                         .HasColumnType("text")
                         .HasColumnName("productDesc");
@@ -741,15 +751,7 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("QuestionId"));
 
-                    b.Property<long>("AnsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("ansID");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("AnsId"));
-
                     b.Property<short>("CateQuestionId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("smallint")
                         .HasColumnName("cateQuestionID");
 
@@ -761,6 +763,12 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("questionContent");
+
+                    b.Property<bool>("StatusQuestion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("statusQuestion");
 
                     b.HasKey("QuestionId")
                         .HasName("Question_pkey");
@@ -1239,15 +1247,24 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Voucher", b =>
                 {
                     b.Property<long>("VoucherId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("voucherID");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("VoucherId"));
+                    b.Property<bool>("StatusVoucher")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("statusVoucher");
 
                     b.Property<long>("UsrId")
                         .HasColumnType("bigint")
                         .HasColumnName("usrID");
+
+                    b.Property<string>("VoucherCode")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("voucherCode");
 
                     b.Property<string>("VoucherDesc")
                         .IsRequired()

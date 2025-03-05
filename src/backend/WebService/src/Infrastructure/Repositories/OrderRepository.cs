@@ -3,19 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Common.Enum;
 using Domain.DTOs;
 using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Common;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories
 {
     public class OrderRepository : Repository<Order>, IOrderRepository
     {
-        public OrderRepository(MyDbContext context) : base(context)
+        private readonly ILogger<OrderRepository> _logger;
+        public OrderRepository(MyDbContext context, ILogger<OrderRepository> logger) : base(context)
         {
+            _logger = logger;
         }
 
         public async Task<(IEnumerable<GetAllOrdersResponse> Orders, int TotalCount)> GetAllOrdersByQueryAsync(
@@ -220,6 +224,119 @@ namespace Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
 
             return (orders, totalItems);
+        }
+
+        public async Task<Order?> NextStatusOrderAsync(long orderId, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Checking NextStatusOrderAsync for OrderID: {OrderId}", orderId);
+
+            if (orderId <= 0)
+            {
+                _logger.LogWarning("Invalid Order ID: {OrderId}", orderId);
+                return null;
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.OrdStatus)
+                .FirstOrDefaultAsync(o => o.OrdId == orderId, cancellationToken);
+
+            if (order == null)
+            {
+                _logger.LogWarning("Order not found: {OrderId}", orderId);
+                return null;
+            }
+
+            if (!Enum.IsDefined(typeof(OrderStatusEnum), order.OrdStatusId))
+            {
+                _logger.LogWarning("Invalid status found for Order ID {OrderId}: {StatusId}", order.OrdId, order.OrdStatusId);
+                return null;
+            }
+
+            if ((OrderStatusEnum)order.OrdStatusId == OrderStatusEnum.Completed)
+            {
+                _logger.LogInformation("Order {OrderId} is already completed. No status update needed.", order.OrdId);
+                return null;
+            }
+
+            order.OrdStatusId = (short)(((OrderStatusEnum)order.OrdStatusId switch
+            {
+                OrderStatusEnum.Pending => OrderStatusEnum.Processing,
+                OrderStatusEnum.Processing => OrderStatusEnum.Shipping,
+                OrderStatusEnum.Shipping => OrderStatusEnum.Shipped,
+                OrderStatusEnum.Shipped => OrderStatusEnum.Completed,
+                _ => (OrderStatusEnum)order.OrdStatusId
+            }));
+
+
+            order.UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
+
+            var changes = await _context.SaveChangesAsync(cancellationToken);
+            if (changes == 0)
+            {
+                _logger.LogWarning("No changes saved for Order ID {OrderId}", order.OrdId);
+            }
+            else
+            {
+                _logger.LogInformation("Order ID {OrderId} updated successfully to status {StatusId}.", order.OrdId, order.OrdStatusId);
+            }
+
+            return order;
+        }
+
+        public async Task<Order?> ReverseStatusOrderAsync(long orderId, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Checking NextStatusOrderAsync for OrderID: {OrderId}", orderId);
+
+            if (orderId <= 0)
+            {
+                _logger.LogWarning("Invalid Order ID: {OrderId}", orderId);
+                return null;
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.OrdStatus)
+                .FirstOrDefaultAsync(o => o.OrdId == orderId, cancellationToken);
+
+            if (order == null)
+            {
+                _logger.LogWarning("Order not found: {OrderId}", orderId);
+                return null;
+            }
+
+            if (!Enum.IsDefined(typeof(OrderStatusEnum), order.OrdStatusId))
+            {
+                _logger.LogWarning("Invalid status found for Order ID {OrderId}: {StatusId}", order.OrdId, order.OrdStatusId);
+                return null;
+            }
+
+            if ((OrderStatusEnum)order.OrdStatusId == OrderStatusEnum.Pending)
+            {
+                _logger.LogInformation("Order {OrderId} is already pending. No status update needed.", order.OrdId);
+                return null;
+            }
+
+            order.OrdStatusId = (short)(((OrderStatusEnum)order.OrdStatusId switch
+            {
+                OrderStatusEnum.Completed => OrderStatusEnum.Shipped,
+                OrderStatusEnum.Shipped => OrderStatusEnum.Shipping,
+                OrderStatusEnum.Shipping => OrderStatusEnum.Processing,
+                OrderStatusEnum.Processing => OrderStatusEnum.Pending,
+                _ => (OrderStatusEnum)order.OrdStatusId
+            }));
+
+            order.UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
+
+            var changes = await _context.SaveChangesAsync(cancellationToken);
+            if (changes == 0)
+            {
+                _logger.LogWarning("No changes saved for Order ID {OrderId}", order.OrdId);
+            }
+            else
+            {
+                _logger.LogInformation("Order ID {OrderId} updated successfully to status {StatusId}.", order.OrdId, order.OrdStatusId);
+            }
+
+            return order;
         }
     }
 }

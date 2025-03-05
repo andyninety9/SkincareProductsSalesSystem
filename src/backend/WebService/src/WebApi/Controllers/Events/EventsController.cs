@@ -7,16 +7,37 @@ using WebApi.Common;
 
 namespace WebApi.Controllers.Events
 {
+    /// <summary>
+    /// Events Controller for managing event-related operations.
+    /// Provides endpoints for retrieving event lists and fetching event details.
+    /// </summary>
     [Route("api/[controller]")]
     public class EventsController : ApiController
     {
+        
         private readonly ILogger<EventsController> _logger;
         public EventsController(IMediator mediator, ILogger<EventsController> logger) : base(mediator)
         {
             _logger = logger;
         }
 
-        // GET: api/Events?keyword=string&fromDate=2021-01-01&toDate=2021-01-31&status=1&page=1&pageSize=10
+        /// <summary>
+        /// Retrieves a paginated list of events based on filters.
+        /// </summary>
+        /// <param name="keyword">Optional keyword to filter events.</param>
+        /// <param name="status">Optional status filter (true for active, false for inactive).</param>
+        /// <param name="fromDate">Optional start date filter (format: yyyy-MM-dd).</param>
+        /// <param name="toDate">Optional end date filter (format: yyyy-MM-dd).</param>
+        /// <param name="page">Page number for pagination (default: 1).</param>
+        /// <param name="pageSize">Number of records per page (default: 10).</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a paginated list of events matching the filters.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/Events?keyword=string&fromDate=2021-01-01&toDate=2021-01-31&status=true&page=1&pageSize=10
+        ///
+        /// </remarks>
         [HttpGet]
         public async Task<IActionResult> GetEvents(
             [FromQuery] string? keyword,
@@ -75,12 +96,23 @@ namespace WebApi.Controllers.Events
             return Ok(new { statusCode = 200, message = "Fetch all events successfully", data = result.Value });
         }
 
-        // GET: api/events/{eventId}
+        /// <summary>
+        /// Retrieves details of a specific event by its ID.
+        /// </summary>
+        /// <param name="eventId">The ID of the event.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the details of the requested event.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/events/{eventId}
+        ///
+        /// </remarks>
         [HttpGet("{eventId}")]
         public async Task<IActionResult> GetEventDetailById([FromRoute] int eventId, CancellationToken cancellationToken = default)
         {
             // ✅ Logging request params
-            _logger.LogInformation("Received GET /api/events/{eventId} request with params: EventId={EventId}", eventId);
+            _logger.LogInformation("Received GET /api/events/{EventId} request with params: EventId={0}", eventId);
 
             // ✅ Khởi tạo Query
             var query = new GetEventDetailByIdQuery(eventId);

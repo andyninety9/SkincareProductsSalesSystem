@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Application.Features.Users.Response
+namespace Domain.DTOs
 {
     public sealed record GetMeResponse
     {
@@ -14,6 +14,9 @@ namespace Application.Features.Users.Response
         public DateOnly? Dob { get; set; } = null;
         public string? AvatarUrl { get; set; } = null;
         public string? CoverUrl { get; set; } = null;
+        public string? AccountStatus { get; set; } = null;
+        public string? Role { get; set; } = null;
+        public string? SkinType { get; set; } = null;
         public short? RewardPoint { get; set; } = null;
         public DateTime? CreatedAt { get; set; } = null;
         public DateTime? UpdatedAt { get; set; } = null;
