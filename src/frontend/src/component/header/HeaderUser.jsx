@@ -14,12 +14,17 @@ const HeaderUser = () => {
     const dropdownRef = useRef(null);
     let closeTimeout = null;
 
-    let user = Cookies.get('user');
-    if (user) {
-        user = JSON.parse(user);
+    let user = null;
+    try {
+        const userCookie = Cookies.get('user');
+        if (userCookie) {
+            user = JSON.parse(userCookie);
+        }
+    } catch (error) {
+        console.error('Error parsing user cookie:', error);
+        // Consider removing the invalid cookie
+        // Cookies.remove('user');
     }
-
-    // console.log(user);
 
     const fetchLogout = async () => {
         try {
@@ -28,7 +33,7 @@ const HeaderUser = () => {
             });
 
             if (response.status === 200) {
-                Cookies.remove('accessToken');   
+                Cookies.remove('accessToken');
                 Cookies.remove('refreshToken');
                 Cookies.remove('user');
                 toast.success('Logout successfully');

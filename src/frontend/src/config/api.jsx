@@ -4,7 +4,6 @@ import { jwtDecode } from 'jwt-decode';
 
 // Get base URL from environment variables
 const baseUrl = 'https://www.mavid.store/api/';
-console.log('ENV: ' + import.meta.env.NODE_ENV);
 const config = {
     baseUrl,
     timeout: 30000,
