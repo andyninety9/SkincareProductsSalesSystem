@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../config/api';
 import { Avatar, Empty, Input, List, Spin } from 'antd';
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
-import './liveSearchProduct.scss';
+import './liveSearchProduct.css';
 
 // eslint-disable-next-line react/prop-types
 export default function LiveSearchProduct({ onClose, autoFocus }) {
@@ -48,6 +48,7 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
         setSearchTerm(e.target.value);
     };
     return (
+        // Trong hàm return của LiveSearchProduct.jsx
         <div className="live-search-container">
             <div className="search-header">
                 <Input
@@ -65,7 +66,7 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
             <div className="search-results">
                 {loading ? (
                     <div className="search-loading">
-                        <Spin size="large" />
+                        <Spin size="default" />
                     </div>
                 ) : (
                     <>
@@ -84,11 +85,11 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
                                                         <Avatar
                                                             src={item.images[0].prodImageUrl}
                                                             shape="square"
-                                                            size={64}
+                                                            size={54}
                                                         />
                                                     }
                                                     title={item.productName}
-                                                    description={`${item.sellPrice.toLocaleString('vi-VN')}đ`}
+                                                    description={`${item.sellPrice.toLocaleString('vi-VN')}₫`}
                                                 />
                                             </List.Item>
                                         )}
