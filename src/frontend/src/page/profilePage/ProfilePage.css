@@ -9,3 +9,9 @@
 .ant-tabs-ink-bar {
     background-color: #D8959A !important;
 }
+
+.address-list-container {
+    max-height: 300px;
+    /* Adjust this value as needed */
+    overflow-y: auto;
+}
