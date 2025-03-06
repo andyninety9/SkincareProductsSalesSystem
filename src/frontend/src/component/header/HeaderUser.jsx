@@ -146,7 +146,7 @@ const HeaderUser = () => {
 
                     <FaHeart className="fs-5 text-secondary cursor-pointer" />
                     <FaSearch
-                        className={`fs-5 cursor-pointer ${isSearchOpen ? '#212529' : 'text-secondary'}`}
+                        className={`fs-5 cursor-pointer ${isSearchOpen ? 'text-dark' : 'text-secondary'}`}
                         onClick={handleShowSearchbar}
                         aria-label="Search products"
                     />
