@@ -14,7 +14,7 @@ const ProtectedRoute = ({ children, roles = [] }) => {
 
     // Ensure roles is an array and check if the user's role is in the allowed roles array
     if (!Array.isArray(roles) || !roles.includes(user.role)) {
-        return <Navigate to={routes.notfound} />;
+        return <Navigate to={routes.restricted} />;
     }
 
     // If user has the required role, render the children components
