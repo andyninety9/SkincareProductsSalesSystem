@@ -18,50 +18,66 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData }) => 
     const fetchProvinces = async () => {
         try {
             const response = await api.get("delivery/provinces");
-            const provincesData = Array.isArray(response.data) ? response.data : [];
-            setProvinces(provincesData);
+            if (response.status === 200) {
+                const provincesData = Array.isArray(response.data.data) ? response.data.data : [];
+                setProvinces(provincesData);
+            } else {
+                setProvinces([]);
+            }
         } catch (error) {
             console.error("Error fetching provinces:", error);
             setProvinces([]);
         }
     };
-
     const fetchDistricts = async (provinceId) => {
         try {
+            console.log('Fetching districts for ProvinceID:', provinceId);
             const response = await api.get(`delivery/districts?provinceId=${provinceId}`);
-            const districtsData = Array.isArray(response.data) ? response.data : [];
+            console.log('Districts response:', response.data);
+            const districtsData = Array.isArray(response.data.data) ? response.data.data : [];
             setDistricts(districtsData);
+            setWards([]);
+            form.setFieldsValue({ district: undefined, ward: undefined });
+            console.log('Districts set:', districtsData);
         } catch (error) {
             console.error("Error fetching districts:", error);
             setDistricts([]);
         }
     };
-
     const fetchWards = async (districtId) => {
         try {
+            console.log('Fetching wards for DistrictID:', districtId);
             const response = await api.get(`delivery/wards?districtId=${districtId}`);
-            const wardsData = Array.isArray(response.data) ? response.data : [];
+            console.log('Wards response:', response.data);
+            const wardsData = Array.isArray(response.data.data) ? response.data.data : [];
             setWards(wardsData);
             form.setFieldsValue({ ward: undefined });
+            console.log('Wards set:', wardsData);
         } catch (error) {
             console.error("Error fetching wards:", error);
             setWards([]);
         }
     };
-
     const handleUpdate = async (values) => {
         setLoading(true);
         try {
+            console.log('Submitting address data:', values); // Ensure this logs
             const response = await api.post("Address/create", values);
+            console.log('Create address response:', response.data);
             if (response.data.statusCode === 200) {
                 message.success("Địa chỉ đã được cập nhật thành công!");
                 refreshAddressData();
                 onClose();
             } else {
-                message.error("Cập nhật thất bại. Vui lòng thử lại!");
+                message.error(`Cập nhật thất bại: ${response.data.message || 'Lỗi không xác định'}`);
             }
         } catch (error) {
-            message.error("Có lỗi xảy ra. Vui lòng thử lại sau!");
+            console.error("Error creating address:", {
+                dataSent: values,
+                response: error.response?.data || error.message
+            });
+            const errorMessage = error.response?.data?.Message || error.message || 'Lỗi server';
+            message.error(`Lỗi khi tạo địa chỉ: ${errorMessage}`);
         } finally {
             setLoading(false);
         }
@@ -116,15 +132,14 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData }) => 
                 </Form.Item>
 
                 <Form.Item
-                    label="Tỉnh/Thành phố"
+                    label="Tỉnh"
                     name="province"
-                    rules={[{ required: true, message: "Vui lòng chọn tỉnh/thành phố!" }]}
+                    rules={[{ required: true, message: "Vui lòng chọn tỉnh!" }]}
                 >
                     <Select
                         onChange={(value) => fetchDistricts(value)}
-                        placeholder="Chọn tỉnh/thành phố"
+                        placeholder="Chọn tỉnh"
                         loading={!provinces.length}
-                        value={form.getFieldValue('province')}
                     >
                         {Array.isArray(provinces) && provinces.length > 0 ? (
                             provinces.map(province => (
@@ -140,6 +155,7 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData }) => 
                         )}
                     </Select>
                 </Form.Item>
+
                 <Form.Item
                     label="Quận/Huyện"
                     name="district"
@@ -149,12 +165,20 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData }) => 
                         onChange={(value) => fetchWards(value)}
                         disabled={!districts.length}
                         placeholder="Chọn quận/huyện"
+                        loading={districts.length === 0 && provinces.length > 0}
                     >
-                        {Array.isArray(districts) && districts.map(district => (
-                            <Option key={district.id} value={district.id}>
-                                {district.name}
-                            </Option>
-                        ))}
+                        {Array.isArray(districts) && districts.length > 0 ? (
+                            districts.map(district => (
+                                <Option
+                                    key={district.DistrictID}
+                                    value={district.DistrictID}
+                                >
+                                    {district.DistrictName}
+                                </Option>
+                            ))
+                        ) : (
+                            <Option value="" disabled>Không có dữ liệu quận/huyện</Option>
+                        )}
                     </Select>
                 </Form.Item>
 
@@ -166,12 +190,20 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData }) => 
                     <Select
                         disabled={!wards.length}
                         placeholder="Chọn phường/xã"
+                        loading={wards.length === 0 && districts.length > 0} // Show loading when fetching
                     >
-                        {Array.isArray(wards) && wards.map(ward => (
-                            <Option key={ward.id} value={ward.id}>
-                                {ward.name}
-                            </Option>
-                        ))}
+                        {Array.isArray(wards) && wards.length > 0 ? (
+                            wards.map(ward => (
+                                <Option
+                                    key={ward.WardCode}
+                                    value={ward.WardCode}
+                                >
+                                    {ward.WardName}
+                                </Option>
+                            ))
+                        ) : (
+                            <Option value="" disabled>Không có dữ liệu phường/xã</Option>
+                        )}
                     </Select>
                 </Form.Item>
 
