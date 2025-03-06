@@ -1,4 +1,3 @@
-Target the entire modal wrapper to set the background
 .ant-modal {
     background-color: #F6EEF0 !important;
 }
@@ -43,5 +42,9 @@ Target the entire modal wrapper to set the background
 }
 
 .ant-select-dropdown {
+    background-color: #F6EEF0 !important;
+}
+
+.ant-form-item-control-input .ant-form-item-control-input {
     background-color: #F6EEF0 !important;
 }
