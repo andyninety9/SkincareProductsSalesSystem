@@ -12,7 +12,6 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     useEffect(() => {
-      
         if (!searchTerm || searchTerm.length < 2) {
             setSearchResults([]);
             setLoading(false);
@@ -79,11 +78,16 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
                                         renderItem={(item) => (
                                             <List.Item
                                                 className="search-result-item"
+                                                style={{ padding: '8px 16px' }}
                                                 onClick={() => handleProductClick(item.productId)}>
                                                 <List.Item.Meta
                                                     avatar={
                                                         <Avatar
-                                                            src={item.images[0].prodImageUrl}
+                                                            src={
+                                                                item?.images?.length > 0
+                                                                    ? item.images[0].prodImageUrl
+                                                                    : 'https://product.hstatic.net/1000360941/product/toner-innisfree-hoa-anh-dao_3400df3de24543f3958a7e5b704ab8ac_master.jpg'
+                                                            }
                                                             shape="square"
                                                             size={54}
                                                         />
