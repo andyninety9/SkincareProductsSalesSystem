@@ -95,8 +95,16 @@ const HeaderUser = () => {
         await fetchLogout();
     }
 
-    const toggleDropdown = () => {
-        setIsDropdownOpen(!isDropdownOpen);
+    const handleShowSearchbar = () => {
+        if (isSearchOpen) {
+            setIsSearchOpen(false);
+        } else {
+            setIsSearchOpen(true);
+            setTimeout(() => {
+                const searchInput = document.querySelector('.search-overlay input');
+                if (searchInput) searchInput.focus();
+            }, 100);
+        }
     };
 
     return (
@@ -137,7 +145,11 @@ const HeaderUser = () => {
                     )}
 
                     <FaHeart className="fs-5 text-secondary cursor-pointer" />
-                    <FaSearch className="fs-5 text-secondary cursor-pointer" onClick={() => setIsSearchOpen(true)} />
+                    <FaSearch
+                        className={`fs-5 cursor-pointer ${isSearchOpen ? '#212529' : 'text-secondary'}`}
+                        onClick={handleShowSearchbar}
+                        aria-label="Search products"
+                    />
 
                     <Badge count={totalCartItems} showZero>
                         <FaShoppingBag
@@ -343,7 +355,7 @@ const HeaderUser = () => {
             </nav>
             {isSearchOpen && (
                 <div ref={searchRef} className="search-overlay">
-                    <LiveSearchProduct onClose={() => setIsSearchOpen(false)} />
+                    <LiveSearchProduct onClose={() => setIsSearchOpen(false)} autoFocus={true} />
                 </div>
             )}
         </header>

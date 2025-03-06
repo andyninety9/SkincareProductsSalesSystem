@@ -1,7 +1,19 @@
-export default function LiveSearchProduct() {
+// eslint-disable-next-line react/prop-types
+export default function LiveSearchProduct({ onClose, autoFocus }) {
     return (
-        <div>
-            <h1>Live Search Product</h1>
+        <div className="live-search-container">
+            <div className="search-header">
+                <input
+                    type="text"
+                    placeholder="Tìm kiếm sản phẩm..."
+                    autoFocus={autoFocus}
+                    // ...
+                />
+                <button className="close-search-btn" onClick={onClose}>
+                    &times;
+                </button>
+            </div>
+            
         </div>
     );
 }
