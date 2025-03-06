@@ -87,20 +87,20 @@ export default function CheckOutPage() {
     useEffect(() => {
         handleFetchAddress();
         // Find the address with status = true and set it as the selected address
-        const defaultAddress = userAddress.find((address) => address.status === true);
-        if (defaultAddress) {
-            form.setFieldsValue({
-                userAddress: defaultAddress.addressId,
-                province: defaultAddress.city,
-                district: defaultAddress.district,
-                address: defaultAddress.addDetail,
-                ward: defaultAddress.ward,
-                email: user.email,
-                name: user.fullName ? user.fullName : '',
-                phone: user.phone,
-            });
-        }
-    }, [form, userAddress]);
+        // const defaultAddress = userAddress.find((address) => address.status === true);
+        // if (defaultAddress) {
+        //     form.setFieldsValue({
+        //         userAddress: defaultAddress.addressId,
+        //         province: defaultAddress.city,
+        //         district: defaultAddress.district,
+        //         address: defaultAddress.addDetail,
+        //         ward: defaultAddress.ward,
+        //         email: user.email,
+        //         name: user.fullName ? user.fullName : '',
+        //         phone: user.phone,
+        //     });
+        // }
+    }, []);
 
     return (
         <Container>
