@@ -17,7 +17,7 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData }) => 
 
     const fetchCities = async () => {
         try {
-            const response = await api.get("/location/cities");
+            const response = await api.get("delivery/provinces");
             setCities(response.data);
         } catch (error) {
             console.error("Error fetching cities:", error);
@@ -26,7 +26,7 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData }) => 
 
     const fetchDistricts = async (cityId) => {
         try {
-            const response = await api.get(`/location/districts?cityId=${cityId}`);
+            const response = await api.get("delivery/districts?provinceId=1");
             setDistricts(response.data);
             setWards([]);
             form.setFieldsValue({ district: undefined, ward: undefined });
@@ -37,7 +37,7 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData }) => 
 
     const fetchWards = async (districtId) => {
         try {
-            const response = await api.get(`/location/wards?districtId=${districtId}`);
+            const response = await api.get("delivery/wards?districtId=1");
             setWards(response.data);
             form.setFieldsValue({ ward: undefined });
         } catch (error) {
@@ -48,7 +48,7 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData }) => 
     const handleUpdate = async (values) => {
         setLoading(true);
         try {
-            const response = await api.post("/User/update-address", values);
+            const response = await api.post("Address/create", values);
             if (response.data.statusCode === 200) {
                 message.success("Địa chỉ đã được cập nhật thành công!");
                 refreshAddressData();
