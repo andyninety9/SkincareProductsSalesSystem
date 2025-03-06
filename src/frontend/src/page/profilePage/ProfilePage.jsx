@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import api from "../../config/api";
 import { MailOutlined, PhoneOutlined, CalendarOutlined } from "@ant-design/icons";
 import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col, Modal, Form } from "antd";
@@ -64,7 +63,7 @@ const ProfilePage = () => {
     const fetchAddresses = async () => {
         try {
             setLoadingAddresses(true);
-            const response = await api.get("address/get-all-address");
+            const response = await api.get("address/get-all-address?page=1&pageSize=1000");
             console.log("API Response:", response.data);
             if (response.data.statusCode === 200) {
                 const addressData = response.data.data.items;
@@ -114,6 +113,7 @@ const ProfilePage = () => {
             if (response.data.statusCode === 200) {
                 const data = response.data.data;
                 // If data is an object and not an array, wrap it in an array
+                // eslint-disable-next-line no-constant-binary-expression
                 setPromoCodes(Array.isArray(data) ? data : [data] || []);
             }
         } catch (error) {
