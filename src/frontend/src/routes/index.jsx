@@ -22,5 +22,6 @@ export const routes = {
     manageOrder: '/manage-order',
     manageComment: '/manage-comment',
     resultQuiz: '/your-skin-type-result',
+    notfound: '/404',
     
 };
