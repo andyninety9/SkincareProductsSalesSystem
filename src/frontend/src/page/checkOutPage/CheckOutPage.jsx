@@ -102,8 +102,11 @@ export default function CheckOutPage() {
 
     return (
         <Container>
-            
-            
+            <Link to={routes.cart}>
+                <Button type="default" icon={<LeftOutlined />} size="large" style={{ fontWeight: 'bold', marginTop: '3%' }}>
+                    Quay về giỏ hàng
+                </Button>
+            </Link>
             <Row className="order-checkout">
                 <Col xs={6} className="order-checkout-info">
                     <Form form={form} layout="vertical" className="form-checkout" onFinish={handleCheckout}>
