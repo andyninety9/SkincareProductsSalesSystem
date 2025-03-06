@@ -14,6 +14,7 @@ import { resetQuiz } from '../../redux/feature/quizSlice';
 import { Avatar, Badge, Dropdown } from 'antd';
 
 
+
 const HeaderUser = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -21,6 +22,9 @@ const HeaderUser = () => {
     const dropdownRef = useRef(null);
     const cartItems = useSelector(selectCartItems);
     const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+    const searchRef = useRef(null);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+
 
     let user = null;
     try {
@@ -42,6 +46,24 @@ const HeaderUser = () => {
             onClick: handleLogout,
         },
     ];
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setIsSearchOpen(false);
+            }
+        }
+
+        if (isSearchOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isSearchOpen]);
 
     const fetchLogout = async () => {
         try {
