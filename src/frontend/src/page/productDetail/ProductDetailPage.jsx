@@ -59,10 +59,14 @@ export default function ProductDetailPage() {
     if (!product) return <p>Đang tải dữ liệu...</p>;
 
     const handleAddToCart = () => {
-        dispatch(addToCart(product));
-        // dispatch(clearCart());
-        toast.success('Đã thêm vào giỏ hàng!');
+        const productToAdd = {
+            ...product,  // Thêm thông tin sản phẩm vào
+            quantity,    // Thêm số lượng đã chọn
+        };
+        dispatch(addToCart(productToAdd));  // Gửi sản phẩm với số lượng vào Redux store
+        toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
     };
+
     const averageRating = calculateAverageRating(reviews);
 
     const loadMoreReviews = () => {
@@ -202,7 +206,14 @@ export default function ProductDetailPage() {
                             }}>
                             {product.productDesc}
                         </p>
-
+                        <p 
+                        style={{
+                            fontSize: '14px',
+                            color: '#666',
+                            marginBottom: '15px',
+                            lineHeight: '1.6',
+                        }}
+                        >Còn {product.stocks} sản phẩm</p>
                         {/* Đánh giá */}
                         <div
                             style={{
@@ -224,19 +235,24 @@ export default function ProductDetailPage() {
                                     alignItems: 'center',
                                     border: '1px solid #ccc',
                                     borderRadius: '8px',
-                                    width: '120px', 
-                                    height: '45px', 
+                                    width: '120px',
+                                    height: '45px',
                                     justifyContent: 'space-between',
                                 }}>
-                                <button onClick={''} style={quantityButtonStyle} disabled>
+                                <button
+                                    onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                                    style={quantityButtonStyle}
+                                >
                                     −
                                 </button>
                                 <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{quantity}</span>
-                                <button onClick={''} style={quantityButtonStyle} disabled>
+                                <button
+                                    onClick={() => setQuantity(prev => Math.min(product.stocks, prev + 1))}
+                                    style={quantityButtonStyle}
+                                >
                                     +
                                 </button>
                             </div>
-
                             {/* Nút Add to cart */}
                             <Button
                                 type="primary"

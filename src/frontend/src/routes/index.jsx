@@ -22,4 +22,8 @@ export const routes = {
     manageOrder: '/manage-order',
     manageComment: '/manage-comment',
     resultQuiz: '/your-skin-type-result',
+    paymentReturn: '/payment-return',
+    notfound: '/404',
+    restricted: '/restricted',
+    
 };
