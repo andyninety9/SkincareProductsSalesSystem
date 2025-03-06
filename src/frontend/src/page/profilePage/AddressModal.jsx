@@ -4,7 +4,7 @@ import api from "../../config/api";
 
 const { Option } = Select;
 
-const AddressModal = ({ visible, onClose, userAddress, refreshAddressData }) => {
+const AddressModal = ({ visible, onClose, userAddress, refreshAddressData, onAddressAdded }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [provinces, setProvinces] = useState([]);
@@ -61,28 +61,39 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData }) => 
     const handleUpdate = async (values) => {
         setLoading(true);
         try {
-            console.log('Submitting address data:', values); // Ensure this logs
-            const response = await api.post("Address/create", values);
+            const selectedProvince = provinces.find(p => p.ProvinceID === values.province);
+            const selectedDistrict = districts.find(d => d.DistrictID === values.district);
+            const selectedWard = wards.find(w => w.WardCode === values.ward);
+
+            const payload = {
+                AddDetail: values.addDetail || "", // Changed from "address" to "AddDetail"
+                city: selectedProvince ? selectedProvince.ProvinceName : "",
+                district: selectedDistrict ? selectedDistrict.DistrictName : "",
+                ward: selectedWard ? selectedWard.WardName : ""
+            };
+
+            console.log('Submitting address data:', payload);
+            const response = await api.post("Address/create", payload);
             console.log('Create address response:', response.data);
+
             if (response.data.statusCode === 200) {
                 message.success("Địa chỉ đã được cập nhật thành công!");
                 refreshAddressData();
                 onClose();
             } else {
-                message.error(`Cập nhật thất bại: ${response.data.message || 'Lỗi không xác định'}`);
+                message.error(`Cập nhật thất bại: ${response.data.message || response.data.detail || 'Lỗi không xác định'}`);
             }
         } catch (error) {
             console.error("Error creating address:", {
-                dataSent: values,
+                dataSent: payload,
                 response: error.response?.data || error.message
             });
-            const errorMessage = error.response?.data?.Message || error.message || 'Lỗi server';
+            const errorMessage = error.response?.data?.detail || error.response?.data?.Message || error.message || 'Lỗi server';
             message.error(`Lỗi khi tạo địa chỉ: ${errorMessage}`);
         } finally {
             setLoading(false);
         }
     };
-
     return (
         <Modal
             title={
