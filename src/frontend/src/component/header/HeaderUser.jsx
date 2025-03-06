@@ -13,8 +13,6 @@ import { clearCart, selectCartItems } from '../../redux/feature/cartSlice';
 import { resetQuiz } from '../../redux/feature/quizSlice';
 import { Avatar, Badge, Dropdown } from 'antd';
 
-
-
 const HeaderUser = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -24,7 +22,6 @@ const HeaderUser = () => {
     const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
     const searchRef = useRef(null);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-
 
     let user = null;
     try {
@@ -92,7 +89,6 @@ const HeaderUser = () => {
         }
     };
 
-
     async function handleLogout() {
         console.log('RefreshToken: ', Cookies.get('refreshToken'));
         await fetchLogout();
@@ -140,7 +136,8 @@ const HeaderUser = () => {
                     )}
 
                     <FaHeart className="fs-5 text-secondary cursor-pointer" />
-                    <FaSearch className="fs-5 text-secondary cursor-pointer" />
+                    <FaSearch className="fs-5 text-secondary cursor-pointer" onClick={() => setIsSearchOpen(true)} />
+
                     <Badge count={totalCartItems} showZero>
                         <FaShoppingBag
                             style={{ cursor: 'pointer' }}
@@ -336,11 +333,10 @@ const HeaderUser = () => {
                         if (user) {
                             navigate(routes.startQuiz);
                         } else {
-                            toast.error("Vui lòng đăng nhập để kiểm tra loại da!");
+                            toast.error('Vui lòng đăng nhập để kiểm tra loại da!');
                             navigate(routes.login);
                         }
-                    }}
-                >
+                    }}>
                     Kiểm tra loại da của bạn
                 </span>
             </nav>
