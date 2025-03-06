@@ -8,8 +8,8 @@ import '@fontsource/marko-one';
 import Cookies from 'js-cookie';
 import api from '../../config/api';
 import { toast } from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
-import { clearCart } from '../../redux/feature/cartSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearCart, selectCartItems } from '../../redux/feature/cartSlice';
 import { resetQuiz } from '../../redux/feature/quizSlice';
 import { Avatar, Badge, Dropdown } from 'antd';
 
@@ -19,6 +19,8 @@ const HeaderUser = () => {
     const dispatch = useDispatch();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const cartItems = useSelector(selectCartItems);
+    const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
     let user = null;
     try {
@@ -117,7 +119,7 @@ const HeaderUser = () => {
 
                     <FaHeart className="fs-5 text-secondary cursor-pointer" />
                     <FaSearch className="fs-5 text-secondary cursor-pointer" />
-                    <Badge count={0} showZero>
+                    <Badge count={totalCartItems} showZero>
                         <FaShoppingBag
                             style={{ cursor: 'pointer' }}
                             className="fs-5 text-secondary cursor-pointer"
