@@ -1,112 +1,73 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Spin, Result } from 'antd';
 import api from '../../config/api';
+import { routes } from '../../routes';
+import { useDispatch } from 'react-redux';
+import { clearCart } from '../../redux/feature/cartSlice';
+import toast from 'react-hot-toast';
+import { Spin } from 'antd';
 
 export default function OrderProcess() {
     const location = useLocation();
     const navigate = useNavigate();
     const queryParams = new URLSearchParams(location.search);
     const paramsCheck = Object.fromEntries(queryParams.entries());
-
-    const [loading, setLoading] = useState(true);
-    const [paymentStatus, setPaymentStatus] = useState(null);
+    const dispatch = useDispatch();
 
     console.log(paramsCheck);
-
-    const handlePaymentReturn = async () => {
-        try {
-            
-            const response = await api.get('Payment/payment-return', {
-                params: {
-                    orderId: paramsCheck.OrderId,
-                    vnp_TransactionStatus: paramsCheck.Vnp_TransactionStatus,
-                    vnp_SecureHash: paramsCheck.Vnp_SecureHash,
-                    vnp_Amount: paramsCheck.Vnp_Amount,
-                    methodMethod: paramsCheck.Method,
-                },
-            });
-
-            console.log(response.data.data);
-            if (response.data.data) {
-                const { success, message } = response.data.data;
-                setPaymentStatus({ success, message });
-            } else setPaymentStatus(response.data);
-        } catch (error) {
-            console.error('Failed to process payment:', error);
-            setPaymentStatus({ success: false, message: 'Có lỗi xảy ra khi xử lý thanh toán.' });
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const handlePaymentReturn = async () => {
+            setLoading(true);
+            const { orderId, vnp_TransactionStatus, vnp_SecureHash, vnp_Amount, method } = paramsCheck;
+            const LongOrderId = BigInt(orderId);
+            try {
+                const response = await api.get(
+                    `Payment/payment-return?OrderId=${LongOrderId}&Vnp_TransactionStatus=${vnp_TransactionStatus}&Vnp_SecureHash=${vnp_SecureHash}&Vnp_Amount=${vnp_Amount}&Method=${method}`
+                );
+                console.log(response.data);
+                if (response.data.statusCode === 200) {
+                    toast.success('Thanh toán thành công');
+                    dispatch(clearCart());
+                } else {
+                    toast.error('Thanh toán thất bại');
+                    navigate(routes.cart);
+                }
+            } catch (error) {
+                console.error('Payment failed:', error);
+            }
+            setLoading(false);
+        };
         handlePaymentReturn();
     }, []);
-
     if (loading) {
         return (
             <div
                 style={{
+                    minHeight: '100vh',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    height: '100vh',
-                    flexDirection: 'column',
                 }}>
-                <Spin size="large" />
-                <p style={{ marginTop: '20px', fontSize: '18px', color: '#D8959A' }}>Đang xử lý thanh toán...</p>
+                <Spin size="large" tip="Đang xử lý đơn hàng..." />
             </div>
         );
     }
-
     return (
-        <div style={{ textAlign: 'center', marginTop: '10%' }}>
-            {paymentStatus?.success ? (
-                <Result
-                    status="success"
-                    title="Thanh toán thành công!"
-                    subTitle={`Số tiền thanh toán: ${(paramsCheck.Vnp_Amount / 100).toLocaleString()} VNĐ`}
-                    extra={[
-                        <button
-                            key="order"
-                            style={{
-                                padding: '10px 20px',
-                                fontSize: '16px',
-                                backgroundColor: '#D8959A',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '5px',
-                                cursor: 'pointer',
-                            }}
-                            onClick={() => navigate('/profile')}>
-                            Xem đơn hàng của bạn
-                        </button>,
-                    ]}
-                />
-            ) : (
-                <Result
-                    status="error"
-                    title="Quá trình thanh đoán đang được xử lý!"
-                    subTitle={paymentStatus?.message || 'Có lỗi xảy ra khi xử lý thanh toán.'}
-                    extra={[
-                        <button
-                            key="retry"
-                            style={{
-                                padding: '10px 20px',
-                                fontSize: '16px',
-                                backgroundColor: '#D8959A',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '5px',
-                                cursor: 'pointer',
-                            }}
-                            onClick={() => navigate('/')}>
-                            Liên hệ với chúng tôi
-                        </button>,
-                    ]}
-                />
-            )}
-        </div>
+        <>
+            <div
+                style={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    fontSize: '30px',
+                    fontWeight: 'bold',
+                }}>
+                Thanh Toán thành công
+            </div>
+        </>
     );
 }
