@@ -29,6 +29,7 @@ import { Toaster } from 'react-hot-toast';
 import OrderProcess from './page/orderProcess/orderProcess';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Page404 from './page/pageNotFound/page404';
+import RestrictedPage from './page/restrictedPage/restrictedPage';
 
 function App() {
     const router = createBrowserRouter([
@@ -108,6 +109,10 @@ function App() {
                 {
                     path: routes.notfound,
                     element: <Page404 />,
+                },
+                {
+                    path: routes.restricted,
+                    element: <RestrictedPage />,
                 },
             ],
         },
