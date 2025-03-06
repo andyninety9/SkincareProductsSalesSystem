@@ -11,24 +11,6 @@ const { TabPane } = Tabs;
 
 
 
-const initialAddresses = [
-    {
-        title: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
-        details: "Số 432, nằm ngay đầu đường, có xe nước",
-        default: true
-    },
-    {
-        title: "Nhà tao, Quận tao, Thành Phố tao, Việt Nam",
-        details: "Số nhà tao",
-        default: false
-    },
-    {
-        title: "Nguyễn Văn Linh, Ninh Kiều, Cần Thơ",
-        details: "Số 121, quẹo trái xong phải xong trái xong phải",
-        default: false
-    }
-];
-
 const orders = [
     {
         id: "#123456",
@@ -63,17 +45,46 @@ const ProfilePage = () => {
     const [promoCodes, setPromoCodes] = useState([]);
     const [loadingPromos, setLoadingPromos] = useState(true);
     const [userInfo, setUserInfo] = useState({});
-    const [addresses, setAddresses] = useState(initialAddresses);
+    const [addresses, setAddresses] = useState([]);
     const [activeTab, setActiveTab] = useState("1");
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [loadingAddresses, setLoadingAddresses] = useState(true);
 
+    const fetchAddresses = async () => {
+        try {
+            setLoadingAddresses(true);
+            const response = await api.get("address/get-all-address");
+            console.log("API Response:", response.data);
+            if (response.data.statusCode === 200) {
+                const addressData = response.data.data.items;
+                console.log("Address Data:", addressData);
+                const formattedAddresses = Array.isArray(addressData)
+                    ? addressData.map((addr) => ({
+                        addDetail: addr.addDetail,
+                        ward: addr.ward,
+                        district: addr.district,
+                        city: addr.city,
+                        country: addr.country,
+                        isDefault: addr.isDefault,
+                        status: addr.status,
+                    }))
+                    : [];
+                setAddresses(formattedAddresses);
+                console.log("Formatted Addresses:", formattedAddresses);
+            }
+        } catch (error) {
+            console.error("Error fetching addresses:", error);
+        } finally {
+            setLoadingAddresses(false);
+        }
+    };
 
     const handleSelectDefault = (index) => {
         setAddresses((prevAddresses) =>
             prevAddresses.map((address, i) => ({
                 ...address,
-                default: i === index, // Chỉ đặt `true` cho địa chỉ được chọn, các địa chỉ khác sẽ `false`
+                isDefault: i === index, // Chỉ đặt `true` cho địa chỉ được chọn, các địa chỉ khác sẽ `false`
             }))
         );
     };
@@ -95,6 +106,8 @@ const ProfilePage = () => {
 
     useEffect(() => {
         fetchPromoCodes();
+        fetchAddresses();
+        refreshUserData();
     }, []);
 
     console.log(promoCodes);
@@ -223,32 +236,52 @@ const ProfilePage = () => {
                         style={{ flexGrow: 1 }}
                     >
                         <TabPane tab={<span style={{ color: activeTab === "1" ? "#D8959A" : "gray" }}>Địa Chỉ</span>} key="1">
-                            <List
-                                dataSource={addresses}
-                                renderItem={(item, index) => (
-                                    <List.Item
-                                        style={{
-                                            border: item.default ? "1px solid #D8959A" : "1px solid #ddd",
-                                            marginBottom: 10, padding: 10,
-                                            background: "#fff", borderRadius: 5,
-                                            display: "flex", justifyContent: "space-between", alignItems: "center"
-                                        }}>
-                                        <div>
-                                            <strong>{item.title}</strong>
-                                            <p style={{ color: "gray" }}>{item.details}</p>
-                                        </div>
-                                        <Tag
-                                            color={item.default ? "#D8959A" : "gray"}
-                                            onClick={() => handleSelectDefault(index)}
-                                            style={{ cursor: "pointer", border: item.default ? "1px solid #D8959A" : "1px solid #ddd", backgroundColor: item.default ? "#fff" : "transparent", color: item.default ? "#D8959A" : "gray" }}
-                                        >
-                                            Mặc Định
-                                        </Tag>
-                                    </List.Item>
-                                )}
-                            />
-                            <Button type="primary" style={{ width: "100%", marginBottom: 10, backgroundColor: "#D8959A", borderColor: "#D8959A" }}>Xem Thêm</Button>
-                            <Button type="dashed" style={{ width: "100%", backgroundColor: "#C87E83", borderColor: "#C87E83", color: "#fff" }}>Thêm địa chỉ mới</Button>
+                            {loadingAddresses ? (
+                                <div style={{ textAlign: "center", padding: "20px" }}>Đang tải...</div>
+                            ) : addresses.length === 0 ? (
+                                <div style={{ textAlign: "center", padding: "20px" }}>Không có địa chỉ nào.</div>
+                            ) : (
+                                <div className="address-list-container">
+                                    <List
+                                        dataSource={addresses}
+                                        renderItem={(item, index) => (
+                                            <List.Item
+                                                style={{
+                                                    border: item.isDefault ? "1px solid #D8959A" : "1px solid #ddd",
+                                                    marginBottom: 10,
+                                                    padding: 10,
+                                                    background: "#fff",
+                                                    borderRadius: 5,
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    alignItems: "center",
+                                                }}
+                                            >
+                                                <div>
+                                                    <strong>{`${item.addDetail}, ${item.ward}, ${item.district}, ${item.city}, ${item.country}`}</strong>
+                                                    <p style={{ color: "gray" }}>{item.addDetail}</p>
+                                                </div>
+                                                <Tag
+                                                    color={item.isDefault ? "#D8959A" : "gray"}
+                                                    onClick={() => handleSelectDefault(index)}
+                                                    style={{
+                                                        cursor: "pointer",
+                                                        border: item.isDefault ? "1px solid #D8959A" : "1px solid #ddd",
+                                                        backgroundColor: item.isDefault ? "#fff" : "transparent",
+                                                        color: item.isDefault ? "#D8959A" : "gray",
+                                                    }}
+                                                >
+                                                    Mặc Định
+                                                </Tag>
+                                            </List.Item>
+                                        )}
+                                    />
+                                </div>
+                            )}
+                     
+                            <Button type="dashed" style={{ width: "100%", backgroundColor: "#C87E83", borderColor: "#C87E83", color: "#fff" }}>
+                                Thêm địa chỉ mới
+                            </Button>
                         </TabPane>
                         <TabPane tab={<span style={{ color: activeTab === "2" ? "#D8959A" : "gray" }}>Mã Khuyến Mãi</span>} key="2">
                             {loadingPromos ? (
