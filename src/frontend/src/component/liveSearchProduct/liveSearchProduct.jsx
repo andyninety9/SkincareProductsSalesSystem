@@ -12,15 +12,15 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     useEffect(() => {
-        // Don't search if the term is too short
+      
         if (!searchTerm || searchTerm.length < 2) {
             setSearchResults([]);
+            setLoading(false);
             return;
         }
 
         setLoading(true);
 
-        // Create a debounce timer
         const debounceTimer = setTimeout(() => {
             performSearch(searchTerm);
         }, 300);
