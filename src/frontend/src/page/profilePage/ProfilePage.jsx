@@ -98,6 +98,15 @@ const ProfilePage = () => {
             }))
         );
     };
+
+    const handleAddressAdded = (newAddress) => {
+        setAddresses((prevAddresses) => {
+            // If there's no default address yet, make the new one default
+            const hasDefault = prevAddresses.some(addr => addr.isDefault);
+            return [...prevAddresses, { ...newAddress, isDefault: !hasDefault }];
+        });
+        fetchAddresses();
+    };
     const fetchPromoCodes = async () => {
         try {
             setLoadingPromos(true);
@@ -300,7 +309,9 @@ const ProfilePage = () => {
                             <AddressModal
                                 visible={isAddressModalVisible}
                                 onClose={handleCloseAddressModal}
-                                onAddressAdded={fetchAddresses} // Refresh addresses after adding
+                                userAddress={null} // Pass null or current address if editing
+                                refreshAddressData={fetchAddresses}
+                                onAddressAdded={handleAddressAdded} // Pass the new callback
                             />
                         </TabPane>
                         <TabPane tab={<span style={{ color: activeTab === "2" ? "#D8959A" : "gray" }}>Mã Khuyến Mãi</span>} key="2">

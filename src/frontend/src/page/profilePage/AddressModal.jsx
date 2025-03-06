@@ -66,7 +66,7 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData, onAdd
             const selectedWard = wards.find(w => w.WardCode === values.ward);
 
             const payload = {
-                AddDetail: values.addDetail || "", // Changed from "address" to "AddDetail"
+                AddDetail: values.addDetail || "",
                 city: selectedProvince ? selectedProvince.ProvinceName : "",
                 district: selectedDistrict ? selectedDistrict.DistrictName : "",
                 ward: selectedWard ? selectedWard.WardName : ""
@@ -78,7 +78,28 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData, onAdd
 
             if (response.data.statusCode === 200) {
                 message.success("Địa chỉ đã được cập nhật thành công!");
-                refreshAddressData();
+
+                // Create the new address object in the format expected by ProfilePage
+                const newAddress = {
+                    addDetail: payload.AddDetail,
+                    city: payload.city,
+                    district: payload.district,
+                    ward: payload.ward,
+                    country: "Việt Nam", // Assuming default country as per your sample data
+                    isDefault: false,    // New addresses aren't default by default
+                    status: "Active"     // Assuming a default status
+                };
+
+                // Call the onAddressAdded callback with the new address
+                if (onAddressAdded) {
+                    onAddressAdded(newAddress);
+                }
+
+                // Call refreshAddressData if provided (for full API refresh)
+                if (refreshAddressData) {
+                    refreshAddressData();
+                }
+
                 onClose();
             } else {
                 message.error(`Cập nhật thất bại: ${response.data.message || response.data.detail || 'Lỗi không xác định'}`);
