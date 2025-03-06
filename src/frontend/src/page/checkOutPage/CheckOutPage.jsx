@@ -169,7 +169,13 @@ export default function CheckOutPage() {
                                     <h5 className="font-bold">Thanh toán</h5>
                                     <Radio.Group className="radio-group1">
                                         <Radio value="VNPay" className="border-bottom">
-                                            Thanh toán qua VNPAY
+                                            <div className='pay-row-vnp'>
+                                            <p>Thanh toán qua VNPAY</p>
+                                            <img 
+                                            src='https://static.ybox.vn/2024/1/4/1705551987477-logo-ngang.png'
+                                            alt=''
+                                            />
+                                            </div>
                                         </Radio>
                                         <Radio value="COD">Thanh toán khi nhận hàng (COD)</Radio>
                                     </Radio.Group>
