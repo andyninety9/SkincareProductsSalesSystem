@@ -101,12 +101,12 @@ const ProfilePage = () => {
 
     const handleAddressAdded = (newAddress) => {
         setAddresses((prevAddresses) => {
-            // If there's no default address yet, make the new one default
             const hasDefault = prevAddresses.some(addr => addr.isDefault);
-            return [...prevAddresses, { ...newAddress, isDefault: !hasDefault }];
+            return [{ ...newAddress, isDefault: !hasDefault }, ...prevAddresses];
         });
         fetchAddresses();
     };
+
     const fetchPromoCodes = async () => {
         try {
             setLoadingPromos(true);
