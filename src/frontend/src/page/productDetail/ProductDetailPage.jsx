@@ -224,8 +224,8 @@ export default function ProductDetailPage() {
                                     alignItems: 'center',
                                     border: '1px solid #ccc',
                                     borderRadius: '8px',
-                                    width: '120px', // Tăng độ rộng để nút không quá nhỏ
-                                    height: '45px', // Cùng chiều cao với nút Add to Cart
+                                    width: '120px', 
+                                    height: '45px', 
                                     justifyContent: 'space-between',
                                 }}>
                                 <button onClick={''} style={quantityButtonStyle} disabled>

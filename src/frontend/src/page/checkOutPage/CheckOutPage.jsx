@@ -16,6 +16,7 @@ export default function CheckOutPage() {
     const [form] = useForm();
     const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems);
+    const user = Cookies.get('user') ? JSON.parse(Cookies.get('user')) : null;
     const totalAmount = cartItems.reduce((total, item) => {
         return total + item.sellPrice * item.quantity;
     }, 0);
@@ -41,7 +42,7 @@ export default function CheckOutPage() {
             if (response.data.statusCode === 200) {
                 setUserAddress(response.data.data.items);
             }
-            
+
             // setUserAddress(response.data.data);
         } catch (error) {
             console.error('Failed to fetch address:', error.response.data);
@@ -71,7 +72,7 @@ export default function CheckOutPage() {
                     const responsePayment = await api.post('Payment/create', paymentCreate);
                     const paymentUrl = responsePayment.data.data.paymentUrl;
                     // Clear the cart after successful payment initiation
-                    
+
                     dispatch(clearCart());
                     window.location.assign(paymentUrl);
                 } catch (error) {
@@ -85,8 +86,21 @@ export default function CheckOutPage() {
 
     useEffect(() => {
         handleFetchAddress();
-        // console.log(userAddress);
-    }, []);
+        // Find the address with status = true and set it as the selected address
+        const defaultAddress = userAddress.find((address) => address.status === true);
+        if (defaultAddress) {
+            form.setFieldsValue({
+                userAddress: defaultAddress.addressId,
+                province: defaultAddress.city,
+                district: defaultAddress.district,
+                address: defaultAddress.addDetail,
+                ward: defaultAddress.ward,
+                email: user.email,
+                name: user.fullName ? user.fullName : '',
+                phone: user.phone,
+            });
+        }
+    }, [form, userAddress]);
 
     return (
         <Container>
