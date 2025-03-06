@@ -27,6 +27,9 @@ import ResultPage from './page/quizPage/ResultPage';
 import MainLayout from './layout/mainLayout/mainLayout';
 import { Toaster } from 'react-hot-toast';
 import OrderProcess from './page/orderProcess/orderProcess';
+import ProtectedRoute from './routes/ProtectedRoute';
+import Page404 from './page/pageNotFound/page404';
+import RestrictedPage from './page/restrictedPage/restrictedPage';
 
 function App() {
     const router = createBrowserRouter([
@@ -48,8 +51,12 @@ function App() {
             element: <ManageOrderPage />,
         },
         {
-            path: routes.manageComment,
-            element: <ManageCommentPage />,
+            path: routes.manageOrder,
+            element: (
+                <ProtectedRoute roles={['admin']}>
+                    <ManageOrderPage />
+                </ProtectedRoute>
+            ),
         },
 
         {
@@ -59,25 +66,80 @@ function App() {
                 { path: routes.home, element: <HomePage /> },
                 { path: routes.about, element: <AboutPage /> },
                 { path: routes.product, element: <MainLayout /> },
-                { path: '/product/:id', element: <ProductDetailPage /> },
+                { path: routes.productDetail, element: <ProductDetailPage /> },
                 { path: routes.review, element: <ReviewPage /> },
                 { path: routes.contact, element: <Contact /> },
                 { path: routes.service, element: <Service /> },
                 { path: routes.faq, element: <Faq /> },
                 { path: routes.cart, element: <CartPage /> },
-                { path: routes.checkout, element: <CheckOutPage /> },
+                {
+                    path: routes.checkout,
+                    element: (
+                        <ProtectedRoute roles={['Customer', 'Manager']}>
+                            <CheckOutPage />
+                        </ProtectedRoute>
+                    ),
+                },
                 { path: routes.event, element: <EventPage /> },
                 { path: routes.aboutUs, element: <AboutUs /> },
-                { path: routes.profile, element: <ProfilePage /> },
-                // { path: routes.quiz, element: <QuizPage /> },
-                // { path: routes.startQuiz, element: <StartQuizPage /> },
-                { path: routes.resultQuiz, element: <ResultPage /> },
-                { path: '/payment-return', element: <OrderProcess /> },
+                {
+                    path: routes.profile,
+                    element: (
+                        <ProtectedRoute roles={['Customer', 'Manager', 'Staff']}>
+                            <ProfilePage />
+                        </ProtectedRoute>
+                    ),
+                },
+                {
+                    path: routes.paymentReturn,
+                    element: (
+                        <ProtectedRoute roles={['Customer', 'Manager', 'Staff']}>
+                            <OrderProcess />
+                        </ProtectedRoute>
+                    ),
+                },
+                {
+                    path: routes.resultQuiz,
+                    element: (
+                        <ProtectedRoute roles={['Customer', 'Manager', 'Staff']}>
+                            <ResultPage />
+                        </ProtectedRoute>
+                    ),
+                },
+                {
+                    path: routes.notfound,
+                    element: <Page404 />,
+                },
+                {
+                    path: routes.restricted,
+                    element: <RestrictedPage />,
+                },
             ],
         },
-
-        { path: routes.quiz, element: <QuizPage /> },
-        { path: routes.startQuiz, element: <StartQuizPage /> },
+        {
+            path: routes.quiz,
+            element: (
+                <ProtectedRoute roles={['Customer', 'Manager', 'Staff']}>
+                    <QuizPage />
+                </ProtectedRoute>
+            ),
+        },
+        {
+            path: routes.startQuiz,
+            element: (
+                <ProtectedRoute roles={['Customer', 'Manager', 'Staff']}>
+                    <StartQuizPage />
+                </ProtectedRoute>
+            ),
+        },
+        {
+            path: routes.manageComment,
+            element: (
+                <ProtectedRoute roles={['Manager', 'Staff']}>
+                    <ManageCommentPage />
+                </ProtectedRoute>
+            ),
+        },
     ]);
 
     return (

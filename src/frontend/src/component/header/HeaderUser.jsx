@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearCart, selectCartItems } from '../../redux/feature/cartSlice';
 import { resetQuiz } from '../../redux/feature/quizSlice';
 import { Avatar, Badge, Dropdown } from 'antd';
-
+import LiveSearchProduct from '../liveSearchProduct/liveSearchProduct';
 
 const HeaderUser = () => {
     const navigate = useNavigate();
@@ -21,6 +21,8 @@ const HeaderUser = () => {
     const dropdownRef = useRef(null);
     const cartItems = useSelector(selectCartItems);
     const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+    const searchRef = useRef(null);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     let user = null;
     try {
@@ -42,6 +44,24 @@ const HeaderUser = () => {
             onClick: handleLogout,
         },
     ];
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setIsSearchOpen(false);
+            }
+        }
+
+        if (isSearchOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isSearchOpen]);
 
     const fetchLogout = async () => {
         try {
@@ -70,14 +90,21 @@ const HeaderUser = () => {
         }
     };
 
-
     async function handleLogout() {
         console.log('RefreshToken: ', Cookies.get('refreshToken'));
         await fetchLogout();
     }
 
-    const toggleDropdown = () => {
-        setIsDropdownOpen(!isDropdownOpen);
+    const handleShowSearchbar = () => {
+        if (isSearchOpen) {
+            setIsSearchOpen(false);
+        } else {
+            setIsSearchOpen(true);
+            setTimeout(() => {
+                const searchInput = document.querySelector('.search-overlay input');
+                if (searchInput) searchInput.focus();
+            }, 100);
+        }
     };
 
     return (
@@ -118,7 +145,12 @@ const HeaderUser = () => {
                     )}
 
                     <FaHeart className="fs-5 text-secondary cursor-pointer" />
-                    <FaSearch className="fs-5 text-secondary cursor-pointer" />
+                    <FaSearch
+                        className={`fs-5 cursor-pointer ${isSearchOpen ? 'text-dark' : 'text-secondary'}`}
+                        onClick={handleShowSearchbar}
+                        aria-label="Search products"
+                    />
+
                     <Badge count={totalCartItems} showZero>
                         <FaShoppingBag
                             style={{ cursor: 'pointer' }}
@@ -314,14 +346,18 @@ const HeaderUser = () => {
                         if (user) {
                             navigate(routes.startQuiz);
                         } else {
-                            toast.error("Vui lòng đăng nhập để kiểm tra loại da!");
+                            toast.error('Vui lòng đăng nhập để kiểm tra loại da!');
                             navigate(routes.login);
                         }
-                    }}
-                >
+                    }}>
                     Kiểm tra loại da của bạn
                 </span>
             </nav>
+            {isSearchOpen && (
+                <div ref={searchRef} className="search-overlay">
+                    <LiveSearchProduct onClose={() => setIsSearchOpen(false)} autoFocus={true} />
+                </div>
+            )}
         </header>
     );
 };
