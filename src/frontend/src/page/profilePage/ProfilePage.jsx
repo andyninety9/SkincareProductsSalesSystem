@@ -9,12 +9,7 @@ import "./ProfilePage.css";
 
 const { TabPane } = Tabs;
 
-const promoCodes = [
-    { code: "SALE50", description: "Giảm 50% cho đơn hàng trên 500.000đ", expiry: "30/06/2025", status: "Còn hiệu lực" },
-    { code: "FREESHIP", description: "Miễn phí vận chuyển cho đơn từ 200.000đ", expiry: "15/07/2025", status: "Còn hiệu lực" },
-    { code: "WELCOME10", description: "Giảm 10% cho khách hàng mới", expiry: "01/05/2025", status: "Hết hạn" },
-    { code: "NEWYEAR", description: "Giảm 20% cho đơn hàng đầu tiên trong năm mới", expiry: "01/01/2026", status: "Còn hiệu lực" }
-];
+
 
 const initialAddresses = [
     {
@@ -65,11 +60,44 @@ const orders = [
 ];
 
 const ProfilePage = () => {
+    const [promoCodes, setPromoCodes] = useState([]);
+    const [loadingPromos, setLoadingPromos] = useState(true);
     const [userInfo, setUserInfo] = useState({});
     const [addresses, setAddresses] = useState(initialAddresses);
     const [activeTab, setActiveTab] = useState("1");
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
+
+
+    const handleSelectDefault = (index) => {
+        setAddresses((prevAddresses) =>
+            prevAddresses.map((address, i) => ({
+                ...address,
+                default: i === index, // Chỉ đặt `true` cho địa chỉ được chọn, các địa chỉ khác sẽ `false`
+            }))
+        );
+    };
+    const fetchPromoCodes = async () => {
+        try {
+            setLoadingPromos(true);
+            const response = await api.get("User/vouchers");
+            if (response.data.statusCode === 200) {
+                const data = response.data.data;
+                // If data is an object and not an array, wrap it in an array
+                setPromoCodes(Array.isArray(data) ? data : [data] || []);
+            }
+        } catch (error) {
+            console.error("Error fetching promo codes:", error);
+        } finally {
+            setLoadingPromos(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchPromoCodes();
+    }, []);
+
+    console.log(promoCodes);
 
     const refreshUserData = async () => {
         try {
@@ -223,17 +251,57 @@ const ProfilePage = () => {
                             <Button type="dashed" style={{ width: "100%", backgroundColor: "#C87E83", borderColor: "#C87E83", color: "#fff" }}>Thêm địa chỉ mới</Button>
                         </TabPane>
                         <TabPane tab={<span style={{ color: activeTab === "2" ? "#D8959A" : "gray" }}>Mã Khuyến Mãi</span>} key="2">
-                            <Row gutter={[16, 16]}>
-                                {promoCodes.slice(0, 4).map((item, index) => (
-                                    <Col span={11} key={index} style={{ marginBottom: 16, marginRight: 18 }}>
-                                        <Card style={{ borderRadius: 10, padding: 10, boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", textAlign: "center", height: "100%" }}>
-                                            <h4 style={{ color: "#D8959A", fontWeight: "bold" }}>{item.code} <span style={{ float: "right", fontSize: "10px" }}>{item.discount}</span></h4>
-                                            <p style={{ color: "gray", fontSize: "10px" }}>{item.description}</p>
-                                            <Button type="primary" style={{ backgroundColor: "#D8959A", borderColor: "#D8959A", width: "100%" }}>Lưu ngay</Button>
-                                        </Card>
-                                    </Col>
-                                ))}
-                            </Row>
+                            {loadingPromos ? (
+                                <div style={{ textAlign: "center", padding: "20px" }}>Đang tải...</div>
+                            ) : (
+                                <Row gutter={[16, 16]}>
+                                    {promoCodes.map((item, index) => (
+                                        <Col span={12} key={index} style={{ marginBottom: 16, marginRight: 18 }}>
+                                            <Card style={{
+                                                borderRadius: 10,
+                                                boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                                                height: "100%",
+                                                textAlign: "left"
+                                            }}>
+                                                <div style={{ transform: "translateX(-15px)" }}>
+                                                    <h4 style={{
+                                                        color: "#D8959A",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: "25px",
+                                                        fontSize: "16px",
+                                                        justifyContent: "flex-start"
+                                                    }}>
+                                                        #{item.voucherCode}
+                                                        <span style={{ color: "#D8959A", fontSize: "25px", fontWeight: "bold" }}>
+                                                            {item.voucherDiscount}%
+                                                        </span>
+                                                    </h4>
+                                                    <p style={{ color: "gray", fontSize: "14px", margin: 0 }}>{item.voucherDesc}</p>
+                                                    <p style={{ fontSize: "12px", color: item.statusVoucher ? "green" : "red", margin: 0 }}>
+                                                        {item.statusVoucher ? "Còn hiệu lực" : "Hết hạn"}
+                                                    </p>
+                                                </div>
+                                                <Button
+                                                    type="primary"
+                                                    style={{
+                                                        backgroundColor: "#D8959A",
+                                                        borderColor: "#D8959A",
+                                                        width: "180px",
+                                                        minWidth: "150px",
+                                                        marginTop: "8px",
+                                                        // display: "flex",
+                                                        // justifyContent: "center",
+                                                    }}
+                                                >
+                                                    Lưu ngay
+                                                </Button>
+                                            </Card>
+
+                                        </Col>
+                                    ))}
+                                </Row>
+                            )}
                         </TabPane>
                         <TabPane tab={<span style={{ color: activeTab === "3" ? "#D8959A" : "gray" }}>Lịch Sử Mua Hàng</span>} key="3">
                             <List
