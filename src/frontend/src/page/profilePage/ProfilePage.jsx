@@ -4,6 +4,7 @@ import api from "../../config/api";
 import { MailOutlined, PhoneOutlined, CalendarOutlined } from "@ant-design/icons";
 import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col, Modal, Form } from "antd";
 import UpdateProfileModal from "./UpdateProfileModal";
+import AddressModal from "./AddressModal";
 import "antd/dist/reset.css";
 import "./ProfilePage.css";
 
@@ -50,6 +51,15 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [loadingAddresses, setLoadingAddresses] = useState(true);
+    const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
+
+    const showAddressModal = () => {
+        setIsAddressModalVisible(true);
+    };
+
+    const handleCloseAddressModal = () => {
+        setIsAddressModalVisible(false);
+    };
 
     const fetchAddresses = async () => {
         try {
@@ -88,6 +98,15 @@ const ProfilePage = () => {
             }))
         );
     };
+
+    const handleAddressAdded = (newAddress) => {
+        setAddresses((prevAddresses) => {
+            const hasDefault = prevAddresses.some(addr => addr.isDefault);
+            return [{ ...newAddress, isDefault: !hasDefault }, ...prevAddresses];
+        });
+        fetchAddresses();
+    };
+
     const fetchPromoCodes = async () => {
         try {
             setLoadingPromos(true);
@@ -278,10 +297,22 @@ const ProfilePage = () => {
                                     />
                                 </div>
                             )}
-                     
-                            <Button type="dashed" style={{ width: "100%", backgroundColor: "#C87E83", borderColor: "#C87E83", color: "#fff" }}>
+
+                            <Button
+                                type="dashed"
+                                style={{ width: "100%", backgroundColor: "#C87E83", borderColor: "#C87E83", color: "#fff" }}
+                                onClick={showAddressModal}
+                            >
                                 Thêm địa chỉ mới
                             </Button>
+
+                            <AddressModal
+                                visible={isAddressModalVisible}
+                                onClose={handleCloseAddressModal}
+                                userAddress={null} // Pass null or current address if editing
+                                refreshAddressData={fetchAddresses}
+                                onAddressAdded={handleAddressAdded} // Pass the new callback
+                            />
                         </TabPane>
                         <TabPane tab={<span style={{ color: activeTab === "2" ? "#D8959A" : "gray" }}>Mã Khuyến Mãi</span>} key="2">
                             {loadingPromos ? (
