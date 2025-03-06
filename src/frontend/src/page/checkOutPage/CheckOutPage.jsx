@@ -3,7 +3,6 @@ import './CheckOutPage.scss';
 import { Col, Container, Row } from 'react-bootstrap';
 import { useForm } from 'antd/es/form/Form';
 import { Form, Input, Radio, Select } from 'antd';
-import Title from 'antd/es/typography/Title';
 import { Link } from 'react-router-dom';
 import { routes } from '../../routes';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,6 +10,8 @@ import { selectCartItems } from '../../redux/feature/cartSlice';
 import api from '../../config/api';
 import Cookies from 'js-cookie';
 import { clearCart } from '../../redux/feature/cartSlice';
+import { Button } from 'antd';
+import { LeftOutlined } from '@ant-design/icons';
 
 export default function CheckOutPage() {
     const [form] = useForm();
@@ -22,8 +23,6 @@ export default function CheckOutPage() {
     }, 0);
     const [userAddress, setUserAddress] = React.useState([]);
 
-    // const user = JSON.parse(Cookies.get('user'));
-
     const handleAddressChange = (value) => {
         const selectedAddress = userAddress.find((address) => address.addressId === value);
         if (selectedAddress) {
@@ -33,19 +32,6 @@ export default function CheckOutPage() {
                 address: selectedAddress.addDetail,
                 ward: selectedAddress.ward,
             });
-        }
-    };
-
-    const handleFetchAddress = async () => {
-        try {
-            const response = await api.get('address/get-all-address');
-            if (response.data.statusCode === 200) {
-                setUserAddress(response.data.data.items);
-            }
-
-            // setUserAddress(response.data.data);
-        } catch (error) {
-            console.error('Failed to fetch address:', error.response.data);
         }
     };
 
@@ -85,28 +71,39 @@ export default function CheckOutPage() {
     };
 
     useEffect(() => {
-        handleFetchAddress();
-        // Find the address with status = true and set it as the selected address
-        // const defaultAddress = userAddress.find((address) => address.status === true);
-        // if (defaultAddress) {
-        //     form.setFieldsValue({
-        //         userAddress: defaultAddress.addressId,
-        //         province: defaultAddress.city,
-        //         district: defaultAddress.district,
-        //         address: defaultAddress.addDetail,
-        //         ward: defaultAddress.ward,
-        //         email: user.email,
-        //         name: user.fullName ? user.fullName : '',
-        //         phone: user.phone,
-        //     });
-        // }
-    }, []);
+        const fetchAddressAndSetDefault = async () => {
+            try {
+                const response = await api.get('address/get-all-address');
+                if (response.data.statusCode === 200) {
+                    const addresses = response.data.data.items;
+                    setUserAddress(addresses);
+
+                    const defaultAddress = addresses.find((address) => address.status === true);
+                    if (defaultAddress) {
+                        form.setFieldsValue({
+                            userAddress: defaultAddress.addressId,
+                            province: defaultAddress.city,
+                            district: defaultAddress.district,
+                            address: defaultAddress.addDetail,
+                            ward: defaultAddress.ward,
+                            email: user?.email || '',
+                            name: user?.fullName || '',
+                            phone: user?.phone || '',
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch address:', error.response?.data);
+            }
+        };
+
+        fetchAddressAndSetDefault();
+    }, [form]);
 
     return (
         <Container>
-            <Link to={routes.cartPage} style={{ textDecoration: 'none', color: 'black' }}>
-                {'<'} Quay về giỏ hàng
-            </Link>
+            
+            
             <Row className="order-checkout">
                 <Col xs={6} className="order-checkout-info">
                     <Form form={form} layout="vertical" className="form-checkout" onFinish={handleCheckout}>
@@ -169,12 +166,12 @@ export default function CheckOutPage() {
                                     <h5 className="font-bold">Thanh toán</h5>
                                     <Radio.Group className="radio-group1">
                                         <Radio value="VNPay" className="border-bottom">
-                                            <div className='pay-row-vnp'>
-                                            <p>Thanh toán qua VNPAY</p>
-                                            <img 
-                                            src='https://static.ybox.vn/2024/1/4/1705551987477-logo-ngang.png'
-                                            alt=''
-                                            />
+                                            <div className="pay-row-vnp">
+                                                <p>Thanh toán qua VNPAY</p>
+                                                <img
+                                                    src="https://static.ybox.vn/2024/1/4/1705551987477-logo-ngang.png"
+                                                    alt=""
+                                                />
                                             </div>
                                         </Radio>
                                         <Radio value="COD">Thanh toán khi nhận hàng (COD)</Radio>
