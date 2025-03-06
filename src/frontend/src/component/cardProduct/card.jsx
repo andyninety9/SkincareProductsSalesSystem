@@ -1,6 +1,5 @@
-
 import './card.scss';
-import { Rate } from 'antd';
+import { Rate, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -58,8 +57,13 @@ export default function CardProduct({ product }) {
         <div
             className="cardProduct"
             onClick={handleClick}
-            style={{ cursor: 'pointer', userSelect: 'none' }} // Ngăn chặn chọn văn bản khi click
+            style={{ cursor: 'pointer', userSelect: 'none', position: 'relative' }}
         >
+            {product?.stocks === 0 && (
+                <Tag color="red" style={{ position: 'absolute', top: 10, left: 10, fontWeight: 'bold' }}>
+                    Sold Out
+                </Tag>
+            )}
             <img
                 src={
                     product?.images?.length > 0
