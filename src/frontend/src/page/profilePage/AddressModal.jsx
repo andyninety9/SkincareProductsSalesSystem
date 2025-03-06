@@ -65,11 +65,32 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData }) => 
 
     return (
         <Modal
-            title="Cập Nhật Địa Chỉ"
+            title={
+                <h2
+                    className="fw-bold text-center"
+                    style={{
+                        fontSize: '39px',
+                        fontFamily: "'Nunito', serif",
+                        color: '#5A2D2F',
+                        backgroundColor: '#F6EEF0',
+                        padding: '10px 0',
+                        margin: 0
+                    }}
+                >
+                    Cập Nhật Địa Chỉ
+                </h2>
+            }
             visible={visible}
             onCancel={onClose}
             footer={null}
+            bodyStyle={{
+                background: '#F6EEF0',
+
+            }}
             width={600}
+            padding={20}
+
+
         >
             <Form
                 form={form}
@@ -80,7 +101,7 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData }) => 
                 <Form.Item label="Địa chỉ chi tiết" name="addDetail" rules={[{ required: true, message: "Vui lòng nhập địa chỉ!" }]}>
                     <Input
                         style={{
-                            border: '1px solid #5A2D2F',
+                            border: '1px solid #C87E83',
                             backgroundColor: '#F6EEF0',
                             color: '#5A2D2F',
                             fontWeight: 'bold',

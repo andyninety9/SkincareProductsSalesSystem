@@ -1,5 +1,6 @@
 .ant-modal {
     background-color: #F6EEF0 !important;
+    padding: 0 !important;
 }
 
 .ant-modal-content {
@@ -45,6 +46,6 @@
     background-color: #F6EEF0 !important;
 }
 
-.ant-form-item-control-input .ant-form-item-control-input {
+/* .ant-form-item-control-input .ant-form-item-control-input {
     background-color: #F6EEF0 !important;
-}
+} */
