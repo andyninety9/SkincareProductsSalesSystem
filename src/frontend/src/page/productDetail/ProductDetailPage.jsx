@@ -241,14 +241,17 @@ export default function ProductDetailPage() {
                             <Button
                                 type="primary"
                                 style={{
-                                    backgroundColor: '#D8959A',
-                                    borderColor: '#D8959A',
+                                    backgroundColor: product.stocks > 0 ? '#D8959A' : '#ccc',
+                                    borderColor: product.stocks > 0 ? '#D8959A' : '#ccc',
                                     width: '80%',
                                     height: '45px',
                                     fontSize: '18px',
+                                    cursor: product.stocks > 0 ? 'pointer' : 'not-allowed',
                                 }}
-                                onClick={handleAddToCart}>
-                                Mua ngay - {product.sellPrice ? `${product.sellPrice.toLocaleString()} VND` : 'Liên hệ'}
+                                onClick={product.stocks > 0 ? handleAddToCart : null}
+                                disabled={product.stocks === 0}
+                            >
+                                {product.stocks > 0 ? `Mua ngay - ${product.sellPrice ? `${product.sellPrice.toLocaleString()} VND` : 'Liên hệ'}` : 'Hết hàng'}
                             </Button>
                         </div>
                         <div style={{ marginTop: '20px' }}>

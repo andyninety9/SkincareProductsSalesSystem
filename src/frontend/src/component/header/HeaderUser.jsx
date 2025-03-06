@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaHeart, FaSearch, FaShoppingBag } from 'react-icons/fa';
 import { routes } from '../../routes';
@@ -8,16 +8,19 @@ import '@fontsource/marko-one';
 import Cookies from 'js-cookie';
 import api from '../../config/api';
 import { toast } from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
-import { clearCart } from '../../redux/feature/cartSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearCart, selectCartItems } from '../../redux/feature/cartSlice';
 import { resetQuiz } from '../../redux/feature/quizSlice';
+import { Avatar, Badge, Dropdown } from 'antd';
+
 
 const HeaderUser = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
-    let closeTimeout = null;
+    const cartItems = useSelector(selectCartItems);
+    const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
     let user = null;
     try {
@@ -25,7 +28,20 @@ const HeaderUser = () => {
     } catch (error) {
         console.error('failed to parse user', error);
     }
-    // console.log(user);
+    const items = [
+        {
+            key: '1',
+            icon: <>Xem hồ sơ</>,
+            text: 'Profile',
+            onClick: () => navigate(routes.profile),
+        },
+        {
+            key: '2',
+            icon: <>Đăng xuất</>,
+            text: 'Logout',
+            onClick: handleLogout,
+        },
+    ];
 
     const fetchLogout = async () => {
         try {
@@ -53,6 +69,7 @@ const HeaderUser = () => {
             navigate(routes.home);
         }
     };
+    
 
     async function handleLogout() {
         console.log('RefreshToken: ', Cookies.get('refreshToken'));
@@ -84,10 +101,12 @@ const HeaderUser = () => {
                 <div className="d-flex gap-3 align-items-center justify-content-end" style={{ flex: 1 }}>
                     {user ? (
                         <>
-                            <>{user.fullname}</>{' '}
-                            <Link to={routes.login} className="text-dark text-decoration-none" onClick={handleLogout}>
-                                Đăng xuất
-                            </Link>
+                            <Dropdown
+                                menu={{
+                                    items,
+                                }}>
+                                <Avatar src={<img src={user.avatarUrl} alt="avatar" />} style={{ cursor: 'pointer' }} />
+                            </Dropdown>
                         </>
                     ) : (
                         <>
@@ -100,11 +119,13 @@ const HeaderUser = () => {
 
                     <FaHeart className="fs-5 text-secondary cursor-pointer" />
                     <FaSearch className="fs-5 text-secondary cursor-pointer" />
-                    <FaShoppingBag
-                        style={{ cursor: 'pointer' }}
-                        className="fs-5 text-secondary cursor-pointer"
-                        onClick={() => navigate(routes.cart)}
-                    />
+                    <Badge count={totalCartItems} showZero>
+                        <FaShoppingBag
+                            style={{ cursor: 'pointer' }}
+                            className="fs-5 text-secondary cursor-pointer"
+                            onClick={() => navigate(routes.cart)}
+                        />
+                    </Badge>
                 </div>
             </div>
 
