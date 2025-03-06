@@ -69,7 +69,7 @@ const HeaderUser = () => {
             navigate(routes.home);
         }
     };
-    
+
 
     async function handleLogout() {
         console.log('RefreshToken: ', Cookies.get('refreshToken'));
@@ -307,6 +307,20 @@ const HeaderUser = () => {
                 <Link to={routes.about} className="text-dark text-decoration-none" style={{ whiteSpace: 'nowrap' }}>
                     Về chúng tôi
                 </Link>
+                <span
+                    className="text-dark text-decoration-none cursor-pointer"
+                    style={{ whiteSpace: 'nowrap' }}
+                    onClick={() => {
+                        if (user) {
+                            navigate(routes.startQuiz);
+                        } else {
+                            toast.error("Vui lòng đăng nhập để kiểm tra loại da!");
+                            navigate(routes.login);
+                        }
+                    }}
+                >
+                    Kiểm tra loại da của bạn
+                </span>
             </nav>
         </header>
     );

@@ -69,12 +69,15 @@ function App() {
                 { path: routes.event, element: <EventPage /> },
                 { path: routes.aboutUs, element: <AboutUs /> },
                 { path: routes.profile, element: <ProfilePage /> },
-                { path: routes.quiz, element: <QuizPage /> },
-                { path: routes.startQuiz, element: <StartQuizPage /> },
+                // { path: routes.quiz, element: <QuizPage /> },
+                // { path: routes.startQuiz, element: <StartQuizPage /> },
                 { path: routes.resultQuiz, element: <ResultPage /> },
                 { path: '/payment-return', element: <OrderProcess /> },
             ],
         },
+
+        { path: routes.quiz, element: <QuizPage /> },
+        { path: routes.startQuiz, element: <StartQuizPage /> },
     ]);
 
     return (

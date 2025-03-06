@@ -30,7 +30,7 @@ const StartQuizPage = ({ onExit }) => {
                 toast.success('Bắt đầu quá trình kiểm tra da');
                 setTimeout(() => {
                     navigate('/quiz');
-                }, 1000);
+                }, 500);
             } else {
                 toast.error('Không thể kiểm tra da lúc này, vui lòng thử lại sau');
             }
@@ -51,6 +51,12 @@ const StartQuizPage = ({ onExit }) => {
             .max(200, 'Mô tả không được vượt quá 200 ký tự')
             .required('Mô tả bài quiz không được để trống'),
     });
+    const handleConfirmExit = () => {
+        const confirmExit = window.confirm('Bạn có muốn thoát khỏi bài quiz và quay lại trang chủ không?');
+        if (confirmExit) {
+            navigate('/'); // Navigate back to homepage
+        }
+    };
 
     return (
         <div
@@ -65,7 +71,7 @@ const StartQuizPage = ({ onExit }) => {
             }}>
             {/* Exit Button */}
             <Button
-                onClick={onExit}
+                onClick={handleConfirmExit}
                 shape="circle"
                 icon={<LogoutOutlined style={{ fontSize: '24px', color: '#E57373' }} />}
                 style={{
@@ -76,7 +82,6 @@ const StartQuizPage = ({ onExit }) => {
                     border: 'none',
                 }}
             />
-
             <div
                 style={{
                     maxWidth: '750px',
