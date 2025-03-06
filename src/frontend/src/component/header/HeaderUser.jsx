@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearCart, selectCartItems } from '../../redux/feature/cartSlice';
 import { resetQuiz } from '../../redux/feature/quizSlice';
 import { Avatar, Badge, Dropdown } from 'antd';
+import LiveSearchProduct from '../liveSearchProduct/liveSearchProduct';
 
 const HeaderUser = () => {
     const navigate = useNavigate();
@@ -340,6 +341,11 @@ const HeaderUser = () => {
                     Kiểm tra loại da của bạn
                 </span>
             </nav>
+            {isSearchOpen && (
+                <div ref={searchRef} className="search-overlay">
+                    <LiveSearchProduct onClose={() => setIsSearchOpen(false)} />
+                </div>
+            )}
         </header>
     );
 };
