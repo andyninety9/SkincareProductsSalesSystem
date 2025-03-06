@@ -82,7 +82,7 @@ function App() {
                 { path: routes.aboutUs, element: <AboutUs /> },
                 { path: routes.profile, element: <ProfilePage /> },
                 { path: routes.resultQuiz, element: <ResultPage /> },
-                { path: '/payment-return', element: <OrderProcess /> },
+                { path: routes.paymentReturn, element: <OrderProcess /> },
             ],
         },
 
