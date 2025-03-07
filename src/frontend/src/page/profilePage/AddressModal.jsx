@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 import { Modal, Form, Input, Select, Button, message } from "antd";
 import api from "../../config/api";
@@ -60,21 +61,22 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData, onAdd
     };
     const handleUpdate = async (values) => {
         setLoading(true);
+        let payload;
         try {
             const selectedProvince = provinces.find(p => p.ProvinceID === values.province);
             const selectedDistrict = districts.find(d => d.DistrictID === values.district);
             const selectedWard = wards.find(w => w.WardCode === values.ward);
 
-            const payload = {
+            payload = {
                 AddDetail: values.addDetail || "",
                 city: selectedProvince ? selectedProvince.ProvinceName : "",
                 district: selectedDistrict ? selectedDistrict.DistrictName : "",
                 ward: selectedWard ? selectedWard.WardName : ""
             };
 
-            console.log('Submitting address data:', payload);
+            // console.log('Submitting address data:', payload);
             const response = await api.post("Address/create", payload);
-            console.log('Create address response:', response.data);
+            // console.log('Create address response:', response.data);
 
             if (response.data.statusCode === 200) {
                 message.success("Địa chỉ đã được cập nhật thành công!");

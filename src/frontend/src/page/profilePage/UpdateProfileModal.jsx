@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useState } from "react";
 import { Modal, Form, Input, Select, Button, message } from "antd";
 import "./UpdateProfileModal.css";
@@ -19,6 +20,7 @@ const reverseGenderMap = {
     "3": "Other"
 };
 
+// eslint-disable-next-line react/prop-types
 const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
@@ -61,7 +63,7 @@ const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => 
             console.error("Error updating user info:", error);
             if (error.response) {
                 console.log("Server error response:", error.response.data);
-                console.log("API Response:", response.data);
+                // console.log("API Response:", response.data);
 
                 // Handle specific error messages from API
                 if (error.response.data.detail === "The provided phone number is already registered.") {

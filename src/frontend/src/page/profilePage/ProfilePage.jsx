@@ -93,7 +93,7 @@ const ProfilePage = () => {
         setAddresses((prevAddresses) =>
             prevAddresses.map((address, i) => ({
                 ...address,
-                isDefault: i === index, // Chỉ đặt `true` cho địa chỉ được chọn, các địa chỉ khác sẽ `false`
+                isDefault: i === index, 
             }))
         );
     };
