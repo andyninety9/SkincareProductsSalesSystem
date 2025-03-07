@@ -84,7 +84,7 @@ const ProfilePage = () => {
         setAddresses((prevAddresses) =>
             prevAddresses.map((address, i) => ({
                 ...address,
-                isDefault: i === index, // Chỉ đặt `true` cho địa chỉ được chọn, các địa chỉ khác sẽ `false`
+                isDefault: i === index, 
             }))
         );
     };
@@ -95,6 +95,7 @@ const ProfilePage = () => {
             if (response.data.statusCode === 200) {
                 const data = response.data.data;
                 // If data is an object and not an array, wrap it in an array
+                // eslint-disable-next-line no-constant-binary-expression
                 setPromoCodes(Array.isArray(data) ? data : [data] || []);
             }
         } catch (error) {
