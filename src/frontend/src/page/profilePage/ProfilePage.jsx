@@ -75,8 +75,10 @@ const ProfilePage = () => {
                         status: addr.status,
                     }))
                     : [];
+                // Sort addresses: default (isDefault: true) at the top
+                formattedAddresses.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
                 setAddresses(formattedAddresses);
-                console.log("Formatted Addresses:", formattedAddresses);
+                console.log("Formatted and Sorted Addresses:", formattedAddresses);
             }
         } catch (error) {
             console.error("Error fetching addresses:", error);
