@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../config/api';
-import { Avatar, Empty, Input, List, Spin } from 'antd';
+import { Avatar, Empty, Input, List, Skeleton, Spin } from 'antd';
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import './liveSearchProduct.css';
 
@@ -46,6 +46,27 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
     const handleInputChange = (e) => {
         setSearchTerm(e.target.value);
     };
+
+    const SearchResultSkeleton = () => (
+        <>
+            {[1, 2, 3].map((item) => (
+                <div key={item} className="search-result-skeleton">
+                    <div className="skeleton-item">
+                        <Skeleton.Avatar active size={54} shape="square" style={{ marginRight: 16, flexShrink: 0 }} />
+                        <div style={{ flex: 1 }}>
+                            <Skeleton.Button
+                                active
+                                style={{ width: '80%', height: 16, marginBottom: 8 }}
+                                size="small"
+                                shape="round"
+                            />
+                            <Skeleton.Button active style={{ width: '40%', height: 14 }} size="small" shape="round" />
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </>
+    );
     return (
         // Trong hàm return của LiveSearchProduct.jsx
         <div className="live-search-container">
@@ -65,7 +86,8 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
             <div className="search-results">
                 {loading ? (
                     <div className="search-loading">
-                        <Spin size="default" />
+                        {/* <Spin size="default" /> */}
+                        <SearchResultSkeleton />
                     </div>
                 ) : (
                     <>
@@ -106,7 +128,7 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
                                     <div className="view-all-results">
                                         <button
                                             onClick={() => {
-                                                navigate(`/products?search=${encodeURIComponent(searchTerm)}`);
+                                                navigate(`/product`);
                                                 onClose();
                                             }}
                                             className="view-all-btn">
