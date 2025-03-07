@@ -280,7 +280,7 @@ const Login = () => {
                   </div>
                   <div className="text-center mt-3">
                     <div className="d-flex justify-content-center gap-3">
-                      <button
+                      {/* <button
                         type="submit"
                         className="d-flex align-items-center justify-content-center"
                         style={{
@@ -292,7 +292,7 @@ const Login = () => {
                         }}
                       >
                         <FaFacebook size={18} style={{ color: "#5A2D2F" }} />
-                      </button>
+                      </button> */}
 
                       <button
                         type="button"
