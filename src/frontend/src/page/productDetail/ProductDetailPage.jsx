@@ -243,7 +243,18 @@ export default function ProductDetailPage() {
                                 ({product.reviewCount || 0} đánh giá)
                             </span>
                         </div>
-                        
+                        {/* Hiển thị giá tiền */}
+                        <div style={{ marginBottom: '15px' }}>
+                            <h3
+                                style={{
+                                    fontSize: '24px',
+                                    fontWeight: 'bold',
+                                    color: '#D8959A',
+                                    marginBottom: '5px',
+                                }}>
+                                {product.sellPrice ? `${product.sellPrice.toLocaleString()} đ` : 'Liên hệ để biết giá'}
+                            </h3>
+                        </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                             {/* Nút chọn số lượng */}
                             <div
@@ -302,11 +313,7 @@ export default function ProductDetailPage() {
                                 }}
                                 onClick={product.stocks > 0 ? handleBuyNow : null}
                                 disabled={product.stocks === 0}>
-                                {product.stocks > 0
-                                    ? `Mua ngay - ${
-                                          product.sellPrice ? `${product.sellPrice.toLocaleString()} VND` : 'Liên hệ'
-                                      }`
-                                    : 'Hết hàng'}
+                                {product.stocks > 0 ? 'Mua ngay' : 'Hết hàng'}
                             </Button>
                         </div>
                         <div style={{ marginTop: '20px' }}>
