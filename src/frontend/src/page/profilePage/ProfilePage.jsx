@@ -89,13 +89,30 @@ const ProfilePage = () => {
         }
     };
 
-    const handleSelectDefault = (index) => {
-        setAddresses((prevAddresses) =>
-            prevAddresses.map((address, i) => ({
-                ...address,
-                isDefault: i === index, 
-            }))
-        );
+    const handleSelectDefault = async (index) => {
+        const selectedAddress = addresses[index];
+        if (!selectedAddress.addressId) {
+            message.error("Không thể chọn địa chỉ mặc định vì thiếu ID!");
+            return;
+        }
+
+        try {
+            const response = await api.post("Address/active", {
+                addressId: selectedAddress.addressId,
+    
+            });
+            console.log("Set Default API Response:", response.data);
+
+            if (response.data.statusCode === 200) {
+                message.success("Đã đặt địa chỉ làm mặc định!");
+                await fetchAddresses();
+            } else {
+                message.error(`Cập nhật địa chỉ mặc định thất bại: ${response.data.detail || "Lỗi không xác định"}`);
+            }
+        } catch (error) {
+            console.error("Error setting default address:", error);
+            message.error("Lỗi khi cập nhật địa chỉ mặc định!");
+        }
     };
 
     const handleAddressAdded = (newAddress) => {
