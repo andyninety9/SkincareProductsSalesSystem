@@ -84,7 +84,7 @@ export default function ProductPage() {
 
     const fetchProduct = async () => {
         try {
-            const response = await api.get('products', {
+            const response = await api.get('Products', {
                 params: {
                     keyword: '',
                     cateID: '',
