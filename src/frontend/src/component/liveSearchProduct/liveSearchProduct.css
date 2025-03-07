@@ -254,3 +254,50 @@
 .search-results {
     animation: fadeIn 0.3s ease;
 }
+
+/* CSS cho skeleton loading */
+.search-result-skeleton {
+    padding: 12px 16px;
+}
+
+.skeleton-item {
+    display: flex;
+    align-items: center;
+}
+
+/* Chỉnh màu skeleton phù hợp với theme */
+.ant-skeleton-element .ant-skeleton-avatar,
+.ant-skeleton-element .ant-skeleton-button {
+    background: linear-gradient(90deg, #f7e8ea 25%, #f9f0f1 37%, #f7e8ea 63%);
+    background-size: 400% 100%;
+}
+
+/* CSS cho phần gợi ý */
+.search-prompt {
+    text-align: center;
+    padding: 20px 0;
+    color: #888;
+}
+
+.search-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.suggestion-tag {
+    background-color: #f9f0f1;
+    color: #d8959a;
+    border-radius: 16px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.suggestion-tag:hover {
+    background-color: #f1dad8;
+    color: #c27b81;
+}
