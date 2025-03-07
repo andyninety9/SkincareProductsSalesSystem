@@ -9,6 +9,7 @@ import { dispatch } from './../../../node_modules/react-hot-toast/src/core/store
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, clearCart, increaseQuantity, selectCartItems } from '../../redux/feature/cartSlice';
 import toast from 'react-hot-toast';
+import Cookies from 'js-cookie';
 const { Panel } = Collapse;
 
 const calculateAverageRating = (reviews) => {
@@ -26,7 +27,19 @@ export default function ProductDetailPage() {
     const [mainImage, setMainImage] = useState('');
     const [reviews, setReviews] = useState([]);
     const [visibleReviews, setVisibleReviews] = useState(5);
+    const userAuth = Cookies.get('user');
     const navigate = useNavigate();
+
+    
+    const handleCheckLogin = () => {
+        if (!userAuth) {
+            toast.error('Vui lòng đăng nhập để mua hàng');
+            navigate('/login');
+            return false;
+        }
+        return true;
+    };
+
     useEffect(() => {
         const fetchProductDetail = async () => {
             try {
@@ -57,6 +70,7 @@ export default function ProductDetailPage() {
         }
     }, [id]);
     const handleBuyNow = () => {
+        if (!handleCheckLogin()) return;
         handleAddToCart();
         navigate('/cart'); // Navigate to cart page
     };
@@ -64,6 +78,7 @@ export default function ProductDetailPage() {
     if (!product) return <p>Đang tải dữ liệu...</p>;
 
     const handleAddToCart = () => {
+        if (!handleCheckLogin()) return;
         const productToAdd = {
             ...product,
             quantity, // Thêm số lượng đã chọn
