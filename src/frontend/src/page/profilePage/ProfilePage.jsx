@@ -8,44 +8,29 @@ import "antd/dist/reset.css";
 import "./ProfilePage.css";
 
 const { TabPane } = Tabs;
-
-const orders = [
-    {
-        id: "#123456",
-        name: "Nguyen Van Yeah",
-        date: "20/01/2025",
-        price: "120.000 vnd - 1 món",
-        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
-        status: "Pending",
-    },
-    {
-        id: "#123456",
-        name: "Nguyen Van Yeah",
-        date: "20/01/2025",
-        price: "120.000 vnd - 1 món",
-        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
-        status: "Pending",
-    },
-    {
-        id: "#123456",
-        name: "Nguyen Van Yeah",
-        date: "20/01/2025",
-        price: "120.000 vnd - 1 món",
-        address: "Tôn Đản, Quận 4, Thành Phố Hồ Chí Minh, Việt Nam",
-        status: "Pending",
-    },
-];
-
 const ProfilePage = () => {
+    //addresses
+    const [loadingAddresses, setLoadingAddresses] = useState(true);
+    const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
+    //promo codes
     const [promoCodes, setPromoCodes] = useState([]);
     const [loadingPromos, setLoadingPromos] = useState(true);
+    //orders history
+    const [ordersHistory, setOrdersHistory] = useState([]);
+    const [loadingOrders, setLoadingOrders] = useState(true);
+    //user info
     const [userInfo, setUserInfo] = useState({});
     const [addresses, setAddresses] = useState([]);
     const [activeTab, setActiveTab] = useState("1");
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [loadingAddresses, setLoadingAddresses] = useState(true);
-    const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
+
+    useEffect(() => {
+        fetchPromoCodes();
+        fetchAddresses();
+        refreshUserData();
+        fetchOrdersHistory();
+    }, []);
 
     const showAddressModal = () => {
         setIsAddressModalVisible(true);
@@ -55,6 +40,7 @@ const ProfilePage = () => {
         setIsAddressModalVisible(false);
     };
 
+    //get all addresses
     const fetchAddresses = async () => {
         try {
             setLoadingAddresses(true);
@@ -75,7 +61,7 @@ const ProfilePage = () => {
                         status: addr.status,
                     }))
                     : [];
-                // Sort addresses: default (isDefault: true) at the top
+
                 formattedAddresses.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
                 setAddresses(formattedAddresses);
                 console.log("Formatted and Sorted Addresses:", formattedAddresses);
@@ -87,6 +73,7 @@ const ProfilePage = () => {
         }
     };
 
+    //set default address
     const handleSelectDefault = async (index) => {
         const selectedAddress = addresses[index];
         if (!selectedAddress.addressId) {
@@ -122,10 +109,11 @@ const ProfilePage = () => {
             return newAddresses;
         });
 
-        fetchAddresses(); // Sync with server after adding
+        fetchAddresses();
 
     };
 
+    //delete address
     const deleteAddress = async (addressId) => {
         console.log("Deleting address with ID:", addressId);
         console.log("Current addresses before deletion:", addresses);
@@ -145,7 +133,7 @@ const ProfilePage = () => {
                     console.log("Addresses after deletion:", updatedAddresses);
                     return updatedAddresses;
                 });
-                await fetchAddresses(); // Sync with server
+                await fetchAddresses();
             } else {
                 message.error(`Xóa địa chỉ thất bại: ${response.data.detail || "Lỗi không xác định"}`);
             }
@@ -156,6 +144,7 @@ const ProfilePage = () => {
     };
 
 
+    //get all promo codes
     const fetchPromoCodes = async () => {
         try {
             setLoadingPromos(true);
@@ -171,12 +160,26 @@ const ProfilePage = () => {
         }
     };
 
-    useEffect(() => {
-        fetchPromoCodes();
-        fetchAddresses();
-        refreshUserData();
-    }, []);
+    //get all orders
+    const fetchOrdersHistory = async () => {
+        try {
+            setLoadingOrders(true);
+            const response = await api.get("User/orders-history");
+            if (response.data.statusCode === 200) {
+                const ordersData = response.data.data.items;
+                setOrdersHistory(ordersData || []);
+            } else {
+                message.error("Failed to fetch order history.");
+            }
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+            message.error("Error fetching order history!");
+        } finally {
+            setLoadingOrders(false);
+        }
+    };
 
+    //get user data
     const refreshUserData = async () => {
         try {
             setLoading(true);
@@ -353,7 +356,7 @@ const ProfilePage = () => {
                                                         style={{
                                                             border: "1px solid #ddd",
                                                             backgroundColor: item.isDefault ? "#fff" : "transparent",
-                                                            color: "gray", // Default text color
+                                                            color: "gray",
                                                             padding: "2px 6px",
                                                             height: "auto",
                                                             lineHeight: "normal"
@@ -449,48 +452,70 @@ const ProfilePage = () => {
                             )}
                         </TabPane>
                         <TabPane tab={<span style={{ color: activeTab === "3" ? "#D8959A" : "gray" }}>Lịch Sử Mua Hàng</span>} key="3">
-                            <List
-                                dataSource={orders}
-                                renderItem={(order) => (
-                                    <List.Item
-                                        style={{ display: "flex", alignItems: "center", padding: 10, borderBottom: "1px solid #ddd" }}
-                                    >
-                                        <img
-                                            src={order.image}
-                                            alt="Product"
-                                            style={{ width: 80, height: 80, borderRadius: 10, marginRight: 15 }}
-                                        />
-                                        <div style={{ flex: 1 }}>
-                                            <strong>{order.name}</strong>
-                                            <p style={{ margin: 0 }}>{order.date}</p>
-                                            <p style={{ fontWeight: "bold", color: "#D8959A" }}>{order.price}</p>
-                                            <p style={{ marginTop: -2, color: "gray", fontSize: "10px" }}>{order.address}</p>
-                                        </div>
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                alignItems: "flex-end",
-                                                marginBottom: "50px",
-                                            }}
-                                        >
-                                            <p style={{ color: "#D8959A", margin: 0, fontSize: "17px" }}>{order.id}</p>
-                                            <Tag
-                                                color="#D8959A"
-                                                style={{
-                                                    borderRadius: 5,
-                                                    height: "30px",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                }}
+                            {loadingOrders ? (
+                                <div style={{ textAlign: "center", padding: "20px" }}>Đang tải...</div>
+                            ) : ordersHistory.length === 0 ? (
+                                <div style={{ textAlign: "center", padding: "20px" }}>Không có lịch sử mua hàng.</div>
+                            ) : (
+                                <div
+                                    style={{
+                                        maxHeight: "400px",
+                                        overflowY: "auto",
+                                        paddingRight: "10px",
+                                    }}
+                                >
+                                    <List
+                                        dataSource={ordersHistory}
+                                        renderItem={(order) => (
+                                            <List.Item
+                                                style={{ display: "flex", alignItems: "center", padding: 10, borderBottom: "1px solid #ddd" }}
                                             >
-                                                {order.status}
-                                            </Tag>
-                                        </div>
-                                    </List.Item>
-                                )}
-                            />
+                                                <img
+                                                    src="https://via.placeholder.com/80" // Placeholder image
+                                                    alt="Product"
+                                                    style={{ width: 80, height: 80, borderRadius: 10, marginRight: 15 }}
+                                                />
+                                                <div style={{ flex: 1 }}>
+                                                    <strong>{order.customerName}</strong>
+                                                    <p style={{ margin: 0 }}>
+                                                        {new Date(order.orderDate).toLocaleDateString("vi-VN")}
+                                                    </p>
+                                                    <p style={{ fontWeight: "bold", color: "#D8959A" }}>
+                                                        {order.totalPrice.toLocaleString("vi-VN")} vnd - {order.products.length} món
+                                                    </p>
+                                                    <p style={{ marginTop: -2, color: "gray", fontSize: "10px" }}>
+                                                        {order.products[0]?.productName}
+                                                    </p>
+                                                </div>
+                                                <div
+                                                    style={{
+                                                        display: "flex",
+                                                        flexDirection: "column",
+                                                        alignItems: "flex-end",
+                                                        marginBottom: "50px",
+                                                    }}
+                                                >
+                                                    <p style={{ color: "#D8959A", margin: 0, fontSize: "17px" }}>
+                                                        #{order.orderId}
+                                                    </p>
+                                                    <Tag
+                                                        color="#D8959A"
+                                                        style={{
+                                                            borderRadius: 5,
+                                                            height: "30px",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "center",
+                                                        }}
+                                                    >
+                                                        {order.orderStatus}
+                                                    </Tag>
+                                                </div>
+                                            </List.Item>
+                                        )}
+                                    />
+                                </div>
+                            )}
                         </TabPane>
                         <TabPane tab={<span style={{ color: activeTab === "4" ? "#D8959A" : "gray" }}>Cài Đặt</span>} key="4">
                             <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "10px" }}>
