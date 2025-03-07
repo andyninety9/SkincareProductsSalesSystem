@@ -108,7 +108,6 @@ const ProfilePage = () => {
             console.log("New addresses list after adding:", newAddresses);
             return newAddresses;
         });
-
         fetchAddresses();
 
     };
@@ -346,7 +345,8 @@ const ProfilePage = () => {
                                                             border: item.isDefault ? "1px solid #D8959A" : "1px solid #ddd",
                                                             backgroundColor: item.isDefault ? "#fff" : "transparent",
                                                             color: item.isDefault ? "#D8959A" : "gray",
-                                                            marginRight: 2,
+                                                            marginRight: 4,
+                                                            fontSize: "12px",
                                                         }}
                                                     >
                                                         Mặc Định
@@ -357,9 +357,10 @@ const ProfilePage = () => {
                                                             border: "1px solid #ddd",
                                                             backgroundColor: item.isDefault ? "#fff" : "transparent",
                                                             color: "gray",
-                                                            padding: "2px 6px",
+                                                            padding: "3px 6px",
                                                             height: "auto",
-                                                            lineHeight: "normal"
+                                                            lineHeight: "normal",
+                                                            fontSize: "12px",
                                                         }}
                                                         type="link"
                                                         danger
@@ -378,7 +379,13 @@ const ProfilePage = () => {
                             )}
                             <Button
                                 type="dashed"
-                                style={{ width: "100%", backgroundColor: "#C87E83", borderColor: "#C87E83", color: "#fff" }}
+                                style={{
+                                    width: "100%",
+                                    backgroundColor: "#C87E83",
+                                    borderColor: "#C87E83",
+                                    color: "#fff",
+                                    marginTop: 20,
+                                }}
                                 onClick={showAddressModal}
                             >
                                 Thêm địa chỉ mới
@@ -480,9 +487,10 @@ const ProfilePage = () => {
                                                     <p style={{ margin: 0 }}>
                                                         {new Date(order.orderDate).toLocaleDateString("vi-VN")}
                                                     </p>
-                                                    <p style={{ fontWeight: "bold", color: "#D8959A" }}>
+                                                    <p style={{ fontWeight: "bold", color: "#D8959A", whiteSpace: "nowrap" }}>
                                                         {order.totalPrice.toLocaleString("vi-VN")} vnd - {order.products.length} món
                                                     </p>
+
                                                     <p style={{ marginTop: -2, color: "gray", fontSize: "10px" }}>
                                                         {order.products[0]?.productName}
                                                     </p>
@@ -495,7 +503,7 @@ const ProfilePage = () => {
                                                         marginBottom: "50px",
                                                     }}
                                                 >
-                                                    <p style={{ color: "#D8959A", margin: 0, fontSize: "17px" }}>
+                                                    <p style={{ color: "#D8959A", margin: "0 0 8px 0", fontSize: "12px" }}>
                                                         #{order.orderId}
                                                     </p>
                                                     <Tag
@@ -506,12 +514,14 @@ const ProfilePage = () => {
                                                             display: "flex",
                                                             alignItems: "center",
                                                             justifyContent: "center",
+                                                            marginTop: "5px",
                                                         }}
                                                     >
                                                         {order.orderStatus}
                                                     </Tag>
                                                 </div>
                                             </List.Item>
+
                                         )}
                                     />
                                 </div>
