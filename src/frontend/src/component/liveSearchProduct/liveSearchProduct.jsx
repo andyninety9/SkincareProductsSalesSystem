@@ -106,7 +106,7 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
                                     <div className="view-all-results">
                                         <button
                                             onClick={() => {
-                                                navigate(`/products?search=${encodeURIComponent(searchTerm)}`);
+                                                navigate(`/product`);
                                                 onClose();
                                             }}
                                             className="view-all-btn">
