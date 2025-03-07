@@ -113,6 +113,7 @@ const ProfilePage = () => {
     };
 
     const handleAddressAdded = (newAddress) => {
+        console.log("handleAddressAdded received:", newAddress);
         setAddresses((prevAddresses) => {
             const hasDefault = prevAddresses.some((addr) => addr.isDefault);
             const updatedAddress = { ...newAddress, isDefault: !hasDefault };
@@ -120,8 +121,40 @@ const ProfilePage = () => {
             console.log("New addresses list after adding:", newAddresses);
             return newAddresses;
         });
+
         fetchAddresses(); // Sync with server after adding
+
     };
+
+    const deleteAddress = async (addressId) => {
+        console.log("Deleting address with ID:", addressId);
+        console.log("Current addresses before deletion:", addresses);
+        if (!addressId) {
+            message.error("Không thể xóa địa chỉ vì thiếu ID!");
+            return;
+        }
+        try {
+            const response = await api.delete("Address/delete", {
+                data: { addressId },
+            });
+            console.log("Delete API Response:", response.data);
+            if (response.data.statusCode === 200) {
+                message.success("Địa chỉ đã được xóa thành công!");
+                setAddresses((prevAddresses) => {
+                    const updatedAddresses = prevAddresses.filter((addr) => addr.addressId !== addressId);
+                    console.log("Addresses after deletion:", updatedAddresses);
+                    return updatedAddresses;
+                });
+                await fetchAddresses(); // Sync with server
+            } else {
+                message.error(`Xóa địa chỉ thất bại: ${response.data.detail || "Lỗi không xác định"}`);
+            }
+        } catch (error) {
+            console.error("Error deleting address:", error);
+            message.error("Lỗi khi xóa địa chỉ!");
+        }
+    };
+
 
     const fetchPromoCodes = async () => {
         try {
@@ -301,18 +334,29 @@ const ProfilePage = () => {
                                                     <strong>{`${item.addDetail}, ${item.ward}, ${item.district}, ${item.city}, ${item.country}`}</strong>
                                                     <p style={{ color: "gray" }}>{item.addDetail}</p>
                                                 </div>
-                                                <Tag
-                                                    color={item.isDefault ? "#D8959A" : "gray"}
-                                                    onClick={() => handleSelectDefault(index)}
-                                                    style={{
-                                                        cursor: "pointer",
-                                                        border: item.isDefault ? "1px solid #D8959A" : "1px solid #ddd",
-                                                        backgroundColor: item.isDefault ? "#fff" : "transparent",
-                                                        color: item.isDefault ? "#D8959A" : "gray",
-                                                    }}
-                                                >
-                                                    Mặc Định
-                                                </Tag>
+                                                <div style={{ display: "flex", alignItems: "center" }}> {/* Wrapped in div for layout */}
+                                                    <Tag
+                                                        color={item.isDefault ? "#D8959A" : "gray"}
+                                                        onClick={() => handleSelectDefault(index)}
+                                                        style={{
+                                                            cursor: "pointer",
+                                                            border: item.isDefault ? "1px solid #D8959A" : "1px solid #ddd",
+                                                            backgroundColor: item.isDefault ? "#fff" : "transparent",
+                                                            color: item.isDefault ? "#D8959A" : "gray",
+                                                            marginRight: 10,
+                                                        }}
+                                                    >
+                                                        Mặc Định
+                                                    </Tag>
+                                                    <Button
+                                                        type="link"
+                                                        danger
+                                                        onClick={() => deleteAddress(item.addressId)}
+                                                        disabled={!item.addressId} // Disable if no addressId
+                                                    >
+                                                        Xóa
+                                                    </Button>
+                                                </div>
                                             </List.Item>
                                         )}
                                     />
