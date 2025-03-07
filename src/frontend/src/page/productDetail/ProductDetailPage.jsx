@@ -6,8 +6,8 @@ import './ProductDetailPage.scss';
 import api from '../../config/api';
 import { useParams } from 'react-router-dom';
 import { dispatch } from './../../../node_modules/react-hot-toast/src/core/store';
-import { useDispatch } from 'react-redux';
-import { addToCart, clearCart } from '../../redux/feature/cartSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart, clearCart, increaseQuantity, selectCartItems } from '../../redux/feature/cartSlice';
 import toast from 'react-hot-toast';
 const { Panel } = Collapse;
 
@@ -18,6 +18,7 @@ const calculateAverageRating = (reviews) => {
 
 export default function ProductDetailPage() {
     const dispatch = useDispatch();
+    const cartItems = useSelector(selectCartItems);
     // const [mainImage, setMainImage] = useState(productImages[0]);
     const { id } = useParams();
     const [product, setProduct] = useState(null);
@@ -60,12 +61,23 @@ export default function ProductDetailPage() {
 
     const handleAddToCart = () => {
         const productToAdd = {
-            ...product,  // Thêm thông tin sản phẩm vào
-            quantity,    // Thêm số lượng đã chọn
+            ...product,
+            quantity, // Thêm số lượng đã chọn
         };
-        dispatch(addToCart(productToAdd));  // Gửi sản phẩm với số lượng vào Redux store
+
+        // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+        const existingProduct = cartItems.find(item => item.productId === product.productId);
+
+        if (existingProduct) {
+            // Nếu sản phẩm đã có trong giỏ hàng, chỉ cập nhật số lượng
+            dispatch(increaseQuantity({ productId: product.productId, quantity }));
+        } else {
+            // Nếu sản phẩm chưa có, thêm sản phẩm mới vào giỏ
+            dispatch(addToCart(productToAdd));
+        }
         toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
     };
+
 
     const averageRating = calculateAverageRating(reviews);
 
@@ -206,13 +218,13 @@ export default function ProductDetailPage() {
                             }}>
                             {product.productDesc}
                         </p>
-                        <p 
-                        style={{
-                            fontSize: '14px',
-                            color: '#666',
-                            marginBottom: '15px',
-                            lineHeight: '1.6',
-                        }}
+                        <p
+                            style={{
+                                fontSize: '14px',
+                                color: '#666',
+                                marginBottom: '15px',
+                                lineHeight: '1.6',
+                            }}
                         >Còn {product.stocks} sản phẩm</p>
                         {/* Đánh giá */}
                         <div
@@ -240,19 +252,26 @@ export default function ProductDetailPage() {
                                     justifyContent: 'space-between',
                                 }}>
                                 <button
-                                    onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                                    onClick={() => {
+                                        // Giảm số lượng, nhưng không nhỏ hơn 1
+                                        setQuantity(prev => Math.max(1, prev - 1));
+                                    }}
                                     style={quantityButtonStyle}
                                 >
                                     −
                                 </button>
                                 <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{quantity}</span>
                                 <button
-                                    onClick={() => setQuantity(prev => Math.min(product.stocks, prev + 1))}
+                                    onClick={() => {
+                                        // Tăng số lượng, nhưng không vượt quá số lượng tồn kho
+                                        setQuantity(prev => Math.min(product.stocks, prev + 1));
+                                    }}
                                     style={quantityButtonStyle}
                                 >
                                     +
                                 </button>
                             </div>
+
                             {/* Nút Add to cart */}
                             <Button
                                 type="primary"
