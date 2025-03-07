@@ -365,7 +365,7 @@ const ProfilePage = () => {
                                                             border: "1px solid #ddd",
                                                             backgroundColor: item.isDefault ? "#fff" : "transparent",
                                                             color: "gray",
-                                                            padding: "3px 6px",
+                                                            padding: "4px 6px",
                                                             height: "auto",
                                                             lineHeight: "normal",
                                                             fontSize: "12px",
