@@ -73,31 +73,23 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData, onAdd
                 district: selectedDistrict ? selectedDistrict.DistrictName : "",
                 ward: selectedWard ? selectedWard.WardName : ""
             };
-
-            // console.log('Submitting address data:', payload);
             const response = await api.post("Address/create", payload);
-            // console.log('Create address response:', response.data);
 
             if (response.data.statusCode === 200) {
                 message.success("Địa chỉ đã được cập nhật thành công!");
-
-                // Create the new address object in the format expected by ProfilePage
                 const newAddress = {
                     addDetail: payload.AddDetail,
                     city: payload.city,
                     district: payload.district,
                     ward: payload.ward,
-                    country: "Việt Nam", // Assuming default country as per your sample data
-                    isDefault: false,    // New addresses aren't default by default
-                    status: "Active"     // Assuming a default status
+                    country: "Việt Nam",
+                    isDefault: false,
+                    status: "Active"
                 };
 
-                // Call the onAddressAdded callback with the new address
                 if (onAddressAdded) {
                     onAddressAdded(newAddress);
                 }
-
-                // Call refreshAddressData if provided (for full API refresh)
                 if (refreshAddressData) {
                     refreshAddressData();
                 }
@@ -128,7 +120,8 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData, onAdd
                         color: '#5A2D2F',
                         backgroundColor: '#F6EEF0',
                         padding: '10px 0',
-                        margin: 0
+                        margin: 0,
+
                     }}
                 >
                     Cập Nhật Địa Chỉ
@@ -139,6 +132,8 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData, onAdd
             footer={null}
             bodyStyle={{
                 background: '#F6EEF0',
+    
+
             }}
             width={600}
             padding={20}
