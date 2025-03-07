@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../../config/api";
 import { MailOutlined, PhoneOutlined, CalendarOutlined } from "@ant-design/icons";
-import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col, Modal, Form } from "antd";
+import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col, Modal, Form, message } from "antd";
 import UpdateProfileModal from "./UpdateProfileModal";
 import AddressModal from "./AddressModal";
 import "antd/dist/reset.css";
@@ -70,6 +70,7 @@ const ProfilePage = () => {
                 console.log("Address Data:", addressData);
                 const formattedAddresses = Array.isArray(addressData)
                     ? addressData.map((addr) => ({
+                        addressId: addr.addressId,
                         addDetail: addr.addDetail,
                         ward: addr.ward,
                         district: addr.district,
@@ -93,18 +94,51 @@ const ProfilePage = () => {
         setAddresses((prevAddresses) =>
             prevAddresses.map((address, i) => ({
                 ...address,
-                isDefault: i === index, 
+                isDefault: i === index,
             }))
         );
     };
 
     const handleAddressAdded = (newAddress) => {
+        console.log("handleAddressAdded received:", newAddress);
         setAddresses((prevAddresses) => {
-            const hasDefault = prevAddresses.some(addr => addr.isDefault);
-            return [{ ...newAddress, isDefault: !hasDefault }, ...prevAddresses];
+            const hasDefault = prevAddresses.some((addr) => addr.isDefault);
+            const updatedAddress = { ...newAddress, isDefault: !hasDefault };
+            const newAddresses = [updatedAddress, ...prevAddresses];
+            console.log("New addresses list after adding:", newAddresses);
+            return newAddresses;
         });
-        fetchAddresses();
     };
+
+    const deleteAddress = async (addressId) => {
+        console.log("Deleting address with ID:", addressId);
+        console.log("Current addresses before deletion:", addresses);
+        if (!addressId) {
+            message.error("Không thể xóa địa chỉ vì thiếu ID!");
+            return;
+        }
+        try {
+            const response = await api.delete("Address/delete", {
+                data: { addressId },
+            });
+            console.log("Delete API Response:", response.data);
+            if (response.data.statusCode === 200) {
+                message.success("Địa chỉ đã được xóa thành công!");
+                setAddresses((prevAddresses) => {
+                    const updatedAddresses = prevAddresses.filter((addr) => addr.addressId !== addressId);
+                    console.log("Addresses after deletion:", updatedAddresses);
+                    return updatedAddresses;
+                });
+                await fetchAddresses(); // Sync with server
+            } else {
+                message.error(`Xóa địa chỉ thất bại: ${response.data.detail || "Lỗi không xác định"}`);
+            }
+        } catch (error) {
+            console.error("Error deleting address:", error);
+            message.error("Lỗi khi xóa địa chỉ!");
+        }
+    };
+
 
     const fetchPromoCodes = async () => {
         try {
@@ -265,6 +299,7 @@ const ProfilePage = () => {
                                         dataSource={addresses}
                                         renderItem={(item, index) => (
                                             <List.Item
+                                                key={item.addressId || index} // Added key prop
                                                 style={{
                                                     border: item.isDefault ? "1px solid #D8959A" : "1px solid #ddd",
                                                     marginBottom: 10,
@@ -280,18 +315,29 @@ const ProfilePage = () => {
                                                     <strong>{`${item.addDetail}, ${item.ward}, ${item.district}, ${item.city}, ${item.country}`}</strong>
                                                     <p style={{ color: "gray" }}>{item.addDetail}</p>
                                                 </div>
-                                                <Tag
-                                                    color={item.isDefault ? "#D8959A" : "gray"}
-                                                    onClick={() => handleSelectDefault(index)}
-                                                    style={{
-                                                        cursor: "pointer",
-                                                        border: item.isDefault ? "1px solid #D8959A" : "1px solid #ddd",
-                                                        backgroundColor: item.isDefault ? "#fff" : "transparent",
-                                                        color: item.isDefault ? "#D8959A" : "gray",
-                                                    }}
-                                                >
-                                                    Mặc Định
-                                                </Tag>
+                                                <div style={{ display: "flex", alignItems: "center" }}> {/* Wrapped in div for layout */}
+                                                    <Tag
+                                                        color={item.isDefault ? "#D8959A" : "gray"}
+                                                        onClick={() => handleSelectDefault(index)}
+                                                        style={{
+                                                            cursor: "pointer",
+                                                            border: item.isDefault ? "1px solid #D8959A" : "1px solid #ddd",
+                                                            backgroundColor: item.isDefault ? "#fff" : "transparent",
+                                                            color: item.isDefault ? "#D8959A" : "gray",
+                                                            marginRight: 10,
+                                                        }}
+                                                    >
+                                                        Mặc Định
+                                                    </Tag>
+                                                    <Button
+                                                        type="link"
+                                                        danger
+                                                        onClick={() => deleteAddress(item.addressId)}
+                                                        disabled={!item.addressId} // Disable if no addressId
+                                                    >
+                                                        Xóa
+                                                    </Button>
+                                                </div>
                                             </List.Item>
                                         )}
                                     />
@@ -309,9 +355,9 @@ const ProfilePage = () => {
                             <AddressModal
                                 visible={isAddressModalVisible}
                                 onClose={handleCloseAddressModal}
-                                userAddress={null} // Pass null or current address if editing
+                                userAddress={null}
                                 refreshAddressData={fetchAddresses}
-                                onAddressAdded={handleAddressAdded} // Pass the new callback
+                                onAddressAdded={handleAddressAdded}
                             />
                         </TabPane>
                         <TabPane tab={<span style={{ color: activeTab === "2" ? "#D8959A" : "gray" }}>Mã Khuyến Mãi</span>} key="2">
