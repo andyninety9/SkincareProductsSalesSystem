@@ -47,13 +47,13 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData, onAdd
     };
     const fetchWards = async (districtId) => {
         try {
-            console.log('Fetching wards for DistrictID:', districtId);
+            // console.log('Fetching wards for DistrictID:', districtId);
             const response = await api.get(`delivery/wards?districtId=${districtId}`);
-            console.log('Wards response:', response.data);
+            // console.log('Wards response:', response.data);
             const wardsData = Array.isArray(response.data.data) ? response.data.data : [];
             setWards(wardsData);
             form.setFieldsValue({ ward: undefined });
-            console.log('Wards set:', wardsData);
+            // console.log('Wards set:', wardsData);
         } catch (error) {
             console.error("Error fetching wards:", error);
             setWards([]);
