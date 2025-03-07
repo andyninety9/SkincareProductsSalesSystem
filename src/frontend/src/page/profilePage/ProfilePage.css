@@ -15,3 +15,8 @@
     /* Adjust this value as needed */
     overflow-y: auto;
 }
+
+.custom-delete-button:hover,
+.custom-delete-button:active {
+    color: red !important;
+}

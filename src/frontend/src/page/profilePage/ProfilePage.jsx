@@ -334,7 +334,7 @@ const ProfilePage = () => {
                                                     <strong>{`${item.addDetail}, ${item.ward}, ${item.district}, ${item.city}, ${item.country}`}</strong>
                                                     <p style={{ color: "gray" }}>{item.addDetail}</p>
                                                 </div>
-                                                <div style={{ display: "flex", alignItems: "center" }}> {/* Wrapped in div for layout */}
+                                                <div style={{ display: "flex", alignItems: "center" }}>
                                                     <Tag
                                                         color={item.isDefault ? "#D8959A" : "gray"}
                                                         onClick={() => handleSelectDefault(index)}
@@ -343,19 +343,30 @@ const ProfilePage = () => {
                                                             border: item.isDefault ? "1px solid #D8959A" : "1px solid #ddd",
                                                             backgroundColor: item.isDefault ? "#fff" : "transparent",
                                                             color: item.isDefault ? "#D8959A" : "gray",
-                                                            marginRight: 10,
+                                                            marginRight: 2,
                                                         }}
                                                     >
                                                         Mặc Định
                                                     </Tag>
                                                     <Button
+                                                        className="custom-delete-button"
+                                                        style={{
+                                                            border: "1px solid #ddd",
+                                                            backgroundColor: item.isDefault ? "#fff" : "transparent",
+                                                            color: "gray", // Default text color
+                                                            padding: "2px 6px",
+                                                            height: "auto",
+                                                            lineHeight: "normal"
+                                                        }}
                                                         type="link"
                                                         danger
                                                         onClick={() => deleteAddress(item.addressId)}
-                                                        disabled={!item.addressId} // Disable if no addressId
+                                                        disabled={!item.addressId}
                                                     >
-                                                        Xóa
+                                                        Xoá
                                                     </Button>
+
+
                                                 </div>
                                             </List.Item>
                                         )}
