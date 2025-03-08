@@ -62,7 +62,16 @@ const ProfilePage = () => {
                 URL.revokeObjectURL(avatarPreview);
             }
         };
-    }, [avatarPreview, userInfo?.avatarUrl]); // Dependencies ensure cleanup runs when these change
+    }, [avatarPreview, userInfo?.avatarUrl]);
+
+    // Cleanup useEffect for cover preview
+    useEffect(() => {
+        return () => {
+            if (coverPreview && coverPreview !== userInfo?.coverUrl) {
+                URL.revokeObjectURL(coverPreview);
+            }
+        };
+    }, [coverPreview, userInfo?.coverUrl]);
 
     const showAddressModal = () => {
         setIsAddressModalVisible(true);
@@ -222,6 +231,9 @@ const ProfilePage = () => {
                 if (!avatarFile) {
                     setAvatarPreview(data.avatarUrl || '');
                 }
+                if (!coverFile) {
+                    setCoverPreview(data.coverUrl || '');
+                }
             } else {
                 console.warn('Unexpected API response:', response);
                 message.error('Failed to fetch user data.');
@@ -308,6 +320,14 @@ const ProfilePage = () => {
         }
     };
 
+    //cover uploaded
+    const handleCoverFileChange = (info) => {
+        const file = info.file.originFileObj || info.file;
+        setCoverFile(file);
+        const previewUrl = URL.createObjectURL(file);
+        setCoverPreview(previewUrl);
+    };
+
     if (loading) {
         return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
     }
@@ -321,11 +341,26 @@ const ProfilePage = () => {
                 style={{
                     width: '100%',
                     height: '30vh',
-                    background: `url(${userInfo.coverUrl}) no-repeat center center`,
+                    background: `url(${coverPreview || userInfo.coverUrl}) no-repeat center center`,
                     backgroundSize: 'cover',
                     marginBottom: 10,
                 }}
             />
+            <div>
+                <Upload
+                    name="CoverFile"
+                    showUploadList={false}
+                    beforeUpload={() => false}
+                    onChange={handleCoverFileChange}
+                >
+                    <Button icon={<UploadOutlined />}>Đổi ảnh bìa</Button>
+                </Upload>
+                {coverFile && (
+                    <Button type="primary" loading={coverLoading} onClick={handleCoverChange}>
+                        Xác nhận
+                    </Button>
+                )}
+            </div>
             <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
                 <Card
                     style={{
