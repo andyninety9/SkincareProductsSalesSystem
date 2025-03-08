@@ -29,6 +29,10 @@ const ProfilePage = () => {
     const [avatarFile, setAvatarFile] = useState(null);
     const [avatarLoading, setAvatarLoading] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState(userInfo.avatarUrl);
+    //user cover
+    const [coverFile, setCoverFile] = useState(null);
+    const [coverLoading, setCoverLoading] = useState(false);
+    const [coverPreview, setCoverPreview] = useState(null);
 
 
     useEffect(() => {
@@ -272,6 +276,36 @@ const ProfilePage = () => {
         setAvatarFile(file);
         const previewUrl = URL.createObjectURL(file);
         setAvatarPreview(previewUrl);
+    };
+
+    //cover change 
+    const handleCoverChange = async () => {
+        if (!coverFile) {
+            message.error('Vui lòng chọn file ảnh để tải lên!');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('CoverFile', coverFile);
+        try {
+            setCoverLoading(true);
+            const response = await api.post('User/change-cover', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            if (response.data.statusCode === 200) {
+                message.success('Ảnh bìa đã được cập nhật thành công!');
+                setCoverFile(null);
+                await refreshUserData();
+            } else {
+                message.error(
+                    `Cập nhật ảnh bìa thất bại: ${response.data.detail || 'Lỗi không xác định'}`
+                );
+            }
+        } catch (error) {
+            console.error('Error uploading cover:', error);
+            message.error('Lỗi khi cập nhật ảnh bìa!');
+        } finally {
+            setCoverLoading(false);
+        }
     };
 
     if (loading) {
