@@ -17,7 +17,6 @@ import '../../index.css';
 import api from '../../config/api';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
-import { Cookie } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 
 const Login = () => {
@@ -47,7 +46,7 @@ const Login = () => {
             };
 
             Cookies.set('user', JSON.stringify(user), {
-                expires: 7,
+                expires: 5,
                 secure: true,
             });
 
