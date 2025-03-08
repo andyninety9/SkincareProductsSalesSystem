@@ -49,7 +49,7 @@ const ProfilePage = () => {
             }
         };
         fetchInitialData();
-    }, []); 
+    }, []);
 
     // Cleanup useEffect for avatar preview
     useEffect(() => {
@@ -58,7 +58,7 @@ const ProfilePage = () => {
                 URL.revokeObjectURL(avatarPreview);
             }
         };
-    }, [avatarPreview, userInfo?.avatarUrl]);
+    }, [avatarPreview, userInfo?.avatarUrl]); // Dependencies ensure cleanup runs when these change
 
     const showAddressModal = () => {
         setIsAddressModalVisible(true);
@@ -328,7 +328,7 @@ const ProfilePage = () => {
                         <Button
                             type="primary"
                             loading={avatarLoading}
-                            onClick={() => handleAvatarChange(avatarFile)} // Modified to pass avatarFile
+                            onClick={() => handleAvatarChange(avatarFile)}
                             style={{
                                 marginTop: 10,
                                 backgroundColor: '#C87E83',
