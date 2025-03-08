@@ -1,6 +1,7 @@
 using Application.Attributes;
 using Application.Auth.Commands;
 using Application.Common.Enum;
+using Application.Common.Paginations;
 using Application.Constant;
 using Application.Features.Question.Commands;
 using MediatR;
@@ -111,7 +112,43 @@ namespace WebApi.Controllers.Question
         {
             var result = await _mediator.Send(request, cancellationToken);
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.UPDATE_QUESTION_SUCCESS, data = result.Value });
-            
+
         }
+
+        /// <summary>
+        /// Gets a list of questions.
+        /// </summary>
+        /// API: /api/Question/get-all?keyword=&cateQuestionId=&page=&pageSize=
+        /// <param name="keyword">Keyword to search for.</param>
+        /// <param name="cateQuestionId">Category ID to filter by.</param>
+        /// <param name="page">Page number.</param>
+        /// <param name="pageSize">Number of items per page.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a list of questions.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///     GET /api/Question/get-all?keyword=&cateQuestionId=&page=&pageSize=
+        ///     Headers:
+        ///     - Authorization: Bearer {token}
+        ///     Role:
+        ///     - Manager
+        ///     - Staff
+
+        /// </remarks>
+        [HttpGet("get-all")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> GetAll([FromQuery] string? keyword, [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        {
+            PaginationParams paginationParams = new() { Page = page, PageSize = pageSize };
+
+            // var query = new GetAllProductCategoryQuery(keyword, paginationParams);
+            // var result = await _mediator.Send(request, cancellationToken);
+            // return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_QUESTION_SUCCESS, data = result.Value });
+            return Ok();
+        }
+        
+
     }   
 }
