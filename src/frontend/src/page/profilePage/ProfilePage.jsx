@@ -32,11 +32,33 @@ const ProfilePage = () => {
 
 
     useEffect(() => {
-        fetchPromoCodes();
-        fetchAddresses();
-        refreshUserData();
-        fetchOrdersHistory();
-    }, []);
+        const fetchInitialData = async () => {
+            setLoading(true);
+            try {
+                await Promise.all([
+                    fetchPromoCodes(),
+                    fetchAddresses(),
+                    refreshUserData(),
+                    fetchOrdersHistory(),
+                ]);
+            } catch (error) {
+                console.error('Error fetching initial data:', error);
+                message.error('Failed to load initial data.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchInitialData();
+    }, []); 
+
+    // Cleanup useEffect for avatar preview
+    useEffect(() => {
+        return () => {
+            if (avatarPreview && avatarPreview !== userInfo?.avatarUrl) {
+                URL.revokeObjectURL(avatarPreview);
+            }
+        };
+    }, [avatarPreview, userInfo?.avatarUrl]);
 
     const showAddressModal = () => {
         setIsAddressModalVisible(true);
@@ -46,15 +68,13 @@ const ProfilePage = () => {
         setIsAddressModalVisible(false);
     };
 
-    //get all addresses
+    // Get all addresses
     const fetchAddresses = async () => {
         try {
             setLoadingAddresses(true);
             const response = await api.get('address/get-all-address?page=1&pageSize=1000');
-            // console.log("API Response:", response.data);
             if (response.data.statusCode === 200) {
                 const addressData = response.data.data.items;
-                // console.log("Address Data:", addressData);
                 const formattedAddresses = Array.isArray(addressData)
                     ? addressData
                         .map((addr) => ({
@@ -67,39 +87,37 @@ const ProfilePage = () => {
                             isDefault: addr.isDefault,
                             status: addr.status,
                         }))
-                        .filter((addr) => addr.status === true) // Only show addresses with status = true
+                        .filter((addr) => addr.status === true)
                     : [];
-
                 formattedAddresses.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
                 setAddresses(formattedAddresses);
-                // console.log("Formatted and Sorted Addresses:", formattedAddresses);
             }
         } catch (error) {
             console.error('Error fetching addresses:', error);
+            message.error('Error fetching addresses!');
         } finally {
             setLoadingAddresses(false);
         }
     };
 
-    //set default address
+    // Set default address
     const handleSelectDefault = async (index) => {
         const selectedAddress = addresses[index];
-        if (!selectedAddress.addressId) {
+        if (!selectedAddress?.addressId) {
             message.error('Không thể chọn địa chỉ mặc định vì thiếu ID!');
             return;
         }
-
         try {
             const response = await api.put('Address/active', {
                 addressId: selectedAddress.addressId,
             });
-            console.log('Set Default API Response:', response.data);
-
             if (response.data.statusCode === 200) {
                 message.success('Đã đặt địa chỉ làm mặc định!');
                 await fetchAddresses();
             } else {
-                message.error(`Cập nhật địa chỉ mặc định thất bại: ${response.data.detail || 'Lỗi không xác định'}`);
+                message.error(
+                    `Cập nhật địa chỉ mặc định thất bại: ${response.data.detail || 'Lỗi không xác định'}`
+                );
             }
         } catch (error) {
             console.error('Error setting default address:', error);
@@ -108,22 +126,17 @@ const ProfilePage = () => {
     };
 
     const handleAddressAdded = (newAddress) => {
-        console.log('handleAddressAdded received:', newAddress);
         setAddresses((prevAddresses) => {
             const hasDefault = prevAddresses.some((addr) => addr.isDefault);
             const updatedAddress = { ...newAddress, isDefault: !hasDefault };
             const newAddresses = [updatedAddress, ...prevAddresses];
-            console.log('New addresses list after adding:', newAddresses);
             return newAddresses;
         });
         fetchAddresses();
-
     };
 
-    //delete address
+    // Delete address
     const deleteAddress = async (addressId) => {
-        console.log('Deleting address with ID:', addressId);
-        console.log('Current addresses before deletion:', addresses);
         if (!addressId) {
             message.error('Không thể xóa địa chỉ vì thiếu ID!');
             return;
@@ -132,14 +145,11 @@ const ProfilePage = () => {
             const response = await api.delete('Address/delete', {
                 data: { addressId },
             });
-            console.log('Delete API Response:', response.data);
             if (response.data.statusCode === 200) {
                 message.success('Địa chỉ đã được xóa thành công!');
-                setAddresses((prevAddresses) => {
-                    const updatedAddresses = prevAddresses.filter((addr) => addr.addressId !== addressId);
-                    console.log('Addresses after deletion:', updatedAddresses);
-                    return updatedAddresses;
-                });
+                setAddresses((prevAddresses) =>
+                    prevAddresses.filter((addr) => addr.addressId !== addressId)
+                );
                 await fetchAddresses();
             } else {
                 message.error(`Xóa địa chỉ thất bại: ${response.data.detail || 'Lỗi không xác định'}`);
@@ -150,44 +160,43 @@ const ProfilePage = () => {
         }
     };
 
-
-    //get all promo codes
+    // Get all promo codes
     const fetchPromoCodes = async () => {
         try {
             setLoadingPromos(true);
             const response = await api.get('User/vouchers');
             if (response.data.statusCode === 200) {
                 const data = response.data.data;
-                // eslint-disable-next-line no-constant-binary-expression
                 setPromoCodes(Array.isArray(data) ? data : [data] || []);
             }
         } catch (error) {
             console.error('Error fetching promo codes:', error);
+            message.error('Error fetching promo codes!');
         } finally {
             setLoadingPromos(false);
         }
     };
 
-    //get all orders
+    // Get all orders
     const fetchOrdersHistory = async () => {
         try {
             setLoadingOrders(true);
-            const response = await api.get("User/orders-history");
+            const response = await api.get('User/orders-history');
             if (response.data.statusCode === 200) {
                 const ordersData = response.data.data.items;
                 setOrdersHistory(ordersData || []);
             } else {
-                message.error("Failed to fetch order history.");
+                message.error('Failed to fetch order history.');
             }
         } catch (error) {
-            console.error("Error fetching orders:", error);
-            message.error("Error fetching order history!");
+            console.error('Error fetching orders:', error);
+            message.error('Error fetching order history!');
         } finally {
             setLoadingOrders(false);
         }
     };
 
-    //get user data
+    // Get user data
     const refreshUserData = async () => {
         try {
             setLoading(true);
@@ -205,34 +214,25 @@ const ProfilePage = () => {
                     avatarUrl: data.avatarUrl || '',
                     coverUrl: data.coverUrl || '',
                 });
-            } else {
-                console.warn('Unexpected API response:', response);
-            }
-        } catch (error) {
-            if (error.response) {
-                console.error('API Error:', error.response.status, error.response.data);
-                if (error.response.status === 401) {
-                    console.warn('Unauthorized! Redirecting to login...');
+                // Sync avatarPreview with the latest avatarUrl if no file is selected
+                if (!avatarFile) {
+                    setAvatarPreview(data.avatarUrl || '');
                 }
             } else {
-                console.error('Network or unexpected error:', error);
+                console.warn('Unexpected API response:', response);
+                message.error('Failed to fetch user data.');
             }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            if (error.response?.status === 401) {
+                console.warn('Unauthorized! Redirecting to login...');
+                // Add redirect logic here if needed
+            }
+            message.error('Error fetching user data!');
         } finally {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        refreshUserData();
-    }, []);
-
-    if (loading) {
-        return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
-    }
-
-    if (!userInfo) {
-        return <div style={{ textAlign: 'center', marginTop: '50px' }}>No user data available.</div>;
-    }
 
     // Avatar upload
     const handleAvatarChange = async () => {
@@ -240,10 +240,8 @@ const ProfilePage = () => {
             message.error('Vui lòng chọn file ảnh để tải lên!');
             return;
         }
-
         const formData = new FormData();
-        formData.append('avatarFile', avatarFile); // Assuming the API expects a field named 'avatarFile'
-
+        formData.append('avatarFile', avatarFile);
         try {
             setAvatarLoading(true);
             const response = await api.post('User/change-avatar', formData, {
@@ -251,13 +249,14 @@ const ProfilePage = () => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-
             if (response.data.statusCode === 200) {
                 message.success('Avatar đã được cập nhật thành công!');
-                setAvatarFile(null); // Reset file input
-                await refreshUserData(); // Refresh user data to update avatar
+                setAvatarFile(null);
+                await refreshUserData();
             } else {
-                message.error(`Cập nhật avatar thất bại: ${response.data.detail || 'Lỗi không xác định'}`);
+                message.error(
+                    `Cập nhật avatar thất bại: ${response.data.detail || 'Lỗi không xác định'}`
+                );
             }
         } catch (error) {
             console.error('Error uploading avatar:', error);
@@ -271,19 +270,17 @@ const ProfilePage = () => {
     const handleFileChange = (info) => {
         const file = info.file.originFileObj || info.file;
         setAvatarFile(file);
-        //preview URL for the selected file
         const previewUrl = URL.createObjectURL(file);
         setAvatarPreview(previewUrl);
     };
 
-    useEffect(() => {
-        return () => {
-            if (avatarPreview && avatarPreview !== userInfo.avatarUrl) {
-                URL.revokeObjectURL(avatarPreview);
-            }
-        };
-    }, [avatarPreview, userInfo.avatarUrl]);
+    if (loading) {
+        return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
+    }
 
+    if (!userInfo) {
+        return <div style={{ textAlign: 'center', marginTop: '50px' }}>No user data available.</div>;
+    }
     return (
         <div style={{ width: '100%', position: 'relative' }}>
             <div
