@@ -144,7 +144,7 @@ function App() {
     ]);
 
     return (
-        <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
             <Toaster position="top-right" reverseOrder={false} />
             <RouterProvider router={router} />
         </GoogleOAuthProvider>
