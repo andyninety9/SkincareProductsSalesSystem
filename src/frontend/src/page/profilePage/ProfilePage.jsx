@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../config/api';
 import { MailOutlined, PhoneOutlined, CalendarOutlined } from '@ant-design/icons';
-import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col, Modal, Form, message } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col, Modal, Form, message, Upload } from 'antd';
+import { DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import UpdateProfileModal from './UpdateProfileModal';
 import AddressModal from './AddressModal';
 import 'antd/dist/reset.css';
@@ -25,6 +25,9 @@ const ProfilePage = () => {
     const [activeTab, setActiveTab] = useState('1');
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    //user avatar
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [avatarLoading, setAvatarLoading] = useState(false);
 
     useEffect(() => {
         fetchPromoCodes();
@@ -229,6 +232,45 @@ const ProfilePage = () => {
         return <div style={{ textAlign: 'center', marginTop: '50px' }}>No user data available.</div>;
     }
 
+    // Avatar upload
+    const handleAvatarChange = async () => {
+        if (!avatarFile) {
+            message.error('Vui lòng chọn file ảnh để tải lên!');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('avatarFile', avatarFile); // Assuming the API expects a field named 'avatarFile'
+
+        try {
+            setAvatarLoading(true);
+            const response = await api.post('User/change-avatar', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.data.statusCode === 200) {
+                message.success('Avatar đã được cập nhật thành công!');
+                setAvatarFile(null); // Reset file input
+                await refreshUserData(); // Refresh user data to update avatar
+            } else {
+                message.error(`Cập nhật avatar thất bại: ${response.data.detail || 'Lỗi không xác định'}`);
+            }
+        } catch (error) {
+            console.error('Error uploading avatar:', error);
+            message.error('Lỗi khi cập nhật avatar!');
+        } finally {
+            setAvatarLoading(false);
+        }
+    };
+
+    // File selection for avatar upload
+    const handleFileChange = (info) => {
+        const file = info.file.originFileObj || info.file;
+        setAvatarFile(file);
+    };
+
     return (
         <div style={{ width: '100%', position: 'relative' }}>
             <div
@@ -249,6 +291,30 @@ const ProfilePage = () => {
                         transform: 'translateY(-50%)',
                     }}>
                     <Avatar size={100} src={userInfo.avatarUrl} style={{ border: '3px solid #D8959A' }} />
+                    <Upload
+                        name="avatarFile"
+                        showUploadList={false}
+                        beforeUpload={() => false} // Prevent automatic upload
+                        onChange={handleFileChange}
+                        style={{ marginTop: 10 }}
+                    >
+                        <Button
+                            icon={<UploadOutlined />}
+                            style={{ marginTop: 10, backgroundColor: '#D8959A', borderColor: '#D8959A', color: '#fff' }}
+                        >
+                            Đổi Avatar
+                        </Button>
+                    </Upload>
+                    {avatarFile && (
+                        <Button
+                            type="primary"
+                            loading={avatarLoading}
+                            onClick={handleAvatarChange}
+                            style={{ marginTop: 10, backgroundColor: '#C87E83', borderColor: '#C87E83', color: '#fff' }}
+                        >
+                            Xác nhận
+                        </Button>
+                    )}
                     <h3
                         style={{
                             fontFamily: "'Nunito', sans-serif",
