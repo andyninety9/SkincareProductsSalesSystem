@@ -28,6 +28,8 @@ const ProfilePage = () => {
     //user avatar
     const [avatarFile, setAvatarFile] = useState(null);
     const [avatarLoading, setAvatarLoading] = useState(false);
+    const [avatarPreview, setAvatarPreview] = useState(userInfo.avatarUrl);
+
 
     useEffect(() => {
         fetchPromoCodes();
@@ -269,7 +271,18 @@ const ProfilePage = () => {
     const handleFileChange = (info) => {
         const file = info.file.originFileObj || info.file;
         setAvatarFile(file);
+        //preview URL for the selected file
+        const previewUrl = URL.createObjectURL(file);
+        setAvatarPreview(previewUrl);
     };
+
+    useEffect(() => {
+        return () => {
+            if (avatarPreview && avatarPreview !== userInfo.avatarUrl) {
+                URL.revokeObjectURL(avatarPreview);
+            }
+        };
+    }, [avatarPreview, userInfo.avatarUrl]);
 
     return (
         <div style={{ width: '100%', position: 'relative' }}>
@@ -290,7 +303,11 @@ const ProfilePage = () => {
                         top: '50%',
                         transform: 'translateY(-50%)',
                     }}>
-                    <Avatar size={100} src={userInfo.avatarUrl} style={{ border: '3px solid #D8959A' }} />
+                    <Avatar
+                        size={100}
+                        src={avatarPreview} // Use preview URL or original avatar URL
+                        style={{ border: '3px solid #D8959A' }}
+                    />
                     <Upload
                         name="avatarFile"
                         showUploadList={false}
@@ -300,7 +317,12 @@ const ProfilePage = () => {
                     >
                         <Button
                             icon={<UploadOutlined />}
-                            style={{ marginTop: 10, backgroundColor: '#D8959A', borderColor: '#D8959A', color: '#fff' }}
+                            style={{
+                                marginTop: 10,
+                                backgroundColor: '#D8959A',
+                                borderColor: '#D8959A',
+                                color: '#fff',
+                            }}
                         >
                             Đổi Avatar
                         </Button>
@@ -309,8 +331,13 @@ const ProfilePage = () => {
                         <Button
                             type="primary"
                             loading={avatarLoading}
-                            onClick={handleAvatarChange}
-                            style={{ marginTop: 10, backgroundColor: '#C87E83', borderColor: '#C87E83', color: '#fff' }}
+                            onClick={() => handleAvatarChange(avatarFile)} // Modified to pass avatarFile
+                            style={{
+                                marginTop: 10,
+                                backgroundColor: '#C87E83',
+                                borderColor: '#C87E83',
+                                color: '#fff',
+                            }}
                         >
                             Xác nhận
                         </Button>
@@ -321,10 +348,18 @@ const ProfilePage = () => {
                             color: '#D8959A',
                             fontSize: '20px',
                             marginTop: '10px',
-                        }}>
+                        }}
+                    >
                         {userInfo.name}
                     </h3>
-                    <p style={{ fontFamily: "'Nunito', sans-serif", color: '#D8959A', fontSize: '20px', margin: '0' }}>
+                    <p
+                        style={{
+                            fontFamily: "'Nunito', sans-serif",
+                            color: '#D8959A',
+                            fontSize: '20px',
+                            margin: '0',
+                        }}
+                    >
                         {userInfo.fullname}
                     </p>
                     <p style={{ marginTop: '2px' }}>{userInfo.gender}</p>
