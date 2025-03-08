@@ -28,7 +28,7 @@ const HeaderUser = () => {
     try {
         user = JSON.parse(Cookies.get('user')) || null;
     } catch (error) {
-        console.error('failed to parse user', error);
+        // console.error('failed to parse user', error);
     }
     const items = [
         {
@@ -71,13 +71,13 @@ const HeaderUser = () => {
 
             if (response.status === 200) {
                 toast.success('Logout successfully');
-                console.log('Logout success:', response);
+                // console.log('Logout success:', response);
             } else {
                 console.error('Logout failed:', response);
             }
         } catch (error) {
-            toast.error('Error logging out');
-            console.error('Error:', error);
+            // toast.error('Error logging out');
+            // console.error('Error:', error);
         } finally {
             Cookies.remove('accessToken');
             Cookies.remove('refreshToken');

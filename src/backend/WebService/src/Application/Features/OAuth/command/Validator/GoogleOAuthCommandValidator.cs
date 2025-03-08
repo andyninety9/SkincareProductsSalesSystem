@@ -12,18 +12,18 @@ namespace Application.Features.OAuth.Command.Validator
             RuleFor(x => x.IdToken)
                 .NotEmpty()
                 .WithMessage("ID Token is required.")
-                .Must(token => IsValidJsonString(token))
-                .WithMessage("Invalid JSON format for ID Token.")
-                .Must(IsValidJwtFormat)
+                .Must(HasNoControlCharacters)
+                .WithMessage("Token contains invalid characters.")
+                .Must(HasValidJwtFormat)
                 .WithMessage("Invalid JWT token format.");
         }
 
-        private bool IsValidJsonString(string token)
+        private bool HasNoControlCharacters(string token)
         {
             return !string.IsNullOrEmpty(token) && !token.Contains("\n") && !token.Contains("\r");
         }
 
-        private bool IsValidJwtFormat(string token)
+        private bool HasValidJwtFormat(string token)
         {
             return Regex.IsMatch(token, @"^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$");
         }

@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 
 // Get base URL from environment variables
-const baseUrl = 'https://www.mavid.store/api/';
+const baseUrl = import.meta.env.VITE_BACK_END_BASE_URL;
 const config = {
     baseUrl,
     timeout: 30000,

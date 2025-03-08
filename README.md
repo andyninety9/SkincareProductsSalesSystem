@@ -51,3 +51,80 @@ docker tag web-service-swp:amd web-service-swp:latest
 ```
 
 
+## Environment Configuration (.env)
+
+### Backend Environment Setup
+
+Create a `.env` file in the root of the backend directory with the following variables:
+
+```bash
+# Database Configuration
+DATABASE_HOST=localhost               # Database server hostname
+DATABASE_PORT=5432                    # Database port number
+DATABASE_NAME=skincare_db             # Name of your database
+DATABASE_USERNAME=avnadmin            # Database username
+DATABASE_PASSWORD=your_password       # Database password
+
+# JWT Authentication
+JWT_ISSUER=skincare_api              # JWT token issuer name
+JWT_AUDIENCE=skincare_clients        # Intended audience for JWT tokens
+JWT_KEY=your_secret_key              # Secret key for JWT signing
+
+# Redis Configuration
+REDIS_HOST=localhost                 # Redis server hostname
+REDIS_PORT=6379                      # Redis port number
+REDIS_PASSWORD=your_redis_password   # Redis password
+REDIS_USERNAME=default               # Redis username if applicable
+
+# AWS Configuration for Email
+AWS_REGION=us-east-1                 # AWS region for SES service
+AWS_ACCESS_KEY=your_access_key       # AWS access key ID
+AWS_SECRET_KEY=your_secret_key       # AWS secret access key
+AWS_SES_EMAIL=email@example.com      # Email address for SES
+
+# AWS S3 Configuration
+AWS_BUCKET_NAME_S3=your_bucket_name  # S3 bucket name
+AWS_ACCESS_KEY_S3=your_s3_access_key # S3 access key ID
+AWS_SECRET_KEY_S3=your_s3_secret_key # S3 secret access key
+AWS_REGION_S3=us-east-1              # AWS region for S3
+
+# Application Endpoints
+ENDPOINT_URL=http://api.example.com  # Backend API endpoint
+ENDPOINT_WEBAPP_URL=http://app.example.com # Frontend application URL
+
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID=your_client_id      # Google OAuth client ID
+GOOGLE_CLIENT_SECRET=your_secret     # Google OAuth client secret
+
+# GHN Delivery Service API
+GHN_TOKEN=your_ghn_token             # GHN API token
+GHN_SHOP_ID=your_shop_id             # GHN shop ID
+GHN_CLIENT_ID=your_ghn_client_id     # GHN client ID
+GHN_BASE_URL=https://ghn-api.com     # GHN API base URL
+
+# VNPay Payment Gateway
+VNPAY_TMNCODE=your_tmn_code          # VNPay terminal code
+VNPAY_HASHSECRET=your_hash_secret    # VNPay hash secret
+VNPAY_BASE_URL=https://vnpay.vn      # VNPay API base URL
+
+```
+
+### Frontend Environment Setup
+
+Create a `.env` file in the root of the frontend directory:
+
+```bash
+# API Configuration
+VITE_BACK_END_BASE_URL=your_backend_url
+
+# Config for Google Oauth
+VITE_GOOGLE_CLIENT_ID=google_oauth_client_id
+VITE_GOOGLE_CLIENT_SECRET=google_oauth_client_secret
+
+```
+
+### Important Notes
+
+- Never commit `.env` files to version control
+- Create a `.env.example` file with the structure but without sensitive values
+- For production, set more restrictive values and use a secure method for environment variable management

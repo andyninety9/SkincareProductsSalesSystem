@@ -30,6 +30,7 @@ import OrderProcess from './page/orderProcess/orderProcess';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Page404 from './page/pageNotFound/page404';
 import RestrictedPage from './page/restrictedPage/restrictedPage';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function App() {
     const router = createBrowserRouter([
@@ -143,10 +144,10 @@ function App() {
     ]);
 
     return (
-        <>
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
             <Toaster position="top-right" reverseOrder={false} />
             <RouterProvider router={router} />
-        </>
+        </GoogleOAuthProvider>
     );
 }
 

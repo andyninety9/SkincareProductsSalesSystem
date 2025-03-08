@@ -17,6 +17,7 @@
         "@fontsource/nunito": "^5.1.1",
         "@heroicons/react": "^2.2.0",
         "@mui/icons-material": "^6.4.3",
+        "@react-oauth/google": "^0.12.1",
         "@reduxjs/toolkit": "^2.6.0",
         "@tailwindcss/vite": "^4.0.4",
         "antd": "^5.24.0",
