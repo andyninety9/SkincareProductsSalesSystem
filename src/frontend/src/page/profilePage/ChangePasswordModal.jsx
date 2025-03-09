@@ -110,7 +110,15 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                     name="newPassword"
                     rules={[
                         { required: true, message: "Vui lòng nhập mật khẩu mới!" },
-                        { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" }
+                        { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
+                        ({ getFieldValue }) => ({
+                            validator(_, value) {
+                                if (!value || getFieldValue('oldPassword') !== value) {
+                                    return Promise.resolve();
+                                }
+                                return Promise.reject(new Error('Mật khẩu mới không được trùng với mật khẩu cũ!'));
+                            },
+                        }),
                     ]}
                 >
                     <Input
