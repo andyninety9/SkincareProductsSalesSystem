@@ -78,6 +78,8 @@ namespace Application.Constant
         public static string UPDATE_QUESTION_FALSE = "Failed to update the question.";
         public static string GET_QUESTION_SUCCESS = "Questions retrieved successfully.";
         public static string CREATE_ANSWER_SUCCESS = "Answer created successfully.";
+        public static string UPDATE_ANSWER_SUCCESS = "Answer updated successfully.";
+        public static string DELETE_ANSWER_SUCCESS = "Answer deleted successfully.";
 
 
         // Server related messages

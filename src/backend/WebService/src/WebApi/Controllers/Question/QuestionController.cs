@@ -140,17 +140,17 @@ namespace WebApi.Controllers.Question
         [HttpGet("get-all")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
-        public async Task<IActionResult> GetAll([FromQuery] string? keyword,[FromQuery] string? cateQuestionId  ,[FromQuery] int page = 1,
+        public async Task<IActionResult> GetAll([FromQuery] string? keyword, [FromQuery] string? cateQuestionId, [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
         {
 
             PaginationParams paginationParams = new() { Page = page, PageSize = pageSize };
 
-            var query = new GetAllQuestionQuery(keyword,cateQuestionId, paginationParams);
+            var query = new GetAllQuestionQuery(keyword, cateQuestionId, paginationParams);
             var result = await _mediator.Send(query, cancellationToken);
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_QUESTION_SUCCESS, data = result.Value });
         }
-        
+
         /// <summary>
         /// Create answer for question
         /// </summary>
@@ -161,9 +161,9 @@ namespace WebApi.Controllers.Question
         /// Sample request:
         ///    POST /api/Question/create-answer
         ///    {
-        ///    "questionId": 1,
+        ///    "questionId": "1",
         ///    "keyContent": "Answer content for question",
-        ///    "keyScore": 1
+        ///    "keyScore": "1"
         ///    }
         ///    Headers:
         ///    - Authorization: Bearer {token}
@@ -179,5 +179,33 @@ namespace WebApi.Controllers.Question
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.CREATE_ANSWER_SUCCESS, data = result.Value });
         }
 
+        /// <summary>
+        /// Update answer for question
+        /// </summary>
+        /// <param name="request">Answer update request containing answer ID, question ID, and updated content.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the updated answer details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///   PATCH /api/Question/update-answer
+        ///   {
+        ///   "keyId": "1",
+        ///   "keyContent": "Updated answer content for question",
+        ///   "keyScore": "2"
+        ///   }
+        ///   Headers:
+        ///   - Authorization: Bearer {token}
+        ///   Role:
+        ///   - Manager
+        ///   
+        /// </remarks>
+        [HttpPatch("update-answer")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
+        public async Task<IActionResult> UpdateAnswer([FromBody] UpdateAnswerCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.UPDATE_ANSWER_SUCCESS, data = result.Value });
+        }
     }   
 }
