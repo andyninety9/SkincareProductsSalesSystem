@@ -332,39 +332,51 @@ const ProfilePage = () => {
     }
     return (
         <div style={{ width: '100%', position: 'relative' }}>
-            <div
-                style={{
-                    width: '100%',
-                    height: '30vh',
-                    background: `url(${coverPreview || userInfo.coverUrl}) no-repeat center center`,
-                    backgroundSize: 'cover',
-                    marginBottom: 10,
-                }}
-            />
-            <div>
-                <Upload
-                    name="CoverFile"
-                    showUploadList={false}
-                    beforeUpload={() => false}
-                    onChange={handleCoverFileChange}
-                >
-                    <Button icon={<UploadOutlined />}>Đổi ảnh bìa</Button>
-                </Upload>
-                {coverFile && (
-                    <Button
-                        style={{
-                            marginTop: 10,
-                            backgroundColor: '#C87E83',
-                            borderColor: '#C87E83',
-                            color: '#fff',
-                            marginLeft: "10px"
-                        }}
-                        type="primary" loading={coverLoading}
-                        onClick={handleCoverChange}>
-                        Xác nhận
-                    </Button>
-                )}
+            <div style={{ position: 'relative', width: '100%', height: '30vh', marginBottom: 10 }}>
+                <div
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        background: `url(${coverPreview || userInfo.coverUrl}) no-repeat center center`,
+                        backgroundSize: 'cover',
+                    }}
+                />
+
+                {/* Button container */}
+                <div style={{
+                    position: 'absolute',
+                    bottom: 10,
+                    left: 2,
+                    display: 'flex',
+                    gap: '10px',
+                   
+                }}>
+                    <Upload
+                        name="CoverFile"
+                        showUploadList={false}
+                        beforeUpload={() => false}
+                        onChange={handleCoverFileChange}
+                    >
+                        <Button icon={<UploadOutlined />}>Đổi ảnh bìa</Button>
+                    </Upload>
+
+                    {coverFile && (
+                        <Button
+                            style={{
+                                backgroundColor: '#C87E83',
+                                borderColor: '#C87E83',
+                                color: '#fff',
+                            }}
+                            type="primary"
+                            loading={coverLoading}
+                            onClick={handleCoverChange}
+                        >
+                            Xác nhận
+                        </Button>
+                    )}
+                </div>
             </div>
+
             <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
                 <Card
                     style={{
