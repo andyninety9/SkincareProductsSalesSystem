@@ -21,6 +21,7 @@ export const routes = {
     startQuiz: '/quiz/start',
     manageOrder: '/manage-order',
     manageComment: '/manage-comment',
+    manageAccount: '/manage-account',
     resultQuiz: '/your-skin-type-result',
     paymentReturn: '/payment-return',
     notfound: '/404',
