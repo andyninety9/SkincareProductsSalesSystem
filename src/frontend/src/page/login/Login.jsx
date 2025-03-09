@@ -90,7 +90,12 @@ const Login = () => {
                 secure: true,
             });
             if (user) {
-                navigate(routes.home);
+                if (user.role === "Manager") {
+                    navigate(routes.manageAccount);
+                }
+                else {
+                    navigate(routes.home);
+                }
                 toast.success('Login successfully');
             }
         } catch (error) {
