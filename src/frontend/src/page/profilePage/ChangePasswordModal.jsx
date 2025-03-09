@@ -15,13 +15,12 @@ const ChangePasswordModal = ({ visible, onClose }) => {
         let payload;
         setLoading(true);
         try {
-            const payload = {
+            payload = {
                 oldPassword: values.oldPassword,
                 newPassword: values.newPassword,
                 confirmPassword: values.confirmPassword
             };
-
-            const response = await api.post("auth/change-password", payload);
+            const response = await api.post("User/change-password", payload);
 
             if (response.data.statusCode === 200) {
                 message.success("Mật khẩu đã được thay đổi thành công!");
