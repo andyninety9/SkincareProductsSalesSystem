@@ -132,10 +132,10 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData, onAdd
             footer={null}
             bodyStyle={{
                 background: '#F6EEF0',
-    
+
 
             }}
-            width={600}
+            width={550}
             padding={20}
         >
             <Form
@@ -145,23 +145,27 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData, onAdd
                 onFinish={handleUpdate}
             >
                 <Form.Item
-                    label="Địa chỉ chi tiết"
+                    label={<span style={{ color: '#C87E83' }}>Địa chỉ chi tiết</span>}
                     name="addDetail"
                     rules={[{ required: true, message: "Vui lòng nhập địa chỉ!" }]}
                 >
                     <Input
                         style={{
-                            border: '1px solid #C87E83',
                             backgroundColor: '#F6EEF0',
+                            borderBottom: '1px solid #C87E83',
+                            borderTop: 'none', 
+                            borderLeft: 'none', 
+                            borderRight: 'none', 
                             color: '#5A2D2F',
                             fontWeight: 'bold',
-                            fontFamily: "'Nunito', sans-serif"
+                            fontFamily: "'Nunito', sans-serif",
+                            borderRadius: 0
                         }}
                     />
                 </Form.Item>
 
                 <Form.Item
-                    label="Tỉnh"
+                    label={<span style={{ color: '#C87E83' }}>Tỉnh</span>}
                     name="province"
                     rules={[{ required: true, message: "Vui lòng chọn tỉnh!" }]}
                 >
@@ -186,7 +190,7 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData, onAdd
                 </Form.Item>
 
                 <Form.Item
-                    label="Quận/Huyện"
+                    label={<span style={{ color: '#C87E83' }}>Quận/Huyện</span>}
                     name="district"
                     rules={[{ required: true, message: "Vui lòng chọn quận/huyện!" }]}
                 >
@@ -212,14 +216,14 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData, onAdd
                 </Form.Item>
 
                 <Form.Item
-                    label="Phường/Xã"
+                    label={<span style={{ color: '#C87E83' }}>Phường/Xã</span>}
                     name="ward"
                     rules={[{ required: true, message: "Vui lòng chọn phường/xã!" }]}
                 >
                     <Select
                         disabled={!wards.length}
                         placeholder="Chọn phường/xã"
-                        loading={wards.length === 0 && districts.length > 0} 
+                        loading={wards.length === 0 && districts.length > 0}
                     >
                         {Array.isArray(wards) && wards.length > 0 ? (
                             wards.map(ward => (
