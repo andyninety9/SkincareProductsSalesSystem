@@ -15,6 +15,8 @@ public partial class KeyQuestion
 
     public DateOnly CreatedAt { get; set; }
 
+    public bool KeyQuestionStatus { get; set; }
+
     public virtual Question Question { get; set; } = null!;
 
     public virtual ICollection<ResultDetail> ResultDetails { get; set; } = new List<ResultDetail>();
