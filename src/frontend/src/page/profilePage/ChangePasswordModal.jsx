@@ -96,11 +96,12 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                             )
                         }
                         style={{
-                            border: '1px solid #C87E83',
                             backgroundColor: '#F6EEF0',
+                            borderBottom: '1px solid #C87E83',
                             color: '#5A2D2F',
                             fontWeight: 'bold',
-                            fontFamily: "'Nunito', sans-serif"
+                            fontFamily: "'Nunito', sans-serif",
+                            borderRadius: 0
                         }}
                     />
                 </Form.Item>
@@ -137,11 +138,12 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                             )
                         }
                         style={{
-                            border: '1px solid #C87E83',
                             backgroundColor: '#F6EEF0',
+                            borderBottom: '1px solid #C87E83',
                             color: '#5A2D2F',
                             fontWeight: 'bold',
-                            fontFamily: "'Nunito', sans-serif"
+                            fontFamily: "'Nunito', sans-serif",
+                            borderRadius: 0
                         }}
                     />
                 </Form.Item>
@@ -178,11 +180,12 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                             )
                         }
                         style={{
-                            border: '1px solid #C87E83',
                             backgroundColor: '#F6EEF0',
+                            borderBottom: '1px solid #C87E83',
                             color: '#5A2D2F',
                             fontWeight: 'bold',
-                            fontFamily: "'Nunito', sans-serif"
+                            fontFamily: "'Nunito', sans-serif",
+                            borderRadius: 0
                         }}
                     />
                 </Form.Item>
