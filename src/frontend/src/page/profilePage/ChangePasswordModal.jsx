@@ -64,7 +64,7 @@ const ChangePasswordModal = ({ visible, onClose }) => {
             bodyStyle={{
                 background: '#F6EEF0',
             }}
-            width={500}
+            width={550}
             padding={20}
         >
             <Form
