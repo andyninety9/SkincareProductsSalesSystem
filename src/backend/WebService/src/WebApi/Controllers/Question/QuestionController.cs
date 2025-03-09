@@ -139,16 +139,19 @@ namespace WebApi.Controllers.Question
         [HttpGet("get-all")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
-        public async Task<IActionResult> GetAll([FromQuery] string? keyword, [FromQuery] int page = 1,
+        public async Task<IActionResult> GetAll([FromQuery] string? keyword,[FromQuery] string? cateQuestionId  ,[FromQuery] int page = 1,
             [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
         {
+
             PaginationParams paginationParams = new() { Page = page, PageSize = pageSize };
 
-            var query = new GetAllQuestionQuery(keyword, paginationParams);
+            var query = new GetAllQuestionQuery(keyword,cateQuestionId, paginationParams);
             var result = await _mediator.Send(query, cancellationToken);
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_QUESTION_SUCCESS, data = result.Value });
         }
         
+        /// <summary>
+        /// 
 
     }   
 }

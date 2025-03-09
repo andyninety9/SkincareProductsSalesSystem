@@ -18,6 +18,12 @@ namespace Application.Features.Question.Queries.Validator
             RuleFor(x => x.PaginationParams.PageSize)
                 .GreaterThan(0)
                 .WithMessage("PageSize must be greater than 0");
+
+            When(x => !string.IsNullOrEmpty(x.cateQuestionId), () => {
+                RuleFor(x => int.Parse(x.cateQuestionId!))
+                    .GreaterThan(0)
+                    .WithMessage("CategoryId must be greater than 0");
+            });
         }
     }
 }
