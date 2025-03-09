@@ -1,11 +1,15 @@
-import { Table, Button, Input, Tabs, Avatar } from "antd";
-import { EyeOutlined, SearchOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
+import { Table, Button, Input, Tabs, Avatar, Modal, Form, Select } from "antd";
+import { EyeOutlined, SearchOutlined, EyeInvisibleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
-import api from "../../config/api"; // 🔥 Import API từ api.jsx
+import api from "../../config/api";
+import Cookies from "js-cookie";
+import { message } from "antd"; // Import message từ Ant Design
+
 
 const { TabPane } = Tabs;
+const { Option } = Select;
 
 export default function ManageAccount() {
     const [accounts, setAccounts] = useState([]);
@@ -15,14 +19,16 @@ export default function ManageAccount() {
     const [activeTab, setActiveTab] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");
 
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [form] = Form.useForm();
+    const [userRole, setUserRole] = useState(null); // Role của user hiện tại
+
     const pageSize = 10;
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await api.get("/User/all-users"); // 🔥 Gọi API bằng axios từ api.jsx
-                console.log("Fetched Data:", response.data);
-
+                const response = await api.get("/User/all-users");
                 if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
                     setAccounts(response.data.data.items);
                     setFilteredAccounts(response.data.data.items);
@@ -35,6 +41,18 @@ export default function ManageAccount() {
         };
 
         fetchUsers();
+
+        // Lấy role của user hiện tại từ token
+        const userCookie = Cookies.get("user");
+        if (userCookie) {
+            try {
+                const userData = JSON.parse(userCookie); // Parse JSON từ cookie
+                setUserRole(userData.role); // Lấy role từ cookie
+                console.log("User Role:", userData.role); // Debug kiểm tra
+            } catch (error) {
+                console.error("Error parsing user cookie:", error);
+            }
+        }
     }, []);
 
     useEffect(() => {
@@ -56,18 +74,60 @@ export default function ManageAccount() {
         }));
     };
 
+    
+const handleCreateAccount = async (values) => {
+    try {
+        console.log("📤 Sending data:", values); // Debug dữ liệu gửi lên API
+
+        const response = await api.post("User/create-user", values, {
+            headers: {
+                "Authorization": `Bearer ${Cookies.get("accessToken")}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (response.status === 201) {
+            message.success("🎉 Tạo tài khoản thành công!", 2);
+            console.log("✅ User created successfully!", response.data);
+            setIsModalVisible(false);
+            form.resetFields();
+
+            // Reload danh sách user
+            const res = await api.get("User/all-users");
+            setAccounts(res.data.data.items);
+            setFilteredAccounts(res.data.data.items);
+        } else {
+            message.error("⚠️ Lỗi không xác định khi tạo tài khoản!", 2);
+            console.error("❌ Error creating user:", response.data);
+        }
+    } catch (error) {
+        console.error("❌ Create user failed:", error);
+        
+        if (error.response) {
+            console.error("📥 Server Response:", error.response.data);
+            if (error.response.status === 400) {
+                if (error.response.data?.message?.includes("username already exists")) {
+                    message.error("⚠️ Username đã tồn tại, vui lòng chọn username khác!", 2);
+                } else if (error.response.data?.message?.includes("email already exists")) {
+                    message.error("⚠️ Email đã được sử dụng, vui lòng chọn email khác!", 2);
+                } else {
+                    message.error(`⚠️ Lỗi: ${error.response.data.message || "Không rõ lý do"}`, 2);
+                }
+            } else {
+                message.error("⚠️ Lỗi kết nối đến server!", 2);
+            }
+        }
+    }
+};
+
+
     const columns = [
         { title: "User ID", dataIndex: "usrId", key: "usrId", align: "center" },
         { title: "Username", dataIndex: "username", key: "username", align: "center", render: (text) => text || "N/A" },
         { title: "Email", dataIndex: "email", key: "email", align: "center", render: (text) => text || "N/A" },
         { title: "Full Name", dataIndex: "fullname", key: "fullname", align: "center", render: (text) => text || "N/A" },
-        { title: "Gender", dataIndex: "gender", key: "gender", align: "center", render: (text) => text || "N/A" },
         { title: "Phone", dataIndex: "phone", key: "phone", align: "center", render: (text) => text || "N/A" },
-        { 
-            title: "DOB", dataIndex: "dob", key: "dob", align: "center",
-            render: (dob) => dob ? new Date(dob).toLocaleDateString("vi-VN") : "N/A"
-        },
-        { 
+        {
             title: "Role", dataIndex: "roleId", key: "roleId", align: "center",
             render: (roleId) => roleId === 1 ? "Manager" : roleId === 2 ? "Staff" : "Customer"
         },
@@ -76,32 +136,33 @@ export default function ManageAccount() {
             dataIndex: "statusId",
             key: "statusId",
             align: "center",
-            render: (statusId) => (
-                <Button style={{ backgroundColor: "#AEBCFF", borderRadius: "12px", width: "100px" }}>
-                    {statusId === 2 ? "Active" : "Inactive"}
-                </Button>
-            ),
-        },
-        {
-            title: "Avatar",
-            dataIndex: "avatarUrl",
-            key: "avatarUrl",
-            align: "center",
-            render: (avatarUrl) => avatarUrl ? <Avatar src={avatarUrl} size={50} /> : "N/A",
-        },
-        { title: "Reward Rank", dataIndex: "rewardRank", key: "rewardRank", align: "center", render: (text) => text || "N/A" },
-        {
-            title: "Action",
-            key: "action",
-            align: "center",
-            render: (_, record) => (
-                <Button
-                    type="link"
-                    icon={visibleAccounts[record.usrId] ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                    style={{ color: "black", fontSize: "18px" }}
-                    onClick={() => toggleVisibility(record.usrId)}
-                />
-            ),
+            render: (statusId) => {
+                let color = "#FFCC00"; // Mặc định "Inactive" (Vàng)
+                let text = "Inactive";
+
+                if (statusId === 2) {
+                    color = "#28A745"; // Active (Xanh)
+                    text = "Active";
+                } else if (statusId === 3) {
+                    color = "#DC3545"; // Banned (Đỏ)
+                    text = "Banned";
+                }
+
+                return (
+                    <span style={{
+                        backgroundColor: color,
+                        color: "white",
+                        padding: "5px 12px",
+                        borderRadius: "12px",
+                        fontWeight: "bold",
+                        display: "inline-block",
+                        minWidth: "80px",
+                        textAlign: "center",
+                    }}>
+                        {text}
+                    </span>
+                );
+            }
         },
     ];
 
@@ -113,7 +174,29 @@ export default function ManageAccount() {
                 <div style={{ flex: 1, padding: "24px", overflowY: "auto", marginLeft: "250px" }}>
                     <h1 style={{ fontSize: "40px", textAlign: "left" }}>Accounts</h1>
 
-                    {/* Tabs lọc dữ liệu */}
+                    <div style={{ display: "flex", alignItems: "center", marginBottom: "20px", gap: "1%" }}>
+                        <Input
+                            placeholder="Tìm kiếm tài khoản ..."
+                            style={{ width: "450px" }}
+                            suffix={<SearchOutlined />}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        {/* Hiển thị nút Create Account nếu user có quyền */}
+                        {(userRole === "Manager" || userRole === "Staff") && (
+                            <Button
+                                type="primary"
+                                icon={<PlusOutlined />}
+                                onClick={() => setIsModalVisible(true)}
+                                style={{
+                                    backgroundColor: "#D8959B",
+                                    color: "white",
+                                }}
+                            >
+                                Create Account
+                            </Button>
+                        )}
+                    </div>
+
                     <Tabs defaultActiveKey="all" onChange={setActiveTab}>
                         <TabPane tab="All" key="all" />
                         <TabPane tab="Manager" key="Manager" />
@@ -121,15 +204,6 @@ export default function ManageAccount() {
                         <TabPane tab="Customer" key="Customer" />
                     </Tabs>
 
-                    {/* Ô tìm kiếm */}
-                    <Input
-                        placeholder="Tìm kiếm tài khoản ..."
-                        style={{ width: "450px", marginBottom: "30px", marginTop: "30px" }}
-                        suffix={<SearchOutlined />}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-
-                    {/* Bảng hiển thị danh sách tài khoản */}
                     <Table
                         dataSource={filteredAccounts}
                         columns={columns}
@@ -141,12 +215,49 @@ export default function ManageAccount() {
                             total: filteredAccounts.length,
                             onChange: setCurrentPage,
                         }}
-                        locale={{
-                            emptyText: "Không có dữ liệu",
-                        }}
+                        locale={{ emptyText: "Không có dữ liệu" }}
                     />
                 </div>
             </div>
+
+            {/* Modal Create Account */}
+            <Modal
+                title="Create New Account"
+                visible={isModalVisible}
+                onCancel={() => setIsModalVisible(false)}
+                onOk={() => form.submit()}
+            >
+                <Form form={form} onFinish={handleCreateAccount} layout="vertical">
+                    <Form.Item name="fullname" label="Full Name" rules={[{ required: true }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="username" label="Username" rules={[{ required: true }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="email" label="Email" rules={[{ required: true, type: "email" }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="phone" label="Phone" rules={[{ required: true }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="roleId" label="Role" rules={[{ required: true }]}>
+                        <Select>
+                            {/* Nếu là Manager, có thể tạo cả Staff & Customer */}
+                            {userRole === "Manager" && (
+                                <>
+                                    <Option value={2}>Staff</Option>
+                                    <Option value={3}>Customer</Option>
+                                </>
+                            )}
+
+                            {/* Nếu là Staff, chỉ có thể tạo Customer */}
+                            {userRole === "Staff" && (
+                                <Option value={3}>Customer</Option>
+                            )}
+                        </Select>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 }
