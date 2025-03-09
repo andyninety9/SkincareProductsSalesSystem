@@ -207,5 +207,32 @@ namespace WebApi.Controllers.Question
             var result = await _mediator.Send(request, cancellationToken);
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.UPDATE_ANSWER_SUCCESS, data = result.Value });
         }
+
+        /// <summary>
+        /// Delete answer for question
+        /// </summary>
+        /// <param name="request">Answer deletion request containing answer ID.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the deletion process.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///  DELETE /api/Question/delete-answer
+        ///  {
+        ///  "keyId": "1"
+        ///  }
+        ///  Headers:
+        ///  - Authorization: Bearer {token}
+        ///  Role:
+        ///  - Manager
+        ///  
+        /// </remarks>
+        [HttpDelete("delete-answer")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
+        public async Task<IActionResult> DeleteAnswer([FromBody] DeleteAnswerCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.DELETE_ANSWER_SUCCESS, data = result.Value });
+        }
     }   
 }
