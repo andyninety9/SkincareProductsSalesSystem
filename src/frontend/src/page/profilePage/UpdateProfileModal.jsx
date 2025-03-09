@@ -109,7 +109,7 @@ const UpdateProfileModal = ({ visible, onClose, userInfo, refreshUserData }) => 
                 background: '#F6EEF0',
                 padding: '10px'
             }}
-            width={600}
+            width={550}
         >
             <Form
                 form={form}
