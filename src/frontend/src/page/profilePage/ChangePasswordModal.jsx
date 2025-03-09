@@ -64,7 +64,7 @@ const ChangePasswordModal = ({ visible, onClose }) => {
             bodyStyle={{
                 background: '#F6EEF0',
             }}
-            width={600}
+            width={500}
             padding={20}
         >
             <Form
@@ -73,7 +73,7 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                 onFinish={handleChangePassword}
             >
                 <Form.Item
-                    label="Mật khẩu cũ"
+                    label={<span style={{ color: '#C87E83' }}>Mật khẩu cũ</span>}
                     name="oldPassword"
                     rules={[
                         { required: true, message: "Vui lòng nhập mật khẩu cũ!" },
@@ -86,12 +86,12 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                             showOldPassword ? (
                                 <EyeInvisibleOutlined
                                     onClick={() => setShowOldPassword(false)}
-                                    style={{ color: '#5A2D2F' }}
+                                    style={{ color: '#C87E83' }}
                                 />
                             ) : (
                                 <EyeOutlined
                                     onClick={() => setShowOldPassword(true)}
-                                    style={{ color: '#5A2D2F' }}
+                                    style={{ color: '#C87E83' }}
                                 />
                             )
                         }
@@ -101,13 +101,14 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                             color: '#5A2D2F',
                             fontWeight: 'bold',
                             fontFamily: "'Nunito', sans-serif",
-                            borderRadius: 0
+                            borderRadius: 0,
+
                         }}
                     />
                 </Form.Item>
 
                 <Form.Item
-                    label="Mật khẩu mới"
+                    label={<span style={{ color: '#C87E83' }}>Mật khẩu mới</span>}
                     name="newPassword"
                     rules={[
                         { required: true, message: "Vui lòng nhập mật khẩu mới!" },
@@ -128,12 +129,12 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                             showNewPassword ? (
                                 <EyeInvisibleOutlined
                                     onClick={() => setShowNewPassword(false)}
-                                    style={{ color: '#5A2D2F' }}
+                                    style={{ color: '#C87E83' }}
                                 />
                             ) : (
                                 <EyeOutlined
                                     onClick={() => setShowNewPassword(true)}
-                                    style={{ color: '#5A2D2F' }}
+                                    style={{ color: '#C87E83' }}
                                 />
                             )
                         }
@@ -149,7 +150,7 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                 </Form.Item>
 
                 <Form.Item
-                    label="Xác nhận mật khẩu mới"
+                    label={<span style={{ color: '#C87E83' }}>Xác nhận mật khẩu mới</span>}
                     name="confirmPassword"
                     dependencies={['newPassword']}
                     rules={[
@@ -170,12 +171,12 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                             showConfirmPassword ? (
                                 <EyeInvisibleOutlined
                                     onClick={() => setShowConfirmPassword(false)}
-                                    style={{ color: '#5A2D2F' }}
+                                    style={{ color: '#C87E83' }}
                                 />
                             ) : (
                                 <EyeOutlined
                                     onClick={() => setShowConfirmPassword(true)}
-                                    style={{ color: '#5A2D2F' }}
+                                    style={{ color: '#C87E83' }}
                                 />
                             )
                         }
