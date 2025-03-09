@@ -86,17 +86,17 @@ const ProfilePage = () => {
                 const addressData = response.data.data.items;
                 const formattedAddresses = Array.isArray(addressData)
                     ? addressData
-                          .map((addr) => ({
-                              addressId: addr.addressId,
-                              addDetail: addr.addDetail,
-                              ward: addr.ward,
-                              district: addr.district,
-                              city: addr.city,
-                              country: addr.country,
-                              isDefault: addr.isDefault,
-                              status: addr.status,
-                          }))
-                          .filter((addr) => addr.status === true)
+                        .map((addr) => ({
+                            addressId: addr.addressId,
+                            addDetail: addr.addDetail,
+                            ward: addr.ward,
+                            district: addr.district,
+                            city: addr.city,
+                            country: addr.country,
+                            isDefault: addr.isDefault,
+                            status: addr.status,
+                        }))
+                        .filter((addr) => addr.status === true)
                     : [];
                 formattedAddresses.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
                 setAddresses(formattedAddresses);
@@ -351,7 +351,16 @@ const ProfilePage = () => {
                     <Button icon={<UploadOutlined />}>Đổi ảnh bìa</Button>
                 </Upload>
                 {coverFile && (
-                    <Button type="primary" loading={coverLoading} onClick={handleCoverChange}>
+                    <Button
+                        style={{
+                            marginTop: 10,
+                            backgroundColor: '#C87E83',
+                            borderColor: '#C87E83',
+                            color: '#fff',
+                            marginLeft: "10px"
+                        }}
+                        type="primary" loading={coverLoading}
+                        onClick={handleCoverChange}>
                         Xác nhận
                     </Button>
                 )}
