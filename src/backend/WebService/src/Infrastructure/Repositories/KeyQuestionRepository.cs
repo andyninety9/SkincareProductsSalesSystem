@@ -10,5 +10,12 @@ namespace Infrastructure.Repositories
         public KeyQuestionRepository(MyDbContext context) : base(context)
         {
         }
+
+        public Task<IEnumerable<KeyQuestion>> GetKeyQuestionByQuestionId(short questionId)
+        {
+            var result = _context.KeyQuestions.Where(x => x.QuestionId == questionId);
+            return Task.FromResult(result.AsEnumerable());
+            
+        }
     }
 }

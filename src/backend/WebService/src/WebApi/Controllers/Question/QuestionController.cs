@@ -3,6 +3,7 @@ using Application.Auth.Commands;
 using Application.Common.Enum;
 using Application.Common.Paginations;
 using Application.Constant;
+using Application.Features.ProductCategory.Commands;
 using Application.Features.ProductCategory.Queries;
 using Application.Features.Question.Commands;
 using MediatR;
@@ -151,7 +152,32 @@ namespace WebApi.Controllers.Question
         }
         
         /// <summary>
-        /// 
+        /// Create answer for question
+        /// </summary>
+        /// <param name="request">Answer creation request containing question ID and answer content.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the created answer details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///    POST /api/Question/create-answer
+        ///    {
+        ///    "questionId": 1,
+        ///    "keyContent": "Answer content for question",
+        ///    "keyScore": 1
+        ///    }
+        ///    Headers:
+        ///    - Authorization: Bearer {token}
+        ///    Role:
+        ///    - Admin
+        /// </remarks>
+        [HttpPost("create-answer")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
+        public async Task<IActionResult> CreateAnswer([FromBody] CreateAnswerCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.CREATE_ANSWER_SUCCESS, data = result.Value });
+        }
 
     }   
 }

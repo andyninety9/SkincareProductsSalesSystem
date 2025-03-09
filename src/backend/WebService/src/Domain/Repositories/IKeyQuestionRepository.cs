@@ -9,6 +9,6 @@ namespace Domain.Repositories
 {
     public interface IKeyQuestionRepository : IRepository<KeyQuestion>
     {
-        
+        Task<IEnumerable<KeyQuestion>> GetKeyQuestionByQuestionId(short questionId);
     }
 }
