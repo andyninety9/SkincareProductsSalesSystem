@@ -31,6 +31,10 @@ const ProfilePage = () => {
     const [avatarFile, setAvatarFile] = useState(null);
     const [avatarLoading, setAvatarLoading] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState(userInfo.avatarUrl);
+    //user cover
+    const [coverFile, setCoverFile] = useState(null);
+    const [coverLoading, setCoverLoading] = useState(false);
+    const [coverPreview, setCoverPreview] = useState(null);
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -54,7 +58,16 @@ const ProfilePage = () => {
                 URL.revokeObjectURL(avatarPreview);
             }
         };
-    }, [avatarPreview, userInfo?.avatarUrl]); // Dependencies ensure cleanup runs when these change
+    }, [avatarPreview, userInfo?.avatarUrl]);
+
+    // Cleanup useEffect for cover preview
+    useEffect(() => {
+        return () => {
+            if (coverPreview && coverPreview !== userInfo?.coverUrl) {
+                URL.revokeObjectURL(coverPreview);
+            }
+        };
+    }, [coverPreview, userInfo?.coverUrl]);
 
     const showAddressModal = () => {
         setIsAddressModalVisible(true);
@@ -73,17 +86,17 @@ const ProfilePage = () => {
                 const addressData = response.data.data.items;
                 const formattedAddresses = Array.isArray(addressData)
                     ? addressData
-                          .map((addr) => ({
-                              addressId: addr.addressId,
-                              addDetail: addr.addDetail,
-                              ward: addr.ward,
-                              district: addr.district,
-                              city: addr.city,
-                              country: addr.country,
-                              isDefault: addr.isDefault,
-                              status: addr.status,
-                          }))
-                          .filter((addr) => addr.status === true)
+                        .map((addr) => ({
+                            addressId: addr.addressId,
+                            addDetail: addr.addDetail,
+                            ward: addr.ward,
+                            district: addr.district,
+                            city: addr.city,
+                            country: addr.country,
+                            isDefault: addr.isDefault,
+                            status: addr.status,
+                        }))
+                        .filter((addr) => addr.status === true)
                     : [];
                 formattedAddresses.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
                 setAddresses(formattedAddresses);
@@ -214,6 +227,9 @@ const ProfilePage = () => {
                 if (!avatarFile) {
                     setAvatarPreview(data.avatarUrl || '');
                 }
+                if (!coverFile) {
+                    setCoverPreview(data.coverUrl || '');
+                }
             } else {
                 console.warn('Unexpected API response:', response);
                 message.error('Failed to fetch user data.');
@@ -269,6 +285,44 @@ const ProfilePage = () => {
         setAvatarPreview(previewUrl);
     };
 
+    //cover change 
+    const handleCoverChange = async () => {
+        if (!coverFile) {
+            message.error('Vui lòng chọn file ảnh để tải lên!');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('CoverFile', coverFile);
+        try {
+            setCoverLoading(true);
+            const response = await api.post('User/change-cover', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            if (response.data.statusCode === 200) {
+                message.success('Ảnh bìa đã được cập nhật thành công!');
+                setCoverFile(null);
+                await refreshUserData();
+            } else {
+                message.error(
+                    `Cập nhật ảnh bìa thất bại: ${response.data.detail || 'Lỗi không xác định'}`
+                );
+            }
+        } catch (error) {
+            console.error('Error uploading cover:', error);
+            message.error('Lỗi khi cập nhật ảnh bìa!');
+        } finally {
+            setCoverLoading(false);
+        }
+    };
+
+    //cover uploaded
+    const handleCoverFileChange = (info) => {
+        const file = info.file.originFileObj || info.file;
+        setCoverFile(file);
+        const previewUrl = URL.createObjectURL(file);
+        setCoverPreview(previewUrl);
+    };
+
     if (loading) {
         return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
     }
@@ -282,11 +336,35 @@ const ProfilePage = () => {
                 style={{
                     width: '100%',
                     height: '30vh',
-                    background: `url(${userInfo.coverUrl}) no-repeat center center`,
+                    background: `url(${coverPreview || userInfo.coverUrl}) no-repeat center center`,
                     backgroundSize: 'cover',
                     marginBottom: 10,
                 }}
             />
+            <div>
+                <Upload
+                    name="CoverFile"
+                    showUploadList={false}
+                    beforeUpload={() => false}
+                    onChange={handleCoverFileChange}
+                >
+                    <Button icon={<UploadOutlined />}>Đổi ảnh bìa</Button>
+                </Upload>
+                {coverFile && (
+                    <Button
+                        style={{
+                            marginTop: 10,
+                            backgroundColor: '#C87E83',
+                            borderColor: '#C87E83',
+                            color: '#fff',
+                            marginLeft: "10px"
+                        }}
+                        type="primary" loading={coverLoading}
+                        onClick={handleCoverChange}>
+                        Xác nhận
+                    </Button>
+                )}
+            </div>
             <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
                 <Card
                     style={{
