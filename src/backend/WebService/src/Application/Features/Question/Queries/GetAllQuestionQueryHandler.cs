@@ -69,6 +69,11 @@ namespace Application.Features.ProductCategory.Queries
                 var query = await _questionRepository.GetAllAsync(cancellationToken);
                 var questionsList = query.ToList();
 
+                questionsList = questionsList
+                    .Where(x => x.StatusQuestion == true)
+                    .OrderByDescending(x => x.CreatedAt)
+                    .ToList();
+                
                 if (!string.IsNullOrEmpty(request.Keyword))
                 {
                     string normalizedKeyword = NormalizeVietnamese(request.Keyword);
@@ -99,7 +104,7 @@ namespace Application.Features.ProductCategory.Queries
                 foreach (var item in items)
                 {
                     var keyQuestions = await _keyQuestionRepository.GetAllAsync(cancellationToken);
-                    keyQuestions = keyQuestions.Where(x => x.QuestionId == item.QuestionId);
+                    keyQuestions = keyQuestions.Where(x => x.QuestionId == item.QuestionId && x.KeyQuestionStatus == true).ToList();
 
                     var response = _mapper.Map<GetAllQuestionResponse>(item);
                     List<KeyQuestionResponse> keyQuestionResponses = new();
