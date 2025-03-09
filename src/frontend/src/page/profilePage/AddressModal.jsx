@@ -219,7 +219,7 @@ const AddressModal = ({ visible, onClose, userAddress, refreshAddressData, onAdd
                     <Select
                         disabled={!wards.length}
                         placeholder="Chọn phường/xã"
-                        loading={wards.length === 0 && districts.length > 0} // Show loading when fetching
+                        loading={wards.length === 0 && districts.length > 0} 
                     >
                         {Array.isArray(wards) && wards.length > 0 ? (
                             wards.map(ward => (

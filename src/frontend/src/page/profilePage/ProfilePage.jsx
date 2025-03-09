@@ -6,6 +6,7 @@ import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col, Modal, Form, me
 import { DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import UpdateProfileModal from './UpdateProfileModal';
 import AddressModal from './AddressModal';
+import ChangePasswordModal from './ChangePasswordModal';
 import 'antd/dist/reset.css';
 import './ProfilePage.css';
 import Cookies from 'js-cookie';
@@ -35,6 +36,8 @@ const ProfilePage = () => {
     const [coverFile, setCoverFile] = useState(null);
     const [coverLoading, setCoverLoading] = useState(false);
     const [coverPreview, setCoverPreview] = useState(null);
+    //change password
+    const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -321,6 +324,15 @@ const ProfilePage = () => {
         setCoverFile(file);
         const previewUrl = URL.createObjectURL(file);
         setCoverPreview(previewUrl);
+    };
+
+    //change password modal
+    const showPasswordModal = () => {
+        setIsPasswordModalVisible(true);
+    };
+
+    const handlePasswordModalClose = () => {
+        setIsPasswordModalVisible(false);
     };
 
     if (loading) {
@@ -776,20 +788,26 @@ const ProfilePage = () => {
                                     style={{ backgroundColor: '#D8959A', borderColor: '#D8959A' }}>
                                     Cập Nhật Thông Tin
                                 </Button>
-                                <Button type="primary" style={{ backgroundColor: '#C87E83', borderColor: '#C87E83' }}>
+                                <Button type="primary" 
+                                    onClick={() => setIsPasswordModalVisible(true)} 
+                                    style={{ backgroundColor: '#C87E83', borderColor: '#C87E83' }}>
                                     Thay đổi mật khẩu
                                 </Button>
+                              
                             </div>
                         </TabPane>
                     </Tabs>
                 </Card>
             </div>
-
             <UpdateProfileModal
                 visible={isModalVisible}
                 onClose={() => setIsModalVisible(false)}
                 userInfo={userInfo}
                 refreshUserData={refreshUserData}
+            />
+            <ChangePasswordModal
+                visible={isPasswordModalVisible}
+                onClose={handlePasswordModalClose}
             />
         </div>
     );
