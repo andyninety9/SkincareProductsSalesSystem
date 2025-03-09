@@ -31,6 +31,7 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import Page404 from './page/pageNotFound/page404';
 import RestrictedPage from './page/restrictedPage/restrictedPage';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import ManageAccount from './page/manageAccount/ManageAccount';
 
 function App() {
     const router = createBrowserRouter([
@@ -138,6 +139,14 @@ function App() {
             element: (
                 <ProtectedRoute roles={['Manager', 'Staff']}>
                     <ManageCommentPage />
+                </ProtectedRoute>
+            ),
+        },
+        {
+            path: routes.manageAccount,
+            element: (
+                <ProtectedRoute roles={['Manager', 'Staff']}>
+                    <ManageAccount />
                 </ProtectedRoute>
             ),
         },
