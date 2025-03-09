@@ -390,6 +390,7 @@ const ProfilePage = () => {
                         src={avatarPreview} // Use preview URL or original avatar URL
                         style={{ border: '3px solid #D8959A' }}
                     />
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <Upload
                         name="avatarFile"
                         showUploadList={false}
@@ -403,6 +404,9 @@ const ProfilePage = () => {
                                 backgroundColor: '#D8959A',
                                 borderColor: '#D8959A',
                                 color: '#fff',
+                                minWidth: '80px',
+                                height: '25px',              
+                                fontSize: '12px', 
                             }}>
                             Đổi Avatar
                         </Button>
@@ -417,10 +421,18 @@ const ProfilePage = () => {
                                 backgroundColor: '#C87E83',
                                 borderColor: '#C87E83',
                                 color: '#fff',
+                                minWidth: '80px',
+                                height: '25px',
+                                fontSize: '12px',  
+                                padding: '2px 6px', 
+                                display: 'flex', 
+                                alignItems: 'center',             
                             }}>
                             Xác nhận
                         </Button>
+                        
                     )}
+                    </div>
                     <h3
                         style={{
                             fontFamily: "'Nunito', sans-serif",
