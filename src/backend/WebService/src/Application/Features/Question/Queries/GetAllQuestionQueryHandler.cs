@@ -21,6 +21,7 @@ namespace Application.Features.ProductCategory.Queries
 {
     public sealed record GetAllQuestionQuery(
         string? Keyword,
+        string? cateQuestionId,
         PaginationParams PaginationParams
         ) : IQuery<PagedResult<GetAllQuestionResponse>>;
 
@@ -77,6 +78,12 @@ namespace Application.Features.ProductCategory.Queries
                         .Where(x => x.QuestionContent != null &&
                             searchTerms.Any(term => NormalizeVietnamese(x.QuestionContent)
                                 .Contains(term, StringComparison.OrdinalIgnoreCase)))
+                        .ToList();
+                }
+                if(!string.IsNullOrEmpty(request.cateQuestionId))
+                {
+                    questionsList = questionsList
+                        .Where(x => x.CateQuestionId == short.Parse(request.cateQuestionId))
                         .ToList();
                 }
 
