@@ -47,7 +47,8 @@ namespace Application.Features.ProductCategory.Commands
                     return Result<CreateAnswerQuestionResponse>.Failure<CreateAnswerQuestionResponse>(new Error("KeyQuestionNotFound", "Key question not found"));
                 }
 
-                _keyQuestionRepository.Delete(keyQuestion);
+                keyQuestion.KeyQuestionStatus = false;
+                _keyQuestionRepository.Update(keyQuestion);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 var result = _keyQuestionRepository.GetKeyQuestionByQuestionId(keyQuestion.QuestionId);
