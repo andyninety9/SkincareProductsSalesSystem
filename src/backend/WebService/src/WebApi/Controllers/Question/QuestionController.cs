@@ -1,7 +1,10 @@
 using Application.Attributes;
 using Application.Auth.Commands;
 using Application.Common.Enum;
+using Application.Common.Paginations;
 using Application.Constant;
+using Application.Features.ProductCategory.Commands;
+using Application.Features.ProductCategory.Queries;
 using Application.Features.Question.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -111,7 +114,125 @@ namespace WebApi.Controllers.Question
         {
             var result = await _mediator.Send(request, cancellationToken);
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.UPDATE_QUESTION_SUCCESS, data = result.Value });
-            
+
+        }
+
+        /// <summary>
+        /// Gets a list of questions.
+        /// </summary>
+        /// API: /api/Question/get-all?keyword=&cateQuestionId=&page=&pageSize=
+        /// <param name="keyword">Keyword to search for.</param>
+        /// <param name="cateQuestionId">Category ID to filter by.</param>
+        /// <param name="page">Page number.</param>
+        /// <param name="pageSize">Number of items per page.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a list of questions.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///     GET /api/Question/get-all?keyword=&cateQuestionId=&page=&pageSize=
+        ///     Headers:
+        ///     - Authorization: Bearer {token}
+        ///     Role:
+        ///     - Manager
+        ///     - Staff
+
+        /// </remarks>
+        [HttpGet("get-all")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> GetAll([FromQuery] string? keyword, [FromQuery] string? cateQuestionId, [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        {
+
+            PaginationParams paginationParams = new() { Page = page, PageSize = pageSize };
+
+            var query = new GetAllQuestionQuery(keyword, cateQuestionId, paginationParams);
+            var result = await _mediator.Send(query, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_QUESTION_SUCCESS, data = result.Value });
+        }
+
+        /// <summary>
+        /// Create answer for question
+        /// </summary>
+        /// <param name="request">Answer creation request containing question ID and answer content.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the created answer details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///    POST /api/Question/create-answer
+        ///    {
+        ///    "questionId": "1",
+        ///    "keyContent": "Answer content for question",
+        ///    "keyScore": "1"
+        ///    }
+        ///    Headers:
+        ///    - Authorization: Bearer {token}
+        ///    Role:
+        ///    - Admin
+        /// </remarks>
+        [HttpPost("create-answer")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
+        public async Task<IActionResult> CreateAnswer([FromBody] CreateAnswerCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.CREATE_ANSWER_SUCCESS, data = result.Value });
+        }
+
+        /// <summary>
+        /// Update answer for question
+        /// </summary>
+        /// <param name="request">Answer update request containing answer ID, question ID, and updated content.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the updated answer details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///   PATCH /api/Question/update-answer
+        ///   {
+        ///   "keyId": "1",
+        ///   "keyContent": "Updated answer content for question",
+        ///   "keyScore": "2"
+        ///   }
+        ///   Headers:
+        ///   - Authorization: Bearer {token}
+        ///   Role:
+        ///   - Manager
+        ///   
+        /// </remarks>
+        [HttpPatch("update-answer")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
+        public async Task<IActionResult> UpdateAnswer([FromBody] UpdateAnswerCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.UPDATE_ANSWER_SUCCESS, data = result.Value });
+        }
+
+        /// <summary>
+        /// Delete answer for question
+        /// </summary>
+        /// <param name="request">Answer deletion request containing answer ID.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the deletion process.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///  DELETE /api/Question/delete-answer
+        ///  {
+        ///  "keyId": "1"
+        ///  }
+        ///  Headers:
+        ///  - Authorization: Bearer {token}
+        ///  Role:
+        ///  - Manager
+        ///  
+        /// </remarks>
+        [HttpDelete("delete-answer")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
+        public async Task<IActionResult> DeleteAnswer([FromBody] DeleteAnswerCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.DELETE_ANSWER_SUCCESS, data = result.Value });
         }
     }   
 }

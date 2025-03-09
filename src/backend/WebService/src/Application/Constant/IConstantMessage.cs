@@ -76,6 +76,11 @@ namespace Application.Constant
         public static string DELETE_QUESTION_SUCCESS = "Question deleted successfully.";
         public static string UPDATE_QUESTION_SUCCESS = "Question updated successfully.";
         public static string UPDATE_QUESTION_FALSE = "Failed to update the question.";
+        public static string GET_QUESTION_SUCCESS = "Questions retrieved successfully.";
+        public static string CREATE_ANSWER_SUCCESS = "Answer created successfully.";
+        public static string UPDATE_ANSWER_SUCCESS = "Answer updated successfully.";
+        public static string DELETE_ANSWER_SUCCESS = "Answer deleted successfully.";
+
 
         // Server related messages
         public static string INTERNAL_SERVER_ERROR = "An unexpected error occurred on the server.";

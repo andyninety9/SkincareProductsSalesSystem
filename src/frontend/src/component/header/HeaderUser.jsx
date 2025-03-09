@@ -23,13 +23,33 @@ const HeaderUser = () => {
     const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
     const searchRef = useRef(null);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [user, setUser] = useState(null);
+    const prevUserCookieRef = useRef(null);
 
-    let user = null;
-    try {
-        user = JSON.parse(Cookies.get('user')) || null;
-    } catch (error) {
-        // console.error('failed to parse user', error);
-    }
+    useEffect(() => {
+        // Explicitly bind prevUserCookieRef to avoid scope issues
+        function updateUserFromCookies() {
+            const userCookie = Cookies.get('user');
+            // Only update if the cookie has changed
+            if (userCookie !== prevUserCookieRef.current) {
+                prevUserCookieRef.current = userCookie;
+                try {
+                    setUser(userCookie ? JSON.parse(userCookie) : null);
+                } catch (error) {
+                    // console.error('failed to parse user', error);
+                    setUser(null);
+                }
+            }
+        }
+
+        // Initial update
+        updateUserFromCookies();
+
+        // Check for cookie changes periodically
+        const cookieCheckInterval = setInterval(updateUserFromCookies, 1000);
+
+        return () => clearInterval(cookieCheckInterval);
+    }, []);
     const items = [
         {
             key: '1',

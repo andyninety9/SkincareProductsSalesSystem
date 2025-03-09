@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-binary-expression */
 import React, { useState, useEffect } from 'react';
 import api from '../../config/api';
 import { MailOutlined, PhoneOutlined, CalendarOutlined } from '@ant-design/icons';
@@ -7,6 +8,7 @@ import UpdateProfileModal from './UpdateProfileModal';
 import AddressModal from './AddressModal';
 import 'antd/dist/reset.css';
 import './ProfilePage.css';
+import Cookies from 'js-cookie';
 
 const { TabPane } = Tabs;
 const ProfilePage = () => {
@@ -34,17 +36,11 @@ const ProfilePage = () => {
     const [coverLoading, setCoverLoading] = useState(false);
     const [coverPreview, setCoverPreview] = useState(null);
 
-
     useEffect(() => {
         const fetchInitialData = async () => {
             setLoading(true);
             try {
-                await Promise.all([
-                    fetchPromoCodes(),
-                    fetchAddresses(),
-                    refreshUserData(),
-                    fetchOrdersHistory(),
-                ]);
+                await Promise.all([fetchPromoCodes(), fetchAddresses(), refreshUserData(), fetchOrdersHistory()]);
             } catch (error) {
                 console.error('Error fetching initial data:', error);
                 message.error('Failed to load initial data.');
@@ -90,17 +86,17 @@ const ProfilePage = () => {
                 const addressData = response.data.data.items;
                 const formattedAddresses = Array.isArray(addressData)
                     ? addressData
-                        .map((addr) => ({
-                            addressId: addr.addressId,
-                            addDetail: addr.addDetail,
-                            ward: addr.ward,
-                            district: addr.district,
-                            city: addr.city,
-                            country: addr.country,
-                            isDefault: addr.isDefault,
-                            status: addr.status,
-                        }))
-                        .filter((addr) => addr.status === true)
+                          .map((addr) => ({
+                              addressId: addr.addressId,
+                              addDetail: addr.addDetail,
+                              ward: addr.ward,
+                              district: addr.district,
+                              city: addr.city,
+                              country: addr.country,
+                              isDefault: addr.isDefault,
+                              status: addr.status,
+                          }))
+                          .filter((addr) => addr.status === true)
                     : [];
                 formattedAddresses.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
                 setAddresses(formattedAddresses);
@@ -128,9 +124,7 @@ const ProfilePage = () => {
                 message.success('Đã đặt địa chỉ làm mặc định!');
                 await fetchAddresses();
             } else {
-                message.error(
-                    `Cập nhật địa chỉ mặc định thất bại: ${response.data.detail || 'Lỗi không xác định'}`
-                );
+                message.error(`Cập nhật địa chỉ mặc định thất bại: ${response.data.detail || 'Lỗi không xác định'}`);
             }
         } catch (error) {
             console.error('Error setting default address:', error);
@@ -160,9 +154,7 @@ const ProfilePage = () => {
             });
             if (response.data.statusCode === 200) {
                 message.success('Địa chỉ đã được xóa thành công!');
-                setAddresses((prevAddresses) =>
-                    prevAddresses.filter((addr) => addr.addressId !== addressId)
-                );
+                setAddresses((prevAddresses) => prevAddresses.filter((addr) => addr.addressId !== addressId));
                 await fetchAddresses();
             } else {
                 message.error(`Xóa địa chỉ thất bại: ${response.data.detail || 'Lỗi không xác định'}`);
@@ -227,6 +219,10 @@ const ProfilePage = () => {
                     avatarUrl: data.avatarUrl || '',
                     coverUrl: data.coverUrl || '',
                 });
+                Cookies.set('user', JSON.stringify(response.data.data), {
+                    expires: 5,
+                    secure: true,
+                });
                 // Sync avatarPreview with the latest avatarUrl if no file is selected
                 if (!avatarFile) {
                     setAvatarPreview(data.avatarUrl || '');
@@ -268,11 +264,10 @@ const ProfilePage = () => {
             if (response.data.statusCode === 200) {
                 message.success('Avatar đã được cập nhật thành công!');
                 setAvatarFile(null);
+
                 await refreshUserData();
             } else {
-                message.error(
-                    `Cập nhật avatar thất bại: ${response.data.detail || 'Lỗi không xác định'}`
-                );
+                message.error(`Cập nhật avatar thất bại: ${response.data.detail || 'Lỗi không xác định'}`);
             }
         } catch (error) {
             console.error('Error uploading avatar:', error);
@@ -379,8 +374,7 @@ const ProfilePage = () => {
                         showUploadList={false}
                         beforeUpload={() => false} // Prevent automatic upload
                         onChange={handleFileChange}
-                        style={{ marginTop: 10 }}
-                    >
+                        style={{ marginTop: 10 }}>
                         <Button
                             icon={<UploadOutlined />}
                             style={{
@@ -388,8 +382,7 @@ const ProfilePage = () => {
                                 backgroundColor: '#D8959A',
                                 borderColor: '#D8959A',
                                 color: '#fff',
-                            }}
-                        >
+                            }}>
                             Đổi Avatar
                         </Button>
                     </Upload>
@@ -403,8 +396,7 @@ const ProfilePage = () => {
                                 backgroundColor: '#C87E83',
                                 borderColor: '#C87E83',
                                 color: '#fff',
-                            }}
-                        >
+                            }}>
                             Xác nhận
                         </Button>
                     )}
@@ -414,8 +406,7 @@ const ProfilePage = () => {
                             color: '#D8959A',
                             fontSize: '20px',
                             marginTop: '10px',
-                        }}
-                    >
+                        }}>
                         {userInfo.name}
                     </h3>
                     <p
@@ -424,8 +415,7 @@ const ProfilePage = () => {
                             color: '#D8959A',
                             fontSize: '20px',
                             margin: '0',
-                        }}
-                    >
+                        }}>
                         {userInfo.fullname}
                     </p>
                     <p style={{ marginTop: '2px' }}>{userInfo.gender}</p>
@@ -516,26 +506,27 @@ const ProfilePage = () => {
                                                         color={item.isDefault ? '#D8959A' : 'gray'}
                                                         onClick={() => handleSelectDefault(index)}
                                                         style={{
-                                                            cursor: "pointer",
-                                                            border: item.isDefault ? "1px solid #D8959A" : "1px solid #ddd",
-                                                            backgroundColor: item.isDefault ? "#fff" : "transparent",
-                                                            color: item.isDefault ? "#D8959A" : "gray",
+                                                            cursor: 'pointer',
+                                                            border: item.isDefault
+                                                                ? '1px solid #D8959A'
+                                                                : '1px solid #ddd',
+                                                            backgroundColor: item.isDefault ? '#fff' : 'transparent',
+                                                            color: item.isDefault ? '#D8959A' : 'gray',
                                                             marginRight: 4,
-                                                            fontSize: "12px",
-                                                        }}
-                                                    >
+                                                            fontSize: '12px',
+                                                        }}>
                                                         Mặc Định
                                                     </Tag>
                                                     <Button
                                                         className="custom-delete-button"
                                                         style={{
-                                                            border: "1px solid #ddd",
-                                                            backgroundColor: item.isDefault ? "#fff" : "transparent",
-                                                            color: "gray",
-                                                            padding: "4px 6px",
-                                                            height: "auto",
-                                                            lineHeight: "normal",
-                                                            fontSize: "12px",
+                                                            border: '1px solid #ddd',
+                                                            backgroundColor: item.isDefault ? '#fff' : 'transparent',
+                                                            color: 'gray',
+                                                            padding: '4px 6px',
+                                                            height: 'auto',
+                                                            lineHeight: 'normal',
+                                                            fontSize: '12px',
                                                         }}
                                                         type="text"
                                                         danger
@@ -552,14 +543,13 @@ const ProfilePage = () => {
                             <Button
                                 type="dashed"
                                 style={{
-                                    width: "100%",
-                                    backgroundColor: "#C87E83",
-                                    borderColor: "#C87E83",
-                                    color: "#fff",
+                                    width: '100%',
+                                    backgroundColor: '#C87E83',
+                                    borderColor: '#C87E83',
+                                    color: '#fff',
                                     marginTop: 20,
                                 }}
-                                onClick={showAddressModal}
-                            >
+                                onClick={showAddressModal}>
                                 Thêm địa chỉ mới
                             </Button>
                             <AddressModal
@@ -635,25 +625,32 @@ const ProfilePage = () => {
                                 </Row>
                             )}
                         </TabPane>
-                        <TabPane tab={<span style={{ color: activeTab === "3" ? "#D8959A" : "gray" }}>Lịch Sử Mua Hàng</span>} key="3">
+                        <TabPane
+                            tab={
+                                <span style={{ color: activeTab === '3' ? '#D8959A' : 'gray' }}>Lịch Sử Mua Hàng</span>
+                            }
+                            key="3">
                             {loadingOrders ? (
-                                <div style={{ textAlign: "center", padding: "20px" }}>Đang tải...</div>
+                                <div style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</div>
                             ) : ordersHistory.length === 0 ? (
-                                <div style={{ textAlign: "center", padding: "20px" }}>Không có lịch sử mua hàng.</div>
+                                <div style={{ textAlign: 'center', padding: '20px' }}>Không có lịch sử mua hàng.</div>
                             ) : (
                                 <div
                                     style={{
-                                        maxHeight: "400px",
-                                        overflowY: "auto",
-                                        paddingRight: "10px",
-                                    }}
-                                >
+                                        maxHeight: '400px',
+                                        overflowY: 'auto',
+                                        paddingRight: '10px',
+                                    }}>
                                     <List
                                         dataSource={ordersHistory}
                                         renderItem={(order) => (
                                             <List.Item
-                                                style={{ display: "flex", alignItems: "center", padding: 10, borderBottom: "1px solid #ddd" }}
-                                            >
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    padding: 10,
+                                                    borderBottom: '1px solid #ddd',
+                                                }}>
                                                 <img
                                                     src="https://via.placeholder.com/80" // Placeholder image
                                                     alt="Product"
@@ -662,43 +659,51 @@ const ProfilePage = () => {
                                                 <div style={{ flex: 1 }}>
                                                     <strong>{order.customerName}</strong>
                                                     <p style={{ margin: 0 }}>
-                                                        {new Date(order.orderDate).toLocaleDateString("vi-VN")}
+                                                        {new Date(order.orderDate).toLocaleDateString('vi-VN')}
                                                     </p>
-                                                    <p style={{ fontWeight: "bold", color: "#D8959A", whiteSpace: "nowrap" }}>
-                                                        {order.totalPrice.toLocaleString("vi-VN")} vnd - {order.products.length} món
+                                                    <p
+                                                        style={{
+                                                            fontWeight: 'bold',
+                                                            color: '#D8959A',
+                                                            whiteSpace: 'nowrap',
+                                                        }}>
+                                                        {order.totalPrice.toLocaleString('vi-VN')} vnd -{' '}
+                                                        {order.products.length} món
                                                     </p>
 
-                                                    <p style={{ marginTop: -2, color: "gray", fontSize: "10px" }}>
+                                                    <p style={{ marginTop: -2, color: 'gray', fontSize: '10px' }}>
                                                         {order.products[0]?.productName}
                                                     </p>
                                                 </div>
                                                 <div
                                                     style={{
-                                                        display: "flex",
-                                                        flexDirection: "column",
-                                                        alignItems: "flex-end",
-                                                        marginBottom: "50px",
-                                                    }}
-                                                >
-                                                    <p style={{ color: "#D8959A", margin: "0 0 8px 0", fontSize: "12px" }}>
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'flex-end',
+                                                        marginBottom: '50px',
+                                                    }}>
+                                                    <p
+                                                        style={{
+                                                            color: '#D8959A',
+                                                            margin: '0 0 8px 0',
+                                                            fontSize: '12px',
+                                                        }}>
                                                         #{order.orderId}
                                                     </p>
                                                     <Tag
                                                         color="#D8959A"
                                                         style={{
                                                             borderRadius: 5,
-                                                            height: "30px",
-                                                            display: "flex",
-                                                            alignItems: "center",
-                                                            justifyContent: "center",
-                                                            marginTop: "5px",
-                                                        }}
-                                                    >
+                                                            height: '30px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            marginTop: '5px',
+                                                        }}>
                                                         {order.orderStatus}
                                                     </Tag>
                                                 </div>
                                             </List.Item>
-
                                         )}
                                     />
                                 </div>

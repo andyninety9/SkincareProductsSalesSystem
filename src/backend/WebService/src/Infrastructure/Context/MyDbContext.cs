@@ -310,6 +310,9 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.KeyId).HasColumnName("keyID");
             entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
             entity.Property(e => e.KeyContent).HasColumnName("keyContent");
+            entity.Property(e => e.KeyQuestionStatus)
+                .HasDefaultValue(true)
+                .HasColumnName("keyQuestionStatus");
             entity.Property(e => e.KeyScore).HasColumnName("keyScore");
             entity.Property(e => e.QuestionId)
                 .ValueGeneratedOnAdd()
