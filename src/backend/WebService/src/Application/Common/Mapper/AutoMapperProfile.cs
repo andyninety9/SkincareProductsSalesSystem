@@ -10,6 +10,7 @@ using Application.Features.Question.Commands;
 using Application.Features.ProductCategory.Queries.Response;
 using Application.Features.SkinTypes.Queries.Response;
 using Application.Features.Address.Queries.Response;
+using Application.Features.Question.Queries.Response;
 
 namespace Application.Common.Mapper
 {
@@ -34,9 +35,10 @@ namespace Application.Common.Mapper
             CreateMap<CategoryProduct, GetAllProductCategoryResponse>();
             CreateMap<SkinType, GetAllSkinTypesResponse>();
             CreateMap<GetAllSkinTypesResponse, SkinType>();
-
-
-            
+            CreateMap<KeyQuestionResponse, KeyQuestion>();
+            CreateMap<KeyQuestion, KeyQuestionResponse>();            
+            CreateMap<GetAllQuestionResponse, Question>();         
+            CreateMap<Question, GetAllQuestionResponse>();   
 
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();

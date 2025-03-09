@@ -3,6 +3,7 @@ using Application.Auth.Commands;
 using Application.Common.Enum;
 using Application.Common.Paginations;
 using Application.Constant;
+using Application.Features.ProductCategory.Queries;
 using Application.Features.Question.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -143,10 +144,9 @@ namespace WebApi.Controllers.Question
         {
             PaginationParams paginationParams = new() { Page = page, PageSize = pageSize };
 
-            // var query = new GetAllProductCategoryQuery(keyword, paginationParams);
-            // var result = await _mediator.Send(request, cancellationToken);
-            // return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_QUESTION_SUCCESS, data = result.Value });
-            return Ok();
+            var query = new GetAllQuestionQuery(keyword, paginationParams);
+            var result = await _mediator.Send(query, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_QUESTION_SUCCESS, data = result.Value });
         }
         
 
