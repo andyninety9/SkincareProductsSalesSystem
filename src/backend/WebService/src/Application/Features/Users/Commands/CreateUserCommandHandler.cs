@@ -179,6 +179,7 @@ namespace Application.Users.Commands
 
             return new User
             {
+                Fullname = command.Fullname,
                 UsrId = accountId,
                 Email = command.Email,
                 Phone = command.Phone,
