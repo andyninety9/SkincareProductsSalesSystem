@@ -27,7 +27,14 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                 form.resetFields();
                 onClose();
             } else {
-                message.error(`Thay đổi mật khẩu thất bại: ${response.data.message || response.data.detail || 'Lỗi không xác định'}`);
+                if (response.data.message === "Invalid old password" || response.data.detail === "Invalid old password") {
+                    form.setFields([{
+                        name: "oldPassword", errors: ["Mật khẩu cũ không đúng!"],
+                    },
+                    ]);
+                } else {
+                    message.error(`Thay đổi mật khẩu thất bại: ${response.data.message || response.data.detail || 'Lỗi không xác định'}`);
+                }
             }
         } catch (error) {
             console.error("Error changing password:", {
@@ -35,11 +42,20 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                 response: error.response?.data || error.message
             });
             const errorMessage = error.response?.data?.detail || error.response?.data?.Message || error.message || 'Lỗi server';
-            message.error(`Lỗi khi thay đổi mật khẩu: ${errorMessage}`);
+
+            if (error.response?.data?.detail === "The provided password is invalid.") {
+                form.setFields([{
+                    name: "oldPassword", errors: ["Mật khẩu bạn nhập không đúng!"],
+                },
+                ]);
+            } else {
+                message.error(`Lỗi khi thay đổi mật khẩu: ${errorMessage}`);
+            }
         } finally {
             setLoading(false);
         }
     };
+    const passwordValidationRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,100}$/;
 
     return (
         <Modal
@@ -77,7 +93,8 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                     name="oldPassword"
                     rules={[
                         { required: true, message: "Vui lòng nhập mật khẩu cũ!" },
-                        { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" }
+                        { min: 8, message: "Mật khẩu phải có ít nhất 8 ký tự!" },
+                        { max: 100, message: "Mật khẩu không được dài quá 100 ký tự!" },
                     ]}
                 >
                     <Input
@@ -112,7 +129,20 @@ const ChangePasswordModal = ({ visible, onClose }) => {
                     name="newPassword"
                     rules={[
                         { required: true, message: "Vui lòng nhập mật khẩu mới!" },
-                        { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
+                        { min: 8, message: "Mật khẩu phải có ít nhất 8 ký tự!" },
+                        { max: 100, message: "Mật khẩu không được dài quá 100 ký tự!" },
+                        {
+                            validator(_, value) {
+                                if (!value || passwordValidationRegex.test(value)) {
+                                    return Promise.resolve();
+                                }
+                                return Promise.reject(
+                                    new Error(
+                                        "Mật khẩu phải chứa ít nhất một chữ cái in hoa, một chữ cái thường, một số và một ký tự đặc biệt!"
+                                    )
+                                );
+                            },
+                        },
                         ({ getFieldValue }) => ({
                             validator(_, value) {
                                 if (!value || getFieldValue('oldPassword') !== value) {

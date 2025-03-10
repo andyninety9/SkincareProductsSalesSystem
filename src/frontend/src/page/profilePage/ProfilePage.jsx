@@ -344,7 +344,13 @@ const ProfilePage = () => {
         return <div style={{ textAlign: 'center', marginTop: '50px' }}>No user data available.</div>;
     }
     return (
-        <div style={{ width: '100%', position: 'relative' }}>
+        <div style={{
+            width: '100%',
+            minHeight: '100vh', // Ensure the container takes up full viewport height
+            display: 'flex',
+            flexDirection: 'column', // Stack children vertically
+            position: 'relative',
+        }}>
             <div style={{ position: 'relative', width: '100%', height: '30vh', marginBottom: 10 }}>
                 <div
                     style={{
@@ -408,13 +414,21 @@ const ProfilePage = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                padding: 40,
+                flexGrow: 1,
+            }}>
                 <Card
                     style={{
                         width: 250,
+                        minHeight: 400,
                         textAlign: 'center',
                         top: '50%',
                         transform: 'translateY(-50%)',
+                        marginTop: 80,
+
                     }}>
                     <Avatar
                         size={100}
@@ -526,11 +540,14 @@ const ProfilePage = () => {
                 <Card
                     style={{
                         width: 500,
+                        minHeight: 520,
                         marginLeft: 20,
                         display: 'flex',
                         flexDirection: 'column',
                         top: '50%',
                         transform: 'translateY(-50%)',
+                        marginTop: 80,
+
                     }}>
                     <Tabs
                         activeKey={activeTab}
@@ -789,12 +806,12 @@ const ProfilePage = () => {
                                     style={{ backgroundColor: '#D8959A', borderColor: '#D8959A' }}>
                                     Cập Nhật Thông Tin
                                 </Button>
-                                <Button type="primary" 
-                                    onClick={() => setIsPasswordModalVisible(true)} 
+                                <Button type="primary"
+                                    onClick={() => setIsPasswordModalVisible(true)}
                                     style={{ backgroundColor: '#C87E83', borderColor: '#C87E83' }}>
                                     Thay đổi mật khẩu
                                 </Button>
-                              
+
                             </div>
                         </TabPane>
                     </Tabs>
