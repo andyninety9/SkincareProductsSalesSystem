@@ -23,6 +23,7 @@ export const routes = {
     manageComment: '/manage-comment',
     manageAccount: '/manage-account',
     manageProduct: '/manage-product',
+    manageEvent: '/manage-event',
     resultQuiz: '/your-skin-type-result',
     paymentReturn: '/payment-return',
     notfound: '/404',

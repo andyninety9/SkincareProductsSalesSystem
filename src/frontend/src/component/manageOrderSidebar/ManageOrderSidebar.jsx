@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Layout, Menu } from "antd";
-import { UserOutlined, CommentOutlined, ContainerOutlined, ShopOutlined } from "@ant-design/icons";
-import { useNavigate, useLocation } from "react-router-dom";
+import { UserOutlined, CommentOutlined, ContainerOutlined, ShopOutlined, CalendarOutlined } from "@ant-design/icons";
+import styled from "styled-components";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./ManageOrderSidebar.css";
 
 const { Sider } = Layout;
@@ -75,6 +76,8 @@ const ManageOrderSidebar = () => {
                     <Menu.Item key="4">View Comments</Menu.Item>
                     <Menu.Item key="5">Review Comments</Menu.Item>
                 </SubMenu>
+
+                <Menu.Item key="6" icon={<CalendarOutlined />} style={{ backgroundColor: selectedKey === "6" ? "#F6EEF0" : "", color: selectedKey === "6" ? "#C87E83" : "black" }}>Manage Events</Menu.Item>
             </Menu>
 
             {/* Footer */}
