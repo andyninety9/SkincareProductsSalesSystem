@@ -1,5 +1,5 @@
-import { Table, Button, Input, Tabs, Avatar, Modal, Form, Select } from "antd";
-import { EyeOutlined, SearchOutlined, EyeInvisibleOutlined, PlusOutlined } from "@ant-design/icons";
+import { Table, Button, Input, Tabs, Avatar, Modal, Form, Select, Dropdown, Menu } from "antd";
+import { EyeOutlined, SearchOutlined, EyeInvisibleOutlined, PlusOutlined, MoreOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
@@ -21,7 +21,9 @@ export default function ManageAccount() {
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
-    const [userRole, setUserRole] = useState(null); // Role của user hiện tại
+    const [userRole, setUserRole] = useState(null); 
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [actionModalVisible, setActionModalVisible] = useState(false);
 
     const pageSize = 10;
 
@@ -116,6 +118,28 @@ const handleCreateAccount = async (values) => {
     }
 };
 
+const handleUserAction = async () => {
+    if (!selectedUser) return;
+    try {
+        const apiUrl = selectedUser.statusId === 2 
+            ? `User/deactive-user/${selectedUser.usrId}` 
+            : `User/active-user/${selectedUser.usrId}`;
+        const method = selectedUser.statusId === 2 ? "DELETE" : "PATCH";
+
+        const response = await api({ method, url: apiUrl });
+        if (response.status === 200) {
+            message.success(`User ${selectedUser.statusId === 2 ? "banned" : "unbanned"} successfully!`);
+            setAccounts(prev => prev.map(acc => acc.usrId === selectedUser.usrId 
+                ? { ...acc, statusId: selectedUser.statusId === 2 ? 1 : 2 } 
+                : acc));
+        }
+    } catch (error) {
+        message.error("Failed to update user status.");
+        console.error("Error updating user status:", error);
+    }
+    setActionModalVisible(false);
+};
+
 
     const columns = [
         { title: "User ID", dataIndex: "usrId", key: "usrId", align: "center" },
@@ -159,6 +183,30 @@ const handleCreateAccount = async (values) => {
                     </span>
                 );
             }
+        },
+        {
+            title: "Action",
+            key: "action",
+            align: "center",
+            render: (_, record) => (
+                <Dropdown
+                    overlay={
+                        <Menu>
+                            <Menu.Item
+                                onClick={() => {
+                                    setSelectedUser(record);
+                                    setActionModalVisible(true);
+                                }}
+                            >
+                                {record.statusId === 2 ? "Ban User" : "Unban User"}
+                            </Menu.Item>
+                        </Menu>
+                    }
+                    trigger={["click"]}
+                >
+                    <Button icon={<MoreOutlined />} />
+                </Dropdown>
+            ),
         },
     ];
 
@@ -253,6 +301,18 @@ const handleCreateAccount = async (values) => {
                         </Select>
                     </Form.Item>
                 </Form>
+            </Modal>
+            <Modal
+                title={selectedUser?.statusId === 2 ? "Ban User" : "Unban User"}
+                visible={actionModalVisible}
+                onOk={handleUserAction}
+                onCancel={() => setActionModalVisible(false)}
+            >
+                <p>
+                    {selectedUser?.statusId === 2 
+                        ? "Are you sure you want to ban this user?" 
+                        : "Are you sure you want to unban this user?"}
+                </p>
             </Modal>
         </div>
     );
