@@ -1,20 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Layout, Menu } from "antd";
-import { UserOutlined, CommentOutlined, ContainerOutlined, CalendarOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { UserOutlined, CommentOutlined, ContainerOutlined, ShopOutlined, CalendarOutlined } from "@ant-design/icons";
+import styled from "styled-components";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./ManageOrderSidebar.css";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
 
 const ManageOrderSidebar = () => {
-    const [selectedKey, setSelectedKey] = useState("0");
     const navigate = useNavigate();
+    const location = useLocation();
+    const [selectedKey, setSelectedKey] = useState("0");
+    const [openKeys, setOpenKeys] = useState([]);
+
+    useEffect(() => {
+        const path = location.pathname;
+        if (path.includes("manage-account")) setSelectedKey("0");
+        else if (path.includes("manage-product")) setSelectedKey("6");
+        else if (path.includes("manage-order-status")) setSelectedKey("1");
+        else if (path.includes("manage-cancel-order")) setSelectedKey("2");
+        else if (path.includes("manage-request-product")) setSelectedKey("3");
+        else if (path.includes("view-comments")) setSelectedKey("4");
+        else if (path.includes("review-comments")) setSelectedKey("5");
+    }, [location.pathname]);
 
     const handleMenuClick = (e) => {
         setSelectedKey(e.key);
         if (e.key === "0") navigate("/manage-account");
-        else if (e.key === "6") navigate("/manage-event");
+        else if (e.key === "6") navigate("/manage-product");
+    };
+
+    const handleOpenChange = (keys) => {
+        setOpenKeys(keys);
     };
 
     return (
@@ -38,8 +56,9 @@ const ManageOrderSidebar = () => {
             {/* Menu Items */}
             <Menu
                 mode="inline"
-                defaultOpenKeys={["sub1"]}
                 selectedKeys={[selectedKey]}
+                openKeys={openKeys}
+                onOpenChange={handleOpenChange}
                 onClick={handleMenuClick}
                 style={{ flex: 1, borderRight: 0 }}
             >
@@ -50,6 +69,8 @@ const ManageOrderSidebar = () => {
                     <Menu.Item key="2">Manage Cancel Order</Menu.Item>
                     <Menu.Item key="3">Manage Request Product</Menu.Item>
                 </SubMenu>
+
+                <Menu.Item key="6" icon={<ShopOutlined />} style={{ backgroundColor: selectedKey === "6" ? "#F6EEF0" : "", color: selectedKey === "6" ? "#C87E83" : "black" }}>Manage Products</Menu.Item>
 
                 <SubMenu key="sub2" icon={<CommentOutlined />} title="Manage Comments">
                     <Menu.Item key="4">View Comments</Menu.Item>

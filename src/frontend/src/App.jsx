@@ -32,6 +32,7 @@ import Page404 from './page/pageNotFound/page404';
 import RestrictedPage from './page/restrictedPage/restrictedPage';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import ManageAccount from './page/manageAccount/ManageAccount';
+import ManageProduct from './page/manageProduct/ManageProduct';
 import ManageEvent from './page/manageEvent/ManageEvent';
 
 function App() {
@@ -148,6 +149,14 @@ function App() {
             element: (
                 <ProtectedRoute roles={['Manager', 'Staff']}>
                     <ManageAccount />
+                </ProtectedRoute>
+            ),
+        },
+        {
+            path: routes.manageProduct,
+            element: (
+                <ProtectedRoute roles={['Manager', 'Staff']}>
+                    <ManageProduct />
                 </ProtectedRoute>
             ),
         },
