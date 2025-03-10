@@ -77,7 +77,7 @@ function App() {
                 {
                     path: routes.checkout,
                     element: (
-                        <ProtectedRoute roles={['Customer', 'Manager']}>
+                        <ProtectedRoute roles={['Customer']}>
                             <CheckOutPage />
                         </ProtectedRoute>
                     ),
@@ -95,7 +95,7 @@ function App() {
                 {
                     path: routes.paymentReturn,
                     element: (
-                        <ProtectedRoute roles={['Customer', 'Manager', 'Staff']}>
+                        <ProtectedRoute roles={['Customer']}>
                             <OrderProcess />
                         </ProtectedRoute>
                     ),
@@ -103,7 +103,7 @@ function App() {
                 {
                     path: routes.resultQuiz,
                     element: (
-                        <ProtectedRoute roles={['Customer', 'Manager', 'Staff']}>
+                        <ProtectedRoute roles={['Customer']}>
                             <ResultPage />
                         </ProtectedRoute>
                     ),
@@ -121,7 +121,7 @@ function App() {
         {
             path: routes.quiz,
             element: (
-                <ProtectedRoute roles={['Customer', 'Manager', 'Staff']}>
+                <ProtectedRoute roles={['Customer']}>
                     <QuizPage />
                 </ProtectedRoute>
             ),
@@ -129,7 +129,7 @@ function App() {
         {
             path: routes.startQuiz,
             element: (
-                <ProtectedRoute roles={['Customer', 'Manager', 'Staff']}>
+                <ProtectedRoute roles={['Customer']}>
                     <StartQuizPage />
                 </ProtectedRoute>
             ),
