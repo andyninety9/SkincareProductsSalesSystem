@@ -179,7 +179,7 @@ const ProfilePage = () => {
             }
         } catch (error) {
             console.error('Error fetching promo codes:', error);
-            message.error('Error fetching promo codes!');
+            // message.error('Error fetching promo codes!');
         } finally {
             setLoadingPromos(false);
         }
@@ -194,11 +194,12 @@ const ProfilePage = () => {
                 const ordersData = response.data.data.items;
                 setOrdersHistory(ordersData || []);
             } else {
-                message.error('Failed to fetch order history.');
+                // message.error('Failed to fetch order history.');
+                console.log('Failed to fetch order history.');
             }
         } catch (error) {
             console.error('Error fetching orders:', error);
-            message.error('Error fetching order history!');
+            // message.error('Error fetching order history!');
         } finally {
             setLoadingOrders(false);
         }
