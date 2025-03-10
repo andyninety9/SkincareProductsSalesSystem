@@ -1,4 +1,4 @@
-import { Table, Button, Input, Card, message, Pagination, Select } from "antd";
+import { Table, Button, Input, Card, message, Pagination } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
@@ -6,17 +6,6 @@ import EyeInvisibleOutlined from "@ant-design/icons/lib/icons/EyeInvisibleOutlin
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
 import { useState, useEffect } from "react";
 import api from '../../config/api';
-
-const { Option } = Select;
-
-const orders = Array.from({ length: 50 }, (_, index) => ({
-    orderNumber: (12345678 + index).toString(),
-    dateTime: "20/01/2025",
-    customerName: "Abc",
-    items: 2,
-    total: "100$",
-    status: "Pending",
-}));
 
 export default function ManageOrder() {
     const [orders, setOrders] = useState([]);
@@ -26,13 +15,12 @@ export default function ManageOrder() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [updatingOrderId, setUpdatingOrderId] = useState(null);
-    const [pageSize, setPageSize] = useState(10);
+    const pageSize = 10; // Fixed page size
 
-    const fetchOrders = async (page = 1, pageSize = 10) => {
+    const fetchOrders = async (page = 1) => {
         try {
             setLoading(true);
             setError(null);
-            // console.log("Making API request to /api/Orders...");
             const response = await api.get("/Orders", {
                 params: {
                     page: page,
@@ -52,7 +40,7 @@ export default function ManageOrder() {
                     status: order.orderStatus || "N/A",
                 }));
                 setOrders(formattedOrders);
-                setTotal(data.data.totalItems || data.data.items.length); // Update total for pagination
+                setTotal(data.data.totalItems || data.data.items.length);
             } else {
                 setError(data.message || "Failed to fetch orders");
             }
@@ -72,48 +60,9 @@ export default function ManageOrder() {
         }
     };
 
-    const getPageSizeOptions = () => {
-        const defaultPageSize = 10; // Use the default page size for calculation
-        const totalPages = Math.ceil(total / defaultPageSize); // Calculate total pages with default pageSize
-        if (totalPages <= 10) {
-            return ["10"]; // Only 10/page if content fits within 10 pages at default pageSize
-        }
-        return ["10", "20", "30"]; // Enable all options if content exceeds 10 pages at default pageSize
-    };
-
     useEffect(() => {
-        fetchOrders(currentPage, pageSize);
-    }, [currentPage, pageSize]);
-
-    const isPageSizeChangeDisabled = () => {
-        const defaultPageSize = 10;
-        const totalPages = Math.ceil(total / defaultPageSize);
-        return totalPages <= 10; // True if content fits within 10 pages at default pageSize
-    };
-
-    const CustomPageSizeChanger = () => {
-        const disabled = isPageSizeChangeDisabled();
-
-        return (
-            <div style={{ display: "flex", alignItems: "center", marginLeft: "16px" }}>
-                <span style={{ marginRight: "8px" }}>Items per page:</span>
-                <Select
-                    value={pageSize}
-                    onChange={(value) => {
-                        if (!disabled || value === 10) { // Allow change to 10 even if disabled
-                            setPageSize(value);
-                            setCurrentPage(1); // Reset to first page on pageSize change
-                        }
-                    }}
-                    style={{ width: 80 }}
-                >
-                    <Option value={10}>10</Option>
-                    <Option value={20} disabled={disabled}>20</Option>
-                    <Option value={30} disabled={disabled}>30</Option>
-                </Select>
-            </div>
-        );
-    };
+        fetchOrders(currentPage);
+    }, [currentPage]);
 
     const toggleVisibility = (orderNumber) => {
         setVisibleOrders(prev => ({
@@ -162,13 +111,11 @@ export default function ManageOrder() {
                 <ManageOrderHeader />
             </div>
 
-
             <div style={{ display: "flex", flex: 1, marginTop: "60px", overflow: "hidden" }}>
                 {/* Fixed Sidebar */}
                 <div>
                     <ManageOrderSidebar />
                 </div>
-
 
                 <div
                     style={{
@@ -185,7 +132,6 @@ export default function ManageOrder() {
                         <h1 style={{ fontSize: "40px", textAlign: "left", width: "100%" }}>Orders</h1>
 
                         <div style={{ display: "flex", gap: "70px", marginBottom: "16px", justifyContent: "flex-start" }}>
-
                             {[...Array(4)].map((_, i) => (
                                 <Card key={i} style={{ textAlign: "center", width: "180px", backgroundColor: "#FFFCFC", height: "120px", borderRadius: "12px" }}>
                                     <h2 style={{ fontSize: "18px", fontFamily: "Nunito, sans-serif" }}>Total Orders</h2>
@@ -214,7 +160,7 @@ export default function ManageOrder() {
                                 rowKey="orderNumber"
                                 scroll={{ x: "100%" }}
                                 loading={loading}
-                                pagination={false} // Disable default pagination to use custom one
+                                pagination={false}
                             />
                             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px" }}>
                                 <Pagination
@@ -222,10 +168,9 @@ export default function ManageOrder() {
                                     pageSize={pageSize}
                                     total={total}
                                     onChange={(page) => setCurrentPage(page)}
-                                    showSizeChanger={false} // Disable default size changer
                                     position={["bottomCenter"]}
+                                    showSizeChanger={false}
                                 />
-                                <CustomPageSizeChanger />
                             </div>
                         </div>
                     </div>
