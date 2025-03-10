@@ -1,21 +1,25 @@
-import { Table, Button, Input, Avatar } from "antd";
+import { Table, Button, Input, Avatar, Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
-import api from "../../config/api"; // 🔥 Import API từ api.jsx
+import api from "../../config/api";
 import noImg from "../../assets/noimg/noImg.png";
+
+const { Option } = Select;
 
 export default function ManageProduct() {
     const [products, setProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedBrand, setSelectedBrand] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
     const pageSize = 10;
 
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await api.get("Products?page=1&pageSize=1000"); 
+                const response = await api.get("Products?page=1&pageSize=1000");
                 console.log("Fetched Products:", response.data);
 
                 if (response.data.data && Array.isArray(response.data.data.items)) {
@@ -32,8 +36,13 @@ export default function ManageProduct() {
     }, []);
 
     const filteredProducts = products.filter(product => 
-        product.productName?.toLowerCase().includes(searchTerm.toLowerCase())
+        product.productName?.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (selectedBrand ? product.brandName === selectedBrand : true) &&
+        (selectedCategory ? product.categoryName === selectedCategory : true)
     );
+
+    const brands = [...new Set(products.map(product => product.brandName))];
+    const categories = [...new Set(products.map(product => product.categoryName))];
 
     const columns = [
         { title: "Product ID", dataIndex: "productId", key: "productId", align: "center" },
@@ -76,13 +85,37 @@ export default function ManageProduct() {
                 <div style={{ flex: 1, padding: "24px", overflowY: "auto", marginLeft: "250px" }}>
                     <h1 style={{ fontSize: "40px", textAlign: "left" }}>Products</h1>
 
-                    {/* Search Input */}
-                    <Input
-                        placeholder="Search for a product..."
-                        style={{ width: "450px", marginBottom: "30px", marginTop: "10px" }}
-                        suffix={<SearchOutlined />}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                    {/* Filters and Search */}
+                    <div style={{ display: "flex", gap: "10px", marginBottom: "30px", alignItems:"center" }}>
+                        <Select
+                            placeholder="Filter by Brand"
+                            style={{ width: "200px", borderRadius: "12px" }}
+                            onChange={value => setSelectedBrand(value)}
+                            allowClear
+                        >
+                            {brands.map(brand => (
+                                <Option key={brand} value={brand}>{brand}</Option>
+                            ))}
+                        </Select>
+
+                        <Select
+                            placeholder="Filter by Category"
+                            style={{ width: "200px", borderRadius: "12px" }}
+                            onChange={value => setSelectedCategory(value)}
+                            allowClear
+                        >
+                            {categories.map(category => (
+                                <Option key={category} value={category}>{category}</Option>
+                            ))}
+                        </Select>
+
+                        <Input
+                            placeholder="Search for a product..."
+                            style={{ width: "450px" }}
+                            suffix={<SearchOutlined />}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
 
                     {/* Products Table */}
                     <Table
