@@ -29,6 +29,7 @@ export default function ManageAccount() {
         const fetchUsers = async () => {
             try {
                 const response = await api.get("/User/all-users?page=1&limit=10000");
+
                 if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
                     setAccounts(response.data.data.items);
                     setFilteredAccounts(response.data.data.items);
