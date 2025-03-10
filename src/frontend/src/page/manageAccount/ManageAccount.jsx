@@ -28,7 +28,7 @@ export default function ManageAccount() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await api.get("/User/all-users");
+                const response = await api.get("/user/all-users");
                 if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
                     setAccounts(response.data.data.items);
                     setFilteredAccounts(response.data.data.items);
