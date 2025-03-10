@@ -40,20 +40,17 @@ const ManageOrderSidebar = () => {
         const path = location.pathname;
         const newSelectedKey = getSelectedKeyFromPath(path);
 
-        // Update selectedKey only if it doesn't match the current route
         if (selectedKey !== newSelectedKey) {
             setSelectedKey(newSelectedKey);
         }
-
-        // Restore openKeys from ref/local storage to ensure persistence across navigation
         setOpenKeys(openKeysRef.current);
-    }, [location.pathname]); // Removed selectedKey from dependencies
+    }, [location.pathname]); 
 
     const handleMenuClick = (e) => {
-        // Only navigate, let useEffect handle selectedKey
         if (e.key === "0") navigate("/manage-account");
         else if (e.key === "1") navigate("/manage-order");
         else if (e.key === "6") navigate("/manage-product");
+        
     };
 
     const handleTitleClick = (key) => {
@@ -67,10 +64,9 @@ const ManageOrderSidebar = () => {
     };
 
     const handleOpenChange = () => {
-        // Do nothing to prevent Ant Design from automatically updating openKeys
+        // prevent Ant Design from automatically updating openKeys
     };
 
-    // Ensure openKeys is always in sync with ref on every render
     if (openKeys.length !== openKeysRef.current.length || !openKeys.every(key => openKeysRef.current.includes(key))) {
         setOpenKeys([...openKeysRef.current]);
     }
