@@ -32,6 +32,7 @@ import Page404 from './page/pageNotFound/page404';
 import RestrictedPage from './page/restrictedPage/restrictedPage';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import ManageAccount from './page/manageAccount/ManageAccount';
+import ManageEvent from './page/manageEvent/ManageEvent';
 
 function App() {
     const router = createBrowserRouter([
@@ -147,6 +148,14 @@ function App() {
             element: (
                 <ProtectedRoute roles={['Manager', 'Staff']}>
                     <ManageAccount />
+                </ProtectedRoute>
+            ),
+        },
+        {
+            path: routes.manageEvent,
+            element: (
+                <ProtectedRoute roles={['Manager', 'Staff']}>
+                    <ManageEvent />
                 </ProtectedRoute>
             ),
         },
