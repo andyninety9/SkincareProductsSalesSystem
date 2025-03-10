@@ -168,7 +168,7 @@ const Login = () => {
                                     <ErrorMessage name="username" component="div" className="text-danger small mt-1" />
                                 </div>
 
-                                {/* Password with Eye Icon */}
+                                {/* Password */}
                                 <div className="mb-3 position-relative">
                                     <label
                                         className="form-label"
