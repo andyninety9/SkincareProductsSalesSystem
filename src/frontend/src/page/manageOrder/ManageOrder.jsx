@@ -1,4 +1,4 @@
-import { Table, Button, Input, Card, message } from "antd";
+import { Table, Button, Input, Card, message, Pagination, Select } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
@@ -6,6 +6,8 @@ import EyeInvisibleOutlined from "@ant-design/icons/lib/icons/EyeInvisibleOutlin
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
 import { useState, useEffect } from "react";
 import api from '../../config/api';
+
+const { Option } = Select;
 
 const orders = Array.from({ length: 50 }, (_, index) => ({
     orderNumber: (12345678 + index).toString(),
@@ -24,7 +26,7 @@ export default function ManageOrder() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [updatingOrderId, setUpdatingOrderId] = useState(null);
-    const pageSize = 10;
+    const [pageSize, setPageSize] = useState(10);
 
     const fetchOrders = async (page = 1, pageSize = 10) => {
         try {
@@ -70,10 +72,48 @@ export default function ManageOrder() {
         }
     };
 
-    
+    const getPageSizeOptions = () => {
+        const defaultPageSize = 10; // Use the default page size for calculation
+        const totalPages = Math.ceil(total / defaultPageSize); // Calculate total pages with default pageSize
+        if (totalPages <= 10) {
+            return ["10"]; // Only 10/page if content fits within 10 pages at default pageSize
+        }
+        return ["10", "20", "30"]; // Enable all options if content exceeds 10 pages at default pageSize
+    };
+
     useEffect(() => {
         fetchOrders(currentPage, pageSize);
     }, [currentPage, pageSize]);
+
+    const isPageSizeChangeDisabled = () => {
+        const defaultPageSize = 10;
+        const totalPages = Math.ceil(total / defaultPageSize);
+        return totalPages <= 10; // True if content fits within 10 pages at default pageSize
+    };
+
+    const CustomPageSizeChanger = () => {
+        const disabled = isPageSizeChangeDisabled();
+
+        return (
+            <div style={{ display: "flex", alignItems: "center", marginLeft: "16px" }}>
+                <span style={{ marginRight: "8px" }}>Items per page:</span>
+                <Select
+                    value={pageSize}
+                    onChange={(value) => {
+                        if (!disabled || value === 10) { // Allow change to 10 even if disabled
+                            setPageSize(value);
+                            setCurrentPage(1); // Reset to first page on pageSize change
+                        }
+                    }}
+                    style={{ width: 80 }}
+                >
+                    <Option value={10}>10</Option>
+                    <Option value={20} disabled={disabled}>20</Option>
+                    <Option value={30} disabled={disabled}>30</Option>
+                </Select>
+            </div>
+        );
+    };
 
     const toggleVisibility = (orderNumber) => {
         setVisibleOrders(prev => ({
@@ -167,24 +207,26 @@ export default function ManageOrder() {
                                 Pending
                             </Button>
                         </div>
-                        <div style={{ width: "100%", }}>
+                        <div style={{ width: "100%" }}>
                             <Table
                                 dataSource={orders}
                                 columns={columns}
                                 rowKey="orderNumber"
                                 scroll={{ x: "100%" }}
-                                pagination={{
-                                    position: ["bottomCenter"],
-                                    current: currentPage,
-                                    pageSize: 10,
-                                    total: total,
-                                    pageSizeOptions: ["10", "20", "30"],
-                                    onChange: (page) => setCurrentPage(page),
-
-                                }}
-
-
+                                loading={loading}
+                                pagination={false} // Disable default pagination to use custom one
                             />
+                            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px" }}>
+                                <Pagination
+                                    current={currentPage}
+                                    pageSize={pageSize}
+                                    total={total}
+                                    onChange={(page) => setCurrentPage(page)}
+                                    showSizeChanger={false} // Disable default size changer
+                                    position={["bottomCenter"]}
+                                />
+                                <CustomPageSizeChanger />
+                            </div>
                         </div>
                     </div>
                 </div>
