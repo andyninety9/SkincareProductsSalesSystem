@@ -86,7 +86,7 @@ const handleCreateAccount = async (values) => {
             }
         });
 
-        if (response.status === 201) {
+        if (response.status === 200) {
             message.success("🎉 Tạo tài khoản thành công!", 2);
             console.log("✅ User created successfully!", response.data);
             setIsModalVisible(false);
