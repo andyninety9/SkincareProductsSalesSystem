@@ -108,13 +108,13 @@ namespace Application.Users.Commands
                         );
                     }
                     var emailSentSuccessfully = await SendVerificationEmailAsync(command, user.EmailVerifyToken, randomPassword);
-                    if (!emailSentSuccessfully)
-                    {
-                        await transaction.RollbackAsync(cancellationToken);
-                        return Result<RegisterResponse>.Failure<RegisterResponse>(
-                            new Error("RegisterAccount", "Failed to send verification email")
-                        );
-                    }
+                    // if (!emailSentSuccessfully)
+                    // {
+                    //     await transaction.RollbackAsync(cancellationToken);
+                    //     return Result<RegisterResponse>.Failure<RegisterResponse>(
+                    //         new Error("RegisterAccount", "Failed to send verification email")
+                    //     );
+                    // }
 
                     // Commit transaction
                     await transaction.CommitAsync(cancellationToken);
