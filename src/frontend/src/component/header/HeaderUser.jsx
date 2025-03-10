@@ -359,19 +359,29 @@ const HeaderUser = () => {
                 <Link to={routes.about} className="text-dark text-decoration-none" style={{ whiteSpace: 'nowrap' }}>
                     Về chúng tôi
                 </Link>
-                <span
-                    className="text-dark text-decoration-none cursor-pointer"
-                    style={{ whiteSpace: 'nowrap' }}
-                    onClick={() => {
-                        if (user) {
-                            navigate(routes.startQuiz);
-                        } else {
-                            toast.error('Vui lòng đăng nhập để kiểm tra loại da!');
-                            navigate(routes.login);
-                        }
-                    }}>
-                    Kiểm tra loại da của bạn
-                </span>
+                {user && (user.role === 'Manager' || user.role === 'Staff') && (
+                    <Link
+                        to="/manage-account"
+                        className="text-dark text-decoration-none"
+                        style={{ whiteSpace: 'nowrap' }}>
+                        Dashboard
+                    </Link>
+                )}
+                {user && user.role === 'Customer' && (
+                    <span
+                        className="text-dark text-decoration-none cursor-pointer"
+                        style={{ whiteSpace: 'nowrap', cursor: 'pointer' }}
+                        onClick={() => {
+                            if (user) {
+                                navigate(routes.startQuiz);
+                            } else {
+                                toast.error('Vui lòng đăng nhập để kiểm tra loại da!');
+                                navigate(routes.login);
+                            }
+                        }}>
+                        Kiểm tra loại da của bạn
+                    </span>
+                )}
             </nav>
             {isSearchOpen && (
                 <div ref={searchRef} className="search-overlay">
