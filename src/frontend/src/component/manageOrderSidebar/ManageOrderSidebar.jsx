@@ -18,7 +18,7 @@ const ManageOrderSidebar = () => {
         const path = location.pathname;
         if (path.includes("manage-account")) setSelectedKey("0");
         else if (path.includes("manage-product")) setSelectedKey("6");
-        else if (path.includes("manage-order-status")) setSelectedKey("1");
+        else if (path.includes("manage-order")) setSelectedKey("1");
         else if (path.includes("manage-cancel-order")) setSelectedKey("2");
         else if (path.includes("manage-request-product")) setSelectedKey("3");
         else if (path.includes("view-comments")) setSelectedKey("4");
@@ -28,6 +28,7 @@ const ManageOrderSidebar = () => {
     const handleMenuClick = (e) => {
         setSelectedKey(e.key);
         if (e.key === "0") navigate("/manage-account");
+        else if (e.key === "1") navigate("/manage-order");
         else if (e.key === "6") navigate("/manage-product");
     };
 
