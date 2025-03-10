@@ -28,7 +28,8 @@ export default function ManageAccount() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await api.get("/user/all-users");
+                const response = await api.get("/User/all-users?page=1&limit=10000");
+
                 if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
                     setAccounts(response.data.data.items);
                     setFilteredAccounts(response.data.data.items);
@@ -86,7 +87,7 @@ const handleCreateAccount = async (values) => {
             }
         });
 
-        if (response.status === 201) {
+        if (response.status === 200) {
             message.success("🎉 Tạo tài khoản thành công!", 2);
             console.log("✅ User created successfully!", response.data);
             setIsModalVisible(false);
