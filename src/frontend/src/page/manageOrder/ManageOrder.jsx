@@ -4,7 +4,8 @@ import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSi
 import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
 import EyeInvisibleOutlined from "@ant-design/icons/lib/icons/EyeInvisibleOutlined";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import api from '../../config/api';
 
 const orders = Array.from({ length: 50 }, (_, index) => ({
     orderNumber: (12345678 + index).toString(),
@@ -19,30 +20,57 @@ export default function ManageOrder() {
     const [orders, setOrders] = useState([]);
     const [visibleOrders, setVisibleOrders] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
+    const [total, setTotal] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const pageSize = 10;
 
-    const fetchOrders = async () => {
+    const fetchOrders = async (page = 1, pageSize = 10) => {
         try {
-            const response = await fetch("/api/Orders");
-            const data = await response.json();
+            setLoading(true);
+            setError(null);
+            console.log("Making API request to /api/Orders...");
+            const response = await api.get("/Orders", {
+                params: {
+                    page: page,
+                    pageSize: pageSize,
+                },
+            });
+            console.log("API response:", response.data);
+            const data = response.data;
 
             if (data.statusCode === 200) {
                 const formattedOrders = data.data.items.map(order => ({
-                    orderNumber: order.orderId.toString(),
-                    dateTime: new Date(order.orderDate).toLocaleString(),
-                    customerName: order.customerName,
-                    items: order.products.length,
-                    total: `${order.totalPrice.toLocaleString()} VND`,
-                    status: order.orderStatus,
+                    orderNumber: order.orderId ? order.orderId.toString() : "N/A",
+                    dateTime: order.orderDate ? new Date(order.orderDate).toLocaleString() : "N/A",
+                    customerName: order.customerName || "N/A",
+                    items: order.products ? order.products.length : 0,
+                    total: order.totalPrice ? `${order.totalPrice.toLocaleString()} VND` : "N/A",
+                    status: order.orderStatus || "N/A",
                 }));
                 setOrders(formattedOrders);
+                setTotal(data.data.total || data.data.items.length); // Update total for pagination
             } else {
-                console.error("Failed to fetch orders:", data.message);
+                setError(data.message || "Failed to fetch orders");
             }
         } catch (error) {
-            console.error("Error fetching orders:", error);
+            console.error("Error fetching orders:", error.message);
+            if (error.response) {
+                console.error("Response data:", error.response.data);
+                console.error("Response status:", error.response.status);
+            } else if (error.request) {
+                console.error("No response received:", error.request);
+            } else {
+                console.error("Error setting up request:", error.message);
+            }
+            setError(error.message || "An error occurred while fetching orders");
+        } finally {
+            setLoading(false);
         }
     };
+    useEffect(() => {
+        fetchOrders(currentPage, pageSize);
+    }, [currentPage, pageSize]);
 
     const toggleVisibility = (orderNumber) => {
         setVisibleOrders(prev => ({
