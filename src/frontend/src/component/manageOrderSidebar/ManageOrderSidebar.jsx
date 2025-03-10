@@ -8,7 +8,7 @@ import "./ManageOrderSidebar.css";
 const { Sider } = Layout;
 const { SubMenu } = Menu;
 
-// Helper functions to manage openKeys in local storage
+// manage openKeys in local storage
 const getPersistedOpenKeys = () => {
     const stored = localStorage.getItem("sidebarOpenKeys");
     return stored ? JSON.parse(stored) : [];
@@ -17,59 +17,60 @@ const getPersistedOpenKeys = () => {
 const setPersistedOpenKeys = (keys) => {
     localStorage.setItem("sidebarOpenKeys", JSON.stringify(keys));
 };
+const getSelectedKeyFromPath = (pathname) => {
+    if (pathname.includes("manage-account")) return "0";
+    if (pathname.includes("manage-product")) return "6";
+    if (pathname.includes("manage-events")) return "7";
+    if (pathname.includes("manage-order")) return "1";
+    if (pathname.includes("manage-cancel-order")) return "2";
+    if (pathname.includes("manage-request-product")) return "3";
+    if (pathname.includes("view-comments")) return "4";
+    if (pathname.includes("review-comments")) return "5";
+    return "0"; // Default to "Manage Account" if no match
+};
 
 const ManageOrderSidebar = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [selectedKey, setSelectedKey] = useState("0");
+    const [selectedKey, setSelectedKey] = useState(getSelectedKeyFromPath(location.pathname));
     const [openKeys, setOpenKeys] = useState(getPersistedOpenKeys());
-    const openKeysRef = useRef(getPersistedOpenKeys()); // Use useRef to track openKeys persistently
+    const openKeysRef = useRef(getPersistedOpenKeys());
 
     useEffect(() => {
         const path = location.pathname;
-        if (path.includes("manage-account")) setSelectedKey("0");
-        else if (path.includes("manage-product")) setSelectedKey("6");
-        else if (path.includes("manage-events")) setSelectedKey("7");
-        else if (path.includes("manage-order")) setSelectedKey("1");
-        else if (path.includes("manage-cancel-order")) setSelectedKey("2");
-        else if (path.includes("manage-request-product")) setSelectedKey("3");
-        else if (path.includes("view-comments")) setSelectedKey("4");
-        else if (path.includes("review-comments")) setSelectedKey("5");
+        const newSelectedKey = getSelectedKeyFromPath(path);
+
+        // Update selectedKey only if it doesn't match the current route
+        if (selectedKey !== newSelectedKey) {
+            setSelectedKey(newSelectedKey);
+        }
 
         // Restore openKeys from ref/local storage to ensure persistence across navigation
         setOpenKeys(openKeysRef.current);
-    }, [location.pathname]);
+    }, [location.pathname]); // Removed selectedKey from dependencies
 
     const handleMenuClick = (e) => {
-        setSelectedKey(e.key);
+        // Only navigate, let useEffect handle selectedKey
         if (e.key === "0") navigate("/manage-account");
         else if (e.key === "1") navigate("/manage-order");
         else if (e.key === "6") navigate("/manage-product");
-
-        // Add navigation for other menu items as needed
     };
 
     const handleTitleClick = (key) => {
-        // Handle explicit submenu toggle (open/close)
         if (openKeysRef.current.includes(key)) {
-            // Submenu is currently open, so close it
             openKeysRef.current = openKeysRef.current.filter(k => k !== key);
         } else {
-            // Submenu is currently closed, so open it
             openKeysRef.current = [...openKeysRef.current, key];
         }
-        // Sync the state for rendering
         setOpenKeys([...openKeysRef.current]);
-        // Persist to local storage
         setPersistedOpenKeys(openKeysRef.current);
     };
 
     const handleOpenChange = () => {
         // Do nothing to prevent Ant Design from automatically updating openKeys
-        // We manage openKeys exclusively via handleTitleClick
     };
 
-    // Ensure openKeys is always set to the persisted value on every render
+    // Ensure openKeys is always in sync with ref on every render
     if (openKeys.length !== openKeysRef.current.length || !openKeys.every(key => openKeysRef.current.includes(key))) {
         setOpenKeys([...openKeysRef.current]);
     }
@@ -92,7 +93,6 @@ const ManageOrderSidebar = () => {
                 paddingTop: "30px",
             }}
         >
-            {/* Menu Items */}
             <Menu
                 mode="inline"
                 selectedKeys={[selectedKey]}
@@ -129,7 +129,6 @@ const ManageOrderSidebar = () => {
                 <Menu.Item key="7" icon={<CalendarOutlined />} style={{ backgroundColor: selectedKey === "7" ? "#F6EEF0" : "", color: selectedKey === "7" ? "#C87E83" : "black" }}>Manage Events</Menu.Item>
             </Menu>
 
-            {/* Footer */}
             <div
                 style={{
                     textAlign: "center",
