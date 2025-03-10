@@ -332,39 +332,69 @@ const ProfilePage = () => {
     }
     return (
         <div style={{ width: '100%', position: 'relative' }}>
-            <div
-                style={{
-                    width: '100%',
-                    height: '30vh',
-                    background: `url(${coverPreview || userInfo.coverUrl}) no-repeat center center`,
-                    backgroundSize: 'cover',
-                    marginBottom: 10,
-                }}
-            />
-            <div>
-                <Upload
-                    name="CoverFile"
-                    showUploadList={false}
-                    beforeUpload={() => false}
-                    onChange={handleCoverFileChange}
-                >
-                    <Button icon={<UploadOutlined />}>Đổi ảnh bìa</Button>
-                </Upload>
-                {coverFile && (
-                    <Button
-                        style={{
-                            marginTop: 10,
-                            backgroundColor: '#C87E83',
-                            borderColor: '#C87E83',
-                            color: '#fff',
-                            marginLeft: "10px"
-                        }}
-                        type="primary" loading={coverLoading}
-                        onClick={handleCoverChange}>
-                        Xác nhận
-                    </Button>
-                )}
+            <div style={{ position: 'relative', width: '100%', height: '30vh', marginBottom: 10 }}>
+                <div
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        background: `url(${coverPreview || userInfo.coverUrl}) no-repeat center center`,
+                        backgroundSize: 'cover',
+                    }}
+                />
+
+                {/* Button container */}
+                <div style={{
+                    position: 'absolute',
+                    bottom: 10,
+                    left: 2,
+                    display: 'flex',
+                    gap: '10px',
+
+                }}>
+                    <Upload
+                        name="CoverFile"
+                        showUploadList={false}
+                        beforeUpload={() => false}
+                        onChange={handleCoverFileChange}
+                    >
+                        <Button
+                            icon={<UploadOutlined />}
+                            style={{
+                                marginTop: 10,
+                                backgroundColor: '#D8959A',
+                                borderColor: '#D8959A',
+                                color: '#fff',
+                                minWidth: '80px',
+                                height: '25px',
+                                fontSize: '12px',
+                            }}>
+                            Đổi ảnh bìa</Button>
+                    </Upload>
+
+                    {coverFile && (
+                        <Button
+                            style={{
+                                marginTop: 10,
+                                backgroundColor: '#C87E83',
+                                borderColor: '#C87E83',
+                                color: '#fff',
+                                minWidth: '80px',
+                                height: '25px',
+                                fontSize: '12px',
+                                padding: '2px 6px',
+                                display: 'flex',
+                                alignItems: 'center',
+                            }}
+                            type="primary"
+                            loading={coverLoading}
+                            onClick={handleCoverChange}
+                        >
+                            Xác nhận
+                        </Button>
+                    )}
+                </div>
             </div>
+
             <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
                 <Card
                     style={{
@@ -378,37 +408,49 @@ const ProfilePage = () => {
                         src={avatarPreview} // Use preview URL or original avatar URL
                         style={{ border: '3px solid #D8959A' }}
                     />
-                    <Upload
-                        name="avatarFile"
-                        showUploadList={false}
-                        beforeUpload={() => false} // Prevent automatic upload
-                        onChange={handleFileChange}
-                        style={{ marginTop: 10 }}>
-                        <Button
-                            icon={<UploadOutlined />}
-                            style={{
-                                marginTop: 10,
-                                backgroundColor: '#D8959A',
-                                borderColor: '#D8959A',
-                                color: '#fff',
-                            }}>
-                            Đổi Avatar
-                        </Button>
-                    </Upload>
-                    {avatarFile && (
-                        <Button
-                            type="primary"
-                            loading={avatarLoading}
-                            onClick={() => handleAvatarChange(avatarFile)}
-                            style={{
-                                marginTop: 10,
-                                backgroundColor: '#C87E83',
-                                borderColor: '#C87E83',
-                                color: '#fff',
-                            }}>
-                            Xác nhận
-                        </Button>
-                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <Upload
+                            name="avatarFile"
+                            showUploadList={false}
+                            beforeUpload={() => false} // Prevent automatic upload
+                            onChange={handleFileChange}
+                            style={{ marginTop: 10 }}>
+                            <Button
+                                icon={<UploadOutlined />}
+                                style={{
+                                    marginTop: 10,
+                                    backgroundColor: '#D8959A',
+                                    borderColor: '#D8959A',
+                                    color: '#fff',
+                                    minWidth: '80px',
+                                    height: '25px',
+                                    fontSize: '12px',
+                                }}>
+                                Đổi Avatar
+                            </Button>
+                        </Upload>
+                        {avatarFile && (
+                            <Button
+                                type="primary"
+                                loading={avatarLoading}
+                                onClick={() => handleAvatarChange(avatarFile)}
+                                style={{
+                                    marginTop: 10,
+                                    backgroundColor: '#C87E83',
+                                    borderColor: '#C87E83',
+                                    color: '#fff',
+                                    minWidth: '80px',
+                                    height: '25px',
+                                    fontSize: '12px',
+                                    padding: '2px 6px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                }}>
+                                Xác nhận
+                            </Button>
+
+                        )}
+                    </div>
                     <h3
                         style={{
                             fontFamily: "'Nunito', sans-serif",
