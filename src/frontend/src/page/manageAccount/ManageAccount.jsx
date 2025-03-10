@@ -127,8 +127,8 @@ const handleUserAction = async () => {
     if (!selectedUser) return;
     try {
         const apiUrl = selectedUser.statusId === 2 
-            ? `/api/User/deactive-user/${selectedUser.usrId}` 
-            : `/api/User/active-user/${selectedUser.usrId}`;
+            ? `User/deactive-user/${selectedUser.usrId}` 
+            : `User/active-user/${selectedUser.usrId}`;
         const method = selectedUser.statusId === 2 ? "DELETE" : "PATCH";
 
         const response = await api({ method, url: apiUrl });
