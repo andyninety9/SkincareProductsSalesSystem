@@ -16,9 +16,33 @@ const orders = Array.from({ length: 50 }, (_, index) => ({
 }));
 
 export default function ManageOrder() {
+    const [orders, setOrders] = useState([]);
     const [visibleOrders, setVisibleOrders] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10;
+
+    const fetchOrders = async () => {
+        try {
+            const response = await fetch("/api/Orders");
+            const data = await response.json();
+
+            if (data.statusCode === 200) {
+                const formattedOrders = data.data.items.map(order => ({
+                    orderNumber: order.orderId.toString(),
+                    dateTime: new Date(order.orderDate).toLocaleString(),
+                    customerName: order.customerName,
+                    items: order.products.length,
+                    total: `${order.totalPrice.toLocaleString()} VND`,
+                    status: order.orderStatus,
+                }));
+                setOrders(formattedOrders);
+            } else {
+                console.error("Failed to fetch orders:", data.message);
+            }
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+        }
+    };
 
     const toggleVisibility = (orderNumber) => {
         setVisibleOrders(prev => ({
