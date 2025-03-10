@@ -484,6 +484,20 @@ namespace WebApi.Controllers.Products
 
             return Ok(new { statusCode = 200, message = "Delete image successfully", data = result.Value });
         }
+
+        /// <summary>
+        /// Creates a new product.
+        /// </summary>
+        /// <param name="command">Product creation request containing product details.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the created product details.</returns>
+        /// <remarks>
+        /// Sample request:
+        /// {
+        ///     "productName": "Product Name",
+        ///     "description": "Product Description",
+        ///     
+        /// }
         
     }
 }
