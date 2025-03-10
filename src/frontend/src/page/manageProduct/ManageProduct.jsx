@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
 import api from "../../config/api"; // 🔥 Import API từ api.jsx
+import noImg from "../../assets/noimg/noImg.png";
 
 export default function ManageProduct() {
     const [products, setProducts] = useState([]);
@@ -14,11 +15,11 @@ export default function ManageProduct() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await api.get("Products"); // 🔥 Đảm bảo đường dẫn API chính xác
+                const response = await api.get("Products?page=1&pageSize=1000"); 
                 console.log("Fetched Products:", response.data);
 
-                if (response.data.items && Array.isArray(response.data.items)) {
-                    setProducts(response.data.items);
+                if (response.data.data && Array.isArray(response.data.data.items)) {
+                    setProducts(response.data.data.items);
                 } else {
                     console.error("Invalid API response format:", response.data);
                 }
@@ -50,7 +51,9 @@ export default function ManageProduct() {
             key: "images",
             align: "center",
             render: (images) => 
-                images && images.length > 0 ? <Avatar src={images[0]?.prodImageUrl} size={50} /> : "No Image",
+                images && images.length > 0 
+                    ? <Avatar src={images[0]?.prodImageUrl} size={50} /> 
+                    : <Avatar src={noImg} size={50} />,
         },
         {
             title: "Status",
