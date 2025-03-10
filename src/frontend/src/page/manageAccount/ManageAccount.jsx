@@ -49,7 +49,7 @@ export default function ManageAccount() {
             try {
                 const userData = JSON.parse(userCookie); // Parse JSON từ cookie
                 setUserRole(userData.role); // Lấy role từ cookie
-                console.log("User Role:", userData.role); // Debug kiểm tra
+                // console.log("User Role:", userData.role); // Debug kiểm tra
             } catch (error) {
                 console.error("Error parsing user cookie:", error);
             }
@@ -78,18 +78,13 @@ export default function ManageAccount() {
     
 const handleCreateAccount = async (values) => {
     try {
-        console.log("📤 Sending data:", values); // Debug dữ liệu gửi lên API
+        // console.log("📤 Sending data:", values); // Debug dữ liệu gửi lên API
 
-        const response = await api.post("User/create-user", values, {
-            headers: {
-                "Authorization": `Bearer ${Cookies.get("accessToken")}`,
-                "Content-Type": "application/json"
-            }
-        });
+        const response = await api.post("User/create-user", values);
 
         if (response.status === 200) {
             message.success("🎉 Tạo tài khoản thành công!", 2);
-            console.log("✅ User created successfully!", response.data);
+            // console.log("✅ User created successfully!", response.data);
             setIsModalVisible(false);
             form.resetFields();
 
