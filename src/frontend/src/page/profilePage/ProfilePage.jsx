@@ -412,9 +412,12 @@ const ProfilePage = () => {
                 <Card
                     style={{
                         width: 250,
+                        minHeight: 400,
                         textAlign: 'center',
                         top: '50%',
                         transform: 'translateY(-50%)',
+                        marginTop: 80,
+
                     }}>
                     <Avatar
                         size={100}
@@ -526,11 +529,14 @@ const ProfilePage = () => {
                 <Card
                     style={{
                         width: 500,
+                        minHeight: 520,
                         marginLeft: 20,
                         display: 'flex',
                         flexDirection: 'column',
                         top: '50%',
                         transform: 'translateY(-50%)',
+                        marginTop: 80,
+
                     }}>
                     <Tabs
                         activeKey={activeTab}
@@ -789,12 +795,12 @@ const ProfilePage = () => {
                                     style={{ backgroundColor: '#D8959A', borderColor: '#D8959A' }}>
                                     Cập Nhật Thông Tin
                                 </Button>
-                                <Button type="primary" 
-                                    onClick={() => setIsPasswordModalVisible(true)} 
+                                <Button type="primary"
+                                    onClick={() => setIsPasswordModalVisible(true)}
                                     style={{ backgroundColor: '#C87E83', borderColor: '#C87E83' }}>
                                     Thay đổi mật khẩu
                                 </Button>
-                              
+
                             </div>
                         </TabPane>
                     </Tabs>
