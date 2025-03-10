@@ -1,4 +1,4 @@
-import { Table, Button, Input, Card } from "antd";
+import { Table, Button, Input, Card, message } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
@@ -23,13 +23,14 @@ export default function ManageOrder() {
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [updatingOrderId, setUpdatingOrderId] = useState(null);
     const pageSize = 10;
 
     const fetchOrders = async (page = 1, pageSize = 10) => {
         try {
             setLoading(true);
             setError(null);
-            console.log("Making API request to /api/Orders...");
+            // console.log("Making API request to /api/Orders...");
             const response = await api.get("/Orders", {
                 params: {
                     page: page,
@@ -49,7 +50,7 @@ export default function ManageOrder() {
                     status: order.orderStatus || "N/A",
                 }));
                 setOrders(formattedOrders);
-                setTotal(data.data.total || data.data.items.length); // Update total for pagination
+                setTotal(data.data.totalItems || data.data.items.length); // Update total for pagination
             } else {
                 setError(data.message || "Failed to fetch orders");
             }
@@ -68,6 +69,8 @@ export default function ManageOrder() {
             setLoading(false);
         }
     };
+
+    
     useEffect(() => {
         fetchOrders(currentPage, pageSize);
     }, [currentPage, pageSize]);
@@ -174,7 +177,7 @@ export default function ManageOrder() {
                                     position: ["bottomCenter"],
                                     current: currentPage,
                                     pageSize: 10,
-                                    total: orders.length,
+                                    total: total,
                                     pageSizeOptions: ["10", "20", "30"],
                                     onChange: (page) => setCurrentPage(page),
 
