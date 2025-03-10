@@ -344,7 +344,13 @@ const ProfilePage = () => {
         return <div style={{ textAlign: 'center', marginTop: '50px' }}>No user data available.</div>;
     }
     return (
-        <div style={{ width: '100%', position: 'relative' }}>
+        <div style={{
+            width: '100%',
+            minHeight: '100vh', // Ensure the container takes up full viewport height
+            display: 'flex',
+            flexDirection: 'column', // Stack children vertically
+            position: 'relative',
+        }}>
             <div style={{ position: 'relative', width: '100%', height: '30vh', marginBottom: 10 }}>
                 <div
                     style={{
@@ -408,7 +414,12 @@ const ProfilePage = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                padding: 40,
+                flexGrow: 1,
+            }}>
                 <Card
                     style={{
                         width: 250,
