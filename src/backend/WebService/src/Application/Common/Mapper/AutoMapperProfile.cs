@@ -13,6 +13,7 @@ using Application.Features.Address.Queries.Response;
 using Application.Features.Question.Queries.Response;
 using Application.Features.Products.Commands.Response;
 using Application.Features.Brands.Queries.Response;
+using Application.Features.Brands.Commands.Response;
 
 namespace Application.Common.Mapper
 {
@@ -47,6 +48,8 @@ namespace Application.Common.Mapper
             CreateMap<GetAllProductBrandResponse, Brand>();
             CreateMap<DeleteProductResponse, Product>();
             CreateMap<Product, DeleteProductResponse>();
+            CreateMap<Brand, CreateProductBrandResponse>();
+            CreateMap<CreateProductBrandResponse, Brand>();
 
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();

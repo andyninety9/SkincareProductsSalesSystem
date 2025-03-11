@@ -680,7 +680,7 @@ namespace WebApi.Controllers.Products
         ///    "brandName": "Brand Name"
         ///    "brandDesc": "Brand Description"
         ///    "brandOrigin": "Brand Origin"
-        ///    "brandStatusId": 1
+        ///    "brandStatus": "true"
         /// }
         /// Headers:
         /// - Authorization: Bearer {token}
@@ -712,6 +712,53 @@ namespace WebApi.Controllers.Products
             }
 
             return Ok(new { statusCode = 200, message = "Create brand successfully", data = result.Value });
+        }
+
+        /// <summary>
+        ///  Updates an existing product brand. 
+        ///  </summary>
+        ///  <param name="command">Brand update request containing brand details.</param>
+        ///  <param name="cancellationToken">Cancellation token.</param>
+        ///  <returns>Returns the updated brand details.</returns>
+        ///  <remarks>
+        ///  Sample request:
+        ///  {
+        ///    "brandId": 1,
+        ///    "brandName": "Brand Name"
+        ///    "brandDesc": "Brand Description"
+        ///    "brandOrigin": "Brand Origin"
+        ///    "brandStatusId": "true"
+        ///  }
+        ///  Headers:
+        ///  - Authorization: Bearer {token}
+        ///  -Role: Manager, Staff
+        ///  </remarks>
+        ///  <returns></returns>
+        [HttpPatch("brand/update")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> UpdateBrand([FromBody] UpdateProductBrandCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new UpdateProductBrandCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Update brand successfully", data = result.Value });
         }
    
     }

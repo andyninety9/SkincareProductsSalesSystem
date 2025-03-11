@@ -21,7 +21,7 @@ namespace Application.Features.Brands.Commands.Validators
             RuleFor(x => x.BrandStatus)
                 .NotEmpty().WithMessage("Brand Status is required")
                 .NotNull().WithMessage("Brand Status is required")
-                .Must(x => x == 1 || x == 0).WithMessage("Brand Status must be 1 or 0");
+                .Must(x => x == "true" || x == "false").WithMessage("Brand Status must be true or false");
         }
         
     }
