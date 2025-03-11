@@ -7,7 +7,7 @@ import "./ManageOrderSidebar.css";
 const { Sider } = Layout;
 const { SubMenu } = Menu;
 
-// manage openKeys in local storage
+// Lưu trạng thái menu mở vào localStorage
 const getPersistedOpenKeys = () => {
     const stored = localStorage.getItem("sidebarOpenKeys");
     return stored ? JSON.parse(stored) : [];
@@ -16,6 +16,7 @@ const getPersistedOpenKeys = () => {
 const setPersistedOpenKeys = (keys) => {
     localStorage.setItem("sidebarOpenKeys", JSON.stringify(keys));
 };
+
 const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("manage-account")) return "0";
     if (pathname.includes("manage-product")) return "6";
@@ -25,7 +26,7 @@ const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("manage-request-product")) return "3";
     if (pathname.includes("view-comments")) return "4";
     if (pathname.includes("review-comments")) return "5";
-    return "0"; // Default to "Manage Account" if no match
+    return "0"; // Mặc định vào "Manage Account" nếu không khớp
 };
 
 const ManageOrderSidebar = () => {
@@ -33,24 +34,16 @@ const ManageOrderSidebar = () => {
     const location = useLocation();
     const [selectedKey, setSelectedKey] = useState(getSelectedKeyFromPath(location.pathname));
     const [openKeys, setOpenKeys] = useState(getPersistedOpenKeys());
-    const openKeysRef = useRef(getPersistedOpenKeys());
 
     useEffect(() => {
         const path = location.pathname;
-        if (path.includes("manage-account")) setSelectedKey("0");
-        else if (path.includes("manage-product")) setSelectedKey("6");
-        else if (path.includes("manage-img-product")) setSelectedKey("7");
-        else if (path.includes("manage-order-status")) setSelectedKey("1");
-        else if (path.includes("manage-cancel-order")) setSelectedKey("2");
-        else if (path.includes("manage-request-product")) setSelectedKey("3");
-        else if (path.includes("view-comments")) setSelectedKey("4");
-        else if (path.includes("review-comments")) setSelectedKey("5");
-        else if (path.includes("manage-event")) setSelectedKey("8");
+        const newSelectedKey = getSelectedKeyFromPath(path);
 
+        if (selectedKey !== newSelectedKey) {
+            setSelectedKey(newSelectedKey);
+        }
 
-        if (path.includes("manage-product")) {
-            setOpenKeys(["sub3"]);
-        } else if (path.includes("manage-img-product")) {
+        if (path.includes("manage-product") || path.includes("manage-img-product")) {
             setOpenKeys(["sub3"]);
         } else if (path.includes("manage-order")) {
             setOpenKeys(["sub1"]);
@@ -59,40 +52,23 @@ const ManageOrderSidebar = () => {
         } else {
             setOpenKeys([]);
         }
-    }, [location.pathname]);
-        const newSelectedKey = getSelectedKeyFromPath(path);
-
-        if (selectedKey !== newSelectedKey) {
-            setSelectedKey(newSelectedKey);
-        }
-        setOpenKeys(openKeysRef.current);
-    }, [location.pathname]; 
+    }, [location.pathname]); 
 
     const handleMenuClick = (e) => {
-        if (e.key === "0") navigate("/manage-account");
-        else if (e.key === "1") navigate("/manage-order");
-        else if (e.key === "6") navigate("/manage-product");
-        else if (e.key === "7") navigate("/manage-img-product");
-        else if (e.key === "8") navigate("/manage-event");
+        navigate(
+            e.key === "0" ? "/manage-account" :
+            e.key === "1" ? "/manage-order" :
+            e.key === "6" ? "/manage-product" :
+            e.key === "7" ? "/manage-img-product" :
+            e.key === "8" ? "/manage-event" :
+            "/"
+        );
     };
 
-    const handleTitleClick = (key) => {
-        if (openKeysRef.current.includes(key)) {
-            openKeysRef.current = openKeysRef.current.filter(k => k !== key);
-        } else {
-            openKeysRef.current = [...openKeysRef.current, key];
-        }
-        setOpenKeys([...openKeysRef.current]);
-        setPersistedOpenKeys(openKeysRef.current);
+    const handleOpenChange = (keys) => {
+        setOpenKeys(keys); // Cập nhật trạng thái submenu mở
+        setPersistedOpenKeys(keys);
     };
-
-    const handleOpenChange = () => {
-        // prevent Ant Design from automatically updating openKeys
-    };
-
-    if (openKeys.length !== openKeysRef.current.length || !openKeys.every(key => openKeysRef.current.includes(key))) {
-        setOpenKeys([...openKeysRef.current]);
-    }
 
     return (
         <Sider
@@ -116,7 +92,7 @@ const ManageOrderSidebar = () => {
                 mode="inline"
                 selectedKeys={[selectedKey]}
                 openKeys={openKeys}
-                onOpenChange={handleOpenChange}
+                onOpenChange={handleOpenChange} // Cập nhật trạng thái submenu mở
                 onClick={handleMenuClick}
                 style={{ flex: 1, borderRight: 0 }}
             >
@@ -150,5 +126,6 @@ const ManageOrderSidebar = () => {
             </div>
         </Sider>
     );
-    
+};
+
 export default ManageOrderSidebar;
