@@ -11,7 +11,7 @@ namespace Application.Features.Products.Commands.Validator
     {
         public DeleteProductCommandValidator()
         {
-            RuleFor(x => x.ProdId).NotEmpty().WithMessage("Product Id is required");
+            RuleFor(x => x.ProductId).NotEmpty().WithMessage("Product Id is required");
         }
         
     }

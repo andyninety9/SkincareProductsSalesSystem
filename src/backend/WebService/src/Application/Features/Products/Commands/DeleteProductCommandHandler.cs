@@ -14,7 +14,7 @@ namespace Application.Features.ProductCategory.Commands
 {
     public sealed record DeleteProductCommand
     (
-        long ProdId
+        long ProductId
     ) : ICommand<DeleteProductResponse>;
 
     internal sealed class DeleteProductCommandHandler : ICommandHandler<DeleteProductCommand, DeleteProductResponse>
@@ -41,7 +41,7 @@ namespace Application.Features.ProductCategory.Commands
         {
             try
             {
-                var product = await _productRepository.GetByIdAsync(command.ProdId, cancellationToken);
+                var product = await _productRepository.GetByIdAsync(command.ProductId, cancellationToken);
                 if (product == null)
                 {
                     return Result<DeleteProductResponse>.Failure<DeleteProductResponse>(new Error("ProductNotFound", "Product not found"));
