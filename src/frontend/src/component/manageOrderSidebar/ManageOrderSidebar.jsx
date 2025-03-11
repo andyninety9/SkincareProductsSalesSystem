@@ -20,7 +20,7 @@ const setPersistedOpenKeys = (keys) => {
 const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("manage-account")) return "0";
     if (pathname.includes("manage-product")) return "6";
-    if (pathname.includes("manage-events")) return "7";
+    if (pathname.includes("manage-event")) return "7";
     if (pathname.includes("manage-order")) return "1";
     if (pathname.includes("manage-cancel-order")) return "2";
     if (pathname.includes("manage-request-product")) return "3";
@@ -50,7 +50,7 @@ const ManageOrderSidebar = () => {
         if (e.key === "0") navigate("/manage-account");
         else if (e.key === "1") navigate("/manage-order");
         else if (e.key === "6") navigate("/manage-product");
-        
+        else if (e.key === "7") navigate("/manage-event");
     };
 
     const handleTitleClick = (key) => {
