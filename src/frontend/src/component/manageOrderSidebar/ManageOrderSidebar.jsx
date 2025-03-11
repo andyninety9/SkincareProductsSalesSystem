@@ -44,13 +44,13 @@ const ManageOrderSidebar = () => {
             setSelectedKey(newSelectedKey);
         }
         setOpenKeys(openKeysRef.current);
-    }, [location.pathname]); 
+    }, [location.pathname]);
 
     const handleMenuClick = (e) => {
         if (e.key === "0") navigate("/manage-account");
         else if (e.key === "1") navigate("/manage-order");
         else if (e.key === "6") navigate("/manage-product");
-        
+
     };
 
     const handleTitleClick = (key) => {
