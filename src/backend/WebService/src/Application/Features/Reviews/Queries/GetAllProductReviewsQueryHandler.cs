@@ -15,7 +15,7 @@ namespace Application.Features.Reviews.Queries
     public sealed record GetAllProductReviewQuery(
         string? Keyword,
         PaginationParams PaginationParams,
-        int ProductId,
+        long ProductId,
         string? FromDate,
         string? ToDate) : IQuery<PagedResult<GetAllProductReviewsResponse>>;
 
