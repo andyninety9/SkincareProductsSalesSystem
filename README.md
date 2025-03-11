@@ -1,4 +1,51 @@
-# Skin Care Project Sale System
+# Skin Care Products Sales System
+
+## Overview
+
+The **Skin Care Products Sales System** is a web application that facilitates the sale and management of skincare products. The system provides functionalities for customers to explore products, identify suitable skincare routines, and place orders seamlessly. It also includes robust management features for staff and administrators.
+
+## Features
+
+### Functional Requirements
+
+- **Company Information Portal:**  
+  - Display company introduction, skincare product information, blogs, FAQs, and news.
+
+- **Customer Functionalities:**  
+  - Determine skin type (oily, combination, dry, normal) via a quiz.  
+  - Recommend skincare products suitable for the identified skin type.  
+  - Compare different skincare products for informed decision-making.  
+  - Manage shopping cart and checkout process.  
+  - Payment processing and order cancellations.  
+  - Apply promotional codes and accumulate loyalty points.  
+  - Provide ratings and feedback for products.  
+  - View and manage order history and customer profiles.  
+
+- **Administrative & Management Features:**  
+  - Dashboard and analytics reports.  
+  - Manage product listings and inventory.  
+  - Order management from placement to completion.  
+  - Handle customer feedback and ratings.  
+
+### Non-Functional Requirements
+
+- Scalability: Supports high traffic and large product catalogs.  
+- Security: Implements secure authentication and data protection measures.  
+- Performance: Optimized for fast response times and low latency.  
+- Availability: Ensures high uptime and fault tolerance.  
+
+## System Architecture
+
+The system follows a **microservices-based architecture** with the following components:  
+
+- **Frontend:** React/Vue.js (SPA)  
+- **Backend:** .NET Core Web API  
+- **Database:** PostgreSQL  
+- **Cache:** Redis for session and caching  
+- **Cloud Storage:** AWS S3 for images  
+- **Authentication:** Google OAuth  
+- **Payment Gateway:** VNPay  
+- **Delivery Service:** GHN API  
 
 ## Docker Compose Instructions
 
@@ -121,6 +168,44 @@ VITE_BACK_END_BASE_URL=your_backend_url
 VITE_GOOGLE_CLIENT_ID=google_oauth_client_id
 VITE_GOOGLE_CLIENT_SECRET=google_oauth_client_secret
 
+```
+
+### Setup Instructions
+
+#### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-repo/skincare-sales-system.git
+cd skincare-sales-system
+```
+
+#### 2. Install Dependencies
+
+##### Backend (.NET Core)
+```bash
+cd backend
+dotnet restore
+```
+
+##### Frontend (Vite/React)
+
+```bash
+cd frontend
+npm install
+```
+
+#### 3. Run the Application
+
+##### Backend
+
+```bash
+dotnet run
+```
+
+##### Frontend
+
+```bash
+npm run dev
 ```
 
 ### Important Notes
