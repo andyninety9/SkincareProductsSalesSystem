@@ -178,12 +178,7 @@ export default function ManageProduct() {
                     {/* Xem thêm để hiển thị Tooltip khi người dùng muốn xem toàn bộ nội dung */}
                     <Tooltip 
                         title={prodUseFor} 
-                        overlayStyle={{
-                            backgroundColor: "#F6EEF0", // Nền sáng #F6EEF0 (màu sáng)
-                            color: "black", // Màu chữ đen
-                            borderRadius: "8px", // Bo góc Tooltip
-                            padding: "10px", // Padding bên trong Tooltip
-                        }}
+                        
                     >
                         <Button type="link" style={{ padding: 0, marginLeft: "8px" }}>Xem thêm</Button>
                     </Tooltip>
