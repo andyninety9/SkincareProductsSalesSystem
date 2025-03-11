@@ -760,6 +760,47 @@ namespace WebApi.Controllers.Products
 
             return Ok(new { statusCode = 200, message = "Update brand successfully", data = result.Value });
         }
-   
+
+        /// <summary>
+        /// Deletes a product brand.
+        /// </summary>
+        /// <param name="command">Brand deletion request containing brand ID.</param> 
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the deletion process.</returns> 
+        /// <remarks>
+        /// Sample request:
+        /// {
+        ///    "brandId": 1
+        /// }
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// -Role: Manager, Staff
+        /// </remarks>
+        [HttpDelete("brand/delete")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> DeleteBrand([FromBody] DeleteProductBrandCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new DeleteProductBrandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Delete brand successfully", data = result.Value });
+        }
     }
 }
