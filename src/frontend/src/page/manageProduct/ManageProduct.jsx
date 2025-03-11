@@ -1,5 +1,13 @@
-import { Table, Button, Input, Avatar, Select, Modal, Form, Tooltip, message } from 'antd';
-import { LeftOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons';
+// Add these imports at the top
+import { Table, Button, Input, Avatar, Select, Modal, Form, Tooltip, message, Upload } from 'antd';
+import {
+    LeftOutlined,
+    RightOutlined,
+    SearchOutlined,
+    UploadOutlined,
+    DeleteOutlined,
+    PlusOutlined,
+} from '@ant-design/icons';
 import { useState, useEffect } from 'react';
 import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSidebar';
 import ManageOrderHeader from '../../component/manageOrderHeader/ManageOrderHeader';
@@ -8,6 +16,8 @@ import noImg from '../../assets/noimg/noImg.png';
 import { toast } from 'react-toastify';
 import { Formik, Field, Form as FormikForm, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import './ManageProduct.css';
+import uploadFile from '../../utils/uploadImages';
 
 const { Option } = Select;
 
@@ -49,6 +59,8 @@ export default function ManageProduct() {
     });
     const [expandedRowKeys, setExpandedRowKeys] = useState([]);
     const [updateLoading, setUpdateLoading] = useState(false);
+    const [imageUploading, setImageUploading] = useState(false);
+    const [deleteImageLoading, setDeleteImageLoading] = useState(false);
 
     const ProductSchema = Yup.object().shape({
         productName: Yup.string().required('Product name is required'),
@@ -63,6 +75,109 @@ export default function ManageProduct() {
         categoryId: Yup.number().required('Category is required'),
         prodStatusName: Yup.string().required('Status is required'),
     });
+
+    // Handle image upload
+    const handleImageUpload = async (file, productId) => {
+        try {
+            setImageUploading(true);
+
+            // Step 1: Upload the file to Appwrite storage
+            const downloadURL = await uploadFile(file);
+
+            // Step 2: Send the URL to your backend to associate with the product
+            const response = await api.post('Products/upload-image', {
+                productId: String(productId),
+                imageUrl: downloadURL,
+            });
+
+            if (response.data.statusCode === 200) {
+                // Success message
+                message.success('Image uploaded successfully');
+
+                // Refresh product data to show the new image
+                refreshProductData();
+                return true;
+            } else {
+                message.error('Failed to associate image with product');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            message.error(`Error: ${error.response?.data?.message || 'Failed to upload image'}`);
+            return false;
+        } finally {
+            setImageUploading(false);
+        }
+    };
+
+    // Handle image deletion
+    const handleDeleteImage = async (imageId, productId) => {
+        try {
+            setDeleteImageLoading(true);
+
+            // Delete image API call
+            const response = await api.delete(`products/delete-image`, {
+                data: {
+                    productId: String(productId),
+                    imageId: String(imageId),
+                },
+            });
+
+            if (response.data.statusCode === 200) {
+                message.success('Image deleted successfully');
+
+                // Refresh product data to update the image list
+                refreshProductData();
+                return true;
+            } else {
+                message.error('Failed to delete image');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error deleting image:', error);
+            message.error(`Error: ${error.response?.data?.message || 'Failed to delete image'}`);
+            return false;
+        } finally {
+            setDeleteImageLoading(false);
+        }
+    };
+    // Refresh product data after image changes
+    const refreshProductData = async () => {
+        try {
+            const refreshResponse = await api.get(
+                `Products?page=${currentPage}&pageSize=${pageSize}${
+                    debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
+                }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${
+                    debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
+                }`
+            );
+
+            if (refreshResponse.data.data) {
+                const updatedProducts = refreshResponse.data.data.items.map((item) => {
+                    return {
+                        ...item,
+                        productId: BigInt(item.productId),
+                        images: item.images.map((img) => {
+                            return {
+                                ...img,
+                                prodImageId: BigInt(img.prodImageId),
+                            };
+                        }),
+                    };
+                });
+
+                setProducts(updatedProducts || []);
+                setTotalProducts(refreshResponse.data.data.totalItems || 0);
+                setPaginationInfo({
+                    totalPages: refreshResponse.data.data.totalPages || 0,
+                    hasNextPage: refreshResponse.data.data.hasNextPage || false,
+                    hasPreviousPage: refreshResponse.data.data.hasPreviousPage || false,
+                });
+            }
+        } catch (error) {
+            console.error('Error refreshing product data:', error);
+        }
+    };
 
     // Handle product update
     const handleUpdateProduct = async (values, productId) => {
@@ -144,6 +259,12 @@ export default function ManageProduct() {
                         return {
                             ...item,
                             productId: BigInt(item.productId),
+                            images: item.images.map((img) => {
+                                return {
+                                    ...img,
+                                    prodImageId: BigInt(img.prodImageId),
+                                };
+                            }),
                         };
                     });
                     // console.log('📤 Products:', listProduct);
@@ -369,11 +490,18 @@ export default function ManageProduct() {
                 <div style={{ display: 'flex', gap: '20px' }}>
                     {/* Product Images Section */}
                     <div style={{ flex: '0 0 300px' }}>
-                        <h3>Product Images</h3>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h3>Product Images</h3>
+                            <span style={{ fontSize: '12px', color: '#666' }}>
+                                {record.images?.length || 0}/5 images
+                            </span>
+                        </div>
+
+                        {/* Display existing images with delete buttons */}
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
                             {record.images && record.images.length > 0 ? (
                                 record.images.map((image, idx) => (
-                                    <div key={idx} style={{ width: '120px', height: '120px' }}>
+                                    <div key={idx} style={{ width: '120px', height: '120px', position: 'relative' }}>
                                         <img
                                             src={image.prodImageUrl}
                                             alt={`${record.productName} - ${idx + 1}`}
@@ -383,6 +511,19 @@ export default function ManageProduct() {
                                                 objectFit: 'cover',
                                                 borderRadius: '4px',
                                             }}
+                                        />
+                                        <Button
+                                            danger
+                                            type="primary"
+                                            icon={<DeleteOutlined />}
+                                            size="small"
+                                            style={{
+                                                position: 'absolute',
+                                                top: '5px',
+                                                right: '5px',
+                                            }}
+                                            onClick={() => handleDeleteImage(image.prodImageId, record.productId)}
+                                            loading={deleteImageLoading}
                                         />
                                     </div>
                                 ))
@@ -400,6 +541,65 @@ export default function ManageProduct() {
                                     />
                                 </div>
                             )}
+
+                            {/* Upload new image button (if less than 5 images) */}
+                            {record.images && record.images.length < 5 && (
+                                <Upload
+                                    name="image"
+                                    listType="picture-card"
+                                    showUploadList={false}
+                                    beforeUpload={(file) => {
+                                        // Check file type
+                                        const isImage = /image\/(jpeg|png|jpg)/.test(file.type);
+                                        if (!isImage) {
+                                            message.error('You can only upload JPG, JPEG, or PNG image files!');
+                                            return Upload.LIST_IGNORE;
+                                        }
+
+                                        // Check file size (less than 2MB)
+                                        const isLessThan10MB = file.size / 1024 / 1024 < 10;
+                                        if (!isLessThan10MB) {
+                                            message.error('Image must be smaller than 2MB!');
+                                            return Upload.LIST_IGNORE;
+                                        }
+
+                                        // Upload the image using our custom function
+                                        handleImageUpload(file, record.productId);
+                                        return false; // Prevent default upload behavior
+                                    }}
+                                    style={{
+                                        width: '120px',
+                                        height: '120px',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                    loading={imageUploading}
+                                    disabled={imageUploading}>
+                                    {imageUploading ? (
+                                        <div>
+                                            <div className="ant-spin-dot">
+                                                <i className="ant-spin-dot-item"></i>
+                                                <i className="ant-spin-dot-item"></i>
+                                                <i className="ant-spin-dot-item"></i>
+                                                <i className="ant-spin-dot-item"></i>
+                                            </div>
+                                            <div style={{ marginTop: 8 }}>Uploading...</div>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <PlusOutlined />
+                                            <div style={{ marginTop: 8 }}>Upload</div>
+                                        </div>
+                                    )}
+                                </Upload>
+                            )}
+                        </div>
+
+                        <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+                            <p>• Maximum 5 images per product</p>
+                            <p>• Images must be less than 2MB</p>
+                            <p>• Supported formats: JPG, PNG, JPEG</p>
                         </div>
                     </div>
 

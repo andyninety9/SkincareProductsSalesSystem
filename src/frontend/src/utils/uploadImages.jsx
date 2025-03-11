@@ -3,7 +3,8 @@ import { storage } from "../config/Appwrite";
 const uploadFile = async (file) => {
   try {
     // Replace 'bucketID' with the ID of you r storage bucket in Appwrite
-    const bucketID = "67cf8b0c00164e4c4a3d";
+    // const bucketID = "67cf8b0c00164e4c4a3d";
+    const bucketID = import.meta.env.VITE_SECOND_BUCKET_CLOUD_KEY;
 
     // Upload the file to Appwrite storage
     const response = await storage.createFile(bucketID, "unique()", file);
