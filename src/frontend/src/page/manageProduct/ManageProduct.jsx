@@ -78,7 +78,7 @@ export default function ManageProduct() {
             };
 
             const updateData = {
-                productId: productId,
+                productId: String(productId),
                 productName: values.productName,
                 productDesc: values.productDesc,
                 stocks: Number(values.stocks),
@@ -139,7 +139,16 @@ export default function ManageProduct() {
                 );
 
                 if (response.data.data) {
-                    setProducts(response.data.data.items || []);
+                    var listProduct;
+                    listProduct = response.data.data.items.map((item) => {
+                        return {
+                            ...item,
+                            productId: BigInt(item.productId),
+                        };
+                    });
+                    // console.log('📤 Products:', listProduct);
+
+                    setProducts(listProduct || []);
                     setTotalProducts(response.data.data.totalItems || 0);
 
                     // Store pagination metadata
@@ -208,7 +217,7 @@ export default function ManageProduct() {
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
-            console.log('✅ Submitted Product Data:', values);
+            // console.log('✅ Submitted Product Data:', values);
 
             if (
                 !values.productName ||
@@ -248,7 +257,7 @@ export default function ManageProduct() {
 
             // Gửi dữ liệu lên API
             const response = await api.post('Products/create', requestData);
-            console.log('✅ Product added successfully:', response.data);
+            // console.log('✅ Product added successfully:', response.data);
 
             if (response.data.statusCode === 200) {
                 toast.success('Product added successfully!');
@@ -298,7 +307,6 @@ export default function ManageProduct() {
     };
 
     const expandedRowRender = (record) => {
-
         // Find the brandId that matches the record's brandName
         const matchingBrand = brands.find((b) => b.brandName === record.brandName);
         const brandId = matchingBrand ? matchingBrand.brandId : '';
@@ -567,6 +575,7 @@ export default function ManageProduct() {
             align: 'center',
             width: 100,
             fixed: 'left',
+            render: (productId) => String(productId),
         },
         {
             title: 'Image',
