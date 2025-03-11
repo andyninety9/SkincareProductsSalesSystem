@@ -1,4 +1,4 @@
-import { Table, Button, Input, Avatar, Select, Modal, Form, Image, Upload } from "antd";
+import { Table, Button, Input, Avatar, Select, Modal, Form, Image, Upload, Tooltip } from "antd";
 import { SearchOutlined, StarOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
@@ -148,17 +148,154 @@ export default function ManageProduct() {
     );
 
     const columns = [
-        { title: "Product ID", dataIndex: "productId", key: "productId", align: "center", width: 100 },
-        { title: "Product Name", dataIndex: "productName", key: "productName", align: "center", width: 200 },
-        { title: "Description", dataIndex: "productDesc", key: "productDesc", align: "center", width: 250 },
+        {
+            title: "Product ID",
+            dataIndex: "productId",
+            key: "productId",
+            align: "center",
+            width: 100,
+            fixed: 'left', 
+        },
+        {
+            title: "Product Name",
+            dataIndex: "productName",
+            key: "productName",
+            align: "center",
+            width: 300,  
+            render: (productName) => (
+                <Tooltip title={productName}>
+                    <span style={{
+                        maxWidth: "180px", 
+                        whiteSpace: "normal",  
+                        wordWrap: "break-word", 
+                        overflow: "hidden", 
+                        textOverflow: "ellipsis"
+                    }}>
+                        {productName}
+                    </span>
+                </Tooltip>
+            ),
+        },
+        {
+            title: "Description",
+            dataIndex: "productDesc",
+            key: "productDesc",
+            align: "center",
+            width: 300,  
+            render: (productDesc) => (
+                <Tooltip title={productDesc}>
+                    <span style={{
+                        maxWidth: "180px", 
+                        whiteSpace: "normal", 
+                        wordWrap: "break-word", 
+                        overflow: "hidden", 
+                        textOverflow: "ellipsis"
+                    }}>
+                        {productDesc}
+                    </span>
+                </Tooltip>
+            ),
+        },
+        
         { title: "Stock", dataIndex: "stocks", key: "stocks", align: "center", width: 100 },
-        { title: "Cost Price", dataIndex: "costPrice", key: "costPrice", align: "center", width: 150 },
-        { title: "Sell Price", dataIndex: "sellPrice", key: "sellPrice", align: "center", width: 150 },
+        {
+            title: "Cost Price",
+            dataIndex: "costPrice",
+            key: "costPrice",
+            align: "center",
+            width: 150,
+            render: (costPrice) => (
+                <span>
+                    {costPrice.toLocaleString("vi-VN")} VND
+                </span>
+            ),
+        },
+        {
+            title: "Sell Price",
+            dataIndex: "sellPrice",
+            key: "sellPrice",
+            align: "center",
+            width: 150,
+            render: (sellPrice) => (
+                <span>
+                    {sellPrice.toLocaleString("vi-VN")} VND
+                </span>
+            ),
+        },
+        
         { title: "Brand", dataIndex: "brandName", key: "brandName", align: "center", width: 200 },
         { title: "Category", dataIndex: "categoryName", key: "categoryName", align: "center", width: 200 },
-        { title: "Ingredient", dataIndex: "ingredient", key: "ingredient", align: "center", width: 300 },  // Tăng width
-        { title: "Instruction", dataIndex: "instruction", key: "instruction", align: "center", width: 300 }, // Tăng width
-        { title: "Use for", dataIndex: "prodUseFor", key: "prodUseFor", align: "center", width: 400 }, // Tăng width
+        {
+            title: "Ingredient",
+            dataIndex: "ingredient",
+            key: "ingredient",
+            align: "center",
+            width: 300,  
+            render: (ingredient) => (
+                <Tooltip title={ingredient}>
+                    <span style={{
+                        maxWidth: "180px", 
+                        whiteSpace: "normal", 
+                        wordWrap: "break-word", 
+                        overflow: "hidden", 
+                        textOverflow: "ellipsis"
+                    }}>
+                        {ingredient}
+                    </span>
+                </Tooltip>
+            ),
+        },
+        {
+            title: "Instruction",
+            dataIndex: "instruction",
+            key: "instruction",
+            align: "center",
+            width: 300,  
+            render: (instruction) => (
+                <Tooltip title={instruction}>
+                    <span style={{
+                        maxWidth: "180px", 
+                        whiteSpace: "normal",  
+                        wordWrap: "break-word", 
+                        overflow: "hidden", 
+                        textOverflow: "ellipsis"
+                    }}>
+                        {instruction}
+                    </span>
+                </Tooltip>
+            ),
+        },
+        
+        {
+            title: "Use for",
+            dataIndex: "prodUseFor",
+            key: "prodUseFor",
+            align: "center",
+            width: 400, 
+            render: (prodUseFor) => (
+                <div style={{ display: "flex", alignItems: "center" }}>
+                    {/* Hiển thị phần ngắn gọn của Use for */}
+                    <span style={{
+                        maxWidth: "300px", 
+                        whiteSpace: "nowrap", 
+                        wordWrap: "break-word", 
+
+                        overflow: "hidden", 
+                        textOverflow: "ellipsis"
+                    }}>
+                        {prodUseFor}
+                    </span>
+                    <Tooltip 
+                        title={prodUseFor} 
+
+                    >
+                        <Button type="link" style={{ padding: 0, marginLeft: "8px" }}>Xem thêm</Button>
+                    </Tooltip>
+                </div>
+            ),
+        },
+        
+        
         {
             title: "Image",
             dataIndex: "images",
@@ -307,6 +444,7 @@ export default function ManageProduct() {
                                     ))}
                                 </Select>
                             </Form.Item>
+                            
                         </Form>
 
 
