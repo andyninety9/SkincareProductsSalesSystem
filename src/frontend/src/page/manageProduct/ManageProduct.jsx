@@ -148,12 +148,81 @@ export default function ManageProduct() {
     );
 
     const columns = [
-        { title: "Product ID", dataIndex: "productId", key: "productId", align: "center", width: 100 },
-        { title: "Product Name", dataIndex: "productName", key: "productName", align: "center", width: 200 },
-        { title: "Description", dataIndex: "productDesc", key: "productDesc", align: "center", width: 250 },
+        {
+            title: "Product ID",
+            dataIndex: "productId",
+            key: "productId",
+            align: "center",
+            width: 100,
+            fixed: 'left', 
+        },
+        {
+            title: "Product Name",
+            dataIndex: "productName",
+            key: "productName",
+            align: "center",
+            width: 300,  
+            render: (productName) => (
+                <Tooltip title={productName}>
+                    <span style={{
+                        maxWidth: "180px", 
+                        whiteSpace: "normal",  
+                        wordWrap: "break-word", 
+                        overflow: "hidden", 
+                        textOverflow: "ellipsis"
+                    }}>
+                        {productName}
+                    </span>
+                </Tooltip>
+            ),
+        },
+        {
+            title: "Description",
+            dataIndex: "productDesc",
+            key: "productDesc",
+            align: "center",
+            width: 300,  
+            render: (productDesc) => (
+                <Tooltip title={productDesc}>
+                    <span style={{
+                        maxWidth: "180px", 
+                        whiteSpace: "normal", 
+                        wordWrap: "break-word", 
+                        overflow: "hidden", 
+                        textOverflow: "ellipsis"
+                    }}>
+                        {productDesc}
+                    </span>
+                </Tooltip>
+            ),
+        },
+        
         { title: "Stock", dataIndex: "stocks", key: "stocks", align: "center", width: 100 },
-        { title: "Cost Price", dataIndex: "costPrice", key: "costPrice", align: "center", width: 150 },
-        { title: "Sell Price", dataIndex: "sellPrice", key: "sellPrice", align: "center", width: 150 },
+        {
+            title: "Cost Price",
+            dataIndex: "costPrice",
+            key: "costPrice",
+            align: "center",
+            width: 150,
+            render: (costPrice) => (
+                <span>
+                    {costPrice.toLocaleString("vi-VN")} VND
+                </span>
+            ),
+        },
+        {
+            title: "Sell Price",
+            dataIndex: "sellPrice",
+            key: "sellPrice",
+            align: "center",
+            width: 150,
+            render: (sellPrice) => (
+                <span>
+                    {sellPrice.toLocaleString("vi-VN")} VND
+                </span>
+            ),
+        },
+        
         { title: "Brand", dataIndex: "brandName", key: "brandName", align: "center", width: 200 },
         { title: "Category", dataIndex: "categoryName", key: "categoryName", align: "center", width: 200 },
         {
@@ -161,12 +230,13 @@ export default function ManageProduct() {
             dataIndex: "ingredient",
             key: "ingredient",
             align: "center",
-            width: 300,
+            width: 300,  
             render: (ingredient) => (
                 <Tooltip title={ingredient}>
                     <span style={{
-                        maxWidth: "100px", 
-                        whiteSpace: "nowrap", 
+                        maxWidth: "180px", 
+                        whiteSpace: "normal", 
+                        wordWrap: "break-word", 
                         overflow: "hidden", 
                         textOverflow: "ellipsis"
                     }}>
@@ -180,12 +250,13 @@ export default function ManageProduct() {
             dataIndex: "instruction",
             key: "instruction",
             align: "center",
-            width: 300,
+            width: 300,  
             render: (instruction) => (
                 <Tooltip title={instruction}>
                     <span style={{
-                        maxWidth: "100px", 
-                        whiteSpace: "nowrap", 
+                        maxWidth: "180px", 
+                        whiteSpace: "normal",  
+                        wordWrap: "break-word", 
                         overflow: "hidden", 
                         textOverflow: "ellipsis"
                     }}>
@@ -207,12 +278,13 @@ export default function ManageProduct() {
                     <span style={{
                         maxWidth: "300px", 
                         whiteSpace: "nowrap", 
+                        wordWrap: "break-word", 
+
                         overflow: "hidden", 
                         textOverflow: "ellipsis"
                     }}>
                         {prodUseFor}
                     </span>
-                    {/* Xem thêm để hiển thị Tooltip khi người dùng muốn xem toàn bộ nội dung */}
                     <Tooltip 
                         title={prodUseFor} 
 
