@@ -1,4 +1,4 @@
-import { Table, Button, Input, Avatar, Select, Modal, Form, Tooltip } from 'antd';
+import { Table, Button, Input, Avatar, Select, Modal, Form, Tooltip, message } from 'antd';
 import { LeftOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons';
 import { useState, useEffect } from 'react';
 import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSidebar';
@@ -95,7 +95,7 @@ export default function ManageProduct() {
             const response = await api.patch('products/update', updateData);
 
             if (response.data.statusCode === 200) {
-                toast.success('Product updated successfully!');
+                message.success('Product updated successfully!');
 
                 // Refresh product list
                 const refreshResponse = await api.get(
@@ -298,7 +298,16 @@ export default function ManageProduct() {
     };
 
     const expandedRowRender = (record) => {
-        // Initial values for Formik
+
+        // Find the brandId that matches the record's brandName
+        const matchingBrand = brands.find((b) => b.brandName === record.brandName);
+        const brandId = matchingBrand ? matchingBrand.brandId : '';
+
+        // Find the categoryId (cateProdId) that matches the record's categoryName
+        const matchingCategory = categories.find((c) => c.cateProdName === record.categoryName);
+        const categoryId = matchingCategory ? matchingCategory.cateProdId : '';
+
+        // Initial values for Formik with mapped IDs
         const initialValues = {
             productName: record.productName,
             productDesc: record.productDesc,
@@ -308,8 +317,8 @@ export default function ManageProduct() {
             ingredient: record.ingredient,
             instruction: record.instruction,
             prodUseFor: record.prodUseFor,
-            brandId: record.brandId,
-            categoryId: record.cateId,
+            brandId: brandId, // Use the matched brandId
+            categoryId: categoryId, // Use the matched categoryId
             prodStatusName: record.statusName,
         };
 
@@ -327,6 +336,25 @@ export default function ManageProduct() {
             fontSize: '12px',
             marginTop: '4px',
         };
+
+        // Create a validation schema that doesn't require re-selecting brand & category
+        const UpdateProductSchema = Yup.object().shape({
+            productName: Yup.string().required('Product name is required'),
+            productDesc: Yup.string().required('Description is required'),
+            stocks: Yup.number()
+                .required('Stock is required')
+                .positive('Must be positive')
+                .integer('Must be an integer'),
+            costPrice: Yup.number().required('Cost price is required').positive('Must be positive'),
+            sellPrice: Yup.number().required('Sell price is required').positive('Must be positive'),
+            ingredient: Yup.string().required('Ingredient details are required'),
+            instruction: Yup.string().required('Instructions are required'),
+            prodUseFor: Yup.string().required('Product usage info is required'),
+            prodStatusName: Yup.string().required('Status is required'),
+            // These fields aren't required to be changed by the user
+            brandId: Yup.number(),
+            categoryId: Yup.number(),
+        });
 
         return (
             <div style={{ padding: '20px', background: '#f9f9f9', borderRadius: '5px' }}>
@@ -381,9 +409,9 @@ export default function ManageProduct() {
 
                         <Formik
                             initialValues={initialValues}
-                            validationSchema={ProductSchema}
+                            validationSchema={UpdateProductSchema}
                             onSubmit={(values) => handleUpdateProduct(values, record.productId)}>
-                            {({ errors, touched, isSubmitting }) => (
+                            {({ errors, touched, isSubmitting, values }) => (
                                 <FormikForm>
                                     <div
                                         style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
@@ -442,7 +470,7 @@ export default function ManageProduct() {
                                             <ErrorMessage name="sellPrice" component="div" style={errorStyle} />
                                         </div>
 
-                                        {/* Brand */}
+                                        {/* Brand - with current brand highlighted */}
                                         <div>
                                             <label htmlFor="brandId">Brand</label>
                                             <Field name="brandId" id="brandId" as="select" style={formFieldStyle}>
@@ -455,7 +483,7 @@ export default function ManageProduct() {
                                             <ErrorMessage name="brandId" component="div" style={errorStyle} />
                                         </div>
 
-                                        {/* Category */}
+                                        {/* Category - with current category highlighted */}
                                         <div>
                                             <label htmlFor="categoryId">Category</label>
                                             <Field name="categoryId" id="categoryId" as="select" style={formFieldStyle}>
@@ -469,7 +497,7 @@ export default function ManageProduct() {
                                         </div>
                                     </div>
 
-                                    {/* Description */}
+                                    {/* Description and other fields remain the same */}
                                     <div style={{ marginTop: '16px' }}>
                                         <label htmlFor="productDesc">Description</label>
                                         <Field
@@ -481,7 +509,6 @@ export default function ManageProduct() {
                                         <ErrorMessage name="productDesc" component="div" style={errorStyle} />
                                     </div>
 
-                                    {/* Ingredient */}
                                     <div style={{ marginTop: '16px' }}>
                                         <label htmlFor="ingredient">Ingredient</label>
                                         <Field
@@ -493,7 +520,6 @@ export default function ManageProduct() {
                                         <ErrorMessage name="ingredient" component="div" style={errorStyle} />
                                     </div>
 
-                                    {/* Instruction */}
                                     <div style={{ marginTop: '16px' }}>
                                         <label htmlFor="instruction">Instruction</label>
                                         <Field
@@ -505,7 +531,6 @@ export default function ManageProduct() {
                                         <ErrorMessage name="instruction" component="div" style={errorStyle} />
                                     </div>
 
-                                    {/* Use For */}
                                     <div style={{ marginTop: '16px' }}>
                                         <label htmlFor="prodUseFor">Use for</label>
                                         <Field
