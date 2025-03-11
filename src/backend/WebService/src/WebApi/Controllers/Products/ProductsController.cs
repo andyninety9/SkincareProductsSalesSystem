@@ -567,7 +567,7 @@ namespace WebApi.Controllers.Products
         /// -Role: Manager, Staff
         /// </remarks>
         /// <returns></returns>
-        [HttpPost("update")]
+        [HttpPatch("update")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
         public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductCommand command, CancellationToken cancellationToken = default)

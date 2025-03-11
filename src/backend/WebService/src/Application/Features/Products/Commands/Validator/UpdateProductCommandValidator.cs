@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Application.Features.ProductCategory.Commands;
 using FluentValidation;
 
@@ -12,43 +8,65 @@ namespace Application.Features.Products.Commands.Validator
         public UpdateProductCommandValidator()
         {
             RuleFor(p => p.ProductId)
-                .NotEmpty().WithMessage("{PropertyName} is required.");
+            .NotEmpty().WithMessage("{PropertyName} is required.");
             
+            When(p => p.ProductName != null, () => {
             RuleFor(p => p.ProductName)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
+                .Must(name => !string.IsNullOrEmpty(name)).WithMessage("{PropertyName} is required.")
                 .MaximumLength(100).WithMessage("{PropertyName} must not exceed 100 characters.");
+            });
             
+            When(p => p.ProductDesc != null, () => {
             RuleFor(p => p.ProductDesc)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
+                .Must(desc => !string.IsNullOrEmpty(desc)).WithMessage("{PropertyName} is required.")
                 .MaximumLength(500).WithMessage("{PropertyName} must not exceed 500 characters.");
+            });
             
+            When(p => p.Stocks.HasValue, () => {
             RuleFor(p => p.Stocks)
                 .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} must be non-negative.");
+            });
             
+            When(p => p.CostPrice.HasValue, () => {
             RuleFor(p => p.CostPrice)
                 .GreaterThan(0).WithMessage("{PropertyName} must be greater than zero.");
+            });
             
+            When(p => p.SellPrice.HasValue, () => {
             RuleFor(p => p.SellPrice)
                 .GreaterThan(0).WithMessage("{PropertyName} must be greater than zero.")
-                .GreaterThanOrEqualTo(p => p.CostPrice).WithMessage("{PropertyName} must be greater than or equal to Cost Price.");
+                .GreaterThanOrEqualTo(p => p.CostPrice.Value).When(p => p.CostPrice.HasValue);
+            });
             
+            When(p => p.Ingredient != null, () => {
             RuleFor(p => p.Ingredient)
-                .NotEmpty().WithMessage("{PropertyName} is required.");
+                .Must(ingredient => !string.IsNullOrEmpty(ingredient)).WithMessage("{PropertyName} is required.");
+            });
             
+            When(p => p.Instruction != null, () => {
             RuleFor(p => p.Instruction)
-                .NotEmpty().WithMessage("{PropertyName} is required.");
+                .Must(instruction => !string.IsNullOrEmpty(instruction)).WithMessage("{PropertyName} is required.");
+            });
             
+            When(p => p.ProdStatusId.HasValue, () => {
             RuleFor(p => p.ProdStatusId)
-                .NotEmpty().WithMessage("{PropertyName} is required.");
+                .Must(id => id > 0).WithMessage("{PropertyName} is required.");
+            });
             
+            When(p => p.ProdUseFor != null, () => {
             RuleFor(p => p.ProdUseFor)
-                .NotEmpty().WithMessage("{PropertyName} is required.");
+                .Must(useFor => !string.IsNullOrEmpty(useFor)).WithMessage("{PropertyName} is required.");
+            });
             
+            When(p => p.CateId.HasValue, () => {
             RuleFor(p => p.CateId)
-                .NotEmpty().WithMessage("{PropertyName} is required.");
+                .Must(id => id > 0).WithMessage("{PropertyName} is required.");
+            });
             
+            When(p => p.BrandId.HasValue, () => {
             RuleFor(p => p.BrandId)
-                .NotEmpty().WithMessage("{PropertyName} is required.");
+                .Must(id => id > 0).WithMessage("{PropertyName} is required.");
+            });
         }
         
     }

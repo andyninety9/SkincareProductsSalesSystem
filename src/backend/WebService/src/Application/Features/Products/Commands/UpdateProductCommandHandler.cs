@@ -1,11 +1,8 @@
 using Application.Abstractions.Messaging;
 using Application.Abstractions.UnitOfWork;
-using Application.Common;
 using Application.Common.ResponseModel;
-using Application.Features.ProductCategory.Commands.Response;
 using Application.Features.Products.Commands.Response;
 using AutoMapper;
-using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
@@ -112,10 +109,10 @@ namespace Application.Features.ProductCategory.Commands
                     product.BrandId = command.BrandId.Value;
                 }
 
-                product.UpdatedAt = DateTime.Now;
+                product.UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
 
                 _productRepository.Update(product);
-                await _unitOfWork.CommitAsync(cancellationToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 return Result<CreateNewProductResponse>.Success<CreateNewProductResponse>(_mapper.Map<CreateNewProductResponse>(product));
                 
