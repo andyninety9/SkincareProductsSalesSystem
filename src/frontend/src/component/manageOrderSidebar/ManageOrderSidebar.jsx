@@ -105,7 +105,7 @@ const ManageOrderSidebar = () => {
                 </SubMenu>
                 <SubMenu key="sub3" icon={<ShopOutlined />} title="Manage Products">
                     <Menu.Item key="6">Manage Products</Menu.Item>
-                    <Menu.Item key="7">Manage Image</Menu.Item>
+                    {/* <Menu.Item key="7">Manage Image</Menu.Item> */}
                 </SubMenu>
                 <SubMenu key="sub2" icon={<CommentOutlined />} title="Manage Comments">
                     <Menu.Item key="4">View Comments</Menu.Item>
