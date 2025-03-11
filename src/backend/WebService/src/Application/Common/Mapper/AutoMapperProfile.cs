@@ -12,7 +12,7 @@ using Application.Features.SkinTypes.Queries.Response;
 using Application.Features.Address.Queries.Response;
 using Application.Features.Question.Queries.Response;
 using Application.Features.Products.Commands.Response;
-using Application.Features.Brand.Queries.Response;
+using Application.Features.Brands.Queries.Response;
 
 namespace Application.Common.Mapper
 {

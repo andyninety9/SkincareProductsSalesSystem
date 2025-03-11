@@ -1,6 +1,9 @@
 using Application.Attributes;
 using Application.Common.Enum;
 using Application.Common.Paginations;
+using Application.Features.Brands.Commands;
+using Application.Features.Brands.Queries;
+using Application.Features.Brands.Commands.Validators;
 using Application.Features.ProductCategory.Commands;
 using Application.Features.ProductCategory.Commands.Validator;
 using Application.Features.ProductCategory.Queries;
@@ -665,6 +668,51 @@ namespace WebApi.Controllers.Products
             return Ok(new { statusCode = 200, message = "Fetch all brands successfully", data = result.Value });
         }
 
+        /// <summary>
+        /// Creates a new product brand.
+        /// </summary>
+        /// <param name="command">Brand creation request containing brand name.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the created brand details.</returns>
+        /// <remarks>
+        /// Sample request:
+        /// {
+        ///    "brandName": "Brand Name"
+        ///    "brandDesc": "Brand Description"
+        ///    "brandOrigin": "Brand Origin"
+        ///    "brandStatusId": 1
+        /// }
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// -Role: Manager, Staff
+        /// </remarks>
+        /// <returns></returns>
+        [HttpPost("brand/create")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> CreateBrand([FromBody] CreateProductBrandCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new CreateProductBrandCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Create brand successfully", data = result.Value });
+        }
    
     }
 }

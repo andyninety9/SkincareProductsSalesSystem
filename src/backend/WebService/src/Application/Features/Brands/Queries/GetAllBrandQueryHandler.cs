@@ -1,19 +1,12 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Application.Abstractions.Messaging;
 using Application.Common.Paginations;
 using Application.Common.ResponseModel;
-using Application.Features.Brand.Queries.Response;
-using Application.Features.ProductCategory.Queries.Response;
-using Application.Features.Products.Response;
+using Application.Features.Brands.Queries.Response;
 using AutoMapper;
 using Domain.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Features.ProductCategory.Queries
+namespace Application.Features.Brands.Queries
 {
     public sealed record GetAllProductBrandQuery(
         string? Keyword,
