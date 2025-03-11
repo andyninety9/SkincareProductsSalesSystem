@@ -34,6 +34,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import ManageAccount from './page/manageAccount/ManageAccount';
 import ManageProduct from './page/manageProduct/ManageProduct';
 import ManageEvent from './page/manageEvent/ManageEvent';
+import ManageImgProduct from './page/manageProduct/ManageImgProduct';
 
 function App() {
     const router = createBrowserRouter([
@@ -157,6 +158,14 @@ function App() {
             element: (
                 <ProtectedRoute roles={['Manager', 'Staff']}>
                     <ManageProduct />
+                </ProtectedRoute>
+            ),
+        },
+        {
+            path: routes.manageImgProduct,
+            element: (
+                <ProtectedRoute roles={['Manager', 'Staff']}>
+                    <ManageImgProduct />
                 </ProtectedRoute>
             ),
         },

@@ -1,3 +1,5 @@
+
+
 export const routes = {
     home: '/',
     about: '/about',
@@ -23,6 +25,7 @@ export const routes = {
     manageComment: '/manage-comment',
     manageAccount: '/manage-account',
     manageProduct: '/manage-product',
+    manageImgProduct: '/manage-img-product',
     manageEvent: '/manage-event',
     resultQuiz: '/your-skin-type-result',
     paymentReturn: '/payment-return',
