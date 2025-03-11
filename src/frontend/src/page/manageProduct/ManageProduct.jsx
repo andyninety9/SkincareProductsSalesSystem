@@ -156,8 +156,45 @@ export default function ManageProduct() {
         { title: "Sell Price", dataIndex: "sellPrice", key: "sellPrice", align: "center", width: 150 },
         { title: "Brand", dataIndex: "brandName", key: "brandName", align: "center", width: 200 },
         { title: "Category", dataIndex: "categoryName", key: "categoryName", align: "center", width: 200 },
-        { title: "Ingredient", dataIndex: "ingredient", key: "ingredient", align: "center", width: 300 },  // Tăng width
-        { title: "Instruction", dataIndex: "instruction", key: "instruction", align: "center", width: 300 }, // Tăng width
+        {
+            title: "Ingredient",
+            dataIndex: "ingredient",
+            key: "ingredient",
+            align: "center",
+            width: 300,
+            render: (ingredient) => (
+                <Tooltip title={ingredient}>
+                    <span style={{
+                        maxWidth: "100px", 
+                        whiteSpace: "nowrap", 
+                        overflow: "hidden", 
+                        textOverflow: "ellipsis"
+                    }}>
+                        {ingredient}
+                    </span>
+                </Tooltip>
+            ),
+        },
+        {
+            title: "Instruction",
+            dataIndex: "instruction",
+            key: "instruction",
+            align: "center",
+            width: 300,
+            render: (instruction) => (
+                <Tooltip title={instruction}>
+                    <span style={{
+                        maxWidth: "100px", 
+                        whiteSpace: "nowrap", 
+                        overflow: "hidden", 
+                        textOverflow: "ellipsis"
+                    }}>
+                        {instruction}
+                    </span>
+                </Tooltip>
+            ),
+        },
+        
         {
             title: "Use for",
             dataIndex: "prodUseFor",
@@ -178,7 +215,7 @@ export default function ManageProduct() {
                     {/* Xem thêm để hiển thị Tooltip khi người dùng muốn xem toàn bộ nội dung */}
                     <Tooltip 
                         title={prodUseFor} 
-                        
+
                     >
                         <Button type="link" style={{ padding: 0, marginLeft: "8px" }}>Xem thêm</Button>
                     </Tooltip>
