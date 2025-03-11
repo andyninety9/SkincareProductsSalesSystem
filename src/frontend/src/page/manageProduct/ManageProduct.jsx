@@ -1,10 +1,14 @@
-import { Table, Button, Input, Avatar, Select } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Table, Button, Input, Avatar, Select, Upload, Image } from "antd";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
 import api from "../../config/api";
 import noImg from "../../assets/noimg/noImg.png";
+import uploadFile from "../../utils/uploadImages";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 const { Option } = Select;
 
@@ -15,6 +19,7 @@ export default function ManageProduct() {
     const [selectedBrand, setSelectedBrand] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
     const pageSize = 10;
+
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -79,6 +84,10 @@ export default function ManageProduct() {
 
     return (
         <div style={{ display: "flex", height: "100vh", overflow: "hidden", flexDirection: "column" }}>
+
+
+
+
             <ManageOrderHeader />
             <div style={{ display: "flex", flex: 1, marginTop: "60px", overflow: "hidden" }}>
                 <ManageOrderSidebar />
