@@ -45,6 +45,8 @@ namespace Application.Common.Mapper
             CreateMap<Product, CreateNewProductResponse>();   
             CreateMap<Brand, GetAllProductBrandResponse>();
             CreateMap<GetAllProductBrandResponse, Brand>();
+            CreateMap<DeleteProductResponse, Product>();
+            CreateMap<Product, DeleteProductResponse>();
 
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();

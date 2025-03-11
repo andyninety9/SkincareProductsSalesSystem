@@ -595,6 +595,48 @@ namespace WebApi.Controllers.Products
         }
 
         /// <summary>
+        /// Deletes a product.
+        /// </summary>
+        /// <param name="command">Product deletion request containing product ID.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the deletion process.</returns>
+        /// <remarks>
+        /// Sample request:
+        /// {
+        ///     "productId": 1
+        /// }
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// -Role: Manager, Staff
+        /// </remarks>
+        [HttpDelete("delete")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> DeleteProduct([FromBody] DeleteProductCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new DeleteProductCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Delete product successfully", data = result.Value });
+        }
+
+        /// <summary>
         /// Get all product brands.
         /// </summary>
         /// <param name="command">Brand creation request containing brand name.</param>
@@ -622,5 +664,7 @@ namespace WebApi.Controllers.Products
 
             return Ok(new { statusCode = 200, message = "Fetch all brands successfully", data = result.Value });
         }
+
+   
     }
 }
