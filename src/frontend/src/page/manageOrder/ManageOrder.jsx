@@ -30,16 +30,16 @@ export default function ManageOrder() {
             console.log("API response:", response.data);
             const data = response.data;
 
-           if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
-            const formattedOrders = response.data.data.items.map((order) => ({
-                ...order,
-                orderNumber: order.orderId ? BigInt(order.orderId).toString() : "N/A",
-                dateTime: order.orderDate ? new Date(order.orderDate).toLocaleString() : "N/A",
-                customerName: order.customerName || "N/A",
-                items: order.products ? order.products.length : 0,
-                total: order.totalPrice ? `${order.totalPrice.toLocaleString()} VND` : "N/A",
-                status: order.orderStatus || "N/A",
-            }));
+            if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
+                const formattedOrders = response.data.data.items.map((order) => ({
+                    ...order,
+                    orderNumber: order.orderId ? BigInt(order.orderId).toString() : "N/A",
+                    dateTime: order.orderDate ? new Date(order.orderDate).toLocaleString() : "N/A",
+                    customerName: order.customerName || "N/A",
+                    items: order.products ? order.products.length : 0,
+                    total: order.totalPrice ? `${order.totalPrice.toLocaleString()} VND` : "N/A",
+                    status: order.orderStatus || "N/A",
+                }));
                 setOrders(formattedOrders);
                 setTotal(data.data.totalItems || data.data.items.length);
             } else {
