@@ -22,6 +22,7 @@ export default function ManageProduct() {
     const [form] = Form.useForm();
     const pageSize = 10;
 
+
     useEffect(() => {
         const fetchProducts = async () => {
             try {
@@ -186,6 +187,10 @@ export default function ManageProduct() {
 
     return (
         <div style={{ display: "flex", height: "100vh", overflow: "hidden", flexDirection: "column" }}>
+
+
+
+
             <ManageOrderHeader />
             <div style={{ display: "flex", flex: 1, marginTop: "60px", overflow: "hidden" }}>
                 <ManageOrderSidebar />

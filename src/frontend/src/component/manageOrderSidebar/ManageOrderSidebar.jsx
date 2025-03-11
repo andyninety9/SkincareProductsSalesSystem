@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Layout, Menu } from "antd";
 import { UserOutlined, CommentOutlined, ContainerOutlined, ShopOutlined, CalendarOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -7,11 +7,33 @@ import "./ManageOrderSidebar.css";
 const { Sider } = Layout;
 const { SubMenu } = Menu;
 
+// manage openKeys in local storage
+const getPersistedOpenKeys = () => {
+    const stored = localStorage.getItem("sidebarOpenKeys");
+    return stored ? JSON.parse(stored) : [];
+};
+
+const setPersistedOpenKeys = (keys) => {
+    localStorage.setItem("sidebarOpenKeys", JSON.stringify(keys));
+};
+const getSelectedKeyFromPath = (pathname) => {
+    if (pathname.includes("manage-account")) return "0";
+    if (pathname.includes("manage-product")) return "6";
+    if (pathname.includes("manage-event")) return "7";
+    if (pathname.includes("manage-order")) return "1";
+    if (pathname.includes("manage-cancel-order")) return "2";
+    if (pathname.includes("manage-request-product")) return "3";
+    if (pathname.includes("view-comments")) return "4";
+    if (pathname.includes("review-comments")) return "5";
+    return "0"; // Default to "Manage Account" if no match
+};
+
 const ManageOrderSidebar = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [selectedKey, setSelectedKey] = useState("0");
-    const [openKeys, setOpenKeys] = useState([]);
+    const [selectedKey, setSelectedKey] = useState(getSelectedKeyFromPath(location.pathname));
+    const [openKeys, setOpenKeys] = useState(getPersistedOpenKeys());
+    const openKeysRef = useRef(getPersistedOpenKeys());
 
     useEffect(() => {
         const path = location.pathname;
@@ -38,18 +60,39 @@ const ManageOrderSidebar = () => {
             setOpenKeys([]);
         }
     }, [location.pathname]);
+        const newSelectedKey = getSelectedKeyFromPath(path);
+
+        if (selectedKey !== newSelectedKey) {
+            setSelectedKey(newSelectedKey);
+        }
+        setOpenKeys(openKeysRef.current);
+    }, [location.pathname]; 
 
     const handleMenuClick = (e) => {
-        setSelectedKey(e.key);
         if (e.key === "0") navigate("/manage-account");
+        else if (e.key === "1") navigate("/manage-order");
         else if (e.key === "6") navigate("/manage-product");
         else if (e.key === "7") navigate("/manage-img-product");
         else if (e.key === "8") navigate("/manage-event");
     };
 
-    const handleOpenChange = (keys) => {
-        setOpenKeys(keys);
+    const handleTitleClick = (key) => {
+        if (openKeysRef.current.includes(key)) {
+            openKeysRef.current = openKeysRef.current.filter(k => k !== key);
+        } else {
+            openKeysRef.current = [...openKeysRef.current, key];
+        }
+        setOpenKeys([...openKeysRef.current]);
+        setPersistedOpenKeys(openKeysRef.current);
     };
+
+    const handleOpenChange = () => {
+        // prevent Ant Design from automatically updating openKeys
+    };
+
+    if (openKeys.length !== openKeysRef.current.length || !openKeys.every(key => openKeysRef.current.includes(key))) {
+        setOpenKeys([...openKeysRef.current]);
+    }
 
     return (
         <Sider
@@ -107,6 +150,5 @@ const ManageOrderSidebar = () => {
             </div>
         </Sider>
     );
-};
-
+    
 export default ManageOrderSidebar;

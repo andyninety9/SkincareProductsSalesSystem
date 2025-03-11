@@ -30,8 +30,6 @@ export default function ManageAccount() {
         const fetchUsers = async () => {
             try {
                 const response = await api.get('/User/all-users?page=1&limit=10000');
-                // const UsrId = BigInt(response.data.data.usrId);
-                // console.log(UsrId);
                 if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
                     var listUser;
                     listUser = response.data.data.items.map((item) => {
