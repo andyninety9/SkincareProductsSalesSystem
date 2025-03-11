@@ -40,6 +40,9 @@ namespace Application.Features.Brands.Queries
                     query = query.Where(x => x.BrandName.Contains(request.Keyword));
                 }
 
+                query = query.OrderBy(x => x.BrandName);
+                query = query.Where(x => x.IsDeleted == false);
+
                 var totalItems = query.Count();
 
                 var items = query

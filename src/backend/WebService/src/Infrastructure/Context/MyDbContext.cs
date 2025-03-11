@@ -180,6 +180,9 @@ public partial class MyDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("brandOrigin");
             entity.Property(e => e.BrandStatus).HasColumnName("brandStatus");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValue(false)
+                .HasColumnName("isDeleted");
         });
 
         modelBuilder.Entity<CategoryProduct>(entity =>
