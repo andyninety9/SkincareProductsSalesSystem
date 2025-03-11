@@ -593,5 +593,34 @@ namespace WebApi.Controllers.Products
 
             return Ok(new { statusCode = 200, message = "Update product successfully", data = result.Value });
         }
+
+        /// <summary>
+        /// Get all product brands.
+        /// </summary>
+        /// <param name="command">Brand creation request containing brand name.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the created brand details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///   GET /api/products/brands?keyword=electronics&page=1&pageSize=10
+        ///   
+        /// </remarks>
+        /// 
+        [HttpGet("brands")]
+        public async Task<IActionResult> GetBrands([FromQuery] string? keyword, [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        {
+
+            PaginationParams paginationParams = new() { Page = page, PageSize = pageSize };
+            var query = new GetAllProductBrandQuery(keyword, paginationParams);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Fetch all brands successfully", data = result.Value });
+        }
     }
 }

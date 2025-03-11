@@ -112,7 +112,7 @@ namespace WebApi.Controllers.Events
         public async Task<IActionResult> GetEventDetailById([FromRoute] int eventId, CancellationToken cancellationToken = default)
         {
             // ✅ Logging request params
-            _logger.LogInformation("Received GET /api/events/{EventId} request with params: EventId={0}", eventId);
+            // _logger.LogInformation("Received GET /api/events/{EventId} request with params: EventId={0}", eventId);
 
             // ✅ Khởi tạo Query
             var query = new GetEventDetailByIdQuery(eventId);

@@ -12,6 +12,7 @@ using Application.Features.SkinTypes.Queries.Response;
 using Application.Features.Address.Queries.Response;
 using Application.Features.Question.Queries.Response;
 using Application.Features.Products.Commands.Response;
+using Application.Features.Brand.Queries.Response;
 
 namespace Application.Common.Mapper
 {
@@ -42,6 +43,8 @@ namespace Application.Common.Mapper
             CreateMap<Question, GetAllQuestionResponse>();   
             CreateMap<CreateNewProductResponse, Product>();   
             CreateMap<Product, CreateNewProductResponse>();   
+            CreateMap<Brand, GetAllProductBrandResponse>();
+            CreateMap<GetAllProductBrandResponse, Brand>();
 
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();

@@ -63,6 +63,7 @@ namespace Infrastructure
             services.AddScoped<ISkinTypeRepository, SkinTypeRepository>();
             services.AddScoped<IVoucherRepository, VoucherRepository>();
             services.AddScoped<IKeyQuestionRepository, KeyQuestionRepository>();
+            services.AddScoped<IBrandRepository, BrandRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
