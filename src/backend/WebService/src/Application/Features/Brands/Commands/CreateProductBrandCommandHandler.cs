@@ -15,7 +15,7 @@ namespace Application.Features.Brands.Commands
         string BrandName,
         string BrandDesc,
         string BrandOrigin,
-        int BrandStatus
+        string BrandStatus
     ) : ICommand<CreateProductBrandResponse>;
 
     internal sealed class CreateProductBrandCommandHandler : ICommandHandler<CreateProductBrandCommand, CreateProductBrandResponse>
@@ -44,7 +44,7 @@ namespace Application.Features.Brands.Commands
         {
             try
             {
-                bool brandStatus = command.BrandStatus == 1 ? true : false;
+                bool brandStatus = command.BrandStatus == "true" ? true : false;
                 Domain.Entities.Brand newBrand = new()
                 {
                     BrandId = _idGenerator.GenerateLongId(),

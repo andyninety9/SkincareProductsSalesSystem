@@ -14,5 +14,7 @@ namespace Infrastructure.Repositories
         public BrandRepository(MyDbContext context) : base(context)
         {
         }
+
+     
     }
 }
