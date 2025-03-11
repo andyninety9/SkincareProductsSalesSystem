@@ -17,9 +17,15 @@
      color: white !important;
  }
 
+ .ant-menu-item:hover {
+     background-color: #F6EEF0 !important;
+     color: #C87E83 !important;
+
+ }
 
  .ant-menu-item {
      transition: background 0.3s ease-in-out, color 0.3s ease-in-out !important;
+     
  }
 
  .ant-menu-submenu-open>.ant-menu-sub>.ant-menu-item-active,
