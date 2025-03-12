@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Table, message, Spin, Button, Modal, Form, Input, Select } from 'antd';
+import { Table, message, Spin, Button, Modal, Form, Input, Select, Menu, Dropdown, Space } from 'antd';
 import api from '../../config/api';
 import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSidebar';
 import ManageOrderHeader from '../../component/manageOrderHeader/ManageOrderHeader';
 import { Option } from 'antd/es/mentions';
+import { MoreOutlined } from '@ant-design/icons';
+
 
 const ManageBrand = () => {
     const [brands, setBrands] = useState([]);
@@ -44,6 +46,36 @@ const ManageBrand = () => {
         setPagination({ ...pagination });
     };
 
+    // Hàm mở modal update (tạo sau)
+const handleUpdate = (record) => {
+    console.log("Update brand:", record);
+    // Mở modal update (chưa làm phần UI)
+};
+
+// Hàm xóa thương hiệu
+const handleDelete = async (brandId) => {
+    try {
+        await api.delete(`Products/brand/delete/${brandId}`);
+        message.success("Xóa thương hiệu thành công!");
+        fetchBrands(pagination.current, pagination.pageSize);
+    } catch (error) {
+        console.error("Lỗi khi xóa thương hiệu:", error);
+        message.error("Lỗi khi xóa thương hiệu!");
+    }
+};
+
+// Menu dropdown cho cột Action
+const getActionMenu = (record) => (
+    <Menu>
+        <Menu.Item key="update" onClick={() => handleUpdate(record)}>
+            Update
+        </Menu.Item>
+        <Menu.Item key="delete" onClick={() => handleDelete(record.brandId)} danger>
+            Delete
+        </Menu.Item>
+    </Menu>
+);
+
     const columns = [
         {
             title: 'Brand ID',
@@ -76,6 +108,18 @@ const ManageBrand = () => {
             align: 'center',
             render: (status) => (status ? 'Active' : 'Inactive'),
         },
+        {
+            title: 'Action',
+            key: 'action',
+            align: 'center',
+            render: (_, record) => (
+                <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
+                    <Space>
+                        <MoreOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
+                    </Space>
+                </Dropdown>
+            ),
+        },
     ];
 
     const showModal = () => {
@@ -88,15 +132,15 @@ const ManageBrand = () => {
 
     const handleAddBrand = async (values) => {
         console.log("Form values being sent:", values); // Debug dữ liệu đầu vào
-    
+
         try {
             const response = await api.post('Products/brand/create', {
                 brandName: values.brandName,
                 brandDesc: values.brandDesc,
                 brandOrigin: values.brandOrigin,
-                brandStatus: values.brandStatus === 'Active' ? 'true' : 'false', 
+                brandStatus: values.brandStatus === 'Active' ? 'true' : 'false',
             });
-    
+
             if (response.status === 200) {
                 message.success('Thêm thương hiệu thành công!');
                 fetchBrands(pagination.current, pagination.pageSize);
@@ -108,7 +152,7 @@ const ManageBrand = () => {
             message.error(`Lỗi khi thêm thương hiệu: ${error.response?.data?.message || 'Không xác định'}`);
         }
     };
-    
+
 
     return (
         <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', flexDirection: 'column' }}>
@@ -147,12 +191,12 @@ const ManageBrand = () => {
                 </div>
             </div>
 
-            <Modal 
-    title="Add New Brand" 
-    visible={isModalVisible} 
-    onOk={() => form.submit()} // Đảm bảo gửi form
-    onCancel={() => setIsModalVisible(false)}
->
+            <Modal
+                title="Add New Brand"
+                visible={isModalVisible}
+                onOk={() => form.submit()} // Đảm bảo gửi form
+                onCancel={() => setIsModalVisible(false)}
+            >
                 <Form form={form} layout="vertical" onFinish={handleAddBrand}>
                     <Form.Item
                         name="brandName"
