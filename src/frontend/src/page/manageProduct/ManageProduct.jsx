@@ -145,10 +145,8 @@ export default function ManageProduct() {
     const refreshProductData = async () => {
         try {
             const refreshResponse = await api.get(
-                `Products?page=${currentPage}&pageSize=${pageSize}${
-                    debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
-                }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${
-                    debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
+                `Products?page=${currentPage}&pageSize=${pageSize}${debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
+                }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
                 }`
             );
 
@@ -214,10 +212,8 @@ export default function ManageProduct() {
 
                 // Refresh product list
                 const refreshResponse = await api.get(
-                    `Products?page=${currentPage}&pageSize=${pageSize}${
-                        debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
-                    }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${
-                        debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
+                    `Products?page=${currentPage}&pageSize=${pageSize}${debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
+                    }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
                     }`
                 );
 
@@ -246,10 +242,8 @@ export default function ManageProduct() {
             setLoading(true);
             try {
                 const response = await api.get(
-                    `Products?page=${currentPage}&pageSize=${pageSize}${
-                        debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
-                    }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${
-                        debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
+                    `Products?page=${currentPage}&pageSize=${pageSize}${debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
+                    }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
                     }`
                 );
 
@@ -385,8 +379,7 @@ export default function ManageProduct() {
 
                 // Update refresh API call with correct parameters
                 const refreshResponse = await api.get(
-                    `Products?page=${currentPage}&pageSize=${pageSize}${searchTerm ? `&keyword=${searchTerm}` : ''}${
-                        selectedBrandId ? `&brandId=${selectedBrandId}` : ''
+                    `Products?page=${currentPage}&pageSize=${pageSize}${searchTerm ? `&keyword=${searchTerm}` : ''}${selectedBrandId ? `&brandId=${selectedBrandId}` : ''
                     }${selectedCategoryId ? `&cateId=${selectedCategoryId}` : ''}`
                 );
 
@@ -946,9 +939,13 @@ export default function ManageProduct() {
                 <div style={{ flex: 1, padding: '24px', overflowY: 'auto', marginLeft: '250px' }}>
                     <h1 style={{ fontSize: '40px', textAlign: 'left' }}>Products</h1>
 
-                    <Button type="primary" onClick={showModal} style={{ marginBottom: '20px' }}>
+                    <Button
+                        type="primary"
+                        onClick={showModal}
+                        style={{ marginBottom: '20px', backgroundColor: '#D8959A', borderColor: '#D8959A' }}>
                         Create Product
                     </Button>
+
 
                     {/* Filters and Search */}
                     <div style={{ display: 'flex', gap: '10px', marginBottom: '30px', alignItems: 'center' }}>
