@@ -116,7 +116,7 @@ namespace WebApi.Controllers.Products
         ///
         /// </remarks>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProductById(int id, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetProductById(long id, CancellationToken cancellationToken = default)
         {
             // _logger.LogInformation("Received GET /api/products/{Id} request with Id={Id}", id);
 
@@ -170,7 +170,7 @@ namespace WebApi.Controllers.Products
         /// </remarks>
         [HttpGet("{id}/reviews")]
         public async Task<IActionResult> GetProductReviews(
-            int id,
+            long id,
             [FromQuery] string? keyword = null,
             [FromQuery] string? fromDate = null,
             [FromQuery] string? toDate = null,

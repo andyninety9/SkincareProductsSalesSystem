@@ -3,15 +3,33 @@ import { Rate, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
+const bigIntOrNumberType = PropTypes.oneOfType([
+    PropTypes.number,
+    function (props, propName, componentName) {
+        if (
+            props[propName] !== undefined &&
+            typeof props[propName] !== 'number' &&
+            typeof props[propName] !== 'bigint'
+        ) {
+            return new Error(
+                `Invalid prop '${propName}' of type '${typeof props[
+                    propName
+                ]}' supplied to '${componentName}', expected 'number' or 'bigint'.`
+            );
+        }
+    },
+]);
+
 CardProduct.propTypes = {
     product: PropTypes.shape({
-        productId: PropTypes.number,
+        productId: bigIntOrNumberType,
         images: PropTypes.arrayOf(
             PropTypes.shape({
-                prodImageId: PropTypes.number,
+                prodImageId: bigIntOrNumberType,
                 prodImageUrl: PropTypes.string,
             })
         ),
+        // ... other properties remain the same
         productName: PropTypes.string,
         productDesc: PropTypes.string,
         sellPrice: PropTypes.number,
@@ -26,7 +44,7 @@ CardProduct.propTypes = {
         statusName: PropTypes.string,
         createdAt: PropTypes.string,
         updatedAt: PropTypes.string,
-        reviewCount: PropTypes.number
+        reviewCount: PropTypes.number,
     }),
 };
 export default function CardProduct({ product }) {
@@ -42,14 +60,14 @@ export default function CardProduct({ product }) {
 
     // 🔥 Xử lý khi bấm vào card
     const handleClick = () => {
-        console.log('🛠 Debug product:', product);
+        // console.log('🛠 Debug product:', product);
 
         if (!productId) {
-            console.error('❌ Không tìm thấy ID sản phẩm!');
+            // console.error('❌ Không tìm thấy ID sản phẩm!');
             return;
         }
 
-        console.log('✅ Navigating to:', `/product/${productId}`);
+        // console.log('✅ Navigating to:', `/product/${productId}`);
         navigate(`/product/${productId}`);
     };
 

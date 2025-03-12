@@ -20,8 +20,8 @@ const calculateAverageRating = (reviews) => {
 export default function ProductDetailPage() {
     const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems);
-    // const [mainImage, setMainImage] = useState(productImages[0]);
     const { id } = useParams();
+    
     const [product, setProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [mainImage, setMainImage] = useState('');
