@@ -61,6 +61,8 @@ export default function ManageProduct() {
     const [updateLoading, setUpdateLoading] = useState(false);
     const [imageUploading, setImageUploading] = useState(false);
     const [deleteImageLoading, setDeleteImageLoading] = useState(false);
+    // const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
+    // const [productToDelete, setProductToDelete] = useState(null);
 
     const ProductSchema = Yup.object().shape({
         productName: Yup.string().required('Product name is required'),
@@ -246,6 +248,12 @@ export default function ManageProduct() {
             setUpdateLoading(false);
         }
     };
+
+
+// const handleDelete = (productId) => {
+//     setProductToDelete(productId);
+//     setDeleteModalVisible(true);
+// };
 
     useEffect(() => {
         const fetchProducts = async () => {
