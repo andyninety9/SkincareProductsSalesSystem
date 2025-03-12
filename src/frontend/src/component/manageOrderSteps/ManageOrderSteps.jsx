@@ -33,6 +33,16 @@ const stepIndexToStatus = {
     5: 6, // Cancel
 };
 
+// Map string status to numeric status
+const stringStatusToNumeric = {
+    "Pending": 1,
+    "Processing": 2,
+    "Shipping": 3,
+    "Shipped": 4,
+    "Completed": 5,
+    "Cancel": 6,
+};
+
 // Utility function to safely convert order ID to BigInt string for API requests
 const safeBigIntString = (value) => {
     console.log(`safeBigIntString input:`, value, typeof value);
@@ -72,13 +82,25 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
         return null;
     }
 
-    // Convert status to number, handling strings and invalid values
-    const numericStatus = typeof status === 'string' ? Number(status) : status;
-    const currentStep = typeof numericStatus === 'number' && !isNaN(numericStatus) && statusToStepIndex[numericStatus] !== undefined
+    // Convert status to number, handling strings, numbers, and invalid values
+    let numericStatus;
+    if (typeof status === 'string') {
+        numericStatus = stringStatusToNumeric[status] || 1; // Default to Pending if invalid string
+    } else if (typeof status === 'number' && !isNaN(status)) {
+        numericStatus = status; // Use numeric status directly
+    } else {
+        numericStatus = 1; // Default to Pending if status is invalid
+    }
+
+    const currentStep = statusToStepIndex[numericStatus] !== undefined
         ? statusToStepIndex[numericStatus]
         : 0; // Default to 0 (Pending) if invalid
     const currentStatus = stepIndexToStatus[currentStep];
-    console.log(`Current step: ${currentStep}, Current status: ${currentStatus}`); // Log for UI debugging
+
+    // Enhanced logging for debugging
+    console.log(`Raw status prop:`, status, typeof status);
+    console.log(`Calculated numericStatus:`, numericStatus);
+    console.log(`Current step: ${currentStep}, Current status: ${currentStatus}`);
 
     // Handle status update (next or reverse)
     const handleStatusUpdate = async (action) => {
@@ -213,6 +235,8 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
 
     return (
         <div style={{ marginTop: "8px" }}>
+            {/* Display current order status as text */}
+            <p style={{ textAlign: "center", marginBottom: "16px" }}>Current Order Status: {statusSteps[currentStep].title}</p>
             <Steps
                 current={currentStep}
                 progressDot={customDot}

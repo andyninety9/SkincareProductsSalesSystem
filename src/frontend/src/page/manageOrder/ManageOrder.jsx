@@ -8,6 +8,16 @@ import ManageOrderSteps from "../../component/manageOrderSteps/ManageOrderSteps"
 import { useState, useEffect } from "react";
 import api from '../../config/api';
 
+// Define mapping for string statuses to numeric values
+const stringStatusToNumeric = {
+    "Pending": 1,
+    "Processing": 2,
+    "Shipping": 3,
+    "Shipped": 4,
+    "Completed": 5,
+    "Cancel": 6,
+};
+
 export default function ManageOrder() {
     const [orders, setOrders] = useState([]);
     const [visibleOrders, setVisibleOrders] = useState({});
@@ -35,9 +45,15 @@ export default function ManageOrder() {
 
             if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
                 const formattedOrders = response.data.data.items.map((order) => {
-                    const numericStatus = order.orderStatus ? Number(order.orderStatus) : null;
+                    // Map string orderStatus to numeric value, or use numeric status directly
+                    const numericStatus = typeof order.orderStatus === 'string'
+                        ? stringStatusToNumeric[order.orderStatus] || 1 // Default to Pending if invalid
+                        : Number(order.orderStatus) || 1; // Handle numeric status, default to Pending if invalid
+
                     console.log(`Order ${order.orderId} raw orderId:`, order.orderId, typeof order.orderId);
                     console.log(`Order ${order.orderId} raw status:`, order.orderStatus, typeof order.orderStatus);
+                    console.log(`Order ${order.orderId} mapped numeric status:`, numericStatus);
+
                     let orderIdBigInt;
                     try {
                         orderIdBigInt = BigInt(order.orderId);
@@ -56,7 +72,7 @@ export default function ManageOrder() {
                         customerName: order.customerName || "N/A",
                         items: order.products ? order.products.length : 0,
                         total: order.totalPrice ? `${order.totalPrice.toLocaleString()} VND` : "N/A",
-                        status: numericStatus,
+                        status: numericStatus, // Use the mapped numeric status
                         products: order.products || [],
                     };
                     console.log(`Order ${order.orderId} formatted orderId:`, formattedOrder.orderId, typeof formattedOrder.orderId);
@@ -102,19 +118,6 @@ export default function ManageOrder() {
         { title: "Customer Name", dataIndex: "customerName", key: "customerName", align: "center" },
         { title: "Items", dataIndex: "items", key: "items", align: "center" },
         { title: "Total", dataIndex: "total", key: "total", align: "center" },
-        {
-            title: "Action",
-            key: "action",
-            align: "center",
-            render: (_, record) => (
-                <Button
-                    type="link"
-                    icon={visibleOrders[record.orderNumber] ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                    style={{ color: "black", fontSize: "18px" }}
-                    onClick={() => toggleVisibility(record.orderNumber)}
-                />
-            ),
-        },
     ];
 
     const productColumns = [
@@ -133,13 +136,12 @@ export default function ManageOrder() {
     const expandableConfig = {
         expandedRowRender: (record) => {
             console.log(`Rendering expanded row for order:`, record.orderNumber, record.orderId, typeof record.orderId, record.status);
-            const numericStatus = typeof record.status === 'string' ? Number(record.status) : record.status;
             return (
                 <div style={{ padding: "16px" }}>
                     <div style={{ marginBottom: "16px" }}>
                         <strong>Order Status:</strong>
                         <ManageOrderSteps
-                            status={isNaN(numericStatus) ? 1 : numericStatus}
+                            status={record.status} // Pass the pre-mapped numeric status
                             currentOrderId={record.orderId}
                             onStatusUpdate={() => fetchOrders(currentPage)}
                         />
