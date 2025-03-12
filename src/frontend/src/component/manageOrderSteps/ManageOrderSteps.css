@@ -57,11 +57,26 @@
 }
 
 .manage-order-steps .ant-steps .ant-steps-item-title {
-    font-size: 12px !important;
-    /* Reduced from default ~14px */
+    font-size: 14px !important;
+    /* default ~14px */
 }
 
 .manage-order-steps .ant-steps .ant-steps-item-description {
     font-size: 10px !important;
-    /* Reduced from default ~12px */
+    /* default ~12px */
+}
+
+/* Default color when collapsed */
+.ant-table-row-expand-icon {
+    color: #C87E83 !important; 
+}
+
+/* Hover state */
+.ant-table-row-expand-icon:hover {
+    color: #C87E83 !important;
+}
+
+/* Expanded (clicked) state */
+.ant-table-row-expand-icon.ant-table-row-expand-icon-expanded {
+    color: #C87E83 !important;
 }
