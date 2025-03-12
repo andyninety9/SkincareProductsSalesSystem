@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Steps, Popover, message, Button } from 'antd';
 import PropTypes from 'prop-types';
 import api from '../../config/api';
+import './ManageOrderSteps.css';
 
-// Define the steps for order status
 const statusSteps = [
     { title: "Pending", description: "Order is awaiting confirmation" },
     { title: "Processing", description: "Order is being prepared" },
@@ -13,7 +13,6 @@ const statusSteps = [
     { title: "Cancel", description: "Order has been canceled" },
 ];
 
-// Map numeric status to step index (0-based index for Steps component)
 const statusToStepIndex = {
     1: 0, // Pending
     2: 1, // Processing
@@ -23,7 +22,6 @@ const statusToStepIndex = {
     6: 5, // Cancel
 };
 
-// Map step index back to status number (for API calls)
 const stepIndexToStatus = {
     0: 1, // Pending
     1: 2, // Processing
@@ -33,7 +31,6 @@ const stepIndexToStatus = {
     5: 6, // Cancel
 };
 
-// Map string status to numeric status
 const stringStatusToNumeric = {
     "Pending": 1,
     "Processing": 2,
@@ -43,7 +40,6 @@ const stringStatusToNumeric = {
     "Cancel": 6,
 };
 
-// Utility function to safely convert order ID to BigInt string for API requests
 const safeBigIntString = (value) => {
     console.log(`safeBigIntString input:`, value, typeof value);
     try {
@@ -60,10 +56,14 @@ const safeBigIntString = (value) => {
     }
 };
 
-// Custom dot for Steps component
-const customDot = (dot, { status, index }) => (
+// Custom dot with dynamic popover text color for current and finished steps
+const customDot = (dot, { status, index, currentStep }) => (
     <Popover
-        content={<span>Step {index + 1} status: {status}</span>}
+        content={
+            <span style={{ color: index <= currentStep ? '#C87E83' : undefined }}>
+                Step {index + 1} status: {status}
+            </span>
+        }
     >
         {dot}
     </Popover>
@@ -74,61 +74,42 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
 
     console.log(`ManageOrderSteps received props:`, { currentOrderId, type: typeof currentOrderId, status });
 
-    // Ensure currentOrderId is converted to a BigInt string for API requests
     const orderIdString = safeBigIntString(currentOrderId);
     if (!orderIdString) {
         message.error('Invalid order ID. Please refresh the page and try again.');
         return null;
     }
 
-    // Convert status to number, handling strings, numbers, and invalid values
     let numericStatus;
     if (typeof status === 'string') {
-        numericStatus = stringStatusToNumeric[status] || 1; // Default to Pending if invalid string
+        numericStatus = stringStatusToNumeric[status] || 1;
     } else if (typeof status === 'number' && !isNaN(status)) {
-        numericStatus = status; // Use numeric status directly
+        numericStatus = status;
     } else {
-        numericStatus = 1; // Default to Pending if status is invalid
+        numericStatus = 1;
     }
 
-    const currentStep = statusToStepIndex[numericStatus] !== undefined
-        ? statusToStepIndex[numericStatus]
-        : 0; // Default to 0 (Pending) if invalid
+    const currentStep = statusToStepIndex[numericStatus] !== undefined ? statusToStepIndex[numericStatus] : 0;
     const currentStatus = stepIndexToStatus[currentStep];
 
-    // Enhanced logging for debugging
-    console.log(`Raw status prop:`, status, typeof status);
-    console.log(`Calculated numericStatus:`, numericStatus);
-    console.log(`Current step: ${currentStep}, Current status: ${currentStatus}`);
-
-    // Handle step change when user clicks on a step
     const handleStepChange = async (targetStep) => {
-        if (loading) return; // Prevent clicks while loading
-
+        if (loading) return;
         if (!orderIdString) {
             message.error('Invalid order ID. Please refresh the page and try again.');
             return;
         }
 
         const targetStatus = stepIndexToStatus[targetStep];
-        const isReverse = targetStep < currentStep; // Determine direction
+        const isReverse = targetStep < currentStep;
 
-        // Log step change details with direction
-        console.log(`handleStepChange: currentStep=${currentStep}, targetStep=${targetStep}, targetStatus=${targetStatus}, direction=${isReverse ? 'reverse' : 'forward'}`);
-
-        // Prevent changing status of Completed or Cancelled orders
         if ([5, 6].includes(currentStatus)) {
             message.warning("Completed or Cancelled orders cannot be changed.");
             return;
         }
-
-        // Prevent direct jumps to Completed without being Shipped
         if (targetStatus === 5 && currentStatus !== 4) {
             message.warning("Order must be Shipped before marking as Completed.");
             return;
         }
-
-        // Prevent cancelling unless from Pending or Processing
         if (targetStatus === 6 && currentStatus > 2) {
             message.warning("Order can only be Cancelled from Pending or Processing.");
             return;
@@ -136,13 +117,10 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
 
         try {
             setLoading(true);
-            // Use next-status for forward moves, reverse-status for backward moves
-            const endpoint = isReverse
-                ? `orders/${orderIdString}/reverse-status`
-                : `orders/${orderIdString}/next-status`;
+            const endpoint = isReverse ? `orders/${orderIdString}/reverse-status` : `orders/${orderIdString}/next-status`;
             const payload = {
                 note: `Changing status to ${statusSteps[targetStep].title}${isReverse ? ' (reverse)' : ''}`,
-                newStatus: targetStatus, // Explicitly set the target status
+                newStatus: targetStatus,
             };
 
             console.log('PATCH Request URL:', `${api.defaults.baseURL}${endpoint}`);
@@ -150,7 +128,7 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
             console.log('Current Order ID:', orderIdString);
 
             const response = await api.patch(endpoint, payload);
-            console.log('PATCH Response:', response.data); // Log full response
+            console.log('PATCH Response:', response.data);
             if (response.data.statusCode === 200) {
                 message.success(`Order ${orderIdString} status updated to ${statusSteps[targetStep].title}!`);
                 if (onStatusUpdate) {
@@ -172,10 +150,8 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
         }
     };
 
-    // Handle Cancel action separately (still using a button)
     const handleCancel = async () => {
         if (loading) return;
-
         if (!orderIdString) {
             message.error('Invalid order ID. Please refresh the page and try again.');
             return;
@@ -185,7 +161,6 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
             message.warning("Order can only be Cancelled from Pending or Processing.");
             return;
         }
-
         if ([5, 6].includes(currentStatus)) {
             message.warning("Completed or Cancelled orders cannot be changed.");
             return;
@@ -193,10 +168,10 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
 
         try {
             setLoading(true);
-            const endpoint = `orders/${orderIdString}/next-status`; // Use next-status for cancellation
+            const endpoint = `orders/${orderIdString}/next-status`;
             const payload = {
                 note: "Cancelling the order.",
-                newStatus: 6, // Explicitly set to Cancel
+                newStatus: 6,
             };
 
             console.log('PATCH Request URL:', `${api.defaults.baseURL}${endpoint}`);
@@ -205,7 +180,7 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
             console.log('Action:', 'cancel');
 
             const response = await api.patch(endpoint, payload);
-            console.log('PATCH Response:', response.data); // Log full response
+            console.log('PATCH Response:', response.data);
             if (response.data.statusCode === 200) {
                 message.success(`Order ${orderIdString} cancelled successfully!`);
                 if (onStatusUpdate) {
@@ -227,23 +202,21 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
         }
     };
 
-    // Determine if Cancel button should be disabled
     const isCancelDisabled = currentStatus > 2 || [5, 6].includes(currentStatus);
-
-    // Log button disabling state for Cancel button
     console.log(`Cancel button disabling state: isCancelDisabled=${isCancelDisabled}, loading=${loading}`);
 
     return (
-        <div style={{ marginTop: "8px" }}>
+        <div className="manage-order-steps">
+
             <Steps
                 current={currentStep}
                 progressDot={customDot}
                 items={statusSteps}
-                onChange={handleStepChange} // Enable step clicking
-                disabled={loading} // Disable steps during loading
+                onChange={handleStepChange}
+                disabled={loading}
             />
             {loading && (
-                <div style={{ marginTop: "8px", textAlign: "center" }}>
+                <div className="loading-container">
                     <Button type="primary" loading disabled>
                         Updating Status...
                     </Button>
@@ -253,12 +226,11 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
     );
 };
 
-// Custom PropType validator for BigInt support
 const bigIntPropType = (props, propName, componentName) => {
     const value = props[propName];
     if (value !== undefined) {
         try {
-            BigInt(value); // Attempt to convert to BigInt
+            BigInt(value);
         } catch (error) {
             return new Error(
                 `Invalid prop \`${propName}\` supplied to \`${componentName}\`. Expected a value that can be converted to BigInt.`

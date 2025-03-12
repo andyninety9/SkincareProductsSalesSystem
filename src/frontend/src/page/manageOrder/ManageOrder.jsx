@@ -45,14 +45,12 @@ export default function ManageOrder() {
 
             if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
                 const formattedOrders = response.data.data.items.map((order) => {
-                    // Map string orderStatus to numeric value, or use numeric status directly
                     const numericStatus = typeof order.orderStatus === 'string'
                         ? stringStatusToNumeric[order.orderStatus] || 1 // Default to Pending if invalid
                         : Number(order.orderStatus) || 1; // Handle numeric status, default to Pending if invalid
-
-                    console.log(`Order ${order.orderId} raw orderId:`, order.orderId, typeof order.orderId);
-                    console.log(`Order ${order.orderId} raw status:`, order.orderStatus, typeof order.orderStatus);
-                    console.log(`Order ${order.orderId} mapped numeric status:`, numericStatus);
+                    // console.log(`Order ${order.orderId} raw orderId:`, order.orderId, typeof order.orderId);
+                    // console.log(`Order ${order.orderId} raw status:`, order.orderStatus, typeof order.orderStatus);
+                    // console.log(`Order ${order.orderId} mapped numeric status:`, numericStatus);
 
                     let orderIdBigInt;
                     try {
@@ -60,9 +58,6 @@ export default function ManageOrder() {
                     } catch (error) {
                         console.error(`Error converting orderId ${order.orderId} to BigInt:`, error.message);
                         orderIdBigInt = null;
-                    }
-                    if (typeof order.orderId === 'number') {
-                        console.warn(`Order ${order.orderId} has a numeric orderId, which may cause precision issues. Backend should send orderId as a string or BigInt.`);
                     }
                     const formattedOrder = {
                         ...order,
