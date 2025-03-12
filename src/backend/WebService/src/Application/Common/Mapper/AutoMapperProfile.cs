@@ -11,6 +11,9 @@ using Application.Features.ProductCategory.Queries.Response;
 using Application.Features.SkinTypes.Queries.Response;
 using Application.Features.Address.Queries.Response;
 using Application.Features.Question.Queries.Response;
+using Application.Features.Products.Commands.Response;
+using Application.Features.Brands.Queries.Response;
+using Application.Features.Brands.Commands.Response;
 
 namespace Application.Common.Mapper
 {
@@ -39,6 +42,14 @@ namespace Application.Common.Mapper
             CreateMap<KeyQuestion, KeyQuestionResponse>();            
             CreateMap<GetAllQuestionResponse, Question>();         
             CreateMap<Question, GetAllQuestionResponse>();   
+            CreateMap<CreateNewProductResponse, Product>();   
+            CreateMap<Product, CreateNewProductResponse>();   
+            CreateMap<Brand, GetAllProductBrandResponse>();
+            CreateMap<GetAllProductBrandResponse, Brand>();
+            CreateMap<DeleteProductResponse, Product>();
+            CreateMap<Product, DeleteProductResponse>();
+            CreateMap<Brand, CreateProductBrandResponse>();
+            CreateMap<CreateProductBrandResponse, Brand>();
 
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();

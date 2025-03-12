@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Layout, Menu } from "antd";
 import { UserOutlined, CommentOutlined, ContainerOutlined, ShopOutlined, CalendarOutlined } from "@ant-design/icons";
-import styled from "styled-components";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./ManageOrderSidebar.css";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
 
-// manage openKeys in local storage
+// Lưu trạng thái menu mở vào localStorage
 const getPersistedOpenKeys = () => {
     const stored = localStorage.getItem("sidebarOpenKeys");
     return stored ? JSON.parse(stored) : [];
@@ -17,16 +16,18 @@ const getPersistedOpenKeys = () => {
 const setPersistedOpenKeys = (keys) => {
     localStorage.setItem("sidebarOpenKeys", JSON.stringify(keys));
 };
+
 const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("manage-account")) return "0";
     if (pathname.includes("manage-product")) return "6";
-    if (pathname.includes("manage-events")) return "7";
+    if (pathname.includes("manage-event")) return "8";
+    if (pathname.includes("manage-img-product")) return "7";
     if (pathname.includes("manage-order")) return "1";
     if (pathname.includes("manage-cancel-order")) return "2";
     if (pathname.includes("manage-request-product")) return "3";
     if (pathname.includes("view-comments")) return "4";
     if (pathname.includes("review-comments")) return "5";
-    return "0"; // Default to "Manage Account" if no match
+    return "0"; // Mặc định vào "Manage Account" nếu không khớp
 };
 
 const ManageOrderSidebar = () => {
@@ -34,7 +35,6 @@ const ManageOrderSidebar = () => {
     const location = useLocation();
     const [selectedKey, setSelectedKey] = useState(getSelectedKeyFromPath(location.pathname));
     const [openKeys, setOpenKeys] = useState(getPersistedOpenKeys());
-    const openKeysRef = useRef(getPersistedOpenKeys());
 
     useEffect(() => {
         const path = location.pathname;
@@ -43,33 +43,33 @@ const ManageOrderSidebar = () => {
         if (selectedKey !== newSelectedKey) {
             setSelectedKey(newSelectedKey);
         }
-        setOpenKeys(openKeysRef.current);
+
+        if (path.includes("manage-product") || path.includes("manage-img-product")) {
+            setOpenKeys(["sub3"]);
+        } else if (path.includes("manage-order")) {
+            setOpenKeys(["sub1"]);
+        } else if (path.includes("manage-comment")) {
+            setOpenKeys(["sub2"]);
+        } else {
+            setOpenKeys([]);
+        }
     }, [location.pathname]);
 
     const handleMenuClick = (e) => {
-        if (e.key === "0") navigate("/manage-account");
-        else if (e.key === "1") navigate("/manage-order");
-        else if (e.key === "6") navigate("/manage-product");
-
+        navigate(
+            e.key === "0" ? "/manage-account" :
+            e.key === "1" ? "/manage-order" :
+            e.key === "6" ? "/manage-product" :
+            e.key === "7" ? "/manage-img-product" :
+            e.key === "8" ? "/manage-event" :
+            "/"
+        );
     };
 
-    const handleTitleClick = (key) => {
-        if (openKeysRef.current.includes(key)) {
-            openKeysRef.current = openKeysRef.current.filter(k => k !== key);
-        } else {
-            openKeysRef.current = [...openKeysRef.current, key];
-        }
-        setOpenKeys([...openKeysRef.current]);
-        setPersistedOpenKeys(openKeysRef.current);
+    const handleOpenChange = (keys) => {
+        setOpenKeys(keys); // Cập nhật trạng thái submenu mở
+        setPersistedOpenKeys(keys);
     };
-
-    const handleOpenChange = () => {
-        // prevent Ant Design from automatically updating openKeys
-    };
-
-    if (openKeys.length !== openKeysRef.current.length || !openKeys.every(key => openKeysRef.current.includes(key))) {
-        setOpenKeys([...openKeysRef.current]);
-    }
 
     return (
         <Sider
@@ -93,38 +93,26 @@ const ManageOrderSidebar = () => {
                 mode="inline"
                 selectedKeys={[selectedKey]}
                 openKeys={openKeys}
-                onOpenChange={handleOpenChange}
+                onOpenChange={handleOpenChange} // Cập nhật trạng thái submenu mở
                 onClick={handleMenuClick}
                 style={{ flex: 1, borderRight: 0 }}
             >
-                <Menu.Item key="0" icon={<UserOutlined />} style={{ backgroundColor: selectedKey === "0" ? "#F6EEF0" : "", color: selectedKey === "0" ? "#C87E83" : "black" }}>Manage Account</Menu.Item>
-
-                <SubMenu
-                    key="sub1"
-                    icon={<ContainerOutlined />}
-                    title="Manage Orders"
-                    onTitleClick={() => handleTitleClick("sub1")}
-                >
-                    <Menu.Item key="1" style={{ backgroundColor: selectedKey === "1" ? "#F6EEF0" : "", color: selectedKey === "1" ? "#C87E83" : "black" }}>Manage Order Status</Menu.Item>
-                    <Menu.Item key="2" style={{ backgroundColor: selectedKey === "2" ? "#F6EEF0" : "", color: selectedKey === "2" ? "#C87E83" : "black" }}>Manage Cancel Order</Menu.Item>
-                    <Menu.Item key="3" style={{ backgroundColor: selectedKey === "3" ? "#F6EEF0" : "", color: selectedKey === "3" ? "#C87E83" : "black" }}>Manage Request Product</Menu.Item>
+                <Menu.Item key="0" icon={<UserOutlined />}>Manage Account</Menu.Item>
+                <SubMenu key="sub1" icon={<ContainerOutlined />} title="Manage Orders">
+                    <Menu.Item key="1">Manage Order Status</Menu.Item>
+                    <Menu.Item key="2">Manage Cancel Order</Menu.Item>
+                    <Menu.Item key="3">Manage Request Product</Menu.Item>
                 </SubMenu>
-
-                <Menu.Item key="6" icon={<ShopOutlined />} style={{ backgroundColor: selectedKey === "6" ? "#F6EEF0" : "", color: selectedKey === "6" ? "#C87E83" : "black" }}>Manage Products</Menu.Item>
-
-                <SubMenu
-                    key="sub2"
-                    icon={<CommentOutlined />}
-                    title="Manage Comments"
-                    onTitleClick={() => handleTitleClick("sub2")}
-                >
-                    <Menu.Item key="4" style={{ backgroundColor: selectedKey === "4" ? "#F6EEF0" : "", color: selectedKey === "4" ? "#C87E83" : "black" }}>View Comments</Menu.Item>
-                    <Menu.Item key="5" style={{ backgroundColor: selectedKey === "5" ? "#F6EEF0" : "", color: selectedKey === "5" ? "#C87E83" : "black" }}>Review Comments</Menu.Item>
+                <SubMenu key="sub3" icon={<ShopOutlined />} title="Manage Products">
+                    <Menu.Item key="6">Manage Products</Menu.Item>
+                    <Menu.Item key="7">Manage Image</Menu.Item>
                 </SubMenu>
-
-                <Menu.Item key="7" icon={<CalendarOutlined />} style={{ backgroundColor: selectedKey === "7" ? "#F6EEF0" : "", color: selectedKey === "7" ? "#C87E83" : "black" }}>Manage Events</Menu.Item>
+                <SubMenu key="sub2" icon={<CommentOutlined />} title="Manage Comments">
+                    <Menu.Item key="4">View Comments</Menu.Item>
+                    <Menu.Item key="5">Review Comments</Menu.Item>
+                </SubMenu>
+                <Menu.Item key="8" icon={<CalendarOutlined />}>Manage Events</Menu.Item>
             </Menu>
-
             <div
                 style={{
                     textAlign: "center",

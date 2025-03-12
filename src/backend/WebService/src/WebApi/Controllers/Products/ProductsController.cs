@@ -1,6 +1,9 @@
 using Application.Attributes;
 using Application.Common.Enum;
 using Application.Common.Paginations;
+using Application.Features.Brands.Commands;
+using Application.Features.Brands.Queries;
+using Application.Features.Brands.Commands.Validators;
 using Application.Features.ProductCategory.Commands;
 using Application.Features.ProductCategory.Commands.Validator;
 using Application.Features.ProductCategory.Queries;
@@ -494,10 +497,310 @@ namespace WebApi.Controllers.Products
         /// <remarks>
         /// Sample request:
         /// {
+        ///     "cateId": 1,
+        ///     "brandId": 1,
         ///     "productName": "Product Name",
-        ///     "description": "Product Description",
-        ///     
+        ///     "productDesc": "Product Description",
+        ///     "stocks": 10,
+        ///     "costPrice": 100.00,
+        ///     "sellPrice": 150.00,
+        ///     "totalRating": 0,
+        ///     "ingredient": "Product Ingredient",
+        ///     "instruction": "Product Instruction",
+        ///     "prodUseFor": "Product Use For",
+        ///     "prodStatusId": 1
         /// }
-        
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// -Role: Manager, Staff
+        /// </remarks>
+        /// <returns></returns>
+        [HttpPost("create")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new CreateProductCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Create product successfully", data = result.Value });
+        }
+
+        /// <summary>
+        /// Updates an existing product.
+        /// </summary>
+        /// <param name="command">Product update request containing product details.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the updated product details.</returns>
+        /// <remarks>
+        /// Sample request:
+        /// {
+        ///    "productId": 1,
+        ///    "cateId": 1,
+        ///    "brandId": 1,
+        ///    "productName": "Product Name",
+        ///    "productDesc": "Product Description",
+        ///    "stocks": 10,
+        ///    "costPrice": 100.00,
+        ///    "sellPrice": 150.00,
+        ///    "totalRating": 0,
+        ///    "ingredient": "Product Ingredient",
+        ///    "instruction": "Product Instruction",
+        ///    "prodUseFor": "Product Use For",
+        ///    "prodStatusId": 1
+        /// }
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// -Role: Manager, Staff
+        /// </remarks>
+        /// <returns></returns>
+        [HttpPatch("update")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new UpdateProductCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Update product successfully", data = result.Value });
+        }
+
+        /// <summary>
+        /// Deletes a product.
+        /// </summary>
+        /// <param name="command">Product deletion request containing product ID.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the deletion process.</returns>
+        /// <remarks>
+        /// Sample request:
+        /// {
+        ///     "productId": 1
+        /// }
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// -Role: Manager, Staff
+        /// </remarks>
+        [HttpDelete("delete")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> DeleteProduct([FromBody] DeleteProductCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new DeleteProductCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Delete product successfully", data = result.Value });
+        }
+
+        /// <summary>
+        /// Get all product brands.
+        /// </summary>
+        /// <param name="command">Brand creation request containing brand name.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the created brand details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///   GET /api/products/brands?keyword=electronics&page=1&pageSize=10
+        ///   
+        /// </remarks>
+        /// 
+        [HttpGet("brands")]
+        public async Task<IActionResult> GetBrands([FromQuery] string? keyword, [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        {
+
+            PaginationParams paginationParams = new() { Page = page, PageSize = pageSize };
+            var query = new GetAllProductBrandQuery(keyword, paginationParams);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Fetch all brands successfully", data = result.Value });
+        }
+
+        /// <summary>
+        /// Creates a new product brand.
+        /// </summary>
+        /// <param name="command">Brand creation request containing brand name.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the created brand details.</returns>
+        /// <remarks>
+        /// Sample request:
+        /// {
+        ///    "brandName": "Brand Name"
+        ///    "brandDesc": "Brand Description"
+        ///    "brandOrigin": "Brand Origin"
+        ///    "brandStatus": "true"
+        /// }
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// -Role: Manager, Staff
+        /// </remarks>
+        /// <returns></returns>
+        [HttpPost("brand/create")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> CreateBrand([FromBody] CreateProductBrandCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new CreateProductBrandCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Create brand successfully", data = result.Value });
+        }
+
+        /// <summary>
+        ///  Updates an existing product brand. 
+        ///  </summary>
+        ///  <param name="command">Brand update request containing brand details.</param>
+        ///  <param name="cancellationToken">Cancellation token.</param>
+        ///  <returns>Returns the updated brand details.</returns>
+        ///  <remarks>
+        ///  Sample request:
+        ///  {
+        ///    "brandId": 1,
+        ///    "brandName": "Brand Name"
+        ///    "brandDesc": "Brand Description"
+        ///    "brandOrigin": "Brand Origin"
+        ///    "brandStatusId": "true"
+        ///  }
+        ///  Headers:
+        ///  - Authorization: Bearer {token}
+        ///  -Role: Manager, Staff
+        ///  </remarks>
+        ///  <returns></returns>
+        [HttpPatch("brand/update")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> UpdateBrand([FromBody] UpdateProductBrandCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new UpdateProductBrandCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Update brand successfully", data = result.Value });
+        }
+
+        /// <summary>
+        /// Deletes a product brand.
+        /// </summary>
+        /// <param name="command">Brand deletion request containing brand ID.</param> 
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the status of the deletion process.</returns> 
+        /// <remarks>
+        /// Sample request:
+        /// {
+        ///    "brandId": 1
+        /// }
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// -Role: Manager, Staff
+        /// </remarks>
+        [HttpDelete("brand/delete")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> DeleteBrand([FromBody] DeleteProductBrandCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new DeleteProductBrandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Delete brand successfully", data = result.Value });
+        }
     }
 }

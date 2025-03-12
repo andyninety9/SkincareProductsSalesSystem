@@ -34,6 +34,8 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import ManageAccount from './page/manageAccount/ManageAccount';
 import ManageProduct from './page/manageProduct/ManageProduct';
 import ManageEvent from './page/manageEvent/ManageEvent';
+import ManageImgProduct from './page/manageProduct/ManageImgProduct';
+import DemoUpload from './page/DemoUpload';
 
 function App() {
     const router = createBrowserRouter([
@@ -67,6 +69,8 @@ function App() {
             path: routes.home,
             element: <UserLayout />,
             children: [
+                { path: "/demoUpload", element: <DemoUpload /> },
+
                 { path: routes.home, element: <HomePage /> },
                 { path: routes.about, element: <AboutPage /> },
                 { path: routes.product, element: <MainLayout /> },
@@ -157,6 +161,14 @@ function App() {
             element: (
                 <ProtectedRoute roles={['Manager', 'Staff']}>
                     <ManageProduct />
+                </ProtectedRoute>
+            ),
+        },
+        {
+            path: routes.manageImgProduct,
+            element: (
+                <ProtectedRoute roles={['Manager', 'Staff']}>
+                    <ManageImgProduct />
                 </ProtectedRoute>
             ),
         },
