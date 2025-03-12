@@ -1,29 +1,177 @@
 import React, { useState, useEffect } from 'react';
-import { Table, message } from 'antd';
+import { Table, message, Button, Dropdown, Menu, Modal, Form, Input } from 'antd';
+import { MoreOutlined, PlusOutlined } from '@ant-design/icons';
 import api from '../../config/api';
 import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSidebar';
 import ManageOrderHeader from '../../component/manageOrderHeader/ManageOrderHeader';
 
 const ManageCategory = () => {
     const [categories, setCategories] = useState([]);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [modalType, setModalType] = useState('add'); // 'add' hoặc 'edit'
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [form] = Form.useForm();
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await api.get('Products/categories?page=1&pageSize=100'); // Lấy danh sách danh mục
-                if (response.data) {
-                    setCategories(response.data); // Cập nhật danh sách vào state
-                } else {
-                    message.error('Không tìm thấy dữ liệu danh mục!');
-                }
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-                message.error('Lỗi khi tải danh mục!');
-            }
-        };
-
         fetchCategories();
     }, []);
+
+    /** 🛠 FETCH API: Lấy danh mục */
+    const fetchCategories = async () => {
+        try {
+            const response = await api.get('Products/categories?page=1&pageSize=100'); // Đảm bảo URL đúng
+            console.log("📌 API Response:", response.data);
+    
+            if (response.data?.data?.items) {
+                // 🔥 Lọc danh mục có cateProdStatus = true
+                const filteredCategories = response.data.data.items.filter(item => item.cateProdStatus === true);
+    
+                setCategories(filteredCategories);
+            } else {
+                console.error("❌ Dữ liệu danh mục không hợp lệ:", response.data);
+                setCategories([]);
+                message.error('Dữ liệu danh mục không hợp lệ!');
+            }
+        } catch (error) {
+            console.error('🚨 Lỗi khi tải danh mục:', error);
+            message.error('Lỗi khi tải danh mục!');
+        }
+    };
+    
+
+    /** 🛠 FETCH API: Thêm danh mục */
+    const addCategory = async (values) => {
+        try {
+            // 🔥 Đúng format theo Swagger API
+            const payload = { 
+                categoryName: values.categoryName // Đổi `Name` thành `categoryName`
+            };
+    
+            console.log("🚀 Payload gửi lên API (Add):", JSON.stringify(payload, null, 2));
+    
+            const response = await api.post('Products/category/create', payload);
+    
+            if (response.status === 200 || response.status === 201) {
+                message.success('✅ Thêm danh mục mới thành công!');
+                setIsModalVisible(false);
+                fetchCategories(); // Cập nhật danh sách
+            } else {
+                message.error(`⚠️ Thêm danh mục thất bại: ${response.data.message || 'Lỗi không xác định'}`);
+            }
+        } catch (error) {
+            console.error("❌ Lỗi khi thêm danh mục:", error);
+            
+            if (error.response) {
+                console.error("🔴 API Trả về lỗi:", JSON.stringify(error.response.data, null, 2));
+                message.error(`Lỗi từ server: ${error.response.data.message || 'Không xác định'}`);
+            } else {
+                message.error('Không thể kết nối đến server!');
+            }
+        }
+    };
+    
+
+    /** 🛠 FETCH API: Cập nhật danh mục */
+    const updateCategory = async (values) => {
+        try {
+            if (!selectedCategory || !selectedCategory.cateProdId) {
+                message.error("❌ Không tìm thấy danh mục cần cập nhật!");
+                return;
+            }
+
+            const payload = {
+                categoryId: Number(selectedCategory.cateProdId), // 🔥 Đổi `CategoryId` thành `id`
+                categoryName: values.categoryName // 🔥 Đổi `CategoryName` thành `cateName`
+            };
+
+            console.log("🚀 Payload gửi lên API (Update):", JSON.stringify(payload, null, 2));
+
+            await api.post('products/category/update', payload);
+
+            message.success('✅ Cập nhật danh mục thành công!');
+            setIsModalVisible(false);
+            fetchCategories();
+
+        } catch (error) {
+            console.error("❌ Lỗi khi cập nhật danh mục:", error);
+
+            if (error.response) {
+                console.error("🔴 API Trả về lỗi:", JSON.stringify(error.response.data, null, 2));
+                message.error(`Lỗi từ server: ${error.response.data.title || 'Không xác định'}`);
+            } else {
+                message.error('Không thể kết nối đến server!');
+            }
+        }
+    };
+
+
+
+
+    /** 🛠 FETCH API: Xóa danh mục */
+    const handleDelete = async (record) => {
+        try {
+            console.log("📌 Đang gửi request xóa danh mục với ID:", record.cateProdId);
+            
+            // 🔥 Đúng format theo Swagger
+            await api.delete('Products/category/delete', {
+                data: { categoryId: record.cateProdId } 
+            });
+            console.log(`🚀 Đã xóa danh mục ${record.cateProdName} thành công!`);
+    
+            message.success(`🗑 Xóa danh mục: ${record.cateProdName} thành công!`);
+    
+            // Cập nhật danh sách danh mục
+            await fetchCategories();
+    
+        } catch (error) {
+            console.error("❌ Lỗi khi xóa danh mục:", error);
+    
+            // Kiểm tra response lỗi từ server
+            if (error.response) {
+                console.error("🔴 API Trả về lỗi:", error.response.data);
+                message.error(`Lỗi từ server: ${error.response.data.message || 'Không xác định'}`);
+            } else {
+                message.error('Không thể kết nối đến server!');
+            }
+        }
+    };
+    
+    
+    
+    
+    
+
+    /** 🎯 Xử lý khi bấm nút Add */
+    const handleAddCategory = () => {
+        setModalType('add');
+        setSelectedCategory(null);
+        form.resetFields();
+        setIsModalVisible(true);
+    };
+
+    /** 🎯 Xử lý khi bấm nút Update */
+    const handleUpdate = (record) => {
+        console.log("📌 Dữ liệu danh mục trước khi cập nhật:", record);
+        setModalType('edit');
+        setSelectedCategory(record);
+        form.setFieldsValue({ categoryName: record.cateProdName }); 
+        setIsModalVisible(true);
+    };
+    
+
+    /** 🎯 Xử lý khi bấm OK trong Modal */
+    const handleModalOk = async () => {
+        try {
+            const values = await form.validateFields();
+            if (modalType === 'add') {
+                await addCategory(values);
+            } else {
+                await updateCategory(values);
+            }
+        } catch (error) {
+            console.error("❌ Lỗi xử lý form:", error);
+        }
+    };
 
     const columns = [
         {
@@ -39,11 +187,26 @@ const ManageCategory = () => {
             align: 'center',
         },
         {
-            title: 'Category Status',
-            dataIndex: 'cateProdStatus',
-            key: 'cateProdStatus',
+            title: 'Actions',
+            key: 'actions',
             align: 'center',
-            render: (status) => (status ? 'Active' : 'Inactive'),
+            render: (text, record) => (
+                <Dropdown
+                    overlay={
+                        <Menu>
+                            <Menu.Item key="update" onClick={() => handleUpdate(record)}>
+                                Update
+                            </Menu.Item>
+                            <Menu.Item key="delete" onClick={() => handleDelete(record)}>
+                                Delete
+                            </Menu.Item>
+                        </Menu>
+                    }
+                    trigger={['click']}
+                >
+                    <Button shape="circle" icon={<MoreOutlined />} />
+                </Dropdown>
+            ),
         },
     ];
 
@@ -54,8 +217,22 @@ const ManageCategory = () => {
                 <ManageOrderSidebar />
                 <div style={{ flex: 1, padding: '24px', overflowY: 'auto', marginLeft: '250px' }}>
                     <h1>Manage Categories</h1>
+
+                    {/* 🔥 Button "Add Category" */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '16px' }}>
+                    <Button 
+    type="primary" 
+    icon={<PlusOutlined />} 
+    onClick={handleAddCategory} 
+    style={{ backgroundColor: "#D8959A", borderColor: "#D8959A" }}
+>
+    Add Category
+</Button>
+
+                    </div>
+
                     <Table
-                        dataSource={categories}
+                        dataSource={Array.isArray(categories) ? categories : []}
                         columns={columns}
                         rowKey="cateProdId"
                         pagination={{
@@ -65,6 +242,25 @@ const ManageCategory = () => {
                         }}
                         locale={{ emptyText: 'Không có dữ liệu' }}
                     />
+
+                    {/* 🔥 Modal Thêm & Cập Nhật Danh Mục */}
+                    <Modal
+                        title={modalType === 'add' ? 'Add Category' : 'Edit Category'}
+                        visible={isModalVisible}
+                        onOk={handleModalOk}
+                        onCancel={() => setIsModalVisible(false)}
+                    >
+                        <Form form={form} layout="vertical">
+                            <Form.Item
+                                label="Category Name"
+                                name="categoryName" // 🔥 Đổi lại đúng key API yêu cầu
+                                rules={[{ required: true, message: 'Vui lòng nhập tên danh mục!' }]}
+                            >
+                                <Input placeholder="Nhập tên danh mục..." />
+                            </Form.Item>
+
+                        </Form>
+                    </Modal>
                 </div>
             </div>
         </div>
