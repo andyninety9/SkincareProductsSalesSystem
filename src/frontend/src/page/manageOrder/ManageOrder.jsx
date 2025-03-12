@@ -4,6 +4,7 @@ import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSi
 import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
 import EyeInvisibleOutlined from "@ant-design/icons/lib/icons/EyeInvisibleOutlined";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
+import ManageOrderSteps from "../../component/manageOrderSteps/ManageOrderSteps";
 import { useState, useEffect } from "react";
 import api from '../../config/api';
 
@@ -38,8 +39,8 @@ export default function ManageOrder() {
                     customerName: order.customerName || "N/A",
                     items: order.products ? order.products.length : 0,
                     total: order.totalPrice ? `${order.totalPrice.toLocaleString()} VND` : "N/A",
-                    status: order.orderStatus || "N/A",
-                    products: order.products || [], // Ensure products array is included
+                    status: order.orderStatus || "N/A", // Keep status for use in dropdown
+                    products: order.products || [],
                 }));
                 setOrders(formattedOrders);
                 setTotal(data.data.totalItems || data.data.items.length);
@@ -80,17 +81,17 @@ export default function ManageOrder() {
         { title: "Items", dataIndex: "items", key: "items", align: "center" },
         { title: "Total", dataIndex: "total", key: "total", align: "center" },
         {
-            title: "Order Status",
-            dataIndex: "status",
+            title: "Action",
+            key: "action",
             align: "center",
-            key: "status",
-            render: (status) => <Button
-                style={{
-                    backgroundColor: "#AEBCFF",
-                    borderColor: "#AEBCFF",
-                    borderRadius: "12px",
-                    width: "150px"
-                }}>{status}</Button>,
+            render: (_, record) => (
+                <Button
+                    type="link"
+                    icon={visibleOrders[record.orderNumber] ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                    style={{ color: "black", fontSize: "18px" }}
+                    onClick={() => toggleVisibility(record.orderNumber)}
+                />
+            ),
         },
     ];
 
@@ -111,13 +112,21 @@ export default function ManageOrder() {
     // Define the expandable row content
     const expandableConfig = {
         expandedRowRender: (record) => (
-            <Table
-                columns={productColumns}
-                dataSource={record.products}
-                rowKey="productId"
-                pagination={false}
-                style={{ margin: "0 16px" }}
-            />
+            <div style={{ padding: "16px" }}>
+                {/* Display Order Status using OrderStatusSteps */}
+                <div style={{ marginBottom: "16px" }}>
+                    <strong>Order Status:</strong>
+                    <ManageOrderSteps status={record.status} />
+                </div>
+                {/* Product Table */}
+                <Table
+                    columns={productColumns}
+                    dataSource={record.products}
+                    rowKey="productId"
+                    pagination={false}
+                    style={{ margin: "0 16px" }}
+                />
+            </div>
         ),
         rowExpandable: (record) => record.products && record.products.length > 0, // Only show expand icon if there are products
     };
