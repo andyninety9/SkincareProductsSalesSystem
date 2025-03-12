@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, message, Spin, Button, Modal, Form, Input, Select, Menu, Dropdown, Space } from 'antd';
+import { Table, message, Spin, Button, Modal, Form, Input, Select, Menu, Dropdown, Space, Tooltip } from 'antd';
 import api from '../../config/api';
 import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSidebar';
 import ManageOrderHeader from '../../component/manageOrderHeader/ManageOrderHeader';
@@ -23,6 +23,7 @@ const ManageBrand = () => {
         try {
             const response = await api.get(`Products/brands?page=${page}&pageSize=${pageSize}`);
             if (response.data && response.data.data && Array.isArray(response.data.data.items)) {
+                console.log("Fetched brand data:", response.data.data.items); // Kiểm tra ID có đúng không
                 setBrands(response.data.data.items);
                 setPagination({
                     current: response.data.data.page,
@@ -41,6 +42,7 @@ const ManageBrand = () => {
             setLoading(false);
         }
     };
+    
 
     const handleTableChange = (pagination) => {
         setPagination({ ...pagination });
@@ -82,7 +84,17 @@ const getActionMenu = (record) => (
             dataIndex: 'brandId',
             key: 'brandId',
             align: 'center',
+            render: (id) => {
+                if (!id) return '-';  // Nếu không có ID, hiển thị '-'
+                try {
+                    return BigInt(id).toString();
+                } catch (error) {
+                    console.error("Error converting ID to BigInt:", error);
+                    return id.toString();  // Hiển thị bình thường nếu không thể chuyển
+                }
+            },
         },
+               
         {
             title: 'Brand Name',
             dataIndex: 'brandName',
@@ -94,6 +106,11 @@ const getActionMenu = (record) => (
             dataIndex: 'brandDesc',
             key: 'brandDesc',
             align: 'center',
+            render: (desc) => (
+                <Tooltip title={desc}>
+                    {desc.length > 30 ? `${desc.slice(0, 30)}...` : desc}
+                </Tooltip>
+            ),
         },
         {
             title: 'Brand Origin',
@@ -131,7 +148,7 @@ const getActionMenu = (record) => (
     };
 
     const handleAddBrand = async (values) => {
-        console.log("Form values being sent:", values); // Debug dữ liệu đầu vào
+        console.log("Form values being sent:", values);
 
         try {
             const response = await api.post('Products/brand/create', {
@@ -141,9 +158,30 @@ const getActionMenu = (record) => (
                 brandStatus: values.brandStatus === 'Active' ? 'true' : 'false',
             });
 
-            if (response.status === 200) {
+            console.log("Response from API:", response.data);
+
+            if (response.status === 200 && response.data) {
+                const newBrand = response.data;
+
+                if (!newBrand.brandId) {
+                    console.warn("API did not return brandId! Refreshing brand list...");
+                    message.success('Thêm thương hiệu thành công!');
+
+                    setIsModalVisible(false);
+                    form.resetFields();
+                    fetchBrands(pagination.current, pagination.pageSize);
+                    return;
+                }
+
+                try {
+                    newBrand.brandId = BigInt(newBrand.brandId).toString();
+                } catch (error) {
+                    console.warn("Error converting brandId:", error);
+                }
+
+                setBrands(prevBrands => [newBrand, ...prevBrands]);
+
                 message.success('Thêm thương hiệu thành công!');
-                fetchBrands(pagination.current, pagination.pageSize);
                 setIsModalVisible(false);
                 form.resetFields();
             }
@@ -152,6 +190,9 @@ const getActionMenu = (record) => (
             message.error(`Lỗi khi thêm thương hiệu: ${error.response?.data?.message || 'Không xác định'}`);
         }
     };
+  
+    
+    
 
 
     return (
