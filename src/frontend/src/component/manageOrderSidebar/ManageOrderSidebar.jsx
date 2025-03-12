@@ -27,6 +27,7 @@ const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("view-comments")) return "4";
     if (pathname.includes("review-comments")) return "5";
     if (pathname.includes("manage-category")) return "11";
+    if (pathname.includes("manage-brand")) return "10";
     return "0"; // Mặc định vào "Manage Account" nếu không khớp
 };
 
