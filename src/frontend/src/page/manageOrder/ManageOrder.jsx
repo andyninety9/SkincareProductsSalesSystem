@@ -15,34 +15,56 @@ export default function ManageOrder() {
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [updatingOrderId, setUpdatingOrderId] = useState(null);
+    const [lastUpdated, setLastUpdated] = useState(null); // Added to force re-render
     const pageSize = 10;
 
     const fetchOrders = async (page = 1) => {
         try {
             setLoading(true);
             setError(null);
+            console.log(`fetchOrders called for page ${page} after status update`);
             const response = await api.get("/Orders", {
                 params: {
                     page: page,
                     pageSize: pageSize,
+                    timestamp: Date.now(), // Cache-busting parameter
                 },
             });
-            console.log("API response:", response.data);
+            console.log("Raw API response:", response.data);
             const data = response.data;
 
             if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
-                const formattedOrders = response.data.data.items.map((order) => ({
-                    ...order,
-                    orderNumber: order.orderId ? BigInt(order.orderId).toString() : "N/A",
-                    dateTime: order.orderDate ? new Date(order.orderDate).toLocaleString() : "N/A",
-                    customerName: order.customerName || "N/A",
-                    items: order.products ? order.products.length : 0,
-                    total: order.totalPrice ? `${order.totalPrice.toLocaleString()} VND` : "N/A",
-                    status: order.orderStatus || "N/A", // Keep status for use in dropdown
-                    products: order.products || [],
-                }));
+                const formattedOrders = response.data.data.items.map((order) => {
+                    const numericStatus = order.orderStatus ? Number(order.orderStatus) : null;
+                    console.log(`Order ${order.orderId} raw orderId:`, order.orderId, typeof order.orderId);
+                    console.log(`Order ${order.orderId} raw status:`, order.orderStatus, typeof order.orderStatus);
+                    let orderIdBigInt;
+                    try {
+                        orderIdBigInt = BigInt(order.orderId);
+                    } catch (error) {
+                        console.error(`Error converting orderId ${order.orderId} to BigInt:`, error.message);
+                        orderIdBigInt = null;
+                    }
+                    if (typeof order.orderId === 'number') {
+                        console.warn(`Order ${order.orderId} has a numeric orderId, which may cause precision issues. Backend should send orderId as a string or BigInt.`);
+                    }
+                    const formattedOrder = {
+                        ...order,
+                        orderId: orderIdBigInt, // Store orderId as BigInt
+                        orderNumber: orderIdBigInt ? orderIdBigInt.toString() : "N/A", // String for display
+                        dateTime: order.orderDate ? new Date(order.orderDate).toLocaleString() : "N/A",
+                        customerName: order.customerName || "N/A",
+                        items: order.products ? order.products.length : 0,
+                        total: order.totalPrice ? `${order.totalPrice.toLocaleString()} VND` : "N/A",
+                        status: numericStatus,
+                        products: order.products || [],
+                    };
+                    console.log(`Order ${order.orderId} formatted orderId:`, formattedOrder.orderId, typeof formattedOrder.orderId);
+                    console.log(`Order ${order.orderId} formatted status:`, formattedOrder.status);
+                    return formattedOrder;
+                });
                 setOrders(formattedOrders);
+                setLastUpdated(Date.now()); // Force re-render
                 setTotal(data.data.totalItems || data.data.items.length);
             } else {
                 setError(data.message || "Failed to fetch orders");
@@ -57,7 +79,7 @@ export default function ManageOrder() {
             } else {
                 console.error("Error setting up request:", error.message);
             }
-            setError(error.message || "An error occurred while fetching orders");
+            setError(error.response?.data?.message || error.message || "An error occurred while fetching orders");
         } finally {
             setLoading(false);
         }
@@ -70,7 +92,7 @@ export default function ManageOrder() {
     const toggleVisibility = (orderNumber) => {
         setVisibleOrders(prev => ({
             ...prev,
-            [orderNumber]: !prev[orderNumber],
+            [orderNumber]: !prev?.[orderNumber],
         }));
     };
 
@@ -95,7 +117,6 @@ export default function ManageOrder() {
         },
     ];
 
-    // Define columns for the product table in the dropdown
     const productColumns = [
         { title: "Product ID", dataIndex: "productId", key: "productId", align: "center" },
         { title: "Product Name", dataIndex: "productName", key: "productName", align: "center" },
@@ -109,26 +130,31 @@ export default function ManageOrder() {
         },
     ];
 
-    // Define the expandable row content
     const expandableConfig = {
-        expandedRowRender: (record) => (
-            <div style={{ padding: "16px" }}>
-                {/* Display Order Status using OrderStatusSteps */}
-                <div style={{ marginBottom: "16px" }}>
-                    <strong>Order Status:</strong>
-                    <ManageOrderSteps status={record.status} />
+        expandedRowRender: (record) => {
+            console.log(`Rendering expanded row for order:`, record.orderNumber, record.orderId, typeof record.orderId, record.status);
+            const numericStatus = typeof record.status === 'string' ? Number(record.status) : record.status;
+            return (
+                <div style={{ padding: "16px" }}>
+                    <div style={{ marginBottom: "16px" }}>
+                        <strong>Order Status:</strong>
+                        <ManageOrderSteps
+                            status={isNaN(numericStatus) ? 1 : numericStatus}
+                            currentOrderId={record.orderId}
+                            onStatusUpdate={() => fetchOrders(currentPage)}
+                        />
+                    </div>
+                    <Table
+                        columns={productColumns}
+                        dataSource={record.products}
+                        rowKey="productId"
+                        pagination={false}
+                        style={{ margin: "0 16px" }}
+                    />
                 </div>
-                {/* Product Table */}
-                <Table
-                    columns={productColumns}
-                    dataSource={record.products}
-                    rowKey="productId"
-                    pagination={false}
-                    style={{ margin: "0 16px" }}
-                />
-            </div>
-        ),
-        rowExpandable: (record) => record.products && record.products.length > 0, // Only show expand icon if there are products
+            );
+        },
+        rowExpandable: (record) => record.products && record.products.length > 0,
     };
 
     return (
@@ -138,7 +164,6 @@ export default function ManageOrder() {
             </div>
 
             <div style={{ display: "flex", flex: 1, marginTop: "60px", overflow: "hidden" }}>
-                {/* Fixed Sidebar */}
                 <div>
                     <ManageOrderSidebar />
                 </div>
@@ -156,6 +181,12 @@ export default function ManageOrder() {
                 >
                     <div style={{ maxWidth: "100%", margin: "0 auto" }}>
                         <h1 style={{ fontSize: "40px", textAlign: "left", width: "100%" }}>Orders</h1>
+
+                        {error && (
+                            <div style={{ color: "red", marginBottom: "16px" }}>
+                                Error: {error}
+                            </div>
+                        )}
 
                         <div style={{ display: "flex", gap: "70px", marginBottom: "16px", justifyContent: "flex-start" }}>
                             {[...Array(4)].map((_, i) => (
@@ -187,7 +218,7 @@ export default function ManageOrder() {
                                 scroll={{ x: "100%" }}
                                 loading={loading}
                                 pagination={false}
-                                expandable={expandableConfig} // Add expandable configuration
+                                expandable={expandableConfig}
                             />
                             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px" }}>
                                 <Pagination
