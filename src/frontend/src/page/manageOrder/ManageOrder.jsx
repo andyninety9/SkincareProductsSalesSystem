@@ -200,17 +200,6 @@ export default function ManageOrder() {
                         </div>
                         <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "30px", marginTop: "30px" }}>
                             <Input placeholder="Tìm kiếm khách hàng ..." style={{ width: "450px" }} suffix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />} />
-                            <Button
-                                style={{
-                                    backgroundColor: "#AEBCFF",
-                                    borderColor: "#AEBCFF",
-                                    borderRadius: "12px",
-                                    width: "150px",
-                                    marginLeft: "auto",
-                                }}
-                            >
-                                Pending
-                            </Button>
                         </div>
                         <div style={{ width: "100%" }}>
                             <Table

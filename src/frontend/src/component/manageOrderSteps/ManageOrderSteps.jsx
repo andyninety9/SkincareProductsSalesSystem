@@ -50,7 +50,6 @@ const safeBigIntString = (value) => {
         if (value === null || value === undefined) {
             throw new Error("Order ID is null or undefined");
         }
-        // If value is already a BigInt, convert to string; otherwise, convert to BigInt first
         const bigIntValue = typeof value === 'bigint' ? value : BigInt(value);
         const result = bigIntValue.toString();
         console.log(`safeBigIntString output:`, result);
@@ -102,8 +101,8 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
     console.log(`Calculated numericStatus:`, numericStatus);
     console.log(`Current step: ${currentStep}, Current status: ${currentStatus}`);
 
-    // Handle status update (next or reverse)
-    const handleStatusUpdate = async (action) => {
+    // Handle step change when user clicks on a step
+    const handleStepChange = async (targetStep) => {
         if (loading) return; // Prevent clicks while loading
 
         if (!orderIdString) {
@@ -111,18 +110,11 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
             return;
         }
 
-        const isNext = action === 'next';
-        const targetStep = isNext ? currentStep + 1 : currentStep - 1;
         const targetStatus = stepIndexToStatus[targetStep];
+        const isReverse = targetStep < currentStep; // Determine direction
 
-        // Log validation details
-        console.log(`handleStatusUpdate: action=${action}, currentStep=${currentStep}, targetStep=${targetStep}, targetStatus=${targetStatus}`);
-
-        // Validate the transition
-        if (targetStep < 0 || targetStep >= statusSteps.length) {
-            message.warning(`Cannot ${isNext ? 'proceed to next' : 'reverse to previous'} status.`);
-            return;
-        }
+        // Log step change details with direction
+        console.log(`handleStepChange: currentStep=${currentStep}, targetStep=${targetStep}, targetStatus=${targetStatus}, direction=${isReverse ? 'reverse' : 'forward'}`);
 
         // Prevent changing status of Completed or Cancelled orders
         if ([5, 6].includes(currentStatus)) {
@@ -131,34 +123,36 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
         }
 
         // Prevent direct jumps to Completed without being Shipped
-        if (isNext && targetStatus === 5 && currentStatus !== 4) {
+        if (targetStatus === 5 && currentStatus !== 4) {
             message.warning("Order must be Shipped before marking as Completed.");
             return;
         }
 
-        // Prevent cancelling after Processing
-        if (isNext && targetStatus === 6 && currentStatus > 2) {
+        // Prevent cancelling unless from Pending or Processing
+        if (targetStatus === 6 && currentStatus > 2) {
             message.warning("Order can only be Cancelled from Pending or Processing.");
             return;
         }
 
         try {
             setLoading(true);
-            const endpoint = `orders/${orderIdString}/${action}-status`;
+            // Use next-status for forward moves, reverse-status for backward moves
+            const endpoint = isReverse
+                ? `orders/${orderIdString}/reverse-status`
+                : `orders/${orderIdString}/next-status`;
             const payload = {
-                note: isNext ? "Proceeding to next status." : "Reversing the status.",
-                newStatus: targetStatus, // Include the target status explicitly
+                note: `Changing status to ${statusSteps[targetStep].title}${isReverse ? ' (reverse)' : ''}`,
+                newStatus: targetStatus, // Explicitly set the target status
             };
 
             console.log('PATCH Request URL:', `${api.defaults.baseURL}${endpoint}`);
             console.log('PATCH Request Payload:', payload);
             console.log('Current Order ID:', orderIdString);
-            console.log('Action:', action);
 
             const response = await api.patch(endpoint, payload);
             console.log('PATCH Response:', response.data); // Log full response
             if (response.data.statusCode === 200) {
-                message.success(`Order ${orderIdString} status updated successfully!`);
+                message.success(`Order ${orderIdString} status updated to ${statusSteps[targetStep].title}!`);
                 if (onStatusUpdate) {
                     console.log('Calling onStatusUpdate to refresh orders');
                     onStatusUpdate();
@@ -174,11 +168,11 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
             message.error(`Failed to update order: ${errorMessage}`);
         } finally {
             setLoading(false);
-            console.log(`Loading state reset to false after ${action}`);
+            console.log(`Loading state reset to false after step change`);
         }
     };
 
-    // Handle Cancel action separately
+    // Handle Cancel action separately (still using a button)
     const handleCancel = async () => {
         if (loading) return;
 
@@ -199,7 +193,7 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
 
         try {
             setLoading(true);
-            const endpoint = `orders/${orderIdString}/next-status`;
+            const endpoint = `orders/${orderIdString}/next-status`; // Use next-status for cancellation
             const payload = {
                 note: "Cancelling the order.",
                 newStatus: 6, // Explicitly set to Cancel
@@ -233,57 +227,21 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
         }
     };
 
-    // Determine if buttons should be disabled
-    const isNextDisabled = currentStep >= statusSteps.length - 2 || [5, 6].includes(currentStatus);
-    const isReverseDisabled = currentStep <= 0 || [5, 6].includes(currentStatus);
+    // Determine if Cancel button should be disabled
     const isCancelDisabled = currentStatus > 2 || [5, 6].includes(currentStatus);
 
-    // Log button disabling state for debugging
-    console.log(`Button disabling state: isNextDisabled=${isNextDisabled}, isReverseDisabled=${isReverseDisabled}, loading=${loading}`);
+    // Log button disabling state for Cancel button
+    console.log(`Cancel button disabling state: isCancelDisabled=${isCancelDisabled}, loading=${loading}`);
 
     return (
         <div style={{ marginTop: "8px" }}>
-            {/* Display current order status as text */}
-            <p style={{ textAlign: "center", marginBottom: "16px" }}>Current Order Status: {statusSteps[currentStep].title}</p>
             <Steps
                 current={currentStep}
                 progressDot={customDot}
                 items={statusSteps}
-                disabled={loading}
+                onChange={handleStepChange} // Enable step clicking
+                disabled={loading} // Disable steps during loading
             />
-            <div style={{ marginTop: "16px", display: "flex", gap: "8px", justifyContent: "center" }}>
-                <Button
-                    type="primary"
-                    onClick={() => {
-                        console.log('Reverse button clicked');
-                        handleStatusUpdate('reverse');
-                    }}
-                    disabled={isReverseDisabled || loading}
-                >
-                    Reverse
-                </Button>
-                <Button
-                    type="primary"
-                    onClick={() => {
-                        console.log('Next button clicked');
-                        handleStatusUpdate('next');
-                    }}
-                    disabled={isNextDisabled || loading}
-                >
-                    Next
-                </Button>
-                <Button
-                    type="default"
-                    danger
-                    onClick={() => {
-                        console.log('Cancel button clicked');
-                        handleCancel();
-                    }}
-                    disabled={isCancelDisabled || loading}
-                >
-                    Cancel Order
-                </Button>
-            </div>
             {loading && (
                 <div style={{ marginTop: "8px", textAlign: "center" }}>
                     <Button type="primary" loading disabled>
