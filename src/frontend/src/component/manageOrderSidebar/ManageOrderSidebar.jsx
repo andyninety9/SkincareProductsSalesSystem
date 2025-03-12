@@ -53,7 +53,7 @@ const ManageOrderSidebar = () => {
         } else {
             setOpenKeys([]);
         }
-    }, [location.pathname]); 
+    }, [location.pathname]);
 
     const handleMenuClick = (e) => {
         navigate(
