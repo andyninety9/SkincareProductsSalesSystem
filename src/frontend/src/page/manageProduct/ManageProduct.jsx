@@ -65,7 +65,10 @@ export default function ManageProduct() {
     const ProductSchema = Yup.object().shape({
         productName: Yup.string().required('Product name is required'),
         productDesc: Yup.string().required('Description is required'),
-        stocks: Yup.number().required('Stock is required').positive('Must be positive').integer('Must be an integer'),
+        stocks: Yup.number()
+        .required('Stock is required')
+        .integer('Must be an integer')
+        .min(0, 'Stock cannot be negative'),
         costPrice: Yup.number().required('Cost price is required').positive('Must be positive'),
         sellPrice: Yup.number().required('Sell price is required').positive('Must be positive'),
         ingredient: Yup.string().required('Ingredient details are required'),
@@ -190,6 +193,11 @@ export default function ManageProduct() {
                 'On Sale': 5,
             };
 
+            let productStatus = statusMapping[values.prodStatusName] || 1;  // Set default status
+            if (values.stocks === 0) {
+                productStatus = 2; // Set status to 'Out of Stock' if stock is 0
+            }
+
             const updateData = {
                 productId: String(productId),
                 productName: values.productName,
@@ -202,7 +210,9 @@ export default function ManageProduct() {
                 prodUseFor: values.prodUseFor,
                 brandId: Number(values.brandId),
                 cateId: Number(values.categoryId),
-                prodStatusId: statusMapping[values.prodStatusName] || 1,
+                // prodStatusId: statusMapping[values.prodStatusName] || 1,
+                prodStatusId: productStatus, // Use the determined productStatus
+
             };
 
             const response = await api.patch('products/update', updateData);
@@ -464,9 +474,9 @@ export default function ManageProduct() {
             productName: Yup.string().required('Product name is required'),
             productDesc: Yup.string().required('Description is required'),
             stocks: Yup.number()
-                .required('Stock is required')
-                .positive('Must be positive')
-                .integer('Must be an integer'),
+            .required('Stock is required')
+            .integer('Must be an integer')
+            .min(0, 'Stock cannot be negative'),
             costPrice: Yup.number().required('Cost price is required').positive('Must be positive'),
             sellPrice: Yup.number().required('Sell price is required').positive('Must be positive'),
             ingredient: Yup.string().required('Ingredient details are required'),
@@ -929,6 +939,7 @@ export default function ManageProduct() {
                 </div>
             ),
         },
+        
     ];
 
     return (
