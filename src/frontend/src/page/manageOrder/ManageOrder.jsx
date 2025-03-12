@@ -1,8 +1,6 @@
 import { Table, Button, Input, Card, message, Pagination } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
-import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
-import EyeInvisibleOutlined from "@ant-design/icons/lib/icons/EyeInvisibleOutlined";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
 import ManageOrderSteps from "../../component/manageOrderSteps/ManageOrderSteps";
 import { useState, useEffect } from "react";
@@ -18,167 +16,125 @@ const stringStatusToNumeric = {
     "Cancel": 6,
 };
 
+// BigInt conversion
+const toBigIntString = (value) => {
+    try {
+        return value != null ? BigInt(value).toString() : "N/A";
+    } catch (error) {
+        console.error(`Error converting to BigInt: ${value}`, error.message);
+        return "N/A";
+    }
+};
+const fetchApiData = async (endpoint, params = {}, setter, errorSetter, errorMsg) => {
+    try {
+        const response = await api.get(endpoint, { params });
+        if (response.data.statusCode === 200 && response.data.data) {
+            setter(response.data.data);
+            return response.data.data;
+        }
+        throw new Error(response.data.message || "Unexpected response");
+    } catch (error) {
+        const fullErrorMsg = error.response?.data?.message || error.message || errorMsg;
+        errorSetter(fullErrorMsg);
+        message.error(fullErrorMsg);
+        console.error(`Error fetching ${endpoint}:`, error.message);
+        throw error;
+    }
+};
+
 export default function ManageOrder() {
     const [orders, setOrders] = useState([]);
     const [visibleOrders, setVisibleOrders] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [lastUpdated, setLastUpdated] = useState(null);
+    const [error, setError] = useState(null); // Kept for inline error display
     const [orderDetails, setOrderDetails] = useState({});
     const pageSize = 10;
 
     const fetchOrders = async (page = 1) => {
+        setLoading(true);
         try {
-            setLoading(true);
-            setError(null);
-            console.log(`fetchOrders called for page ${page} after status update`);
-            const response = await api.get("/Orders", {
-                params: {
-                    page: page,
-                    pageSize: pageSize,
-                    timestamp: Date.now(),
-                },
-            });
-            console.log("Raw API response:", response.data);
-            const data = response.data;
-
-            if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
-                const formattedOrders = response.data.data.items.map((order) => {
-                    const numericStatus = typeof order.orderStatus === 'string'
-                        ? stringStatusToNumeric[order.orderStatus] || 1
-                        : Number(order.orderStatus) || 1;
-
-                    // console.log(`Order ${order.orderId} raw orderId:`, order.orderId, typeof order.orderId);
-                    // console.log(`Order ${order.orderId} raw status:`, order.orderStatus, typeof order.orderStatus);
-                    // console.log(`Order ${order.orderId} mapped numeric status:`, numericStatus);
-
-                    let orderIdBigInt;
-                    try {
-                        orderIdBigInt = BigInt(order.orderId);
-                    } catch (error) {
-                        console.error(`Error converting orderId ${order.orderId} to BigInt:`, error.message);
-                        orderIdBigInt = null;
-                    }
-                    const formattedOrder = {
+            const data = await fetchApiData(
+                "/Orders",
+                { page, pageSize, timestamp: Date.now() },
+                (items) => {
+                    const formattedOrders = items.items.map((order) => ({
                         ...order,
-                        orderId: orderIdBigInt,
-                        orderNumber: orderIdBigInt ? orderIdBigInt.toString() : "N/A",
+                        orderId: BigInt(order.orderId),
+                        orderNumber: toBigIntString(order.orderId),
                         dateTime: order.orderDate ? new Date(order.orderDate).toLocaleString() : "N/A",
                         customerName: order.customerName || "N/A",
-                        items: order.products ? order.products.length : 0,
+                        items: order.products?.length || 0,
                         total: order.totalPrice ? `${order.totalPrice.toLocaleString()} VND` : "N/A",
-                        status: numericStatus,
+                        status: order.orderStatus in stringStatusToNumeric ? stringStatusToNumeric[order.orderStatus] : order.orderStatus || 1,
                         products: order.products || [],
-                    };
-                    console.log(`Order ${order.orderId} formatted orderId:`, formattedOrder.orderId, typeof formattedOrder.orderId);
-                    console.log(`Order ${order.orderId} formatted status:`, formattedOrder.status);
-                    return formattedOrder;
-                });
-                setOrders(formattedOrders);
-                setLastUpdated(Date.now());
-                setTotal(data.data.totalItems || data.data.items.length);
-            } else {
-                setError(data.message || "Failed to fetch orders");
-            }
-        } catch (error) {
-            console.error("Error fetching orders:", error.message);
-            if (error.response) {
-                console.error("Response data:", error.response.data);
-                console.error("Response status:", error.response.status);
-            } else if (error.request) {
-                console.error("No response received:", error.request);
-            } else {
-                console.error("Error setting up request:", error.message);
-            }
-            setError(error.response?.data?.message || error.message || "An error occurred while fetching orders");
+                    }));
+                    setOrders(formattedOrders);
+                    setTotal(items.totalItems || items.items.length);
+                },
+                setError,
+                "Failed to fetch orders"
+            );
         } finally {
             setLoading(false);
         }
     };
 
     const fetchOrderDetails = async (orderId) => {
-        try {
-            console.log(`Fetching details for orderId: ${orderId}`);
-            const response = await api.get(`orders/${orderId}`);
-            console.log(`Order details response for ${orderId}:`, response.data);
-            if (response.data.statusCode === 200 && response.data.data) {
-                setOrderDetails(prev => ({
-                    ...prev,
-                    [orderId]: response.data.data
-                }));
-            } else {
-                throw new Error(response.data.message || "Failed to fetch order details");
-            }
-        } catch (error) {
-            console.error(`Error fetching order details for ${orderId}:`, error.message);
-            message.error(`Failed to load payment details for order ${orderId}`);
-        }
+        await fetchApiData(
+            `orders/${orderId}`,
+            {},
+            (data) => setOrderDetails((prev) => ({ ...prev, [orderId]: data })),
+            setError,
+            `Failed to load payment details for order ${orderId}`
+        );
     };
-
 
     useEffect(() => {
         fetchOrders(currentPage);
     }, [currentPage]);
 
     const toggleVisibility = (orderNumber) => {
-        setVisibleOrders(prev => {
-            const newVisibility = !prev?.[orderNumber];
+        setVisibleOrders((prev) => {
+            const newVisibility = !prev[orderNumber];
             if (newVisibility) {
-                const order = orders.find(o => o.orderNumber === orderNumber);
+                const order = orders.find((o) => o.orderNumber === orderNumber);
                 if (order && order.orderId && !orderDetails[order.orderId]) {
                     fetchOrderDetails(order.orderId.toString());
                 }
             }
-            return {
-                ...prev,
-                [orderNumber]: newVisibility
-            };
+            return { ...prev, [orderNumber]: newVisibility };
         });
     };
 
-
     const columns = [
-        { title: "Order Number", dataIndex: "orderNumber", key: "orderNumber", align: "center" },
-        { title: "Date Time", dataIndex: "dateTime", key: "dateTime", align: "center" },
-        { title: "Customer Name", dataIndex: "customerName", key: "customerName", align: "center" },
-        { title: "Items", dataIndex: "items", key: "items", align: "center" },
-        { title: "Total", dataIndex: "total", key: "total", align: "center" },
+        { title: "Order Number", dataIndex: "orderNumber", key: "orderNumber", width: 150 },
+        { title: "Date Time", dataIndex: "dateTime", key: "dateTime", width: 200 },
+        { title: "Customer Name", dataIndex: "customerName", key: "customerName", width: 200 },
+        { title: "Items", dataIndex: "items", key: "items", width: 100 },
+        { title: "Total", dataIndex: "total", key: "total", width: 150 },
     ];
-
     const productColumns = [
-        { title: "Product ID", dataIndex: "productId", key: "productId", align: "center" },
-        { title: "Product Name", dataIndex: "productName", key: "productName", align: "center" },
-        { title: "Quantity", dataIndex: "quantity", key: "quantity", align: "center" },
-        {
-            title: "Unit Price",
-            dataIndex: "unitPrice",
-            key: "unitPrice",
-            align: "center",
-            render: (price) => `${price.toLocaleString()} VND`
-        },
+        { title: "Product ID", dataIndex: "productId", key: "productId" },
+        { title: "Product Name", dataIndex: "productName", key: "productName" },
+        { title: "Quantity", dataIndex: "quantity", key: "quantity" },
+        { title: "Unit Price", dataIndex: "unitPrice", key: "unitPrice", render: (price) => `${price.toLocaleString()} VND` },
     ];
 
     const paymentColumns = [
-        { title: "Payment ID", dataIndex: "paymentId", key: "paymentId", align: "center" },
-        { title: "Order ID", dataIndex: "orderId", key: "orderId", align: "center" },
-        { title: "Payment Method", dataIndex: "paymentMethod", key: "paymentMethod", align: "center" },
-        {
-            title: "Payment Amount",
-            dataIndex: "paymentAmount",
-            key: "paymentAmount",
-            align: "center",
-            render: (amount) => amount ? `${amount.toLocaleString()} VND` : "N/A"
-        },
+        { title: "Payment ID", dataIndex: "paymentId", key: "paymentId" },
+        { title: "Order ID", dataIndex: "orderId", key: "orderId" },
+        { title: "Payment Method", dataIndex: "paymentMethod", key: "paymentMethod" },
+        { title: "Payment Amount", dataIndex: "paymentAmount", key: "paymentAmount", render: (amount) => amount ? `${amount.toLocaleString()} VND` : "N/A" },
     ];
 
     const expandableConfig = {
         expandedRowRender: (record) => {
             const detailedOrder = orderDetails[record.orderId] || {};
             return (
-                <div style={{ padding: "16px" }}>
-                    <div style={{ marginBottom: "32px" }}> {/* Increased from 16px to 32px */}
+                <div className="expanded-row-content" style={{ padding: "16px" }}>
+                    <div style={{ marginBottom: "32px" }}>
                         <strong>- Order Status:</strong>
                         <ManageOrderSteps
                             status={record.status}
@@ -186,7 +142,7 @@ export default function ManageOrder() {
                             onStatusUpdate={() => fetchOrders(currentPage)}
                         />
                     </div>
-                    <div style={{ marginBottom: "32px" }}> {/* Increased from 16px to 32px */}
+                    <div style={{ marginBottom: "32px" }}>
                         <strong>- Products:</strong>
                         <Table
                             className="manage-order-table"
@@ -197,7 +153,7 @@ export default function ManageOrder() {
                             style={{ margin: "0 16px" }}
                         />
                     </div>
-                    <div style={{ marginBottom: "32px" }}> {/* Increased from 16px to 32px */}
+                    <div style={{ marginBottom: "32px" }}>
                         <strong>- Payment Information:</strong>
                         <Table
                             className="manage-order-table"
@@ -212,7 +168,7 @@ export default function ManageOrder() {
                 </div>
             );
         },
-        rowExpandable: (record) => (record.products && record.products.length > 0) || true,
+        rowExpandable: () => true,
         onExpand: (expanded, record) => toggleVisibility(record.orderNumber),
     };
 
@@ -221,12 +177,10 @@ export default function ManageOrder() {
             <div>
                 <ManageOrderHeader />
             </div>
-
             <div style={{ display: "flex", flex: 1, marginTop: "60px", overflow: "hidden" }}>
                 <div>
                     <ManageOrderSidebar />
                 </div>
-
                 <div
                     style={{
                         flex: 1,
@@ -240,13 +194,11 @@ export default function ManageOrder() {
                 >
                     <div style={{ maxWidth: "100%", margin: "0 auto" }}>
                         <h1 style={{ fontSize: "40px", textAlign: "left", width: "100%" }}>Orders</h1>
-
                         {error && (
                             <div style={{ color: "red", marginBottom: "16px" }}>
                                 Error: {error}
                             </div>
                         )}
-
                         <div style={{ display: "flex", gap: "70px", marginBottom: "16px", justifyContent: "flex-start" }}>
                             {[...Array(4)].map((_, i) => (
                                 <Card key={i} style={{ textAlign: "center", width: "180px", backgroundColor: "#FFFCFC", height: "120px", borderRadius: "12px" }}>
@@ -263,10 +215,10 @@ export default function ManageOrder() {
                                 dataSource={orders}
                                 columns={columns}
                                 rowKey="orderNumber"
-                                scroll={{ x: "100%" }}
                                 loading={loading}
                                 pagination={false}
                                 expandable={expandableConfig}
+                                className="manage-order-table"
                             />
                             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px" }}>
                                 <Pagination
