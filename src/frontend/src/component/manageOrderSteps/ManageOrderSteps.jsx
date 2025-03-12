@@ -115,6 +115,9 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
         const targetStep = isNext ? currentStep + 1 : currentStep - 1;
         const targetStatus = stepIndexToStatus[targetStep];
 
+        // Log validation details
+        console.log(`handleStatusUpdate: action=${action}, currentStep=${currentStep}, targetStep=${targetStep}, targetStatus=${targetStatus}`);
+
         // Validate the transition
         if (targetStep < 0 || targetStep >= statusSteps.length) {
             message.warning(`Cannot ${isNext ? 'proceed to next' : 'reverse to previous'} status.`);
@@ -171,6 +174,7 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
             message.error(`Failed to update order: ${errorMessage}`);
         } finally {
             setLoading(false);
+            console.log(`Loading state reset to false after ${action}`);
         }
     };
 
@@ -225,6 +229,7 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
             message.error(`Failed to cancel order: ${errorMessage}`);
         } finally {
             setLoading(false);
+            console.log(`Loading state reset to false after cancel`);
         }
     };
 
@@ -232,6 +237,9 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
     const isNextDisabled = currentStep >= statusSteps.length - 2 || [5, 6].includes(currentStatus);
     const isReverseDisabled = currentStep <= 0 || [5, 6].includes(currentStatus);
     const isCancelDisabled = currentStatus > 2 || [5, 6].includes(currentStatus);
+
+    // Log button disabling state for debugging
+    console.log(`Button disabling state: isNextDisabled=${isNextDisabled}, isReverseDisabled=${isReverseDisabled}, loading=${loading}`);
 
     return (
         <div style={{ marginTop: "8px" }}>
@@ -246,14 +254,20 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
             <div style={{ marginTop: "16px", display: "flex", gap: "8px", justifyContent: "center" }}>
                 <Button
                     type="primary"
-                    onClick={() => handleStatusUpdate('reverse')}
+                    onClick={() => {
+                        console.log('Reverse button clicked');
+                        handleStatusUpdate('reverse');
+                    }}
                     disabled={isReverseDisabled || loading}
                 >
                     Reverse
                 </Button>
                 <Button
                     type="primary"
-                    onClick={() => handleStatusUpdate('next')}
+                    onClick={() => {
+                        console.log('Next button clicked');
+                        handleStatusUpdate('next');
+                    }}
                     disabled={isNextDisabled || loading}
                 >
                     Next
@@ -261,7 +275,10 @@ const ManageOrderSteps = ({ status, currentOrderId, onStatusUpdate }) => {
                 <Button
                     type="default"
                     danger
-                    onClick={handleCancel}
+                    onClick={() => {
+                        console.log('Cancel button clicked');
+                        handleCancel();
+                    }}
                     disabled={isCancelDisabled || loading}
                 >
                     Cancel Order
