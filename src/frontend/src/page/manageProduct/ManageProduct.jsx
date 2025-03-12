@@ -68,9 +68,9 @@ export default function ManageProduct() {
         productName: Yup.string().required('Product name is required'),
         productDesc: Yup.string().required('Description is required'),
         stocks: Yup.number()
-        .required('Stock is required')
-        .integer('Must be an integer')
-        .min(0, 'Stock cannot be negative'),
+            .required('Stock is required')
+            .integer('Must be an integer')
+            .min(0, 'Stock cannot be negative'),
         costPrice: Yup.number().required('Cost price is required').positive('Must be positive'),
         sellPrice: Yup.number().required('Sell price is required').positive('Must be positive'),
         ingredient: Yup.string().required('Ingredient details are required'),
@@ -250,10 +250,10 @@ export default function ManageProduct() {
     };
 
 
-// const handleDelete = (productId) => {
-//     setProductToDelete(productId);
-//     setDeleteModalVisible(true);
-// };
+    // const handleDelete = (productId) => {
+    //     setProductToDelete(productId);
+    //     setDeleteModalVisible(true);
+    // };
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -482,9 +482,9 @@ export default function ManageProduct() {
             productName: Yup.string().required('Product name is required'),
             productDesc: Yup.string().required('Description is required'),
             stocks: Yup.number()
-            .required('Stock is required')
-            .integer('Must be an integer')
-            .min(0, 'Stock cannot be negative'),
+                .required('Stock is required')
+                .integer('Must be an integer')
+                .min(0, 'Stock cannot be negative'),
             costPrice: Yup.number().required('Cost price is required').positive('Must be positive'),
             sellPrice: Yup.number().required('Sell price is required').positive('Must be positive'),
             ingredient: Yup.string().required('Ingredient details are required'),
@@ -947,7 +947,7 @@ export default function ManageProduct() {
                 </div>
             ),
         },
-        
+
     ];
 
     return (
