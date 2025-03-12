@@ -38,7 +38,7 @@ export default function ManageOrder() {
                 params: {
                     page: page,
                     pageSize: pageSize,
-                    timestamp: Date.now(), // Cache-busting parameter
+                    timestamp: Date.now(),
                 },
             });
             console.log("Raw API response:", response.data);
@@ -47,8 +47,9 @@ export default function ManageOrder() {
             if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
                 const formattedOrders = response.data.data.items.map((order) => {
                     const numericStatus = typeof order.orderStatus === 'string'
-                        ? stringStatusToNumeric[order.orderStatus] || 1 // Default to Pending if invalid
-                        : Number(order.orderStatus) || 1; // Handle numeric status, default to Pending if invalid
+                        ? stringStatusToNumeric[order.orderStatus] || 1
+                        : Number(order.orderStatus) || 1;
+
                     // console.log(`Order ${order.orderId} raw orderId:`, order.orderId, typeof order.orderId);
                     // console.log(`Order ${order.orderId} raw status:`, order.orderStatus, typeof order.orderStatus);
                     // console.log(`Order ${order.orderId} mapped numeric status:`, numericStatus);
@@ -62,13 +63,13 @@ export default function ManageOrder() {
                     }
                     const formattedOrder = {
                         ...order,
-                        orderId: orderIdBigInt, // Store orderId as BigInt
-                        orderNumber: orderIdBigInt ? orderIdBigInt.toString() : "N/A", // String for display
+                        orderId: orderIdBigInt,
+                        orderNumber: orderIdBigInt ? orderIdBigInt.toString() : "N/A",
                         dateTime: order.orderDate ? new Date(order.orderDate).toLocaleString() : "N/A",
                         customerName: order.customerName || "N/A",
                         items: order.products ? order.products.length : 0,
                         total: order.totalPrice ? `${order.totalPrice.toLocaleString()} VND` : "N/A",
-                        status: numericStatus, // Use the mapped numeric status
+                        status: numericStatus,
                         products: order.products || [],
                     };
                     console.log(`Order ${order.orderId} formatted orderId:`, formattedOrder.orderId, typeof formattedOrder.orderId);
@@ -76,7 +77,7 @@ export default function ManageOrder() {
                     return formattedOrder;
                 });
                 setOrders(formattedOrders);
-                setLastUpdated(Date.now()); // Force re-render
+                setLastUpdated(Date.now());
                 setTotal(data.data.totalItems || data.data.items.length);
             } else {
                 setError(data.message || "Failed to fetch orders");
@@ -117,7 +118,6 @@ export default function ManageOrder() {
     };
 
 
-
     useEffect(() => {
         fetchOrders(currentPage);
     }, [currentPage]);
@@ -128,7 +128,7 @@ export default function ManageOrder() {
             if (newVisibility) {
                 const order = orders.find(o => o.orderNumber === orderNumber);
                 if (order && order.orderId && !orderDetails[order.orderId]) {
-                    fetchOrderDetails(order.orderId.toString()); // Convert BigInt to string
+                    fetchOrderDetails(order.orderId.toString());
                 }
             }
             return {
@@ -137,7 +137,6 @@ export default function ManageOrder() {
             };
         });
     };
-
 
 
     const columns = [
@@ -177,20 +176,20 @@ export default function ManageOrder() {
     const expandableConfig = {
         expandedRowRender: (record) => {
             const detailedOrder = orderDetails[record.orderId] || {};
-            console.log(`Rendering expanded row for order:`, record.orderNumber, record.orderId, typeof record.orderId, record.status, detailedOrder);
             return (
                 <div style={{ padding: "16px" }}>
-                    <div style={{ marginBottom: "16px" }}>
-                        <strong>Order Status:</strong>
+                    <div style={{ marginBottom: "32px" }}> {/* Increased from 16px to 32px */}
+                        <strong>- Order Status:</strong>
                         <ManageOrderSteps
                             status={record.status}
                             currentOrderId={record.orderId}
                             onStatusUpdate={() => fetchOrders(currentPage)}
                         />
                     </div>
-                    <div style={{ marginBottom: "16px" }}>
-                        <strong>Products:</strong>
+                    <div style={{ marginBottom: "32px" }}> {/* Increased from 16px to 32px */}
+                        <strong>- Products:</strong>
                         <Table
+                            className="manage-order-table"
                             columns={productColumns}
                             dataSource={record.products}
                             rowKey="productId"
@@ -198,9 +197,10 @@ export default function ManageOrder() {
                             style={{ margin: "0 16px" }}
                         />
                     </div>
-                    <div style={{ marginBottom: "16px" }}>
-                        <strong>Payment Information:</strong>
+                    <div style={{ marginBottom: "32px" }}> {/* Increased from 16px to 32px */}
+                        <strong>- Payment Information:</strong>
                         <Table
+                            className="manage-order-table"
                             columns={paymentColumns}
                             dataSource={detailedOrder.payment ? [detailedOrder.payment] : []}
                             rowKey="paymentId"
@@ -212,7 +212,7 @@ export default function ManageOrder() {
                 </div>
             );
         },
-        rowExpandable: (record) => (record.products && record.products.length > 0) || true, // Always expandable to fetch payment
+        rowExpandable: (record) => (record.products && record.products.length > 0) || true,
         onExpand: (expanded, record) => toggleVisibility(record.orderNumber),
     };
 
