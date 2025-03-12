@@ -39,6 +39,7 @@ export default function ManageOrder() {
                     items: order.products ? order.products.length : 0,
                     total: order.totalPrice ? `${order.totalPrice.toLocaleString()} VND` : "N/A",
                     status: order.orderStatus || "N/A",
+                    products: order.products || [], // Ensure products array is included
                 }));
                 setOrders(formattedOrders);
                 setTotal(data.data.totalItems || data.data.items.length);
@@ -91,20 +92,35 @@ export default function ManageOrder() {
                     width: "150px"
                 }}>{status}</Button>,
         },
+    ];
+
+    // Define columns for the product table in the dropdown
+    const productColumns = [
+        { title: "Product ID", dataIndex: "productId", key: "productId", align: "center" },
+        { title: "Product Name", dataIndex: "productName", key: "productName", align: "center" },
+        { title: "Quantity", dataIndex: "quantity", key: "quantity", align: "center" },
         {
-            title: "Action",
-            key: "action",
+            title: "Unit Price",
+            dataIndex: "unitPrice",
+            key: "unitPrice",
             align: "center",
-            render: (_, record) => (
-                <Button
-                    type="link"
-                    icon={visibleOrders[record.orderNumber] ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                    style={{ color: "black", fontSize: "18px" }}
-                    onClick={() => toggleVisibility(record.orderNumber)}
-                />
-            ),
+            render: (price) => `${price.toLocaleString()} VND`
         },
     ];
+
+    // Define the expandable row content
+    const expandableConfig = {
+        expandedRowRender: (record) => (
+            <Table
+                columns={productColumns}
+                dataSource={record.products}
+                rowKey="productId"
+                pagination={false}
+                style={{ margin: "0 16px" }}
+            />
+        ),
+        rowExpandable: (record) => record.products && record.products.length > 0, // Only show expand icon if there are products
+    };
 
     return (
         <div style={{ display: "flex", height: "100vh", overflow: "hidden", flexDirection: "column" }}>
@@ -162,6 +178,7 @@ export default function ManageOrder() {
                                 scroll={{ x: "100%" }}
                                 loading={loading}
                                 pagination={false}
+                                expandable={expandableConfig} // Add expandable configuration
                             />
                             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px" }}>
                                 <Pagination
