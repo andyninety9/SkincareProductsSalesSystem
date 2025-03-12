@@ -27,6 +27,7 @@ export const routes = {
     manageProduct: '/manage-product',
     manageImgProduct: '/manage-img-product',
     manageEvent: '/manage-event',
+    manageCategory: '/manage-category',
     resultQuiz: '/your-skin-type-result',
     paymentReturn: '/payment-return',
     notfound: '/404',
