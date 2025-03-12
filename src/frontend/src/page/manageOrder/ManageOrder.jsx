@@ -25,7 +25,8 @@ export default function ManageOrder() {
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [lastUpdated, setLastUpdated] = useState(null); // Added to force re-render
+    const [lastUpdated, setLastUpdated] = useState(null);
+    const [orderDetails, setOrderDetails] = useState({});
     const pageSize = 10;
 
     const fetchOrders = async (page = 1) => {
@@ -96,16 +97,48 @@ export default function ManageOrder() {
         }
     };
 
+    const fetchOrderDetails = async (orderId) => {
+        try {
+            console.log(`Fetching details for orderId: ${orderId}`);
+            const response = await api.get(`orders/${orderId}`);
+            console.log(`Order details response for ${orderId}:`, response.data);
+            if (response.data.statusCode === 200 && response.data.data) {
+                setOrderDetails(prev => ({
+                    ...prev,
+                    [orderId]: response.data.data
+                }));
+            } else {
+                throw new Error(response.data.message || "Failed to fetch order details");
+            }
+        } catch (error) {
+            console.error(`Error fetching order details for ${orderId}:`, error.message);
+            message.error(`Failed to load payment details for order ${orderId}`);
+        }
+    };
+
+
+
     useEffect(() => {
         fetchOrders(currentPage);
     }, [currentPage]);
 
     const toggleVisibility = (orderNumber) => {
-        setVisibleOrders(prev => ({
-            ...prev,
-            [orderNumber]: !prev?.[orderNumber],
-        }));
+        setVisibleOrders(prev => {
+            const newVisibility = !prev?.[orderNumber];
+            if (newVisibility) {
+                const order = orders.find(o => o.orderNumber === orderNumber);
+                if (order && order.orderId && !orderDetails[order.orderId]) {
+                    fetchOrderDetails(order.orderId.toString()); // Convert BigInt to string
+                }
+            }
+            return {
+                ...prev,
+                [orderNumber]: newVisibility
+            };
+        });
     };
+
+
 
     const columns = [
         { title: "Order Number", dataIndex: "orderNumber", key: "orderNumber", align: "center" },
@@ -128,30 +161,59 @@ export default function ManageOrder() {
         },
     ];
 
+    const paymentColumns = [
+        { title: "Payment ID", dataIndex: "paymentId", key: "paymentId", align: "center" },
+        { title: "Order ID", dataIndex: "orderId", key: "orderId", align: "center" },
+        { title: "Payment Method", dataIndex: "paymentMethod", key: "paymentMethod", align: "center" },
+        {
+            title: "Payment Amount",
+            dataIndex: "paymentAmount",
+            key: "paymentAmount",
+            align: "center",
+            render: (amount) => amount ? `${amount.toLocaleString()} VND` : "N/A"
+        },
+    ];
+
     const expandableConfig = {
         expandedRowRender: (record) => {
-            console.log(`Rendering expanded row for order:`, record.orderNumber, record.orderId, typeof record.orderId, record.status);
+            const detailedOrder = orderDetails[record.orderId] || {};
+            console.log(`Rendering expanded row for order:`, record.orderNumber, record.orderId, typeof record.orderId, record.status, detailedOrder);
             return (
                 <div style={{ padding: "16px" }}>
                     <div style={{ marginBottom: "16px" }}>
                         <strong>Order Status:</strong>
                         <ManageOrderSteps
-                            status={record.status} // Pass the pre-mapped numeric status
+                            status={record.status}
                             currentOrderId={record.orderId}
                             onStatusUpdate={() => fetchOrders(currentPage)}
                         />
                     </div>
-                    <Table
-                        columns={productColumns}
-                        dataSource={record.products}
-                        rowKey="productId"
-                        pagination={false}
-                        style={{ margin: "0 16px" }}
-                    />
+                    <div style={{ marginBottom: "16px" }}>
+                        <strong>Products:</strong>
+                        <Table
+                            columns={productColumns}
+                            dataSource={record.products}
+                            rowKey="productId"
+                            pagination={false}
+                            style={{ margin: "0 16px" }}
+                        />
+                    </div>
+                    <div style={{ marginBottom: "16px" }}>
+                        <strong>Payment Information:</strong>
+                        <Table
+                            columns={paymentColumns}
+                            dataSource={detailedOrder.payment ? [detailedOrder.payment] : []}
+                            rowKey="paymentId"
+                            pagination={false}
+                            style={{ margin: "0 16px" }}
+                            loading={!orderDetails[record.orderId] && visibleOrders[record.orderNumber]}
+                        />
+                    </div>
                 </div>
             );
         },
-        rowExpandable: (record) => record.products && record.products.length > 0,
+        rowExpandable: (record) => (record.products && record.products.length > 0) || true, // Always expandable to fetch payment
+        onExpand: (expanded, record) => toggleVisibility(record.orderNumber),
     };
 
     return (
