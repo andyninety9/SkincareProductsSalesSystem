@@ -21,12 +21,12 @@ const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("manage-account")) return "0";
     if (pathname.includes("manage-product")) return "6";
     if (pathname.includes("manage-event")) return "8";
-    if (pathname.includes("manage-img-product")) return "7";
     if (pathname.includes("manage-order")) return "1";
     if (pathname.includes("manage-cancel-order")) return "2";
     if (pathname.includes("manage-request-product")) return "3";
     if (pathname.includes("view-comments")) return "4";
     if (pathname.includes("review-comments")) return "5";
+    if (pathname.includes("manage-category")) return "11";
     return "0"; // Mặc định vào "Manage Account" nếu không khớp
 };
 
@@ -44,24 +44,23 @@ const ManageOrderSidebar = () => {
             setSelectedKey(newSelectedKey);
         }
 
-        if (path.includes("manage-product") || path.includes("manage-img-product")) {
-            setOpenKeys(["sub3"]);
-        } else if (path.includes("manage-order")) {
+        if (path.includes("manage-order")) {
             setOpenKeys(["sub1"]);
         } else if (path.includes("manage-comment")) {
             setOpenKeys(["sub2"]);
-        } else {
-            setOpenKeys([]);
+        } else if (path.includes("manage-product")) {
+            setOpenKeys(["sub3"]);
         }
-    }, [location.pathname]); 
+    }, [location.pathname]);
 
     const handleMenuClick = (e) => {
         navigate(
             e.key === "0" ? "/manage-account" :
             e.key === "1" ? "/manage-order" :
             e.key === "6" ? "/manage-product" :
-            e.key === "7" ? "/manage-img-product" :
             e.key === "8" ? "/manage-event" :
+            e.key === "10" ? "/manage-brand" :
+            e.key === "11" ? "/manage-category" :
             "/"
         );
     };
@@ -104,8 +103,9 @@ const ManageOrderSidebar = () => {
                     <Menu.Item key="3">Manage Request Product</Menu.Item>
                 </SubMenu>
                 <SubMenu key="sub3" icon={<ShopOutlined />} title="Manage Products">
-                    <Menu.Item key="6">Manage Products</Menu.Item>
-                    {/* <Menu.Item key="7">Manage Image</Menu.Item> */}
+                    <Menu.Item key="6">Manage Product</Menu.Item>
+                    <Menu.Item key="10">Manage Brand</Menu.Item>
+                    <Menu.Item key="11">Manage Category</Menu.Item>
                 </SubMenu>
                 <SubMenu key="sub2" icon={<CommentOutlined />} title="Manage Comments">
                     <Menu.Item key="4">View Comments</Menu.Item>

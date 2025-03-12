@@ -61,11 +61,16 @@ export default function ManageProduct() {
     const [updateLoading, setUpdateLoading] = useState(false);
     const [imageUploading, setImageUploading] = useState(false);
     const [deleteImageLoading, setDeleteImageLoading] = useState(false);
+    // const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
+    // const [productToDelete, setProductToDelete] = useState(null);
 
     const ProductSchema = Yup.object().shape({
         productName: Yup.string().required('Product name is required'),
         productDesc: Yup.string().required('Description is required'),
-        stocks: Yup.number().required('Stock is required').positive('Must be positive').integer('Must be an integer'),
+        stocks: Yup.number()
+            .required('Stock is required')
+            .integer('Must be an integer')
+            .min(0, 'Stock cannot be negative'),
         costPrice: Yup.number().required('Cost price is required').positive('Must be positive'),
         sellPrice: Yup.number().required('Sell price is required').positive('Must be positive'),
         ingredient: Yup.string().required('Ingredient details are required'),
@@ -145,10 +150,8 @@ export default function ManageProduct() {
     const refreshProductData = async () => {
         try {
             const refreshResponse = await api.get(
-                `Products?page=${currentPage}&pageSize=${pageSize}${
-                    debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
-                }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${
-                    debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
+                `Products?page=${currentPage}&pageSize=${pageSize}${debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
+                }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
                 }`
             );
 
@@ -192,6 +195,11 @@ export default function ManageProduct() {
                 'On Sale': 5,
             };
 
+            let productStatus = statusMapping[values.prodStatusName] || 1;  // Set default status
+            if (values.stocks === 0) {
+                productStatus = 2; // Set status to 'Out of Stock' if stock is 0
+            }
+
             const updateData = {
                 productId: String(productId),
                 productName: values.productName,
@@ -204,7 +212,9 @@ export default function ManageProduct() {
                 prodUseFor: values.prodUseFor,
                 brandId: Number(values.brandId),
                 cateId: Number(values.categoryId),
-                prodStatusId: statusMapping[values.prodStatusName] || 1,
+                // prodStatusId: statusMapping[values.prodStatusName] || 1,
+                prodStatusId: productStatus, // Use the determined productStatus
+
             };
 
             const response = await api.patch('products/update', updateData);
@@ -214,10 +224,8 @@ export default function ManageProduct() {
 
                 // Refresh product list
                 const refreshResponse = await api.get(
-                    `Products?page=${currentPage}&pageSize=${pageSize}${
-                        debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
-                    }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${
-                        debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
+                    `Products?page=${currentPage}&pageSize=${pageSize}${debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
+                    }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
                     }`
                 );
 
@@ -241,15 +249,19 @@ export default function ManageProduct() {
         }
     };
 
+
+    // const handleDelete = (productId) => {
+    //     setProductToDelete(productId);
+    //     setDeleteModalVisible(true);
+    // };
+
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
             try {
                 const response = await api.get(
-                    `Products?page=${currentPage}&pageSize=${pageSize}${
-                        debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
-                    }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${
-                        debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
+                    `Products?page=${currentPage}&pageSize=${pageSize}${debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
+                    }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
                     }`
                 );
 
@@ -385,8 +397,7 @@ export default function ManageProduct() {
 
                 // Update refresh API call with correct parameters
                 const refreshResponse = await api.get(
-                    `Products?page=${currentPage}&pageSize=${pageSize}${searchTerm ? `&keyword=${searchTerm}` : ''}${
-                        selectedBrandId ? `&brandId=${selectedBrandId}` : ''
+                    `Products?page=${currentPage}&pageSize=${pageSize}${searchTerm ? `&keyword=${searchTerm}` : ''}${selectedBrandId ? `&brandId=${selectedBrandId}` : ''
                     }${selectedCategoryId ? `&cateId=${selectedCategoryId}` : ''}`
                 );
 
@@ -472,8 +483,8 @@ export default function ManageProduct() {
             productDesc: Yup.string().required('Description is required'),
             stocks: Yup.number()
                 .required('Stock is required')
-                .positive('Must be positive')
-                .integer('Must be an integer'),
+                .integer('Must be an integer')
+                .min(0, 'Stock cannot be negative'),
             costPrice: Yup.number().required('Cost price is required').positive('Must be positive'),
             sellPrice: Yup.number().required('Sell price is required').positive('Must be positive'),
             ingredient: Yup.string().required('Ingredient details are required'),
@@ -936,6 +947,7 @@ export default function ManageProduct() {
                 </div>
             ),
         },
+
     ];
 
     return (
@@ -946,9 +958,13 @@ export default function ManageProduct() {
                 <div style={{ flex: 1, padding: '24px', overflowY: 'auto', marginLeft: '250px' }}>
                     <h1 style={{ fontSize: '40px', textAlign: 'left' }}>Products</h1>
 
-                    <Button type="primary" onClick={showModal} style={{ marginBottom: '20px' }}>
+                    <Button
+                        type="primary"
+                        onClick={showModal}
+                        style={{ marginBottom: '20px', backgroundColor: '#D8959A', borderColor: '#D8959A' }}>
                         Create Product
                     </Button>
+
 
                     {/* Filters and Search */}
                     <div style={{ display: 'flex', gap: '10px', marginBottom: '30px', alignItems: 'center' }}>

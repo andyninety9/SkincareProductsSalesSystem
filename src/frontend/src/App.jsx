@@ -36,6 +36,7 @@ import ManageProduct from './page/manageProduct/ManageProduct';
 import ManageEvent from './page/manageEvent/ManageEvent';
 import ManageImgProduct from './page/manageProduct/ManageImgProduct';
 import DemoUpload from './page/DemoUpload';
+import ManageCategory from './page/manageCategory/ManageCategory';
 
 function App() {
     const router = createBrowserRouter([
@@ -165,10 +166,10 @@ function App() {
             ),
         },
         {
-            path: routes.manageImgProduct,
+            path: routes.manageCategory,
             element: (
                 <ProtectedRoute roles={['Manager', 'Staff']}>
-                    <ManageImgProduct />
+                    <ManageCategory />
                 </ProtectedRoute>
             ),
         },

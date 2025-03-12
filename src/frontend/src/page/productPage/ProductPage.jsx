@@ -147,8 +147,12 @@ export default function ProductPage() {
             });
 
             if (response.data && response.data.data.items && Array.isArray(response.data.data.items)) {
-                setProducts(response.data.data.items);
-                setFilteredProducts(response.data.data.items);
+                const processedItems = response.data.data.items.map((item) => ({
+                    ...item,
+                    productId: item.productId ? BigInt(item.productId) : item.productId,
+                }));
+                setProducts(processedItems);
+                setFilteredProducts(processedItems);
 
                 const uniqueBrands = [...new Set(response.data.data.items.map((item) => item.brandName))];
                 const uniqueCategories = [...new Set(response.data.data.items.map((item) => item.categoryName))];
