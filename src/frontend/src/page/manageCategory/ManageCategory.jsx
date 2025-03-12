@@ -10,7 +10,7 @@ const ManageCategory = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await api.get('Products/categories?page=1&pageSize=1000'); // Lấy danh sách danh mục
+                const response = await api.get('Products/categories?page=1&pageSize=100'); // Lấy danh sách danh mục
                 if (response.data) {
                     setCategories(response.data); // Cập nhật danh sách vào state
                 } else {
