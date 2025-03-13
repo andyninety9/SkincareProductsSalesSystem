@@ -8,16 +8,15 @@ import api from '../../config/api';
 export default function ManageQuiz() {
     const [quizItems, setQuizItems] = useState([]);
     const [visibleItems, setVisibleItems] = useState({});
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const pageSize = 10;
 
-    const fetchQuizItems = async (page = 1) => {
+    const fetchQuizItems = async () => {
         setLoading(true);
         try {
-            // Fixed endpoint (removed double 'api/') and fixed timestamp parameter typo
             const response = await api.get("Skintype");
             if (response.data.statusCode === 200) {
                 const quizData = response.data.data.items;
@@ -30,7 +29,7 @@ export default function ManageQuiz() {
                     }))
                     : [];
                 setQuizItems(formattedItems);
-                setTotal(response.data.data.totalItems || quizData.length);
+                setTotal(Math.min(formattedItems.length, pageSize));
             } else {
                 throw new Error(`Unexpected status code: ${response.data.statusCode}`);
             }
@@ -45,8 +44,8 @@ export default function ManageQuiz() {
     };
 
     useEffect(() => {
-        fetchQuizItems(currentPage);
-    }, [currentPage]);
+        fetchQuizItems();
+    }, []);
 
     const toggleVisibility = (skinTypeId) => {
         setVisibleItems((prev) => ({
@@ -82,7 +81,7 @@ export default function ManageQuiz() {
         expandedRowRender: (record) => {
             return (
                 <div className="expanded-row-content" style={{ padding: "16px" }}>
-                    <div style={{ marginBottom: "16px" }}>
+                    <div style={{ marginBottom: "10px" }}>
                         <strong>Mô tả:</strong>
                         <p>{record.skinTypeDesc}</p>
                     </div>
@@ -105,29 +104,29 @@ export default function ManageQuiz() {
                 <div
                     style={{
                         flex: 1,
-                        padding: "32px", 
+                        padding: "32px",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
                         overflowY: "auto",
-                        marginLeft: "300px" 
+                        marginLeft: "300px"
                     }}
                 >
-                    <div style={{ maxWidth: "1200px", margin: "0 auto" }}> {/* Increased maxWidth for wider table */}
-                        <h1 style={{ fontSize: "40px", textAlign: "left", width: "100%", marginBottom: "16px" }}>Quiz</h1> {/* Reduced marginBottom */}
+                    <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+                        <h1 style={{ fontSize: "40px", textAlign: "left", width: "100%", marginBottom: "16px" }}>Quiz</h1>
                         {error && (
-                            <div style={{ color: "red", marginBottom: "16px" }}> {/* Reduced marginBottom */}
+                            <div style={{ color: "red", marginBottom: "16px" }}>
                                 Error: {error}
                             </div>
                         )}
-                        <div style={{ display: "flex", gap: "50px", marginBottom: "16px", justifyContent: "flex-start" }}> {/* Reduced marginBottom and gap */}
+                        <div style={{ display: "flex", gap: "50px", marginBottom: "16px", justifyContent: "flex-start" }}>
                             <Card style={{ textAlign: "center", width: "180px", backgroundColor: "#FFFCFC", height: "140px", borderRadius: "12px" }}>
                                 <h2 style={{ fontSize: "18px", fontFamily: "Nunito, sans-serif" }}>Total Quiz Items</h2>
                                 <p style={{ fontSize: "40px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>{total}</p>
                             </Card>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "24px", marginTop: "24px" }}> {/* Reduced margins */}
-                            <Input placeholder="Search skin types ..." style={{ width: "500px" }} suffix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />} /> {/* Increased input width */}
+                        <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "24px", marginTop: "24px" }}>
+                            <Input placeholder="Search skin types ..." style={{ width: "500px" }} suffix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />} />
                         </div>
                         <div style={{ width: "100%" }}>
                             <Table
@@ -138,16 +137,16 @@ export default function ManageQuiz() {
                                 pagination={false}
                                 expandable={expandableConfig}
                                 className="manage-quiz-table"
-                                style={{ width: "100%" }} // Ensure table uses full width
+                                style={{ width: "100%" }}
                             />
-                            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "24px" }}> {/* Increased marginTop */}
+                            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "24px" }}>
                                 <Pagination
                                     current={currentPage}
                                     pageSize={pageSize}
                                     total={total}
-                                    onChange={(page) => setCurrentPage(page)}
-                                    position={["bottomCenter"]}
+                                    onChange={() => { }}
                                     showSizeChanger={false}
+                                    style={{ textAlign: "center" }}
                                 />
                             </div>
                         </div>
