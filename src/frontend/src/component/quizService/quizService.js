@@ -1,8 +1,7 @@
-// src/services/quizService.js
-import api from '../config/api';
+import api from "../../config/api.jsx";
+
 
 const quizService = {
-    // Fetch all quiz items with pagination
     getAllQuizItems: async (page, pageSize) => {
         try {
             const response = await api.get(`Question/get-all?page=${page}&pageSize=${pageSize}`);
@@ -15,7 +14,6 @@ const quizService = {
         }
     },
 
-    // Create a new question
     createQuestion: async (questionData) => {
         try {
             const response = await api.post('Question/create', questionData);
@@ -28,7 +26,6 @@ const quizService = {
         }
     },
 
-    // Update an existing question
     updateQuestion: async (questionId, questionData) => {
         try {
             const response = await api.put(`Question/update/${questionId}`, questionData);
@@ -41,7 +38,6 @@ const quizService = {
         }
     },
 
-    // Delete a question
     deleteQuestion: async (questionId) => {
         try {
             const response = await api.delete(`Question/delete/${questionId}`);

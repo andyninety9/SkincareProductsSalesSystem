@@ -4,8 +4,7 @@ import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSi
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
 import { useState, useEffect } from "react";
 import api from '../../config/api';
-
-const { Option } = Select;
+import quizService from "../../component/quizService/quizService";
 
 export default function ManageQuiz() {
     const [quizItems, setQuizItems] = useState([]);
@@ -23,24 +22,17 @@ export default function ManageQuiz() {
     const fetchQuizItems = async (page = 1) => {
         setLoading(true);
         try {
-            const response = await api.get(`Question/get-all?page=${page}&pageSize=${pageSize}`);
-            if (response.status !== 200) {
-                throw new Error(`HTTP Error: ${response.status}`);
-            }
-
-            const quizData = response.data.data?.items || [];
-            const formattedItems = Array.isArray(quizData)
-                ? quizData.map((item) => ({
-                    questionId: item.questionId,
-                    cateQuestionId: item.cateQuestionId || "N/A",
-                    questionContent: item.questionContent || "N/A",
-                    keyQuestions: item.keyQuestions || [],
-                }))
-                : [];
+            const data = await quizService.getAllQuizItems(page, pageSize);
+            const formattedItems = (data.items || []).map((item) => ({
+                questionId: item.questionId,
+                cateQuestionId: item.cateQuestionId || "N/A",
+                questionContent: item.questionContent || "N/A",
+                keyQuestions: item.keyQuestions || [],
+            }));
             setQuizItems(formattedItems);
-            setTotal(response.data.data?.totalItems || formattedItems.length);
+            setTotal(data.totalItems || formattedItems.length);
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch quiz items';
+            const errorMessage = error.message;
             setError(errorMessage);
             message.error(errorMessage);
         } finally {
@@ -59,28 +51,27 @@ export default function ManageQuiz() {
         }));
     };
 
-    // CRUD Operations
     const handleCreate = async (values) => {
         try {
-            await api.post('Question/create', values);
+            await quizService.createQuestion(values);
             message.success('Question created successfully');
             setIsCreateModalVisible(false);
             form.resetFields();
-            fetchQuizItems(currentPage); // Refresh data
+            fetchQuizItems(currentPage);
         } catch (error) {
-            message.error('Failed to create question');
+            message.error(error.message);
         }
     };
 
     const handleUpdate = async (values) => {
         try {
-            await api.put(`Question/update/${selectedQuestion.questionId}`, values);
+            await quizService.updateQuestion(selectedQuestion.questionId, values);
             message.success('Question updated successfully');
             setIsUpdateModalVisible(false);
             form.resetFields();
-            fetchQuizItems(currentPage); // Refresh data
+            fetchQuizItems(currentPage);
         } catch (error) {
-            message.error('Failed to update question');
+            message.error(error.message);
         }
     };
 
@@ -89,11 +80,11 @@ export default function ManageQuiz() {
             title: 'Are you sure you want to delete this question?',
             onOk: async () => {
                 try {
-                    await api.delete(`Question/delete/${questionId}`);
+                    await quizService.deleteQuestion(questionId);
                     message.success('Question deleted successfully');
-                    fetchQuizItems(currentPage); // Refresh data
+                    fetchQuizItems(currentPage);
                 } catch (error) {
-                    message.error('Failed to delete question');
+                    message.error(error.message);
                 }
             },
         });
@@ -182,23 +173,53 @@ export default function ManageQuiz() {
                     {record.keyQuestions.length > 0 ? (
                         <Row gutter={[16, 16]}>
                             <Col span={12}>
-                                <ul>
-                                    {leftQuestions.map((key) => (
-                                        <li key={key.keyId} style={{ marginBottom: "10px" }}>
-                                            <strong>ID:</strong> {key.keyId} <br />
-                                            <strong>Câu trả lời:</strong> {key.keyContent} <br />
-                                            <strong>Điểm:</strong> {key.keyScore}
+                                <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                                    {leftQuestions.map((key, index) => (
+                                        <li
+                                            key={key.keyId}
+                                            style={{
+                                                marginBottom: "10px",
+                                                paddingBottom: "10px",
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    width: "100%",
+                                                    borderBottom: index < leftQuestions.length - 1 ? "1px solid #e8e8e8" : "none",
+                                                    paddingBottom: "10px",
+                                                }}
+                                            >
+                                                <strong>• Answer ID:</strong> {key.keyId} <br />
+                                                <strong>• Category ID:</strong> {record.cateQuestionId} <br />
+                                                <strong>• Câu trả lời:</strong> {key.keyContent} <br />
+                                                <strong>• Điểm:</strong> {key.keyScore}
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>
                             </Col>
                             <Col span={12}>
-                                <ul>
-                                    {rightQuestions.map((key) => (
-                                        <li key={key.keyId} style={{ marginBottom: "10px" }}>
-                                            <strong>ID:</strong> {key.keyId} <br />
-                                            <strong>Câu trả lời:</strong> {key.keyContent} <br />
-                                            <strong>Điểm:</strong> {key.keyScore}
+                                <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                                    {rightQuestions.map((key, index) => (
+                                        <li
+                                            key={key.keyId}
+                                            style={{
+                                                marginBottom: "10px",
+                                                paddingBottom: "10px",
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    width: "100%",
+                                                    borderBottom: index < rightQuestions.length - 1 ? "1px solid #e8e8e8" : "none",
+                                                    paddingBottom: "10px",
+                                                }}
+                                            >
+                                                <strong>• Answer ID:</strong> {key.keyId} <br />
+                                                <strong>• Category ID:</strong> {record.cateQuestionId} <br />
+                                                <strong>• Câu trả lời:</strong> {key.keyContent} <br />
+                                                <strong>• Điểm:</strong> {key.keyScore}
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>
@@ -309,7 +330,7 @@ export default function ManageQuiz() {
                     <Form.Item
                         name="cateQuestionId"
                         label="Category ID"
-                        rules={[{ required: true, message: 'Please select a category!' }]}
+                        rules={[{ required: true, message: 'Please input a category ID!' }]}
                     >
                         <AntInput type="number" />
                     </Form.Item>
@@ -373,7 +394,7 @@ export default function ManageQuiz() {
                     <Form.Item
                         name="cateQuestionId"
                         label="Category ID"
-                        rules={[{ required: true, message: 'Please select a category!' }]}
+                        rules={[{ required: true, message: 'Please input a category ID!' }]}
                     >
                         <AntInput type="number" />
                     </Form.Item>
