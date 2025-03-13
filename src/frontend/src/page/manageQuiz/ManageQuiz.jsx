@@ -71,7 +71,7 @@ export default function ManageQuiz() {
     const handleCreate = useCallback(async (values) => {
         try {
             await quizService.createQuestion(values);
-            message.success('Question created successfully');
+            message.success('Tạo câu hỏi thành công');
             setModalState((prev) => ({ ...prev, createVisible: false }));
             form.resetFields();
             fetchQuizItems(currentPage);
@@ -83,7 +83,7 @@ export default function ManageQuiz() {
     const handleUpdate = useCallback(async (values) => {
         try {
             await quizService.updateQuestion(modalState.selectedQuestion.questionId, values);
-            message.success('Question updated successfully');
+            message.success('Cập nhật câu hỏi thành công');
             setModalState((prev) => ({ ...prev, updateVisible: false, selectedQuestion: null }));
             form.resetFields();
             fetchQuizItems(currentPage);
@@ -94,11 +94,11 @@ export default function ManageQuiz() {
 
     const handleDelete = useCallback((questionId) => {
         Modal.confirm({
-            title: 'Are you sure you want to delete this question?',
+            title: 'Bạn có chắc chắn muốn xóa câu hỏi này không?',
             onOk: async () => {
                 try {
                     await quizService.deleteQuestion(questionId);
-                    message.success('Question deleted successfully');
+                    message.success('Xóa câu hỏi thành công');
                     fetchQuizItems(currentPage);
                 } catch (error) {
                     handleError(error);
@@ -137,16 +137,19 @@ export default function ManageQuiz() {
                         type="link"
                         icon={<EditOutlined />}
                         onClick={() => setModalState((prev) => ({ ...prev, updateVisible: true, selectedQuestion: record }))}
+                        style={{ color: '#D8959B' }} // Apply the desired color
                     >
-                        Update
+                        Cập Nhật
                     </Button>
+
                     <Button
                         type="link"
                         danger
                         icon={<DeleteOutlined />}
+                        style={{ color: '#6A6A6A' }}
                         onClick={() => handleDelete(record.questionId)}
                     >
-                        Delete
+                        Xoá
                     </Button>
                 </>
             ),
@@ -171,7 +174,6 @@ export default function ManageQuiz() {
                                         <li key={key.keyId} style={{ marginBottom: "10px" }}>
                                             <div style={{ borderBottom: index < leftQuestions.length - 1 ? "1px solid #e8e8e8" : "none", paddingBottom: "10px" }}>
                                                 <strong>• Answer ID:</strong> {key.keyId} <br />
-                                                <strong>• Category ID:</strong> {record.cateQuestionId} <br />
                                                 <strong>• Câu trả lời:</strong> {key.keyContent} <br />
                                                 <strong>• Điểm:</strong> {key.keyScore}
                                             </div>
@@ -185,7 +187,6 @@ export default function ManageQuiz() {
                                         <li key={key.keyId} style={{ marginBottom: "10px" }}>
                                             <div style={{ borderBottom: index < rightQuestions.length - 1 ? "1px solid #e8e8e8" : "none", paddingBottom: "10px" }}>
                                                 <strong>• Answer ID:</strong> {key.keyId} <br />
-                                                <strong>• Category ID:</strong> {record.cateQuestionId} <br />
                                                 <strong>• Câu trả lời:</strong> {key.keyContent} <br />
                                                 <strong>• Điểm:</strong> {key.keyScore}
                                             </div>
@@ -231,7 +232,7 @@ export default function ManageQuiz() {
                             </Col>
                             <Col>
                                 <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalState((prev) => ({ ...prev, createVisible: true }))}>
-                                    Create Question
+                                    Tạo câu hỏi
                                 </Button>
                             </Col>
                         </Row>
@@ -257,7 +258,7 @@ export default function ManageQuiz() {
             </div>
 
             <Modal
-                title="Create New Question"
+                title="Tạo câu hỏi mới"
                 visible={modalState.createVisible}
                 onCancel={handleModalCancel}
                 footer={null}
@@ -265,15 +266,15 @@ export default function ManageQuiz() {
                 <Form form={form} onFinish={handleCreate} layout="vertical">
                     <Form.Item
                         name="questionContent"
-                        label="Question Content"
-                        rules={[{ required: true, message: "Please input the question content!" }]}
+                        label="Nội dung câu hỏi"
+                        rules={[{ required: true, message: "Vui lòng nhập nội dung câu hỏi!" }]}
                     >
                         <Input />
                     </Form.Item>
                     <Form.Item
                         name="cateQuestionId"
-                        label="Category ID"
-                        rules={[{ required: true, message: "Please input a category ID!" }]}
+                        label="ID danh mục"
+                        rules={[{ required: true, message: "Vui lòng nhập ID danh mục!" }]}
                     >
                         <Input type="number" />
                     </Form.Item>
@@ -286,7 +287,7 @@ export default function ManageQuiz() {
                                             <Form.Item
                                                 {...restField}
                                                 name={[name, "keyContent"]}
-                                                rules={[{ required: true, message: "Please input the answer!" }]}
+                                                rules={[{ required: true, message: "Vui lòng nhập câu trả lời!" }]}
                                             >
                                                 <Input placeholder="Answer" />
                                             </Form.Item>
@@ -295,22 +296,22 @@ export default function ManageQuiz() {
                                             <Form.Item
                                                 {...restField}
                                                 name={[name, "keyScore"]}
-                                                rules={[{ required: true, message: "Please input the score!" }]}
+                                                rules={[{ required: true, message: "Vui lòng nhập điểm!" }]}
                                             >
                                                 <Input type="number" placeholder="Score" />
                                             </Form.Item>
                                         </Col>
                                         <Col span={4}>
-                                            <Button danger onClick={() => remove(name)}>Remove</Button>
+                                            <Button danger onClick={() => remove(name)}>Xóa</Button>
                                         </Col>
                                     </Row>
                                 ))}
-                                <Button type="dashed" onClick={() => add()} block>Add Answer</Button>
+                                <Button type="dashed" onClick={() => add()} block>Thêm câu trả lời</Button>
                             </>
                         )}
                     </Form.List>
                     <Form.Item>
-                        <Button type="primary" htmlType="submit">Create</Button>
+                        <Button type="primary" htmlType="submit">Tạo</Button>
                     </Form.Item>
                 </Form>
             </Modal>

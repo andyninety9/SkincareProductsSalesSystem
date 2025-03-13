@@ -55,6 +55,8 @@ const UpdateQuestionModal = ({
                         fontWeight: 'bold',
                         fontSize: '16px',
                         fontFamily: "'Nunito', sans-serif",
+                        
+                
                     }}
                     name="questionContent"
                     label="Nội dung câu hỏi"
@@ -113,7 +115,7 @@ const UpdateQuestionModal = ({
                                         style={{
                                             marginBottom: 0,
                                             color: '#5A2D2F',
-                                            fontWeight: 'bold',
+
                                         }}
                                     >
                                         <AntInput
@@ -136,7 +138,7 @@ const UpdateQuestionModal = ({
                                         style={{
                                             marginBottom: 0,
                                             color: '#5A2D2F',
-                                            fontWeight: 'bold',
+                               
 
                                         }}
                                     >
