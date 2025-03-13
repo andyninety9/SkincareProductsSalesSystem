@@ -18,14 +18,12 @@ export default function ManageQuiz() {
         setLoading(true);
         try {
             const response = await api.get(`Skintype?page=${page}&pageSize=${pageSize}`);
-            console.log('API Response:', response); // Log the full response for debugging
+            console.log('API Response:', response);
 
-            // Check HTTP status (optional, since axios throws on non-2xx)
             if (response.status !== 200) {
                 throw new Error(`HTTP Error: ${response.status}`);
             }
 
-            // Assume success if we reach here; process the data
             const quizData = response.data.data?.items || [];
             const formattedItems = Array.isArray(quizData)
                 ? quizData.map((item) => ({
@@ -36,10 +34,10 @@ export default function ManageQuiz() {
                 }))
                 : [];
             setQuizItems(formattedItems);
-            setTotal(response.data.data?.totalItems || formattedItems.length); // Fallback to length if totalItems is missing
+            setTotal(response.data.data?.totalItems || formattedItems.length);
         } catch (error) {
             console.error('Error fetching quiz items:', error);
-            console.error('Response data (if available):', error.response?.data); // Log error details
+            console.error('Response data (if available):', error.response?.data);
             const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch quiz items';
             setError(errorMessage);
             message.error(errorMessage);
