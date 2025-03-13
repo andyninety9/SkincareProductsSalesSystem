@@ -55,15 +55,15 @@ const UpdateQuestionModal = ({
                         fontWeight: 'bold',
                         fontSize: '16px',
                         fontFamily: "'Nunito', sans-serif",
-                        
-                
+
+
                     }}
                     name="questionContent"
                     label="Nội dung câu hỏi"
                     rules={[{ required: true, message: 'Vui lòng nhập nội dung câu hỏi!' }]}
                 >
                     <TextArea
-                        rows={4}
+                        autoSize={{ minRows: 3, maxRows: 10 }} 
                         style={{
                             color: "#5A2D2F",
                             borderColor: "#5A2D2F",
@@ -81,11 +81,12 @@ const UpdateQuestionModal = ({
                     }}
                     name="cateQuestionId"
                     label="Category ID"
-                    rules={[{ required: true, message: 'Vui lòng nhập ID danh mục!' }]}
+                    rules={[{ required: true, message: 'Vui lòng nhập Category ID!' }]}
                 >
                     <AntInput
                         type="number"
                         min={0}
+                        max={20}
                         style={{
                             color: "#5A2D2F",
                             borderColor: "#5A2D2F",
@@ -118,8 +119,9 @@ const UpdateQuestionModal = ({
 
                                         }}
                                     >
-                                        <AntInput
-                                            placeholder="Câu trả lời"
+                                        <TextArea
+                                            rows={4}
+                                            autoSize={{ minRows: 1, maxRows: 5 }} 
                                             style={{
                                                 color: "#5A2D2F",
                                                 borderColor: "#5A2D2F",
@@ -138,7 +140,7 @@ const UpdateQuestionModal = ({
                                         style={{
                                             marginBottom: 0,
                                             color: '#5A2D2F',
-                               
+
 
                                         }}
                                     >
@@ -146,6 +148,7 @@ const UpdateQuestionModal = ({
                                             type="number"
                                             placeholder="Điểm"
                                             min={0}
+                                            max={10}
                                             style={{
                                                 color: "#5A2D2F",
                                                 borderColor: "#5A2D2F",
