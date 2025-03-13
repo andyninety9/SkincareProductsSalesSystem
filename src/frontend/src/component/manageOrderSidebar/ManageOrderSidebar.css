@@ -127,3 +127,9 @@
  .ant-pagination-next .ant-pagination-item-link {
      color: #A0A0A0 !important;
  }
+
+ .ant-menu-item-selected {
+     background-color: #F6EEF0 !important;
+     color: #D8959B !important;
+
+ }

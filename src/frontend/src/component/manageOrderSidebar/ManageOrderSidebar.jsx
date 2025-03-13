@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Layout, Menu } from "antd";
-import { UserOutlined, CommentOutlined, ContainerOutlined, ShopOutlined, CalendarOutlined } from "@ant-design/icons";
+import { UserOutlined, CommentOutlined, ContainerOutlined, ShopOutlined, CalendarOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./ManageOrderSidebar.css";
 
@@ -27,7 +27,8 @@ const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("view-comments")) return "4";
     if (pathname.includes("review-comments")) return "5";
     if (pathname.includes("manage-category")) return "11";
-    return "0"; // Mặc định vào "Manage Account" nếu không khớp
+    if (pathname.includes("manage-quiz")) return "7"; // Added for Manage Quiz
+    return "0"; // Default to "Manage Account" if no match
 };
 
 const ManageOrderSidebar = () => {
@@ -56,17 +57,18 @@ const ManageOrderSidebar = () => {
     const handleMenuClick = (e) => {
         navigate(
             e.key === "0" ? "/manage-account" :
-            e.key === "1" ? "/manage-order" :
-            e.key === "6" ? "/manage-product" :
-            e.key === "8" ? "/manage-event" :
-            e.key === "10" ? "/manage-brand" :
-            e.key === "11" ? "/manage-category" :
-            "/"
+                e.key === "1" ? "/manage-order" :
+                    e.key === "6" ? "/manage-product" :
+                        e.key === "8" ? "/manage-event" :
+                            e.key === "10" ? "/manage-brand" :
+                                e.key === "11" ? "/manage-category" :
+                                    e.key === "7" ? "/manage-quiz" :
+                                        "/"
         );
     };
 
     const handleOpenChange = (keys) => {
-        setOpenKeys(keys); // Cập nhật trạng thái submenu mở
+        setOpenKeys(keys);
         setPersistedOpenKeys(keys);
     };
 
@@ -92,7 +94,7 @@ const ManageOrderSidebar = () => {
                 mode="inline"
                 selectedKeys={[selectedKey]}
                 openKeys={openKeys}
-                onOpenChange={handleOpenChange} // Cập nhật trạng thái submenu mở
+                onOpenChange={handleOpenChange}
                 onClick={handleMenuClick}
                 style={{ flex: 1, borderRight: 0 }}
             >
@@ -112,6 +114,7 @@ const ManageOrderSidebar = () => {
                     <Menu.Item key="5">Review Comments</Menu.Item>
                 </SubMenu>
                 <Menu.Item key="8" icon={<CalendarOutlined />}>Manage Events</Menu.Item>
+                <Menu.Item key="7" icon={<QuestionCircleOutlined />}>Manage Quiz</Menu.Item>
             </Menu>
             <div
                 style={{

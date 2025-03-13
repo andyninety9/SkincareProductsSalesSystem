@@ -28,9 +28,10 @@ export const routes = {
     manageImgProduct: '/manage-img-product',
     manageEvent: '/manage-event',
     manageCategory: '/manage-category',
+    manageQuiz: '/manage-quiz',
     resultQuiz: '/your-skin-type-result',
     paymentReturn: '/payment-return',
     notfound: '/404',
     restricted: '/restricted',
-    
+
 };
