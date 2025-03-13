@@ -1,4 +1,4 @@
-import { Table, Button, Input, Card, message, Pagination, Row, Col } from "antd";
+import { Table, Input, Card, message, Pagination, Row, Col } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
@@ -18,8 +18,6 @@ export default function ManageQuiz() {
         setLoading(true);
         try {
             const response = await api.get(`Question/get-all?page=${page}&pageSize=${pageSize}`);
-            console.log(`API Response for page ${page}:`, response);
-
             if (response.status !== 200) {
                 throw new Error(`HTTP Error: ${response.status}`);
             }
@@ -36,8 +34,6 @@ export default function ManageQuiz() {
             setQuizItems(formattedItems);
             setTotal(response.data.data?.totalItems || formattedItems.length);
         } catch (error) {
-            console.error('Error fetching quiz items:', error);
-            console.error('Response data (if available):', error.response?.data);
             const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch quiz items';
             setError(errorMessage);
             message.error(errorMessage);
@@ -46,42 +42,9 @@ export default function ManageQuiz() {
         }
     };
 
-    // New function to fetch all pages and log unique items
-    const fetchAllQuizItems = async () => {
-        setLoading(true);
-        let allItems = [];
-        const totalPages = Math.ceil(total / pageSize) || 6; // Use total from state, default to 6 if not yet set
-
-        try {
-            for (let page = 1; page <= totalPages; page++) {
-                const response = await api.get(`Question/get-all?page=${page}&pageSize=${pageSize}`);
-                console.log(`Fetched page ${page}:`, response.data.data?.items);
-                const pageItems = response.data.data?.items || [];
-                allItems = [...allItems, ...pageItems];
-            }
-
-            // Remove duplicates based on questionId
-            const uniqueItems = Array.from(new Map(allItems.map(item => [item.questionId, item])).values());
-            console.log('Total unique items received:', uniqueItems.length);
-            console.log('All unique items:', uniqueItems);
-        } catch (error) {
-            console.error('Error fetching all quiz items:', error);
-            message.error('Failed to fetch all quiz items');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
         fetchQuizItems(currentPage);
     }, [currentPage]);
-
-    // Trigger fetchAllQuizItems once total is set (after first fetch)
-    useEffect(() => {
-        if (total > 0) { // Ensure total is set before running
-            fetchAllQuizItems();
-        }
-    }, [total]);
 
     const toggleVisibility = (questionId) => {
         setVisibleItems((prev) => ({
