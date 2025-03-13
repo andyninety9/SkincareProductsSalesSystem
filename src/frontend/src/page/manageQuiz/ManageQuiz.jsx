@@ -8,16 +8,16 @@ import api from '../../config/api';
 export default function ManageQuiz() {
     const [quizItems, setQuizItems] = useState([]);
     const [visibleItems, setVisibleItems] = useState({});
-    const [currentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const pageSize = 10;
 
-    const fetchQuizItems = async () => {
+    const fetchQuizItems = async (page = 1) => {
         setLoading(true);
         try {
-            const response = await api.get("Skintype");
+            const response = await api.get(`Skintype?page=${page}&pageSize=${pageSize}`);
             if (response.data.statusCode === 200) {
                 const quizData = response.data.data.items;
                 const formattedItems = Array.isArray(quizData)
@@ -29,7 +29,7 @@ export default function ManageQuiz() {
                     }))
                     : [];
                 setQuizItems(formattedItems);
-                setTotal(Math.min(formattedItems.length, pageSize));
+                setTotal(response.data.data.totalItems); // Set total to 16 from API response
             } else {
                 throw new Error(`Unexpected status code: ${response.data.statusCode}`);
             }
@@ -44,8 +44,8 @@ export default function ManageQuiz() {
     };
 
     useEffect(() => {
-        fetchQuizItems();
-    }, []);
+        fetchQuizItems(currentPage);
+    }, [currentPage]);
 
     const toggleVisibility = (skinTypeId) => {
         setVisibleItems((prev) => ({
@@ -81,7 +81,7 @@ export default function ManageQuiz() {
         expandedRowRender: (record) => {
             return (
                 <div className="expanded-row-content" style={{ padding: "16px" }}>
-                    <div style={{ marginBottom: "10px" }}>
+                    <div style={{ marginBottom: "16px" }}>
                         <strong>Mô tả:</strong>
                         <p>{record.skinTypeDesc}</p>
                     </div>
@@ -134,7 +134,7 @@ export default function ManageQuiz() {
                                 columns={columns}
                                 rowKey="skinTypeId"
                                 loading={loading}
-                                pagination={false}
+                                pagination={false} // Disable table's built-in pagination
                                 expandable={expandableConfig}
                                 className="manage-quiz-table"
                                 style={{ width: "100%" }}
@@ -144,9 +144,9 @@ export default function ManageQuiz() {
                                     current={currentPage}
                                     pageSize={pageSize}
                                     total={total}
-                                    onChange={() => { }}
+                                    onChange={(page) => setCurrentPage(page)}
                                     showSizeChanger={false}
-                                    style={{ textAlign: "center" }}
+                                    style={{ textAlign: "center" }} // Center the pagination
                                 />
                             </div>
                         </div>
