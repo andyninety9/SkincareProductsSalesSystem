@@ -35,6 +35,7 @@ import ManageAccount from './page/manageAccount/ManageAccount';
 import ManageProduct from './page/manageProduct/ManageProduct';
 import ManageEvent from './page/manageEvent/ManageEvent';
 import ManageImgProduct from './page/manageProduct/ManageImgProduct';
+import ManageQuiz from './page/manageQuiz/ManageQuiz';
 import DemoUpload from './page/DemoUpload';
 import ManageCategory from './page/manageCategory/ManageCategory';
 
@@ -178,6 +179,14 @@ function App() {
             element: (
                 <ProtectedRoute roles={['Manager', 'Staff']}>
                     <ManageEvent />
+                </ProtectedRoute>
+            ),
+        },
+        {
+            path: routes.manageQuiz,
+            element: (
+                <ProtectedRoute roles={['Manager', 'Staff']}>
+                    <ManageQuiz />
                 </ProtectedRoute>
             ),
         },
