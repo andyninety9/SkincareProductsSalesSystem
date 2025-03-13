@@ -28,7 +28,7 @@ const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("review-comments")) return "5";
     if (pathname.includes("manage-category")) return "11";
     if (pathname.includes("manage-quiz")) return "7"; // Added for Manage Quiz
-    return "0"; // Mặc định vào "Manage Account" nếu không khớp
+    return "0"; // Default to "Manage Account" if no match
 };
 
 const ManageOrderSidebar = () => {
@@ -62,7 +62,7 @@ const ManageOrderSidebar = () => {
                         e.key === "8" ? "/manage-event" :
                             e.key === "10" ? "/manage-brand" :
                                 e.key === "11" ? "/manage-category" :
-                                    e.key === "7" ? "/manage-quiz" : 
+                                    e.key === "7" ? "/manage-quiz" :
                                         "/"
         );
     };
