@@ -38,6 +38,7 @@ import ManageImgProduct from './page/manageProduct/ManageImgProduct';
 import ManageQuiz from './page/manageQuiz/ManageQuiz';
 import DemoUpload from './page/DemoUpload';
 import ManageCategory from './page/manageCategory/ManageCategory';
+import ManageSkintype from './page/manageSkintype/ManageSkintype';
 
 function App() {
     const router = createBrowserRouter([
@@ -187,6 +188,14 @@ function App() {
             element: (
                 <ProtectedRoute roles={['Manager', 'Staff']}>
                     <ManageQuiz />
+                </ProtectedRoute>
+            ),
+        },
+        {
+            path: routes.manageSkintype,
+            element: (
+                <ProtectedRoute roles={['Manager', 'Staff']}>
+                    <ManageSkintype />
                 </ProtectedRoute>
             ),
         },

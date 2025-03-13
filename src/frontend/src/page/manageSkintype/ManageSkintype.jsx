@@ -5,8 +5,8 @@ import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHead
 import { useState, useEffect } from "react";
 import api from '../../config/api';
 
-export default function ManageQuiz() {
-    const [quizItems, setQuizItems] = useState([]);
+export default function ManageSkintype() {
+    const [skintypeItems, setSkintypeItems] = useState([]);
     const [visibleItems, setVisibleItems] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
     const [total, setTotal] = useState(0);
@@ -14,31 +14,31 @@ export default function ManageQuiz() {
     const [error, setError] = useState(null);
     const pageSize = 10;
 
-    const fetchQuizItems = async (page = 1) => {
+    const fetchSkintypeItems = async (page = 1) => {
         setLoading(true);
         try {
-            const response = await api.get(`Question/get-all?page=${page}&pageSize=${pageSize}`);
+            const response = await api.get(`Skintype?page=${page}&pageSize=${pageSize}`);
             console.log('API Response:', response);
 
             if (response.status !== 200) {
                 throw new Error(`HTTP Error: ${response.status}`);
             }
 
-            const quizData = response.data.data?.items || [];
-            const formattedItems = Array.isArray(quizData)
-                ? quizData.map((item) => ({
-                    questionId: item.questionId,
-                    cateQuestionId: item.cateQuestionId || "N/A",
-                    questionContent: item.questionContent || "N/A",
-                    keyQuestions: item.keyQuestions || [],
+            const skintypeData = response.data.data?.items || [];
+            const formattedItems = Array.isArray(skintypeData)
+                ? skintypeData.map((item) => ({
+                    skinTypeId: item.skinTypeId,
+                    skinTypeCodes: item.skinTypeCodes || "N/A",
+                    skinTypeName: item.skinTypeName || "N/A",
+                    skinTypeDesc: item.skinTypeDesc || "N/A",
                 }))
                 : [];
-            setQuizItems(formattedItems);
+            setSkintypeItems(formattedItems);
             setTotal(response.data.data?.totalItems || formattedItems.length);
         } catch (error) {
-            console.error('Error fetching quiz items:', error);
+            console.error('Error fetching skintype items:', error);
             console.error('Response data (if available):', error.response?.data);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch quiz items';
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch skintype items';
             setError(errorMessage);
             message.error(errorMessage);
         } finally {
@@ -47,63 +47,52 @@ export default function ManageQuiz() {
     };
 
     useEffect(() => {
-        fetchQuizItems(currentPage);
+        fetchSkintypeItems(currentPage);
     }, [currentPage]);
 
-    const toggleVisibility = (questionId) => {
+    const toggleVisibility = (skinTypeId) => {
         setVisibleItems((prev) => ({
             ...prev,
-            [questionId]: !prev[questionId],
+            [skinTypeId]: !prev[skinTypeId],
         }));
     };
 
     const columns = [
         {
-            title: "Question ID",
-            dataIndex: "questionId",
-            key: "questionId",
+            title: "Skin Type ID",
+            dataIndex: "skinTypeId",
+            key: "skinTypeId",
             width: 200,
-            align: "center",
+            align: "center"
         },
         {
-            title: "Category ID",
-            dataIndex: "cateQuestionId",
-            key: "cateQuestionId",
-            width: 200,
-            align: "center",
+            title: "Skin Type Codes",
+            dataIndex: "skinTypeCodes",
+            key: "skinTypeCodes",
+            width: 250,
+            align: "center"
         },
         {
-            title: <div style={{ textAlign: "center" }}>Question Content</div>,
-            dataIndex: "questionContent",
-            key: "questionContent",
-            width: 400,
-
+            title: "Skin Type Name",
+            dataIndex: "skinTypeName",
+            key: "skinTypeName",
+            width: 400
         },
     ];
 
     const expandableConfig = {
         expandedRowRender: (record) => {
             return (
-                <div className="expanded-row-content" style={{ padding: "8px" }}>
-                    <div style={{ marginBottom: "8px" }}>
-                        {record.keyQuestions.length > 0 ? (
-                            <ul>
-                                {record.keyQuestions.map((key) => (
-                                    <li key={key.keyId} style={{ marginBottom: "10px" }}>
-                                        <strong>Câu trả lời:</strong> {key.keyContent} <br />
-                                        <strong>Điểm:</strong> {key.keyScore}
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>Không có câu trả lời</p>
-                        )}
+                <div className="expanded-row-content" style={{ padding: "16px" }}>
+                    <div style={{ marginBottom: "16px" }}>
+                        <strong>Mô tả:</strong>
+                        <p>{record.skinTypeDesc}</p>
                     </div>
                 </div>
             );
         },
         rowExpandable: () => true,
-        onExpand: (expanded, record) => toggleVisibility(record.questionId),
+        onExpand: (expanded, record) => toggleVisibility(record.skinTypeId),
     };
 
     return (
@@ -123,46 +112,34 @@ export default function ManageQuiz() {
                         flexDirection: "column",
                         alignItems: "center",
                         overflowY: "auto",
-                        marginLeft: "300px",
+                        marginLeft: "300px"
                     }}
                 >
                     <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-                        <h1 style={{ fontSize: "40px", textAlign: "left", width: "100%", marginBottom: "16px" }}>Quiz</h1>
+                        <h1 style={{ fontSize: "40px", textAlign: "left", width: "100%", marginBottom: "16px" }}>Skintypes</h1>
                         {error && (
                             <div style={{ color: "red", marginBottom: "16px" }}>
                                 Error: {error}
                             </div>
                         )}
                         <div style={{ display: "flex", gap: "20px", marginBottom: "16px", justifyContent: "flex-start" }}>
-                            <Card
-                                style={{
-                                    textAlign: "center",
-                                    width: "150px",
-                                    backgroundColor: "#FFFCFC",
-                                    height: "120px",
-                                    borderRadius: "12px",
-                                }}
-                            >
-                                <h2 style={{ fontSize: "16px", fontFamily: "Nunito, sans-serif" }}>Total Questions</h2>
+                            <Card style={{ textAlign: "center", width: "150px", backgroundColor: "#FFFCFC", height: "120px", borderRadius: "12px" }}>
+                                <h2 style={{ fontSize: "16px", fontFamily: "Nunito, sans-serif" }}>Total Skintypes</h2>
                                 <p style={{ fontSize: "32px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>{total}</p>
                             </Card>
                         </div>
                         <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "24px", marginTop: "24px" }}>
-                            <Input
-                                placeholder="Search questions ..."
-                                style={{ width: "500px" }}
-                                suffix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />}
-                            />
+                            <Input placeholder="Search skin types ..." style={{ width: "500px" }} suffix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />} />
                         </div>
                         <div style={{ width: "100%" }}>
                             <Table
-                                dataSource={quizItems}
+                                dataSource={skintypeItems}
                                 columns={columns}
-                                rowKey="questionId"
+                                rowKey="skinTypeId"
                                 loading={loading}
                                 pagination={false}
                                 expandable={expandableConfig}
-                                className="manage-quiz-table"
+                                className="manage-skintype-table"
                                 style={{ width: "100%" }}
                             />
                             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "24px" }}>
