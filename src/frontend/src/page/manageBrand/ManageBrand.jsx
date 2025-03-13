@@ -5,6 +5,7 @@ import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSi
 import ManageOrderHeader from '../../component/manageOrderHeader/ManageOrderHeader';
 import { Option } from 'antd/es/mentions';
 import { MoreOutlined } from '@ant-design/icons';
+import BigNumber from "bignumber.js";
 
 
 const ManageBrand = () => {
@@ -13,6 +14,10 @@ const ManageBrand = () => {
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
     const [isModalVisible, setIsModalVisible] = useState(false); // Để kiểm soát modal
     const [form] = Form.useForm(); // Tạo form
+    const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
+    const [updateForm] = Form.useForm();
+    const [selectedBrand, setSelectedBrand] = useState(null);
+
 
     useEffect(() => {
         fetchBrands(pagination.current, pagination.pageSize);
@@ -24,7 +29,11 @@ const ManageBrand = () => {
             const response = await api.get(`Products/brands?page=${page}&pageSize=${pageSize}`);
             if (response.data && response.data.data && Array.isArray(response.data.data.items)) {
                 console.log("Fetched brand data:", response.data.data.items); // Kiểm tra ID có đúng không
-                setBrands(response.data.data.items);
+                setBrands(response.data.data.items.map(brand => ({
+                    ...brand,
+                    brandId: BigInt(brand.brandId)
+                })));
+
                 setPagination({
                     current: response.data.data.page,
                     pageSize: response.data.data.pageSize,
@@ -42,41 +51,85 @@ const ManageBrand = () => {
             setLoading(false);
         }
     };
-    
+
 
     const handleTableChange = (pagination) => {
         setPagination({ ...pagination });
     };
 
+
     // Hàm mở modal update (tạo sau)
-const handleUpdate = (record) => {
-    console.log("Update brand:", record);
-    // Mở modal update (chưa làm phần UI)
-};
+    const handleUpdate = (record) => {
+        console.log("Selected Brand Data:", record);
 
-// Hàm xóa thương hiệu
-const handleDelete = async (brandId) => {
-    try {
-        await api.delete(`Products/brand/delete/${brandId}`);
-        message.success("Xóa thương hiệu thành công!");
-        fetchBrands(pagination.current, pagination.pageSize);
-    } catch (error) {
-        console.error("Lỗi khi xóa thương hiệu:", error);
-        message.error("Lỗi khi xóa thương hiệu!");
-    }
-};
+        setSelectedBrand(record);
 
-// Menu dropdown cho cột Action
-const getActionMenu = (record) => (
-    <Menu>
-        <Menu.Item key="update" onClick={() => handleUpdate(record)}>
-            Update
-        </Menu.Item>
-        <Menu.Item key="delete" onClick={() => handleDelete(record.brandId)} danger>
-            Delete
-        </Menu.Item>
-    </Menu>
-);
+
+        updateForm.setFieldsValue({
+            brandName: record.brandName,
+            brandDesc: record.brandDesc,
+            brandOrigin: record.brandOrigin,
+            brandStatus: record.brandStatus ? 'Active' : 'Inactive',
+        })
+
+        console.log("Form Values After Set:", updateForm.getFieldsValue()); // Kiểm tra lại
+        setIsUpdateModalVisible(true);
+    };
+
+    const handleUpdateSubmit = async (values) => {
+        if (!selectedBrand || !selectedBrand.brandId) {
+            message.error("Brand ID is missing!");
+            return;
+        }
+        const bigIntId = BigInt(selectedBrand.brandId);
+const safeNumber = Math.min(Number(bigIntId), Number.MAX_SAFE_INTEGER);
+
+        const payload = {
+            brandId: safeNumber,
+            brandName: values.brandName.trim(),
+            brandDesc: values.brandDesc.trim() || "N/A",
+            brandOrigin: values.brandOrigin.trim() || "Unknown",
+            brandStatus: values.brandStatus === 'Active' ? true : false,
+        };
+
+        console.log("✅ FINAL Payload sent to API:", payload);
+
+        try {
+            await api.put('Products/brand/update', payload);
+            message.success('Cập nhật thương hiệu thành công!');
+            setIsUpdateModalVisible(false);
+            fetchBrands(pagination.current, pagination.pageSize);
+        } catch (error) {
+            console.error('❌ Error updating brand:', error.response?.data || error);
+            message.error(`Lỗi khi cập nhật thương hiệu: ${error.response?.data?.message || 'Không xác định'}`);
+        }
+    };
+
+
+
+    // Hàm xóa thương hiệu
+    const handleDelete = async (brandId) => {
+        try {
+            await api.delete(`Products/brand/delete/${brandId}`);
+            message.success("Xóa thương hiệu thành công!");
+            fetchBrands(pagination.current, pagination.pageSize);
+        } catch (error) {
+            console.error("Lỗi khi xóa thương hiệu:", error);
+            message.error("Lỗi khi xóa thương hiệu!");
+        }
+    };
+
+    // Menu dropdown cho cột Action
+    const getActionMenu = (record) => (
+        <Menu>
+            <Menu.Item key="update" onClick={() => handleUpdate(record)}>
+                Update
+            </Menu.Item>
+            <Menu.Item key="delete" onClick={() => handleDelete(record.brandId)} danger>
+                Delete
+            </Menu.Item>
+        </Menu>
+    );
 
     const columns = [
         {
@@ -85,16 +138,16 @@ const getActionMenu = (record) => (
             key: 'brandId',
             align: 'center',
             render: (id) => {
-                if (!id) return '-';  // Nếu không có ID, hiển thị '-'
+                if (!id) return '-';
                 try {
                     return BigInt(id).toString();
                 } catch (error) {
                     console.error("Error converting ID to BigInt:", error);
-                    return id.toString();  // Hiển thị bình thường nếu không thể chuyển
+                    return id.toString();
                 }
             },
         },
-               
+
         {
             title: 'Brand Name',
             dataIndex: 'brandName',
@@ -190,9 +243,9 @@ const getActionMenu = (record) => (
             message.error(`Lỗi khi thêm thương hiệu: ${error.response?.data?.message || 'Không xác định'}`);
         }
     };
-  
-    
-    
+
+
+
 
 
     return (
@@ -271,7 +324,46 @@ const getActionMenu = (record) => (
                     </Form.Item>
                 </Form>
             </Modal>
-
+            <Modal
+                title="Update Brand"
+                visible={isUpdateModalVisible}
+                onOk={() => updateForm.submit()}
+                onCancel={() => setIsUpdateModalVisible(false)}
+            >
+                <Form form={updateForm} layout="vertical" onFinish={handleUpdateSubmit}>
+                    <Form.Item
+                        name="brandName"
+                        label="Brand Name"
+                        rules={[{ required: true, message: "'brandName' is required" }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="brandDesc"
+                        label="Brand Description"
+                        rules={[{ required: true, message: "'brandDesc' is required" }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="brandOrigin"
+                        label="Brand Origin"
+                        rules={[{ required: true, message: "'brandOrigin' is required" }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="brandStatus"
+                        label="Brand Status"
+                        rules={[{ required: true }]}
+                    >
+                        <Select>
+                            <Select.Option value="Active">Active</Select.Option>
+                            <Select.Option value="Inactive">Inactive</Select.Option>
+                        </Select>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };
