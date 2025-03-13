@@ -127,6 +127,7 @@ export default function ManageQuiz() {
                                 <ul>
                                     {leftQuestions.map((key) => (
                                         <li key={key.keyId} style={{ marginBottom: "10px" }}>
+                                            <strong>ID:</strong> {key.keyId} <br />
                                             <strong>Câu trả lời:</strong> {key.keyContent} <br />
                                             <strong>Điểm:</strong> {key.keyScore}
                                         </li>
@@ -137,6 +138,7 @@ export default function ManageQuiz() {
                                 <ul>
                                     {rightQuestions.map((key) => (
                                         <li key={key.keyId} style={{ marginBottom: "10px" }}>
+                                            <strong>ID:</strong> {key.keyId} <br />
                                             <strong>Câu trả lời:</strong> {key.keyContent} <br />
                                             <strong>Điểm:</strong> {key.keyScore}
                                         </li>
