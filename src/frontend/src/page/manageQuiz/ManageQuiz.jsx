@@ -1,4 +1,4 @@
-import { Table, Button, Input, Card, message, Pagination } from "antd";
+import { Table, Button, Input, Card, message, Pagination, Row, Col } from "antd"; // Added Row and Col imports
 import { SearchOutlined } from "@ant-design/icons";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
@@ -77,28 +77,43 @@ export default function ManageQuiz() {
             dataIndex: "questionContent",
             key: "questionContent",
             width: 400,
-
         },
     ];
 
     const expandableConfig = {
         expandedRowRender: (record) => {
+            const half = Math.ceil(record.keyQuestions.length / 2); // Split keyQuestions into two halves
+            const leftQuestions = record.keyQuestions.slice(0, half);
+            const rightQuestions = record.keyQuestions.slice(half);
+
             return (
                 <div className="expanded-row-content" style={{ padding: "8px" }}>
-                    <div style={{ marginBottom: "8px" }}>
-                        {record.keyQuestions.length > 0 ? (
-                            <ul>
-                                {record.keyQuestions.map((key) => (
-                                    <li key={key.keyId} style={{ marginBottom: "10px" }}>
-                                        <strong>Câu trả lời:</strong> {key.keyContent} <br />
-                                        <strong>Điểm:</strong> {key.keyScore}
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>Không có câu trả lời</p>
-                        )}
-                    </div>
+                    {record.keyQuestions.length > 0 ? (
+                        <Row gutter={[16, 16]}>
+                            <Col span={12}>
+                                <ul>
+                                    {leftQuestions.map((key) => (
+                                        <li key={key.keyId} style={{ marginBottom: "10px" }}>
+                                            <strong>Câu trả lời:</strong> {key.keyContent} <br />
+                                            <strong>Điểm:</strong> {key.keyScore}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </Col>
+                            <Col span={12}>
+                                <ul>
+                                    {rightQuestions.map((key) => (
+                                        <li key={key.keyId} style={{ marginBottom: "10px" }}>
+                                            <strong>Câu trả lời:</strong> {key.keyContent} <br />
+                                            <strong>Điểm:</strong> {key.keyScore}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </Col>
+                        </Row>
+                    ) : (
+                        <p>Không có câu trả lời</p>
+                    )}
                 </div>
             );
         },
