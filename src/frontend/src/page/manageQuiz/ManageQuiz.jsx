@@ -1,5 +1,6 @@
 import { Table, Card, message, Pagination, Row, Col, Button, Modal, Form, Alert, Input } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
 import { useState, useEffect, useCallback } from "react";
@@ -227,14 +228,39 @@ export default function ManageQuiz() {
                                     }}
                                 >
                                     <h2 style={{ fontSize: "16px", fontFamily: "Nunito, sans-serif" }}>Total Questions</h2>
+                                    
                                     <p style={{ fontSize: "32px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>{total}</p>
                                 </Card>
+
+                                <div style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    marginBottom: "24px",
+                                    marginTop: "24px"
+                                }}>
+                                    <Input
+                                        placeholder="Search skin types ..."
+                                        style={{ width: "500px" }}
+                                        suffix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />}
+                                    />
+                                    <div style={{ display: "grid", justifyContent: "end" }}>
+                                        <Button
+                                            type="primary"
+                                            icon={<PlusOutlined />}
+                                            onClick={() => setModalState((prev) => ({ ...prev, createVisible: true }))}
+                                            style={{
+                                                backgroundColor: "#D8959B",
+                                                borderColor: "#D8959B",
+                                                marginLeft: "30px",
+                                            }}
+                                        >
+                                            Tạo câu hỏi
+                                        </Button>
+                                    </div>
+                                </div>
+
                             </Col>
-                            <Col>
-                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalState((prev) => ({ ...prev, createVisible: true }))}>
-                                    Tạo câu hỏi
-                                </Button>
-                            </Col>
+                     
                         </Row>
                         <Table
                             dataSource={quizItems}
