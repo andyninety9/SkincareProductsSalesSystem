@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'; // Import PropTypes
 import { Modal, Form, Input as AntInput, Button, Row, Col } from "antd";
 import { useEffect } from "react";
 
+const { TextArea } = AntInput; // Destructure TextArea from AntInput
+
 const UpdateQuestionModal = ({
     visible,
     onCancel,
@@ -30,20 +32,23 @@ const UpdateQuestionModal = ({
     return (
         <Modal
             title="Update Question"
+            width={600}
             visible={visible}
             onCancel={onCancel}
             footer={null}
-            zIndex={1100} // Set higher zIndex to appear above navbar (1050)
-            onClick={(e) => e.stopPropagation()} // Prevent click event from bubbling
+            zIndex={1100}
+            onClick={(e) => e.stopPropagation()}
+            bodyStyle={{ maxHeight: '60vh', overflowY: 'auto', overflowX: 'hidden' }}
         >
             <Form form={form} onFinish={handleFinish} layout="vertical">
-                {/* Question Content Field */}
+                {/* Question Content Field - Unchanged */}
                 <Form.Item
                     name="questionContent"
                     label="Question Content"
                     rules={[{ required: true, message: 'Please input the question content!' }]}
                 >
-                    <AntInput
+                    <TextArea
+                        rows={4}
                         style={{
                             color: "#5A2D2F",
                             borderColor: "#5A2D2F",
@@ -52,7 +57,7 @@ const UpdateQuestionModal = ({
                     />
                 </Form.Item>
 
-                {/* Category ID Field */}
+                {/* Category ID Field - Unchanged */}
                 <Form.Item
                     name="cateQuestionId"
                     label="Category ID"
@@ -68,51 +73,55 @@ const UpdateQuestionModal = ({
                     />
                 </Form.Item>
 
-                {/* Key Questions Field */}
+                {/* Key Questions Field - Updated */}
                 <Form.List name="keyQuestions">
                     {(fields, { add, remove }) => (
                         <>
                             {fields.map(({ key, name, ...restField }) => (
-                                <Row key={key} gutter={16}>
-                                    <Col span={10}>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, 'keyContent']}
-                                            label="Answer"
-                                            rules={[{ required: true, message: 'Please input the answer!' }]}
+                                <div key={key} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <Form.Item
+                                        {...restField}
+                                        name={[name, 'keyContent']}
+                                        label="Answer"
+                                        rules={[{ required: true, message: 'Please input the answer!' }]}
+                                        style={{ marginBottom: 0 }}
+                                    >
+                                        <AntInput
+                                            placeholder="Answer"
+                                            style={{
+                                                color: "#5A2D2F",
+                                                borderColor: "#5A2D2F",
+                                                backgroundColor: "#F6EEF0",
+                                            }}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item
+                                        {...restField}
+                                        name={[name, 'keyScore']}
+                                        label="Score"
+                                        rules={[{ required: true, message: 'Please input the score!' }]}
+                                        style={{ marginBottom: 0 }}
+                                    >
+                                        <AntInput
+                                            type="number"
+                                            placeholder="Score"
+                                            style={{
+                                                color: "#5A2D2F",
+                                                borderColor: "#5A2D2F",
+                                                backgroundColor: "#F6EEF0",
+                                            }}
+                                        />
+                                    </Form.Item>
+                                    <div style={{ gridColumn: '1 / -1', textAlign: 'left' }}>
+                                        <Button
+                                            danger
+                                            onClick={() => remove(name)}
+                                            style={{ margin: 0, padding: '4px 15px' }}
                                         >
-                                            <AntInput
-                                                placeholder="Answer"
-                                                style={{
-                                                    color: "#5A2D2F",
-                                                    borderColor: "#5A2D2F",
-                                                    backgroundColor: "#F6EEF0",
-                                                }}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={10}>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, 'keyScore']}
-                                            label="Score"
-                                            rules={[{ required: true, message: 'Please input the score!' }]}
-                                        >
-                                            <AntInput
-                                                type="number"
-                                                placeholder="Score"
-                                                style={{
-                                                    color: "#5A2D2F",
-                                                    borderColor: "#5A2D2F",
-                                                    backgroundColor: "#F6EEF0",
-                                                }}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={4}>
-                                        <Button danger onClick={() => remove(name)}>Remove</Button>
-                                    </Col>
-                                </Row>
+                                            Remove
+                                        </Button>
+                                    </div>
+                                </div>
                             ))}
                             <Button type="dashed" onClick={() => add()} block>
                                 Add Answer
@@ -121,7 +130,7 @@ const UpdateQuestionModal = ({
                     )}
                 </Form.List>
 
-                {/* Submit Button */}
+                {/* Submit Button - Unchanged */}
                 <Form.Item>
                     <Button type="primary" htmlType="submit">
                         Update

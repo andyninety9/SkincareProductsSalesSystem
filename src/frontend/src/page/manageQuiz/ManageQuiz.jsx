@@ -5,7 +5,7 @@ import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHead
 import { useState, useEffect } from "react";
 import api from '../../config/api';
 import quizService from "../../component/quizService/quizService";
-import UpdateQuestionModal from "./UpdateQuestionModal"; 
+import UpdateQuestionModal from "./UpdateQuestionModal";
 
 export default function ManageQuiz() {
     const [quizItems, setQuizItems] = useState([]);
@@ -41,11 +41,6 @@ export default function ManageQuiz() {
         }
     };
 
-    useEffect(() => {
-        fetchQuizItems(currentPage);
-    }, [currentPage]);
-
-    
 
     const toggleVisibility = (questionId) => {
         setVisibleItems((prev) => ({
@@ -72,11 +67,28 @@ export default function ManageQuiz() {
             message.success('Question updated successfully');
             setIsUpdateModalVisible(false);
             form.resetFields();
-            fetchQuizItems(currentPage);
+
+            // Update the specific question in the local state instead of re-fetching
+            setQuizItems((prevItems) =>
+                prevItems.map((item) =>
+                    item.questionId === selectedQuestion.questionId
+                        ? {
+                            ...item,
+                            questionContent: values.questionContent,
+                            cateQuestionId: values.cateQuestionId,
+                            keyQuestions: values.keyQuestions,
+                        }
+                        : item
+                )
+            );
         } catch (error) {
-            message.error(error.message);
+            message.error(`Failed to update question: ${error.message}`);
         }
     };
+
+    useEffect(() => {
+        fetchQuizItems(currentPage);
+    }, [currentPage]);
 
     const handleDelete = async (questionId) => {
         Modal.confirm({
