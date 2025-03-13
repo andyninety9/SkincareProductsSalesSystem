@@ -124,7 +124,7 @@ export default function ManageQuiz() {
                         )}
                         <div style={{ display: "flex", gap: "20px", marginBottom: "16px", justifyContent: "flex-start" }}>
                             <Card style={{ textAlign: "center", width: "150px", backgroundColor: "#FFFCFC", height: "120px", borderRadius: "12px" }}>
-                                <h2 style={{ fontSize: "16px", fontFamily: "Nunito, sans-serif" }}>Total Quiz Items</h2>
+                                <h2 style={{ fontSize: "16px", fontFamily: "Nunito, sans-serif" }}>Total Skintypes</h2>
                                 <p style={{ fontSize: "32px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>{total}</p>
                             </Card>
                         </div>
