@@ -29,8 +29,7 @@ export default function ManageQuiz() {
                     }))
                     : [];
                 setQuizItems(formattedItems);
-                setTotal(response.data.data.totalItems); // Set total to 16 from API response
-            } else {
+                setTotal(response.data.data.totalItems);
                 throw new Error(`Unexpected status code: ${response.data.statusCode}`);
             }
         } catch (error) {
@@ -119,10 +118,10 @@ export default function ManageQuiz() {
                                 Error: {error}
                             </div>
                         )}
-                        <div style={{ display: "flex", gap: "20px", marginBottom: "16px", justifyContent: "flex-start" }}> {/* Reduced gap */}
-                            <Card style={{ textAlign: "center", width: "150px", backgroundColor: "#FFFCFC", height: "120px", borderRadius: "12px" }}> {/* Reduced size */}
-                                <h2 style={{ fontSize: "16px", fontFamily: "Nunito, sans-serif" }}>Total Quiz Items</h2> {/* Reduced font size */}
-                                <p style={{ fontSize: "32px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>{total}</p> {/* Reduced font size */}
+                        <div style={{ display: "flex", gap: "20px", marginBottom: "16px", justifyContent: "flex-start" }}> 
+                            <Card style={{ textAlign: "center", width: "150px", backgroundColor: "#FFFCFC", height: "120px", borderRadius: "12px" }}> 
+                                <h2 style={{ fontSize: "16px", fontFamily: "Nunito, sans-serif" }}>Total Quiz Items</h2> 
+                                <p style={{ fontSize: "32px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>{total}</p> 
                             </Card>
                         </div>
                         <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "24px", marginTop: "24px" }}>
@@ -134,7 +133,7 @@ export default function ManageQuiz() {
                                 columns={columns}
                                 rowKey="skinTypeId"
                                 loading={loading}
-                                pagination={false} // Disable table's built-in pagination
+                                pagination={false} 
                                 expandable={expandableConfig}
                                 className="manage-quiz-table"
                                 style={{ width: "100%" }}
@@ -146,7 +145,7 @@ export default function ManageQuiz() {
                                     total={total}
                                     onChange={(page) => setCurrentPage(page)}
                                     showSizeChanger={false}
-                                    style={{ textAlign: "center" }} // Center the pagination
+                                    style={{ textAlign: "center" }} 
                                 />
                             </div>
                         </div>
