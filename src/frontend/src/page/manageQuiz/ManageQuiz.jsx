@@ -119,10 +119,10 @@ export default function ManageQuiz() {
                                 Error: {error}
                             </div>
                         )}
-                        <div style={{ display: "flex", gap: "50px", marginBottom: "16px", justifyContent: "flex-start" }}>
-                            <Card style={{ textAlign: "center", width: "180px", backgroundColor: "#FFFCFC", height: "140px", borderRadius: "12px" }}>
-                                <h2 style={{ fontSize: "18px", fontFamily: "Nunito, sans-serif" }}>Total Quiz Items</h2>
-                                <p style={{ fontSize: "40px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>{total}</p>
+                        <div style={{ display: "flex", gap: "20px", marginBottom: "16px", justifyContent: "flex-start" }}> {/* Reduced gap */}
+                            <Card style={{ textAlign: "center", width: "150px", backgroundColor: "#FFFCFC", height: "120px", borderRadius: "12px" }}> {/* Reduced size */}
+                                <h2 style={{ fontSize: "16px", fontFamily: "Nunito, sans-serif" }}>Total Quiz Items</h2> {/* Reduced font size */}
+                                <p style={{ fontSize: "32px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>{total}</p> {/* Reduced font size */}
                             </Card>
                         </div>
                         <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "24px", marginTop: "24px" }}>
