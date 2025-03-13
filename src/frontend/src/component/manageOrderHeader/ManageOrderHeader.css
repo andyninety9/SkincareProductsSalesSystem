@@ -1,0 +1,20 @@
+/* index.css */
+.navbar-icon,
+.staff-section {
+    transition: color 0.3s;
+}
+
+.navbar-icon:hover,
+.staff-section:hover .staff-name,
+.staff-section:hover .navbar-icon {
+    color: #333 !important;
+    /* Hover color */
+}
+
+/* Disable hover effects when modal is open */
+.modal-open .navbar-icon:hover,
+.modal-open .staff-section:hover .staff-name,
+.modal-open .staff-section:hover .navbar-icon {
+    color: #000 !important;
+    /* Revert to default color */
+}

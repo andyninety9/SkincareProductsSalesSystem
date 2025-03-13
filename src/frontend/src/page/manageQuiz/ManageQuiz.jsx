@@ -45,6 +45,8 @@ export default function ManageQuiz() {
         fetchQuizItems(currentPage);
     }, [currentPage]);
 
+    
+
     const toggleVisibility = (questionId) => {
         setVisibleItems((prev) => ({
             ...prev,
@@ -231,7 +233,7 @@ export default function ManageQuiz() {
     return (
         <div style={{ display: "flex", height: "100vh", overflow: "hidden", flexDirection: "column" }}>
             <div>
-                <ManageOrderHeader />
+                <ManageOrderHeader isModalOpen={isUpdateModalVisible} />
             </div>
             <div style={{ display: "flex", flex: 1, marginTop: "60px", overflow: "hidden" }}>
                 <div>

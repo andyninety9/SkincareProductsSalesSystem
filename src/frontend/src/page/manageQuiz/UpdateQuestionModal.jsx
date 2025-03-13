@@ -33,22 +33,42 @@ const UpdateQuestionModal = ({
             visible={visible}
             onCancel={onCancel}
             footer={null}
+            zIndex={1100} // Set higher zIndex to appear above navbar (1050)
+            onClick={(e) => e.stopPropagation()} // Prevent click event from bubbling
         >
             <Form form={form} onFinish={handleFinish} layout="vertical">
+                {/* Question Content Field */}
                 <Form.Item
                     name="questionContent"
                     label="Question Content"
                     rules={[{ required: true, message: 'Please input the question content!' }]}
                 >
-                    <AntInput />
+                    <AntInput
+                        style={{
+                            color: "#5A2D2F",
+                            borderColor: "#5A2D2F",
+                            backgroundColor: "#F6EEF0",
+                        }}
+                    />
                 </Form.Item>
+
+                {/* Category ID Field */}
                 <Form.Item
                     name="cateQuestionId"
                     label="Category ID"
                     rules={[{ required: true, message: 'Please input a category ID!' }]}
                 >
-                    <AntInput type="number" />
+                    <AntInput
+                        type="number"
+                        style={{
+                            color: "#5A2D2F",
+                            borderColor: "#5A2D2F",
+                            backgroundColor: "#F6EEF0",
+                        }}
+                    />
                 </Form.Item>
+
+                {/* Key Questions Field */}
                 <Form.List name="keyQuestions">
                     {(fields, { add, remove }) => (
                         <>
@@ -58,18 +78,35 @@ const UpdateQuestionModal = ({
                                         <Form.Item
                                             {...restField}
                                             name={[name, 'keyContent']}
+                                            label="Answer"
                                             rules={[{ required: true, message: 'Please input the answer!' }]}
                                         >
-                                            <AntInput placeholder="Answer" />
+                                            <AntInput
+                                                placeholder="Answer"
+                                                style={{
+                                                    color: "#5A2D2F",
+                                                    borderColor: "#5A2D2F",
+                                                    backgroundColor: "#F6EEF0",
+                                                }}
+                                            />
                                         </Form.Item>
                                     </Col>
                                     <Col span={10}>
                                         <Form.Item
                                             {...restField}
                                             name={[name, 'keyScore']}
+                                            label="Score"
                                             rules={[{ required: true, message: 'Please input the score!' }]}
                                         >
-                                            <AntInput type="number" placeholder="Score" />
+                                            <AntInput
+                                                type="number"
+                                                placeholder="Score"
+                                                style={{
+                                                    color: "#5A2D2F",
+                                                    borderColor: "#5A2D2F",
+                                                    backgroundColor: "#F6EEF0",
+                                                }}
+                                            />
                                         </Form.Item>
                                     </Col>
                                     <Col span={4}>
@@ -83,6 +120,8 @@ const UpdateQuestionModal = ({
                         </>
                     )}
                 </Form.List>
+
+                {/* Submit Button */}
                 <Form.Item>
                     <Button type="primary" htmlType="submit">
                         Update
@@ -95,10 +134,10 @@ const UpdateQuestionModal = ({
 
 // Add PropTypes validation
 UpdateQuestionModal.propTypes = {
-    visible: PropTypes.bool.isRequired, // Boolean to control modal visibility
-    onCancel: PropTypes.func.isRequired, // Function to handle modal cancellation
-    onUpdate: PropTypes.func.isRequired, // Function to handle form submission
-    selectedQuestion: PropTypes.shape({ // Object shape for the selected question
+    visible: PropTypes.bool.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    selectedQuestion: PropTypes.shape({
         questionId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
         questionContent: PropTypes.string.isRequired,
         cateQuestionId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
@@ -110,7 +149,7 @@ UpdateQuestionModal.propTypes = {
             })
         ).isRequired,
     }),
-    form: PropTypes.object.isRequired, 
+    form: PropTypes.object.isRequired,
 };
 
 export default UpdateQuestionModal;
