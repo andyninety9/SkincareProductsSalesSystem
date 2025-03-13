@@ -1,9 +1,11 @@
-import { Table, Input, Card, message, Pagination, Row, Col } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Table, Input, Card, message, Pagination, Row, Col, Button, Modal, Form, Input as AntInput, Select } from "antd";
+import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
 import { useState, useEffect } from "react";
 import api from '../../config/api';
+
+const { Option } = Select;
 
 export default function ManageQuiz() {
     const [quizItems, setQuizItems] = useState([]);
@@ -12,6 +14,10 @@ export default function ManageQuiz() {
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+    const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
+    const [selectedQuestion, setSelectedQuestion] = useState(null);
+    const [form] = Form.useForm();
     const pageSize = 10;
 
     const fetchQuizItems = async (page = 1) => {
@@ -53,6 +59,70 @@ export default function ManageQuiz() {
         }));
     };
 
+    // CRUD Operations
+    const handleCreate = async (values) => {
+        try {
+            await api.post('Question/create', values);
+            message.success('Question created successfully');
+            setIsCreateModalVisible(false);
+            form.resetFields();
+            fetchQuizItems(currentPage); // Refresh data
+        } catch (error) {
+            message.error('Failed to create question');
+        }
+    };
+
+    const handleUpdate = async (values) => {
+        try {
+            await api.put(`Question/update/${selectedQuestion.questionId}`, values);
+            message.success('Question updated successfully');
+            setIsUpdateModalVisible(false);
+            form.resetFields();
+            fetchQuizItems(currentPage); // Refresh data
+        } catch (error) {
+            message.error('Failed to update question');
+        }
+    };
+
+    const handleDelete = async (questionId) => {
+        Modal.confirm({
+            title: 'Are you sure you want to delete this question?',
+            onOk: async () => {
+                try {
+                    await api.delete(`Question/delete/${questionId}`);
+                    message.success('Question deleted successfully');
+                    fetchQuizItems(currentPage); // Refresh data
+                } catch (error) {
+                    message.error('Failed to delete question');
+                }
+            },
+        });
+    };
+
+    const showCreateModal = () => {
+        setIsCreateModalVisible(true);
+    };
+
+    const showUpdateModal = (question) => {
+        setSelectedQuestion(question);
+        form.setFieldsValue({
+            questionContent: question.questionContent,
+            cateQuestionId: question.cateQuestionId,
+            keyQuestions: question.keyQuestions.map(k => ({
+                keyContent: k.keyContent,
+                keyScore: k.keyScore,
+            })),
+        });
+        setIsUpdateModalVisible(true);
+    };
+
+    const handleCancel = () => {
+        setIsCreateModalVisible(false);
+        setIsUpdateModalVisible(false);
+        form.resetFields();
+        setSelectedQuestion(null);
+    };
+
     const columns = [
         {
             title: "Question ID",
@@ -73,6 +143,31 @@ export default function ManageQuiz() {
             dataIndex: "questionContent",
             key: "questionContent",
             width: 400,
+        },
+        {
+            title: "Action",
+            key: "action",
+            width: 200,
+            align: "center",
+            render: (_, record) => (
+                <div>
+                    <Button
+                        type="link"
+                        icon={<EditOutlined />}
+                        onClick={() => showUpdateModal(record)}
+                    >
+                        Update
+                    </Button>
+                    <Button
+                        type="link"
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleDelete(record.questionId)}
+                    >
+                        Delete
+                    </Button>
+                </div>
+            ),
         },
     ];
 
@@ -159,6 +254,9 @@ export default function ManageQuiz() {
                                 <h2 style={{ fontSize: "16px", fontFamily: "Nunito, sans-serif" }}>Total Questions</h2>
                                 <p style={{ fontSize: "32px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>{total}</p>
                             </Card>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={showCreateModal}>
+                                Create Question
+                            </Button>
                         </div>
                         <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "24px", marginTop: "24px" }}>
                             <Input
@@ -192,6 +290,134 @@ export default function ManageQuiz() {
                     </div>
                 </div>
             </div>
+
+            {/* Create Modal */}
+            <Modal
+                title="Create New Question"
+                visible={isCreateModalVisible}
+                onCancel={handleCancel}
+                footer={null}
+            >
+                <Form form={form} onFinish={handleCreate} layout="vertical">
+                    <Form.Item
+                        name="questionContent"
+                        label="Question Content"
+                        rules={[{ required: true, message: 'Please input the question content!' }]}
+                    >
+                        <AntInput />
+                    </Form.Item>
+                    <Form.Item
+                        name="cateQuestionId"
+                        label="Category ID"
+                        rules={[{ required: true, message: 'Please select a category!' }]}
+                    >
+                        <AntInput type="number" />
+                    </Form.Item>
+                    <Form.List name="keyQuestions">
+                        {(fields, { add, remove }) => (
+                            <>
+                                {fields.map(({ key, name, ...restField }) => (
+                                    <Row key={key} gutter={16}>
+                                        <Col span={10}>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'keyContent']}
+                                                rules={[{ required: true, message: 'Please input the answer!' }]}
+                                            >
+                                                <AntInput placeholder="Answer" />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={10}>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'keyScore']}
+                                                rules={[{ required: true, message: 'Please input the score!' }]}
+                                            >
+                                                <AntInput type="number" placeholder="Score" />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={4}>
+                                            <Button danger onClick={() => remove(name)}>Remove</Button>
+                                        </Col>
+                                    </Row>
+                                ))}
+                                <Button type="dashed" onClick={() => add()} block>
+                                    Add Answer
+                                </Button>
+                            </>
+                        )}
+                    </Form.List>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Create
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            {/* Update Modal */}
+            <Modal
+                title="Update Question"
+                visible={isUpdateModalVisible}
+                onCancel={handleCancel}
+                footer={null}
+            >
+                <Form form={form} onFinish={handleUpdate} layout="vertical">
+                    <Form.Item
+                        name="questionContent"
+                        label="Question Content"
+                        rules={[{ required: true, message: 'Please input the question content!' }]}
+                    >
+                        <AntInput />
+                    </Form.Item>
+                    <Form.Item
+                        name="cateQuestionId"
+                        label="Category ID"
+                        rules={[{ required: true, message: 'Please select a category!' }]}
+                    >
+                        <AntInput type="number" />
+                    </Form.Item>
+                    <Form.List name="keyQuestions">
+                        {(fields, { add, remove }) => (
+                            <>
+                                {fields.map(({ key, name, ...restField }) => (
+                                    <Row key={key} gutter={16}>
+                                        <Col span={10}>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'keyContent']}
+                                                rules={[{ required: true, message: 'Please input the answer!' }]}
+                                            >
+                                                <AntInput placeholder="Answer" />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={10}>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'keyScore']}
+                                                rules={[{ required: true, message: 'Please input the score!' }]}
+                                            >
+                                                <AntInput type="number" placeholder="Score" />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={4}>
+                                            <Button danger onClick={() => remove(name)}>Remove</Button>
+                                        </Col>
+                                    </Row>
+                                ))}
+                                <Button type="dashed" onClick={() => add()} block>
+                                    Add Answer
+                                </Button>
+                            </>
+                        )}
+                    </Form.List>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Update
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 }
