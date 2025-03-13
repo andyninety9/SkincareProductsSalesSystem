@@ -346,9 +346,9 @@ const ProfilePage = () => {
     return (
         <div style={{
             width: '100%',
-            minHeight: '100vh', // Ensure the container takes up full viewport height
+            minHeight: '100vh', 
             display: 'flex',
-            flexDirection: 'column', // Stack children vertically
+            flexDirection: 'column',
             position: 'relative',
         }}>
             <div style={{ position: 'relative', width: '100%', height: '30vh', marginBottom: 10 }}>
@@ -361,7 +361,6 @@ const ProfilePage = () => {
                     }}
                 />
 
-                {/* Button container */}
                 <div style={{
                     position: 'absolute',
                     bottom: 10,
