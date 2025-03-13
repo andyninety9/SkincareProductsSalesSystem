@@ -39,7 +39,6 @@ export default function ProductPage() {
     const [skinTypeId, setSkinTypeId] = useState();
     const [categoriesLoading, setCategoriesLoading] = useState(false);
     const [brandsLoading, setBrandsLoading] = useState(false);
-    
 
     const skinTypeImages = {
         OSPW: ospw, // 1
@@ -86,23 +85,33 @@ export default function ProductPage() {
     const fetchCategories = async () => {
         try {
             setCategoriesLoading(true);
+            console.log('🔍 Fetching categories...');
             const response = await api.get('products/categories', {
                 params: {
-                    pageSize: 1000, // Load all categories at once
+                    pageSize: 1000,
                 },
             });
 
+            console.log('📊 Raw category response:', response);
+
             if (response.data && response.data.data && Array.isArray(response.data.data.items)) {
+                console.log('📋 Categories before filtering:', response.data.data.items);
                 // Filter categories where cateProdStatus is true
                 const activeCategories = response.data.data.items.filter(
                     (category) => category.cateProdStatus === true
                 );
+                console.log('✅ Active categories after filtering:', activeCategories);
                 setCategories(activeCategories);
             } else {
                 console.error('❌ Invalid API response format for categories:', response.data);
             }
         } catch (error) {
-            console.error('Lỗi khi lấy danh mục:', error);
+            console.error('❌ Error fetching categories:', error);
+            // Log more details about the error
+            if (error.response) {
+                console.error('📡 Error response data:', error.response.data);
+                console.error('📡 Error response status:', error.response.status);
+            }
         } finally {
             setCategoriesLoading(false);
         }
@@ -169,9 +178,15 @@ export default function ProductPage() {
 
     useEffect(() => {
         fetchSkinTypes();
-        fetchProduct();
+    }, []);
+
+    useEffect(() => {
         fetchCategories();
-        fetchBrands(); // Add this line to fetch brands from API
+        fetchBrands();
+    }, []);
+
+    useEffect(() => {
+        fetchProduct();
     }, [skinTypeId]);
 
     const handleFilter = () => {
