@@ -31,7 +31,15 @@ const UpdateQuestionModal = ({
 
     return (
         <Modal
-            title="Update Question"
+            title={
+                <div style={{
+                    fontSize: '30px',
+                    fontFamily: "'Nunito', sans-serif",
+                    textAlign: 'center'
+                }}>
+                    Cập Nhật Câu Hỏi
+                </div>
+            }
             width={600}
             visible={visible}
             onCancel={onCancel}
@@ -41,15 +49,16 @@ const UpdateQuestionModal = ({
             bodyStyle={{ maxHeight: '60vh', overflowY: 'auto', overflowX: 'hidden' }}
         >
             <Form form={form} onFinish={handleFinish} layout="vertical">
-                {/* Question Content Field - Unchanged */}
                 <Form.Item
                     style={{
                         color: '#5A2D2F',
                         fontWeight: 'bold',
+                        fontSize: '16px',
+                        fontFamily: "'Nunito', sans-serif",
                     }}
                     name="questionContent"
-                    label="Question Content"
-                    rules={[{ required: true, message: 'Please input the question content!' }]}
+                    label="Nội dung câu hỏi"
+                    rules={[{ required: true, message: 'Vui lòng nhập nội dung câu hỏi!' }]}
                 >
                     <TextArea
                         rows={4}
@@ -70,14 +79,16 @@ const UpdateQuestionModal = ({
                     }}
                     name="cateQuestionId"
                     label="Category ID"
-                    rules={[{ required: true, message: 'Please input a category ID!' }]}
+                    rules={[{ required: true, message: 'Vui lòng nhập ID danh mục!' }]}
                 >
                     <AntInput
                         type="number"
+                        min={0}
                         style={{
                             color: "#5A2D2F",
                             borderColor: "#5A2D2F",
                             backgroundColor: "#F6EEF0",
+                            width: '30%',
                         }}
                     />
                 </Form.Item>
@@ -97,8 +108,8 @@ const UpdateQuestionModal = ({
 
                                         {...restField}
                                         name={[name, 'keyContent']}
-                                        label="Answer"
-                                        rules={[{ required: true, message: 'Please input the answer!' }]}
+                                        label="Câu trả lời"
+                                        rules={[{ required: true, message: 'Vui lòng nhập câu trả lời!' }]}
                                         style={{
                                             marginBottom: 0,
                                             color: '#5A2D2F',
@@ -106,7 +117,7 @@ const UpdateQuestionModal = ({
                                         }}
                                     >
                                         <AntInput
-                                            placeholder="Answer"
+                                            placeholder="Câu trả lời"
                                             style={{
                                                 color: "#5A2D2F",
                                                 borderColor: "#5A2D2F",
@@ -117,21 +128,22 @@ const UpdateQuestionModal = ({
                                     <Form.Item
                                         {...restField}
                                         name={[name, 'keyScore']}
-                                        label="Score"
+                                        label="Điểm"
                                         rules={[
-                                            { required: true, message: 'Please input the score!' },
-                                            { type: 'number', min: 0, message: 'Số điểm không hợp lệ!' } // Add validation for non-negative numbers
+                                            { required: true, message: 'Vui lòng nhập số điểm!' },
+
                                         ]}
                                         style={{
                                             marginBottom: 0,
                                             color: '#5A2D2F',
-                              
+                                            fontWeight: 'bold',
+
                                         }}
                                     >
                                         <AntInput
                                             type="number"
-                                            placeholder="Score"
-                                            min={0} // Prevent negative numbers in the input
+                                            placeholder="Điểm"
+                                            min={0}
                                             style={{
                                                 color: "#5A2D2F",
                                                 borderColor: "#5A2D2F",
@@ -145,17 +157,17 @@ const UpdateQuestionModal = ({
 
                                             onClick={() => remove(name)}
                                             style={{
-                                                margin: 0, padding: '2px 8px',
+                                                margin: 0, padding: '4px 10px',
                                                 borderRadius: '10px',
                                                 border: '1px solid #5A2D2F',
                                                 backgroundColor: '#F6EEF0',
                                                 color: '#5A2D2F',
                                                 fontWeight: 'bold',
-                                                fontSize: '12px',
+                                                fontSize: '13px',
 
                                             }}
                                         >
-                                            Remove
+                                            Xóa
                                         </Button>
                                     </div>
                                 </div>
@@ -176,7 +188,7 @@ const UpdateQuestionModal = ({
                                 onClick={() => add()}
                                 block
                             >
-                                Add Answer
+                                Thêm câu trả lời
                             </Button>
 
                         </>
@@ -200,7 +212,7 @@ const UpdateQuestionModal = ({
                         }}
 
                         htmlType="submit">
-                        Update
+                        Cập nhật
                     </Button>
                 </Form.Item>
             </Form>

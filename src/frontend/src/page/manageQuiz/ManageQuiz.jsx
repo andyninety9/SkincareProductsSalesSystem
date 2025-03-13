@@ -18,6 +18,7 @@ export default function ManageQuiz() {
     const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
     const [selectedQuestion, setSelectedQuestion] = useState(null);
     const [form] = Form.useForm();
+    const [originalOrder, setOriginalOrder] = useState([]); // Store original order of questionIds
     const pageSize = 10;
 
     const fetchQuizItems = async (page = 1) => {
@@ -26,11 +27,50 @@ export default function ManageQuiz() {
             const data = await quizService.getAllQuizItems(page, pageSize);
             const formattedItems = (data.items || []).map((item) => ({
                 questionId: item.questionId,
+                originalQuestionId: item.questionId, // Initial value, will be updated if known
                 cateQuestionId: item.cateQuestionId || "N/A",
                 questionContent: item.questionContent || "N/A",
                 keyQuestions: item.keyQuestions || [],
+                createdAt: item.createdAt || item.created_at || null,
             }));
-            setQuizItems(formattedItems);
+            // Log the raw data to debug
+            console.log("Fetched items before sorting:", formattedItems.map(item => ({
+                questionId: item.questionId,
+                originalQuestionId: item.originalQuestionId,
+                createdAt: item.createdAt,
+            })));
+
+            // Update originalOrder with current questionIds on every fetch
+            const currentIds = formattedItems.map(item => item.questionId);
+            if (page === 1) {
+                // On first page, set the initial order
+                setOriginalOrder(currentIds);
+                console.log("Initial original order set:", currentIds);
+            } else {
+                // For other pages, append new IDs not already in originalOrder
+                const newIds = currentIds.filter(id => !originalOrder.includes(id));
+                if (newIds.length > 0) {
+                    setOriginalOrder(prev => [...prev, ...newIds]);
+                    console.log("Updated original order with new IDs:", newIds);
+                }
+            }
+
+            // Sort by originalOrder, falling back to questionId
+            const sortedItems = formattedItems.sort((a, b) => {
+                const aIndex = originalOrder.indexOf(a.originalQuestionId);
+                const bIndex = originalOrder.indexOf(b.originalQuestionId);
+                if (aIndex === -1 || bIndex === -1) {
+                    return Number(a.questionId) - Number(b.questionId); // Fallback to questionId
+                }
+                return aIndex - bIndex;
+            });
+
+            console.log("Fetched items after sorting:", sortedItems.map(item => ({
+                questionId: item.questionId,
+                originalQuestionId: item.originalQuestionId,
+                createdAt: item.createdAt,
+            })));
+            setQuizItems(sortedItems);
             setTotal(data.totalItems || formattedItems.length);
         } catch (error) {
             const errorMessage = error.message;
@@ -40,7 +80,6 @@ export default function ManageQuiz() {
             setLoading(false);
         }
     };
-
 
     const toggleVisibility = (questionId) => {
         setVisibleItems((prev) => ({
@@ -63,24 +102,22 @@ export default function ManageQuiz() {
 
     const handleUpdate = async (values) => {
         try {
+            console.log("Original questionId before update:", selectedQuestion.questionId);
+            // Preserve the originalQuestionId before the update
+            const originalId = selectedQuestion.questionId;
             await quizService.updateQuestion(selectedQuestion.questionId, values);
             message.success('Question updated successfully');
             setIsUpdateModalVisible(false);
             form.resetFields();
 
-            // Update the specific question in the local state instead of re-fetching
-            setQuizItems((prevItems) =>
-                prevItems.map((item) =>
-                    item.questionId === selectedQuestion.questionId
-                        ? {
-                            ...item,
-                            questionContent: values.questionContent,
-                            cateQuestionId: values.cateQuestionId,
-                            keyQuestions: values.keyQuestions,
-                        }
-                        : item
-                )
-            );
+            // Fetch updated data and update originalQuestionId for the updated item
+            fetchQuizItems(currentPage).then(() => {
+                setQuizItems(prevItems =>
+                    prevItems.map(item =>
+                        item.questionId === selectedQuestion.questionId ? { ...item, originalQuestionId: originalId } : item
+                    )
+                );
+            });
         } catch (error) {
             message.error(`Failed to update question: ${error.message}`);
         }
@@ -97,6 +134,7 @@ export default function ManageQuiz() {
                 try {
                     await quizService.deleteQuestion(questionId);
                     message.success('Question deleted successfully');
+                    setOriginalOrder((prev) => prev.filter(id => id !== questionId));
                     fetchQuizItems(currentPage);
                 } catch (error) {
                     message.error(error.message);
@@ -110,7 +148,7 @@ export default function ManageQuiz() {
     };
 
     const showUpdateModal = (question) => {
-        setSelectedQuestion(question);
+        setSelectedQuestion({ ...question }); // Create a copy to avoid mutating state directly
         setIsUpdateModalVisible(true);
     };
 
