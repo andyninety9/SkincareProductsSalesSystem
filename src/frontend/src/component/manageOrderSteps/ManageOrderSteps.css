@@ -1,0 +1,83 @@
+/* Scope to the component */
+.manage-order-steps {
+    margin-top: 8px;
+}
+
+/* Current Order Status text */
+.manage-order-steps .current-status-text {
+    text-align: center;
+    margin-bottom: 16px;
+    color: #C87E83 !important;
+    font-size: 16px;
+}
+
+/* Current step title */
+.manage-order-steps .ant-steps .ant-steps-item-process .ant-steps-item-title {
+    color: #C87E83 !important;
+}
+
+/* Current step description */
+.manage-order-steps .ant-steps .ant-steps-item-process .ant-steps-item-description {
+    color: #C87E83 !important;
+}
+
+/* Current step dot */
+.manage-order-steps .ant-steps .ant-steps-item-process .ant-steps-icon-dot {
+    background-color: #C87E83 !important;
+}
+
+/* Finished steps' dots (previous steps) */
+.manage-order-steps .ant-steps .ant-steps-item-finish .ant-steps-icon-dot {
+    background-color: #C87E83 !important;
+}
+
+/* Connecting line for finished steps (up to current step) */
+.manage-order-steps .ant-steps .ant-steps-item-finish .ant-steps-item-tail::after {
+    background-color: #C87E83 !important;
+}
+
+/* Button container */
+.manage-order-steps .button-container {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* Loading container */
+.manage-order-steps .loading-container {
+    margin-top: 8px;
+    text-align: center;
+}
+
+/* Hover effect for step titles and descriptions */
+.manage-order-steps .ant-steps .ant-steps-item:hover .ant-steps-item-title,
+.manage-order-steps .ant-steps .ant-steps-item:hover .ant-steps-item-description {
+    color: #C87E83 !important;
+}
+
+.manage-order-steps .ant-steps .ant-steps-item-title {
+    font-size: 14px !important;
+    /* default ~14px */
+}
+
+.manage-order-steps .ant-steps .ant-steps-item-description {
+    font-size: 10px !important;
+    /* default ~12px */
+}
+
+/* Default color when collapsed */
+.ant-table-row-expand-icon {
+    color: #C87E83 !important;
+}
+
+/* Hover state */
+.ant-table-row-expand-icon:hover {
+    color: #C87E83 !important;
+}
+
+/* Expanded (clicked) state */
+.ant-table-row-expand-icon.ant-table-row-expand-icon-expanded {
+    color: #C87E83 !important;
+}
+
