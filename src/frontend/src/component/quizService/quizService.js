@@ -28,7 +28,10 @@ const quizService = {
 
     updateQuestion: async (questionId, questionData) => {
         try {
-            const response = await api.put(`Question/update/${questionId}`, questionData);
+            const response = await api.post('Question/update', {
+                ...questionData,
+                questionId,
+            });
             if (response.status !== 200) {
                 throw new Error(`HTTP Error: ${response.status}`);
             }

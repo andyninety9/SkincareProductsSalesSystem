@@ -1,10 +1,11 @@
-import { Table, Input, Card, message, Pagination, Row, Col, Button, Modal, Form, Input as AntInput, Select } from "antd";
+import { Table, Input, Card, message, Pagination, Row, Col, Button, Modal, Form, Input as AntInput } from "antd";
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
 import { useState, useEffect } from "react";
 import api from '../../config/api';
 import quizService from "../../component/quizService/quizService";
+import UpdateQuestionModal from "./UpdateQuestionModal"; 
 
 export default function ManageQuiz() {
     const [quizItems, setQuizItems] = useState([]);
@@ -96,14 +97,6 @@ export default function ManageQuiz() {
 
     const showUpdateModal = (question) => {
         setSelectedQuestion(question);
-        form.setFieldsValue({
-            questionContent: question.questionContent,
-            cateQuestionId: question.cateQuestionId,
-            keyQuestions: question.keyQuestions.map(k => ({
-                keyContent: k.keyContent,
-                keyScore: k.keyScore,
-            })),
-        });
         setIsUpdateModalVisible(true);
     };
 
@@ -377,68 +370,13 @@ export default function ManageQuiz() {
             </Modal>
 
             {/* Update Modal */}
-            <Modal
-                title="Update Question"
+            <UpdateQuestionModal
                 visible={isUpdateModalVisible}
                 onCancel={handleCancel}
-                footer={null}
-            >
-                <Form form={form} onFinish={handleUpdate} layout="vertical">
-                    <Form.Item
-                        name="questionContent"
-                        label="Question Content"
-                        rules={[{ required: true, message: 'Please input the question content!' }]}
-                    >
-                        <AntInput />
-                    </Form.Item>
-                    <Form.Item
-                        name="cateQuestionId"
-                        label="Category ID"
-                        rules={[{ required: true, message: 'Please input a category ID!' }]}
-                    >
-                        <AntInput type="number" />
-                    </Form.Item>
-                    <Form.List name="keyQuestions">
-                        {(fields, { add, remove }) => (
-                            <>
-                                {fields.map(({ key, name, ...restField }) => (
-                                    <Row key={key} gutter={16}>
-                                        <Col span={10}>
-                                            <Form.Item
-                                                {...restField}
-                                                name={[name, 'keyContent']}
-                                                rules={[{ required: true, message: 'Please input the answer!' }]}
-                                            >
-                                                <AntInput placeholder="Answer" />
-                                            </Form.Item>
-                                        </Col>
-                                        <Col span={10}>
-                                            <Form.Item
-                                                {...restField}
-                                                name={[name, 'keyScore']}
-                                                rules={[{ required: true, message: 'Please input the score!' }]}
-                                            >
-                                                <AntInput type="number" placeholder="Score" />
-                                            </Form.Item>
-                                        </Col>
-                                        <Col span={4}>
-                                            <Button danger onClick={() => remove(name)}>Remove</Button>
-                                        </Col>
-                                    </Row>
-                                ))}
-                                <Button type="dashed" onClick={() => add()} block>
-                                    Add Answer
-                                </Button>
-                            </>
-                        )}
-                    </Form.List>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Update
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Modal>
+                onUpdate={handleUpdate}
+                selectedQuestion={selectedQuestion}
+                form={form}
+            />
         </div>
     );
 }
