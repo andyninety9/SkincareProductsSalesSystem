@@ -60,19 +60,13 @@ const ManageBrand = () => {
 
     // Hàm mở modal update (tạo sau)
     const handleUpdate = (record) => {
-        console.log("Selected Brand Data:", record);
-
         setSelectedBrand(record);
-
-
         updateForm.setFieldsValue({
             brandName: record.brandName,
             brandDesc: record.brandDesc,
             brandOrigin: record.brandOrigin,
             brandStatus: record.brandStatus ? 'Active' : 'Inactive',
-        })
-
-        console.log("Form Values After Set:", updateForm.getFieldsValue()); // Kiểm tra lại
+        });
         setIsUpdateModalVisible(true);
     };
 
@@ -81,21 +75,19 @@ const ManageBrand = () => {
             message.error("Brand ID is missing!");
             return;
         }
-        const bigIntId = BigInt(selectedBrand.brandId);
-const safeNumber = Math.min(Number(bigIntId), Number.MAX_SAFE_INTEGER);
 
         const payload = {
-            brandId: safeNumber,
+            brandId: String(selectedBrand.brandId),
             brandName: values.brandName.trim(),
             brandDesc: values.brandDesc.trim() || "N/A",
             brandOrigin: values.brandOrigin.trim() || "Unknown",
-            brandStatus: values.brandStatus === 'Active' ? true : false,
+            brandStatus: values.brandStatus === "Active" ? "true" : "false",
         };
 
         console.log("✅ FINAL Payload sent to API:", payload);
 
         try {
-            await api.put('Products/brand/update', payload);
+            await api.patch('Products/brand/update', payload);
             message.success('Cập nhật thương hiệu thành công!');
             setIsUpdateModalVisible(false);
             fetchBrands(pagination.current, pagination.pageSize);
@@ -108,16 +100,33 @@ const safeNumber = Math.min(Number(bigIntId), Number.MAX_SAFE_INTEGER);
 
 
     // Hàm xóa thương hiệu
-    const handleDelete = async (brandId) => {
-        try {
-            await api.delete(`Products/brand/delete/${brandId}`);
-            message.success("Xóa thương hiệu thành công!");
-            fetchBrands(pagination.current, pagination.pageSize);
-        } catch (error) {
-            console.error("Lỗi khi xóa thương hiệu:", error);
-            message.error("Lỗi khi xóa thương hiệu!");
-        }
+    const handleDelete = (brandId) => {
+        Modal.confirm({
+            title: 'Are you sure you want to delete this brand?',
+            content: 'Once deleted, this action cannot be undone.',
+            okText: 'Yes, delete it',
+            cancelText: 'No, keep it',
+            onOk: async () => {
+                try {
+                    // Chuyển brandId thành string trước khi gửi
+                    await api.delete('Products/brand/delete', {
+                        data: { brandId: String(brandId) }, // Chuyển thành string
+                    });
+                    message.success("Xóa thương hiệu thành công!");
+                    fetchBrands(pagination.current, pagination.pageSize);
+                } catch (error) {
+                    console.error("Lỗi khi xóa thương hiệu:", error);
+                    message.error("Lỗi khi xóa thương hiệu!");
+                }
+            },
+            onCancel: () => {
+                console.log('Cancel delete operation');
+            }
+        });
     };
+    
+    
+    
 
     // Menu dropdown cho cột Action
     const getActionMenu = (record) => (
