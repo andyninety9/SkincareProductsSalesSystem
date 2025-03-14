@@ -23,6 +23,7 @@
         "antd": "^5.24.0",
         "appwrite": "^17.0.0",
         "axios": "^1.7.9",
+        "bignumber.js": "^9.1.2",
         "bootstrap": "^5.3.3",
         "dotenv": "^16.4.7",
         "formik": "^2.4.6",

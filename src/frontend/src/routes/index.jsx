@@ -30,6 +30,7 @@ export const routes = {
     manageCategory: '/manage-category',
     manageQuiz: '/manage-quiz',
     manageSkintype: '/manage-skintype',
+    manageBrand: '/manage-brand',
     resultQuiz: '/your-skin-type-result',
     paymentReturn: '/payment-return',
     notfound: '/404',
