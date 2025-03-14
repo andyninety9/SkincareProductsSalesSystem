@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Modal, Form, Input as AntInput, Button, Alert, message } from "antd";
+import { Modal, Form, Input as AntInput, Button, Alert, message, Col, Row, Divider } from "antd";
 import { useEffect, useState, useMemo } from "react";
 import quizService from "../../component/quizService/quizService";
 
@@ -19,7 +19,7 @@ const UpdateQuestionModal = ({
     useEffect(() => {
         if (selectedQuestion) {
             form.setFieldsValue({
-                questionId: String(selectedQuestion.questionId), // Add questionId to form
+                questionId: String(selectedQuestion.questionId),
                 questionContent: selectedQuestion.questionContent,
                 cateQuestionId: selectedQuestion.cateQuestionId,
                 keyQuestions: selectedQuestion.keyQuestions.map(({ keyContent, keyScore }) => ({
@@ -55,18 +55,28 @@ const UpdateQuestionModal = ({
         try {
             setError(null);
             const payload = {
-                questionId: String(selectedQuestion.questionId),
-                cateQuestionId: String(values.cateQuestionId),
-                questionContent: String(values.questionContent || ''),
+                questionId: (values.questionId !== undefined && values.questionId !== '')
+                    ? String(values.questionId)
+                    : String(selectedQuestion.questionId),
+                cateQuestionId: (values.cateQuestionId !== undefined && values.cateQuestionId !== '')
+                    ? String(values.cateQuestionId)
+                    : String(selectedQuestion.cateQuestionId),
+                questionContent: (values.questionContent !== undefined && values.questionContent !== null)
+                    ? String(values.questionContent)
+                    : String(selectedQuestion.questionContent || ''),
             };
-            await quizService.updateQuestion(payload); // Direct call instead of onUpdate
+            console.log('Sending payload to updateQuestion:', JSON.stringify(payload, null, 2));
+            const response = await quizService.updateQuestion(payload);
+            console.log('Received response from updateQuestion:', JSON.stringify(response, null, 2));
             message.success('Cập nhật câu hỏi thành công');
-            onUpdate(); // Notify parent to refresh or close modal
+            onUpdate(response); // Pass response to parent
         } catch (error) {
-            setError(error.response?.data?.message || error.message || 'Failed to update question');
+            const errorResponse = error.response?.data || error.message;
+            console.error('Error in handleFinish:', JSON.stringify(errorResponse, null, 2));
+            setError(errorResponse?.message || 'Failed to update question');
+            message.error('Cập nhật câu hỏi thất bại');
         }
     };
-
     const handleUpdateAnswers = async () => {
         try {
             setError(null);
@@ -77,17 +87,26 @@ const UpdateQuestionModal = ({
                 keyScore: String(answer.keyScore || ''),
             }));
 
+            const updatedAnswers = [];
             for (const answer of existingAnswers) {
                 console.log('Updating answer:', answer);
-                await quizService.updateAnswer(answer);
+                const response = await quizService.updateAnswer(answer);
+                updatedAnswers.push(response);
             }
+
+            // Update the selectedQuestion state with the new answers
+            const updatedQuestion = {
+                ...selectedQuestion,
+                keyQuestions: updatedAnswers,
+            };
+
             message.success('Cập nhật câu trả lời thành công');
-            onUpdateAnswers();
+            onUpdateAnswers(updatedQuestion); // Pass updatedQuestion to parent
         } catch (error) {
             const errorResponse = error.response?.data || error.message;
             console.error('Full error response:', JSON.stringify(errorResponse, null, 2));
             setError(errorResponse?.detail || errorResponse?.message || 'Failed to update answers');
-            message.error(error.message);
+            message.error('Cập nhật câu trả lời thất bại');
         }
     };
 
@@ -98,13 +117,21 @@ const UpdateQuestionModal = ({
 
             // Update question
             const questionPayload = {
-                questionId: String(selectedQuestion.questionId),
-                cateQuestionId: String(values.cateQuestionId),
-                questionContent: String(values.questionContent || ''),
+                questionId: (values.questionId !== undefined && values.questionId !== '')
+                    ? String(values.questionId)
+                    : String(selectedQuestion.questionId),
+                cateQuestionId: (values.cateQuestionId !== undefined && values.cateQuestionId !== '')
+                    ? String(values.cateQuestionId)
+                    : String(selectedQuestion.cateQuestionId),
+                questionContent: (values.questionContent !== undefined && values.questionContent !== null)
+                    ? String(values.questionContent)
+                    : String(selectedQuestion.questionContent || ''),
             };
-            await quizService.updateQuestion(questionPayload);
+            console.log('Sending payload to updateQuestion (all):', JSON.stringify(questionPayload, null, 2));
+            const questionResponse = await quizService.updateQuestion(questionPayload);
+            console.log('Received response from updateQuestion (all):', JSON.stringify(questionResponse, null, 2));
 
-            // Update answers (no changes here)
+            // Update answers
             const existingAnswers = values.keyQuestions.map((answer, index) => ({
                 keyId: selectedQuestion.keyQuestions[index].keyId,
                 keyContent: String(answer.keyContent || ''),
@@ -116,18 +143,19 @@ const UpdateQuestionModal = ({
             }
 
             message.success('Cập nhật tất cả thành công');
-            onUpdateAnswers();
+            onUpdateAnswers(questionResponse); // Pass questionResponse to parent
         } catch (error) {
             const errorResponse = error.response?.data || error.message;
-            console.error('Full error response:', JSON.stringify(errorResponse, null, 2));
+            console.error('Error in handleUpdateAll:', JSON.stringify(errorResponse, null, 2));
             setError(errorResponse?.detail || errorResponse?.message || 'Failed to update all');
-            message.error(error.message);
+            message.error('Cập nhật tất cả thất bại');
         }
     };
 
     const currentAnswers = Form.useWatch('keyQuestions', form) || [];
     const currentQuestionContent = Form.useWatch('questionContent', form) || '';
     const currentCateQuestionId = Form.useWatch('cateQuestionId', form) || '';
+    const currentQuestionId = Form.useWatch('questionId', form) || '';
 
     const originalAnswers = useMemo(() =>
         selectedQuestion?.keyQuestions.map(({ keyContent, keyScore }) => ({
@@ -141,8 +169,9 @@ const UpdateQuestionModal = ({
         if (!selectedQuestion) return;
 
         const questionHasChanges =
-            currentQuestionContent !== selectedQuestion.questionContent ||
-            currentCateQuestionId !== selectedQuestion.cateQuestionId;
+            (currentQuestionId !== undefined && currentQuestionId !== String(selectedQuestion.questionId)) ||
+            (currentQuestionContent !== undefined && currentQuestionContent !== selectedQuestion.questionContent) ||
+            (currentCateQuestionId !== undefined && currentCateQuestionId !== selectedQuestion.cateQuestionId);
         setQuestionChanged(questionHasChanges);
 
         const hasAnswersChanges = currentAnswers.length !== originalAnswers.length ||
@@ -154,7 +183,7 @@ const UpdateQuestionModal = ({
                 );
             });
         setAnswersChanged(hasAnswersChanges);
-    }, [currentAnswers, originalAnswers, selectedQuestion, currentQuestionContent, currentCateQuestionId]);
+    }, [currentAnswers, originalAnswers, selectedQuestion, currentQuestionContent, currentCateQuestionId, currentQuestionId]);
 
     const bothChanged = questionChanged && answersChanged;
 
@@ -179,23 +208,27 @@ const UpdateQuestionModal = ({
             <Form form={form} onFinish={handleFinish} layout="vertical">
                 <Form.Item
                     name="questionContent"
-                    label="Nội dung câu hỏi"
-                    rules={[{ required: true, message: 'Vui lòng nhập nội dung câu hỏi!' }]}
-                    style={{ color: '#5A2D2F', fontWeight: 'bold', fontSize: '16px', fontFamily: "'Nunito', sans-serif" }}
+                    label="Câu Hỏi"
+
+                    style={{ color: "#5A2D2F", fontWeight: "bold" }}
                 >
                     <TextArea
                         autoSize={{ minRows: 3, maxRows: 10 }}
-                        style={{ color: "#5A2D2F", borderColor: "#5A2D2F", backgroundColor: "#F6EEF0" }}
+                        style={{
+                            color: "#5A2D2F",
+                            borderColor: "#5A2D2F",
+                            backgroundColor: "#F6EEF0",
+                        }}
+                        onChange={(e) => {
+                            form.setFieldsValue({ questionContent: String(e.target.value) });
+                        }}
                     />
                 </Form.Item>
+
 
                 <Form.Item
                     name="cateQuestionId"
                     label="Category ID"
-                    rules={[
-                        { required: true, message: 'Vui lòng nhập Category ID!' },
-
-                    ]}
                     style={{ color: '#5A2D2F', fontWeight: 'bold' }}
                 >
                     <AntInput
@@ -206,6 +239,26 @@ const UpdateQuestionModal = ({
                         style={{ color: "#5A2D2F", borderColor: "#5A2D2F", backgroundColor: "#F6EEF0", width: '30%' }}
                     />
                 </Form.Item>
+
+                <Form.Item
+                    name="questionId"
+                    label="Question ID"
+                    style={{ color: '#5A2D2F', fontWeight: 'bold' }}
+                >
+                    <AntInput
+                        type="number"
+                        placeholder="Question ID"
+                        min={0}
+                        style={{ color: "#5A2D2F", borderColor: "#5A2D2F", backgroundColor: "#F6EEF0", width: '30%' }}
+                    />
+                </Form.Item>
+
+
+                <Col span={24}>
+                    <Divider style={{ borderColor: "#56021F" }} />
+                </Col>
+
+
 
                 <Form.List name="keyQuestions">
                     {(fields, { remove }) => (

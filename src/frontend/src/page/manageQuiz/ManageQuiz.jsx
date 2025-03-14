@@ -113,18 +113,28 @@ export default function ManageQuiz() {
     };
 
     const handleUpdate = useCallback(
-        async (values) => {
+        (updatedQuestion) => { // Changed from `values` to `updatedQuestion`
             try {
-                await quizService.updateQuestion(modalState.selectedQuestion.questionId, values);
+                // Update state immediately with the response
+                setQuizItems(prev =>
+                    prev.map(item =>
+                        item.questionId === updatedQuestion.questionId ? updatedQuestion : item
+                    )
+                );
+                setFilteredQuizItems(prev =>
+                    prev.map(item =>
+                        item.questionId === updatedQuestion.questionId ? updatedQuestion : item
+                    )
+                );
                 message.success("Cập nhật câu hỏi thành công");
                 setModalState((prev) => ({ ...prev, updateVisible: false, selectedQuestion: null }));
                 form.resetFields();
-                fetchQuizItems(currentPage);
+                fetchQuizItems(currentPage); // Still fetch to ensure server sync
             } catch (error) {
                 handleError(error);
             }
         },
-        [modalState.selectedQuestion, currentPage, fetchQuizItems, form, handleError]
+        [currentPage, fetchQuizItems, form, handleError]
     );
 
     const handleDeleteConfirm = useCallback(() => {
@@ -136,15 +146,29 @@ export default function ManageQuiz() {
         fetchQuizItems(currentPage);
     }, [currentPage, fetchQuizItems]);
 
-    // New callback for updating answers
-    const handleUpdateAnswersConfirm = useCallback(() => {
-        setModalState((prev) => ({
-            ...prev,
-            updateVisible: false,
-            selectedQuestion: null,
-        }));
-        fetchQuizItems(currentPage); // Refresh data after updating answers
-    }, [currentPage, fetchQuizItems]);
+    const handleUpdateAnswersConfirm = useCallback(
+        (updatedQuestion) => { // Accept optional updatedQuestion
+            setModalState((prev) => ({
+                ...prev,
+                updateVisible: false,
+                selectedQuestion: null,
+            }));
+            if (updatedQuestion) { // Update state if question was updated
+                setQuizItems(prev =>
+                    prev.map(item =>
+                        item.questionId === updatedQuestion.questionId ? updatedQuestion : item
+                    )
+                );
+                setFilteredQuizItems(prev =>
+                    prev.map(item =>
+                        item.questionId === updatedQuestion.questionId ? updatedQuestion : item
+                    )
+                );
+            }
+            fetchQuizItems(currentPage); // Refresh data after updating answers
+        },
+        [currentPage, fetchQuizItems]
+    );
 
     const showDeleteModal = useCallback((questionId) => {
         setModalState((prev) => ({
@@ -341,8 +365,8 @@ export default function ManageQuiz() {
             <UpdateQuestionModal
                 visible={modalState.updateVisible}
                 onCancel={handleModalCancel}
-                onUpdate={handleUpdate}
-                onUpdateAnswers={handleUpdateAnswersConfirm} // Pass new callback
+                onUpdate={handleUpdate} // Now expects response object
+                onUpdateAnswers={handleUpdateAnswersConfirm} // Now handles optional response
                 selectedQuestion={modalState.selectedQuestion}
                 form={form}
             />
