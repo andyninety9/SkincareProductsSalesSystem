@@ -6,6 +6,7 @@ import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHead
 import { useState, useEffect, useCallback } from "react";
 import quizService from "../../component/quizService/quizService";
 import UpdateQuestionModal from "./UpdateQuestionModal";
+import CreateQuestionModal from "./CreateQuestionModal";
 
 export default function ManageQuiz() {
     const [quizItems, setQuizItems] = useState([]);
@@ -228,7 +229,7 @@ export default function ManageQuiz() {
                                     }}
                                 >
                                     <h2 style={{ fontSize: "16px", fontFamily: "Nunito, sans-serif" }}>Total Questions</h2>
-                                    
+
                                     <p style={{ fontSize: "32px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>{total}</p>
                                 </Card>
 
@@ -260,7 +261,7 @@ export default function ManageQuiz() {
                                 </div>
 
                             </Col>
-                     
+
                         </Row>
                         <Table
                             dataSource={quizItems}
@@ -283,65 +284,12 @@ export default function ManageQuiz() {
                 </div>
             </div>
 
-            <Modal
-                title="Tạo câu hỏi mới"
+            <CreateQuestionModal
                 visible={modalState.createVisible}
                 onCancel={handleModalCancel}
-                footer={null}
-            >
-                <Form form={form} onFinish={handleCreate} layout="vertical">
-                    <Form.Item
-                        name="questionContent"
-                        label="Nội dung câu hỏi"
-                        rules={[{ required: true, message: "Vui lòng nhập nội dung câu hỏi!" }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name="cateQuestionId"
-                        label="ID danh mục"
-                        rules={[{ required: true, message: "Vui lòng nhập ID danh mục!" }]}
-                    >
-                        <Input type="number" />
-                    </Form.Item>
-                    <Form.List name="keyQuestions">
-                        {(fields, { add, remove }) => (
-                            <>
-                                {fields.map(({ key, name, ...restField }) => (
-                                    <Row key={key} gutter={16}>
-                                        <Col span={10}>
-                                            <Form.Item
-                                                {...restField}
-                                                name={[name, "keyContent"]}
-                                                rules={[{ required: true, message: "Vui lòng nhập câu trả lời!" }]}
-                                            >
-                                                <Input placeholder="Answer" />
-                                            </Form.Item>
-                                        </Col>
-                                        <Col span={10}>
-                                            <Form.Item
-                                                {...restField}
-                                                name={[name, "keyScore"]}
-                                                rules={[{ required: true, message: "Vui lòng nhập điểm!" }]}
-                                            >
-                                                <Input type="number" placeholder="Score" />
-                                            </Form.Item>
-                                        </Col>
-                                        <Col span={4}>
-                                            <Button danger onClick={() => remove(name)}>Xóa</Button>
-                                        </Col>
-                                    </Row>
-                                ))}
-                                <Button type="dashed" onClick={() => add()} block>Thêm câu trả lời</Button>
-                            </>
-                        )}
-                    </Form.List>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">Tạo</Button>
-                    </Form.Item>
-                </Form>
-            </Modal>
-
+                onCreate={handleCreate}
+                form={form}
+            />
             <UpdateQuestionModal
                 visible={modalState.updateVisible}
                 onCancel={handleModalCancel}
