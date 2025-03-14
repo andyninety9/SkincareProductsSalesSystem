@@ -63,7 +63,7 @@ const UpdateQuestionModal = ({
                     rules={[{ required: true, message: 'Vui lòng nhập nội dung câu hỏi!' }]}
                 >
                     <TextArea
-                        autoSize={{ minRows: 3, maxRows: 10 }} 
+                        autoSize={{ minRows: 3, maxRows: 10 }}
                         style={{
                             color: "#5A2D2F",
                             borderColor: "#5A2D2F",
@@ -86,7 +86,7 @@ const UpdateQuestionModal = ({
                     <AntInput
                         type="number"
                         min={0}
-                        max={20}
+                        max={4}
                         style={{
                             color: "#5A2D2F",
                             borderColor: "#5A2D2F",
@@ -121,7 +121,7 @@ const UpdateQuestionModal = ({
                                     >
                                         <TextArea
                                             rows={4}
-                                            autoSize={{ minRows: 1, maxRows: 5 }} 
+                                            autoSize={{ minRows: 1, maxRows: 5 }}
                                             style={{
                                                 color: "#5A2D2F",
                                                 borderColor: "#5A2D2F",

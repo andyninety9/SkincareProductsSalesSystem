@@ -7,20 +7,22 @@ import { useState, useEffect, useCallback } from "react";
 import quizService from "../../component/quizService/quizService";
 import UpdateQuestionModal from "./UpdateQuestionModal";
 import CreateQuestionModal from "./CreateQuestionModal";
-import DeleteQuestionModal from "./DeleteQuestionModal"; // Import the new component
+import DeleteQuestionModal from "./DeleteQuestionModal";
 
 export default function ManageQuiz() {
     const [quizItems, setQuizItems] = useState([]);
+    const [filteredQuizItems, setFilteredQuizItems] = useState([]); // New state for filtered items
     const [currentPage, setCurrentPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [searchValue, setSearchValue] = useState(''); // New state for search input
     const [modalState, setModalState] = useState({
         createVisible: false,
         updateVisible: false,
-        deleteVisible: false, // Add state for delete modal
+        deleteVisible: false,
         selectedQuestion: null,
-        selectedQuestionId: null, // Add state to track the questionId for deletion
+        selectedQuestionId: null,
     });
     const [form] = Form.useForm();
     const pageSize = 10;
@@ -67,9 +69,11 @@ export default function ManageQuiz() {
                 const data = await quizService.getAllQuizItems(page, pageSize);
                 const formattedItems = formatItems(data.items);
                 setQuizItems(formattedItems);
+                setFilteredQuizItems(formattedItems); // Initialize filtered items
                 setTotal(data.totalItems || formattedItems.length);
             } catch (error) {
                 setQuizItems([]);
+                setFilteredQuizItems([]); // Clear filtered items on error
                 handleError(error);
             } finally {
                 setLoading(false);
@@ -78,16 +82,36 @@ export default function ManageQuiz() {
         [formatItems, handleError, pageSize]
     );
 
+    // Handle search input change
+    const handleSearch = useCallback(
+        (value) => {
+            setSearchValue(value);
+            if (value.trim() === '') {
+                setFilteredQuizItems(quizItems); // Reset to full list if search is empty
+                setTotal(quizItems.length); // Reset total
+            } else {
+                const filtered = quizItems.filter(item =>
+                    String(item.questionId).includes(value.trim())
+                );
+                setFilteredQuizItems(filtered);
+                setTotal(filtered.length); // Update total based on filtered items
+            }
+            setCurrentPage(1); // Reset to first page on search
+        },
+        [quizItems]
+    );
+
     // CRUD operations
     const handleCreate = async (values) => {
         try {
-            setError(null); // Clear previous errors
-            console.log("Form Values:", JSON.stringify(values, null, 2)); // Log form data before sending
+            setError(null);
+            console.log("Form Values:", JSON.stringify(values, null, 2));
             const response = await quizService.createQuestion(values);
-            console.log("Create Question Response:", JSON.stringify(response, null, 2)); // Log the response
+            console.log("Create Question Response:", JSON.stringify(response, null, 2));
             message.success("Question created successfully");
             setModalState((prev) => ({ ...prev, createVisible: false }));
             form.resetFields();
+            fetchQuizItems(currentPage); // Refresh data
         } catch (error) {
             console.error("Create Question Error:", error.message);
             setError(error.message);
@@ -135,7 +159,7 @@ export default function ManageQuiz() {
             ...prev,
             createVisible: false,
             updateVisible: false,
-            deleteVisible: false, // Handle delete modal cancel
+            deleteVisible: false,
             selectedQuestion: null,
             selectedQuestionId: null,
         }));
@@ -175,7 +199,7 @@ export default function ManageQuiz() {
                         danger
                         icon={<DeleteOutlined />}
                         style={{ color: "#6A6A6A" }}
-                        onClick={() => showDeleteModal(record.questionId)} // Trigger delete modal
+                        onClick={() => showDeleteModal(record.questionId)}
                     >
                         Xoá
                     </Button>
@@ -244,7 +268,7 @@ export default function ManageQuiz() {
 
     return (
         <div style={{ display: "flex", height: "100vh", flexDirection: "column", overflow: "hidden" }}>
-            <ManageOrderHeader isModalOpen={modalState.updateVisible} />
+            <ManageOrderHeader isModalOpen={modalState.updateVisible || modalState.createVisible || modalState.deleteVisible} />
             <div style={{ display: "flex", flex: 1, marginTop: "60px", overflow: "hidden" }}>
                 <ManageOrderSidebar />
                 <div style={{ flex: 1, padding: "32px", marginLeft: "300px", overflowY: "auto" }}>
@@ -269,7 +293,9 @@ export default function ManageQuiz() {
                                 </Card>
                                 <div style={{ display: "flex", alignItems: "center", marginBottom: "24px", marginTop: "24px" }}>
                                     <Input
-                                        placeholder="Search skin types ..."
+                                        placeholder="Search by Question ID ..."
+                                        value={searchValue}
+                                        onChange={(e) => handleSearch(e.target.value)}
                                         style={{ width: "500px" }}
                                         suffix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />}
                                     />
@@ -291,7 +317,7 @@ export default function ManageQuiz() {
                             </Col>
                         </Row>
                         <Table
-                            dataSource={quizItems}
+                            dataSource={filteredQuizItems} // Use filtered items instead of quizItems
                             columns={columns}
                             rowKey="questionId"
                             loading={loading}

@@ -65,7 +65,7 @@ const CreateQuestionModal = ({
                     <AntInput
                         type="number"
                         min={0}
-                        max={20}
+                        max={4}
                         style={{
                             color: "#5A2D2F",
                             borderColor: "#5A2D2F",

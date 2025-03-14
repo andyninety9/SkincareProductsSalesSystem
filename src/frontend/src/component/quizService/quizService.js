@@ -54,7 +54,7 @@ const quizService = {
             const response = await api.delete('Question/delete', {
                 data: { questionId },
                 headers: {
-                    'Content-Type': 'application/json', 
+                    'Content-Type': 'application/json',
                 },
             });
             if (response.status !== 200) {
@@ -66,35 +66,29 @@ const quizService = {
         }
     },
 
-    updateAnswer: async (keyId, answerData) => {
-        console.log('Update Answer Request Data:', JSON.stringify(answerData, null, 2));
+    updateAnswer: async (questionId, keyQuestions) => {
         try {
-            const response = await api.put('Question/update-answer', { keyId, ...answerData });
-            if (response.status !== 200 && response.status !== 201) {
-                const errorData = response.data;
-                console.log('Error Response:', JSON.stringify(errorData, null, 2));
-                const errorDetail = errorData.detail || 'No details provided';
-                const specificErrors = errorData.errors ? JSON.stringify(errorData.errors) : '';
-                throw new Error(`HTTP Error: ${response.status}. Details: ${errorDetail}${specificErrors ? ` Errors: ${specificErrors}` : ''}`);
-/*************  ✨ Codeium Command ⭐  *************/
-    /**
-     * Update an existing answer.
-     * @param {number} keyId The ID of the answer to be updated.
-     * @param {object} answerData The updated answer data, containing at least `keyContent` and `keyScore`.
-     * @returns {Promise<object>} The updated answer object.
-     * @throws {Error} If the request fails, an error will be thrown with the error message.
-     */
-/******  be643bda-91b9-4ab6-ab6a-18ed7c2021fc  *******/            }
-            console.log('Update Answer Success Response:', JSON.stringify(response.data, null, 2));
-            return response.data.data || response.data; // Adjust based on response structure
+            // Ensure all fields are strings
+            const formattedKeyQuestions = keyQuestions.map(answer => ({
+                keyId: String(answer.keyId || ''), // Convert to string, default to empty string if null
+                keyContent: String(answer.keyContent || ''),
+                keyScore: String(answer.keyScore || ''),
+            }));
+
+            const response = await api.put('/api/Question/update-answer', {
+                questionId: String(questionId), // Ensure questionId is a string
+                keyQuestions: formattedKeyQuestions,
+            }, {
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            if (response.status !== 200) {
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+            return response.data;
         } catch (error) {
-            const errorData = error.response?.data;
-            console.log('Error Response (catch):', JSON.stringify(errorData, null, 2));
-            const errorMessage = errorData?.detail || error.message || 'Failed to update answer';
-            const specificErrors = errorData?.errors ? JSON.stringify(errorData.errors) : '';
-            throw new Error(`${errorMessage}${specificErrors ? ` Errors: ${specificErrors}` : ''}`);
+            throw new Error(error.response?.data?.message || error.message || 'Failed to update answers');
         }
     },
 };
-
 export default quizService;
