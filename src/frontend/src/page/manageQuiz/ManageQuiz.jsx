@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from "react";
 import quizService from "../../component/quizService/quizService";
 import UpdateQuestionModal from "./UpdateQuestionModal";
 import CreateQuestionModal from "./CreateQuestionModal";
+import DeleteQuestionModal from "./DeleteQuestionModal"; // Import the new component
 
 export default function ManageQuiz() {
     const [quizItems, setQuizItems] = useState([]);
@@ -17,7 +18,9 @@ export default function ManageQuiz() {
     const [modalState, setModalState] = useState({
         createVisible: false,
         updateVisible: false,
+        deleteVisible: false, // Add state for delete modal
         selectedQuestion: null,
+        selectedQuestionId: null, // Add state to track the questionId for deletion
     });
     const [form] = Form.useForm();
     const pageSize = 10;
@@ -41,77 +44,90 @@ export default function ManageQuiz() {
     }, []);
 
     // Consolidated item formatting with sorting
-    const formatItems = useCallback((items) => {
-        const formatted = (items || []).map((item) => ({
-            questionId: item.questionId,
-            cateQuestionId: item.cateQuestionId || "N/A",
-            questionContent: item.questionContent || "N/A",
-            keyQuestions: removeDuplicateKeyQuestions(item.keyQuestions || []),
-            createdAt: item.createdAt || item.created_at || null,
-        }));
-        return formatted.sort((a, b) => a.questionId - b.questionId);
-    }, [removeDuplicateKeyQuestions]);
+    const formatItems = useCallback(
+        (items) => {
+            const formatted = (items || []).map((item) => ({
+                questionId: item.questionId,
+                cateQuestionId: item.cateQuestionId || "N/A",
+                questionContent: item.questionContent || "N/A",
+                keyQuestions: removeDuplicateKeyQuestions(item.keyQuestions || []),
+                createdAt: item.createdAt || item.created_at || null,
+            }));
+            return formatted.sort((a, b) => a.questionId - b.questionId);
+        },
+        [removeDuplicateKeyQuestions]
+    );
 
     // Fetch quiz items
-    const fetchQuizItems = useCallback(async (page = 1) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const data = await quizService.getAllQuizItems(page, pageSize);
-            const formattedItems = formatItems(data.items);
-            setQuizItems(formattedItems);
-            setTotal(data.totalItems || formattedItems.length);
-        } catch (error) {
-            setQuizItems([]);
-            handleError(error);
-        } finally {
-            setLoading(false);
-        }
-    }, [formatItems, handleError, pageSize]);
+    const fetchQuizItems = useCallback(
+        async (page = 1) => {
+            setLoading(true);
+            setError(null);
+            try {
+                const data = await quizService.getAllQuizItems(page, pageSize);
+                const formattedItems = formatItems(data.items);
+                setQuizItems(formattedItems);
+                setTotal(data.totalItems || formattedItems.length);
+            } catch (error) {
+                setQuizItems([]);
+                handleError(error);
+            } finally {
+                setLoading(false);
+            }
+        },
+        [formatItems, handleError, pageSize]
+    );
 
     // CRUD operations
-    const handleCreate = useCallback(async (values) => {
+    const handleCreate = async (values) => {
         try {
-            await quizService.createQuestion(values);
-            message.success('Tạo câu hỏi thành công');
+            setError(null); // Clear previous errors
+            console.log("Form Values:", JSON.stringify(values, null, 2)); // Log form data before sending
+            const response = await quizService.createQuestion(values);
+            console.log("Create Question Response:", JSON.stringify(response, null, 2)); // Log the response
+            message.success("Question created successfully");
             setModalState((prev) => ({ ...prev, createVisible: false }));
             form.resetFields();
-            fetchQuizItems(currentPage);
         } catch (error) {
-            handleError(error);
+            console.error("Create Question Error:", error.message);
+            setError(error.message);
+            message.error(error.message);
         }
-    }, [currentPage, fetchQuizItems, form, handleError]);
+    };
 
-    const handleUpdate = useCallback(async (values) => {
-        try {
-            await quizService.updateQuestion(modalState.selectedQuestion.questionId, values);
-            message.success('Cập nhật câu hỏi thành công');
-            setModalState((prev) => ({ ...prev, updateVisible: false, selectedQuestion: null }));
-            form.resetFields();
-            fetchQuizItems(currentPage);
-        } catch (error) {
-            handleError(error);
-        }
-    }, [modalState.selectedQuestion, currentPage, fetchQuizItems, form, handleError]);
+    const handleUpdate = useCallback(
+        async (values) => {
+            try {
+                await quizService.updateQuestion(modalState.selectedQuestion.questionId, values);
+                message.success("Cập nhật câu hỏi thành công");
+                setModalState((prev) => ({ ...prev, updateVisible: false, selectedQuestion: null }));
+                form.resetFields();
+                fetchQuizItems(currentPage);
+            } catch (error) {
+                handleError(error);
+            }
+        },
+        [modalState.selectedQuestion, currentPage, fetchQuizItems, form, handleError]
+    );
 
-    const handleDelete = useCallback((questionId) => {
-        Modal.confirm({
-            title: 'Bạn có chắc chắn muốn xóa câu hỏi này không?',
-            onOk: async () => {
-                try {
-                    await quizService.deleteQuestion(questionId);
-                    message.success('Xóa câu hỏi thành công');
-                    fetchQuizItems(currentPage);
-                } catch (error) {
-                    handleError(error);
-                }
-            },
-        });
-    }, [currentPage, fetchQuizItems, handleError]);
-
-    useEffect(() => {
-        fetchQuizItems(currentPage);
+    // Handle delete confirmation
+    const handleDeleteConfirm = useCallback(() => {
+        setModalState((prev) => ({
+            ...prev,
+            deleteVisible: false,
+            selectedQuestionId: null,
+        }));
+        fetchQuizItems(currentPage); // Refresh data after deletion
     }, [currentPage, fetchQuizItems]);
+
+    // Show delete modal
+    const showDeleteModal = useCallback((questionId) => {
+        setModalState((prev) => ({
+            ...prev,
+            deleteVisible: true,
+            selectedQuestionId: questionId,
+        }));
+    }, []);
 
     // Consolidated modal handling
     const handleModalCancel = useCallback(() => {
@@ -119,15 +135,26 @@ export default function ManageQuiz() {
             ...prev,
             createVisible: false,
             updateVisible: false,
+            deleteVisible: false, // Handle delete modal cancel
             selectedQuestion: null,
+            selectedQuestionId: null,
         }));
         form.resetFields();
     }, [form]);
 
+    useEffect(() => {
+        fetchQuizItems(currentPage);
+    }, [currentPage, fetchQuizItems]);
+
     const columns = [
         { title: "Question ID", dataIndex: "questionId", key: "questionId", width: 200, align: "center" },
         { title: "Category ID", dataIndex: "cateQuestionId", key: "cateQuestionId", width: 200, align: "center" },
-        { title: <div style={{ textAlign: "center" }}>Question Content</div>, dataIndex: "questionContent", key: "questionContent", width: 400 },
+        {
+            title: <div style={{ textAlign: "center" }}>Question Content</div>,
+            dataIndex: "questionContent",
+            key: "questionContent",
+            width: 400,
+        },
         {
             title: "Action",
             key: "action",
@@ -139,17 +166,16 @@ export default function ManageQuiz() {
                         type="link"
                         icon={<EditOutlined />}
                         onClick={() => setModalState((prev) => ({ ...prev, updateVisible: true, selectedQuestion: record }))}
-                        style={{ color: '#D8959B' }} // Apply the desired color
+                        style={{ color: "#D8959B" }}
                     >
                         Cập Nhật
                     </Button>
-
                     <Button
                         type="link"
                         danger
                         icon={<DeleteOutlined />}
-                        style={{ color: '#6A6A6A' }}
-                        onClick={() => handleDelete(record.questionId)}
+                        style={{ color: "#6A6A6A" }}
+                        onClick={() => showDeleteModal(record.questionId)} // Trigger delete modal
                     >
                         Xoá
                     </Button>
@@ -174,7 +200,12 @@ export default function ManageQuiz() {
                                 <ul style={{ listStyleType: "none", padding: 0, margin: 0 }}>
                                     {leftQuestions.map((key, index) => (
                                         <li key={key.keyId} style={{ marginBottom: "10px" }}>
-                                            <div style={{ borderBottom: index < leftQuestions.length - 1 ? "1px solid #e8e8e8" : "none", paddingBottom: "10px" }}>
+                                            <div
+                                                style={{
+                                                    borderBottom: index < leftQuestions.length - 1 ? "1px solid #e8e8e8" : "none",
+                                                    paddingBottom: "10px",
+                                                }}
+                                            >
                                                 <strong>• Answer ID:</strong> {key.keyId} <br />
                                                 <strong>• Câu trả lời:</strong> {key.keyContent} <br />
                                                 <strong>• Điểm:</strong> {key.keyScore}
@@ -187,7 +218,12 @@ export default function ManageQuiz() {
                                 <ul style={{ listStyleType: "none", padding: 0, margin: 0 }}>
                                     {rightQuestions.map((key, index) => (
                                         <li key={key.keyId} style={{ marginBottom: "10px" }}>
-                                            <div style={{ borderBottom: index < rightQuestions.length - 1 ? "1px solid #e8e8e8" : "none", paddingBottom: "10px" }}>
+                                            <div
+                                                style={{
+                                                    borderBottom: index < rightQuestions.length - 1 ? "1px solid #e8e8e8" : "none",
+                                                    paddingBottom: "10px",
+                                                }}
+                                            >
                                                 <strong>• Answer ID:</strong> {key.keyId} <br />
                                                 <strong>• Câu trả lời:</strong> {key.keyContent} <br />
                                                 <strong>• Điểm:</strong> {key.keyScore}
@@ -229,16 +265,9 @@ export default function ManageQuiz() {
                                     }}
                                 >
                                     <h2 style={{ fontSize: "16px", fontFamily: "Nunito, sans-serif" }}>Total Questions</h2>
-
                                     <p style={{ fontSize: "32px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>{total}</p>
                                 </Card>
-
-                                <div style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    marginBottom: "24px",
-                                    marginTop: "24px"
-                                }}>
+                                <div style={{ display: "flex", alignItems: "center", marginBottom: "24px", marginTop: "24px" }}>
                                     <Input
                                         placeholder="Search skin types ..."
                                         style={{ width: "500px" }}
@@ -259,9 +288,7 @@ export default function ManageQuiz() {
                                         </Button>
                                     </div>
                                 </div>
-
                             </Col>
-
                         </Row>
                         <Table
                             dataSource={quizItems}
@@ -284,18 +311,19 @@ export default function ManageQuiz() {
                 </div>
             </div>
 
-            <CreateQuestionModal
-                visible={modalState.createVisible}
-                onCancel={handleModalCancel}
-                onCreate={handleCreate}
-                form={form}
-            />
+            <CreateQuestionModal visible={modalState.createVisible} onCancel={handleModalCancel} onCreate={handleCreate} form={form} />
             <UpdateQuestionModal
                 visible={modalState.updateVisible}
                 onCancel={handleModalCancel}
                 onUpdate={handleUpdate}
                 selectedQuestion={modalState.selectedQuestion}
                 form={form}
+            />
+            <DeleteQuestionModal
+                visible={modalState.deleteVisible}
+                onCancel={handleModalCancel}
+                onDelete={handleDeleteConfirm}
+                questionId={modalState.selectedQuestionId}
             />
         </div>
     );
