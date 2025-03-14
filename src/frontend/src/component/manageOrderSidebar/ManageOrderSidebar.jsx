@@ -28,7 +28,8 @@ const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("review-comments")) return "5";
     if (pathname.includes("manage-category")) return "11";
     if (pathname.includes("manage-quiz")) return "7"; // Added for Manage Quiz
-    return "0"; // Default to "Manage Account" if no match
+    if (pathname.includes("manage-brand")) return "10";
+    return "0"; 
 };
 
 const ManageOrderSidebar = () => {

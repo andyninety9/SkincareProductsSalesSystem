@@ -38,6 +38,7 @@ import ManageImgProduct from './page/manageProduct/ManageImgProduct';
 import ManageQuiz from './page/manageQuiz/ManageQuiz';
 import DemoUpload from './page/DemoUpload';
 import ManageCategory from './page/manageCategory/ManageCategory';
+import ManageBrand from './page/manageBrand/ManageBrand';
 
 function App() {
     const router = createBrowserRouter([
@@ -171,6 +172,14 @@ function App() {
             element: (
                 <ProtectedRoute roles={['Manager', 'Staff']}>
                     <ManageCategory />
+                </ProtectedRoute>
+            ),
+        },
+        {
+            path: routes.manageBrand,
+            element: (
+                <ProtectedRoute roles={['Manager', 'Staff']}>
+                    <ManageBrand />
                 </ProtectedRoute>
             ),
         },
