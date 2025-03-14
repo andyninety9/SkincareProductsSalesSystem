@@ -65,29 +65,23 @@ const quizService = {
             throw new Error(error.response?.data?.message || error.message || 'Failed to delete question');
         }
     },
-
-    updateAnswer: async (questionId, keyQuestions) => {
+    updateAnswer: async (answerData) => { // Remove questionId parameter if not needed
         try {
-            // Ensure all fields are strings
-            const formattedKeyQuestions = keyQuestions.map(answer => ({
-                keyId: String(answer.keyId || ''), // Convert to string, default to empty string if null
-                keyContent: String(answer.keyContent || ''),
-                keyScore: String(answer.keyScore || ''),
-            }));
-
-            const response = await api.put('/api/Question/update-answer', {
-                questionId: String(questionId), // Ensure questionId is a string
-                keyQuestions: formattedKeyQuestions,
-            }, {
+            const payload = {
+                keyId: String(answerData.keyId),
+                keyContent: String(answerData.keyContent || ''),
+                keyScore: String(answerData.keyScore || ''),
+            };
+            console.log('PATCH Payload:', JSON.stringify(payload, null, 2));
+            const response = await api.patch('Question/update-answer', payload, {
                 headers: { 'Content-Type': 'application/json' },
             });
-
-            if (response.status !== 200) {
+            if (response.status !== 200 && response.status !== 204) { // Accept 200 OK or 204 No Content
                 throw new Error(`HTTP Error: ${response.status}`);
             }
             return response.data;
         } catch (error) {
-            throw new Error(error.response?.data?.message || error.message || 'Failed to update answers');
+            throw new Error(error.response?.data?.message || error.message || 'Failed to update answer');
         }
     },
 };

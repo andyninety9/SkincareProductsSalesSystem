@@ -1,6 +1,5 @@
 import { Table, Card, message, Pagination, Row, Col, Button, Modal, Form, Alert, Input } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { SearchOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
 import ManageOrderHeader from "../../component/manageOrderHeader/ManageOrderHeader";
 import { useState, useEffect, useCallback } from "react";
@@ -11,12 +10,12 @@ import DeleteQuestionModal from "./DeleteQuestionModal";
 
 export default function ManageQuiz() {
     const [quizItems, setQuizItems] = useState([]);
-    const [filteredQuizItems, setFilteredQuizItems] = useState([]); // New state for filtered items
+    const [filteredQuizItems, setFilteredQuizItems] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [searchValue, setSearchValue] = useState(''); // New state for search input
+    const [searchValue, setSearchValue] = useState('');
     const [modalState, setModalState] = useState({
         createVisible: false,
         updateVisible: false,
@@ -27,14 +26,12 @@ export default function ManageQuiz() {
     const [form] = Form.useForm();
     const pageSize = 10;
 
-    // Consolidated error handling
     const handleError = useCallback((error) => {
         const errorMessage = error.message;
         setError(errorMessage);
         return errorMessage;
     }, []);
 
-    // Function to remove duplicate keyQuestions
     const removeDuplicateKeyQuestions = useCallback((keyQuestions) => {
         const seenContents = new Set();
         return keyQuestions.filter((key) => {
@@ -45,7 +42,6 @@ export default function ManageQuiz() {
         });
     }, []);
 
-    // Consolidated item formatting with sorting
     const formatItems = useCallback(
         (items) => {
             const formatted = (items || []).map((item) => ({
@@ -60,7 +56,6 @@ export default function ManageQuiz() {
         [removeDuplicateKeyQuestions]
     );
 
-    // Fetch quiz items
     const fetchQuizItems = useCallback(
         async (page = 1) => {
             setLoading(true);
@@ -69,11 +64,11 @@ export default function ManageQuiz() {
                 const data = await quizService.getAllQuizItems(page, pageSize);
                 const formattedItems = formatItems(data.items);
                 setQuizItems(formattedItems);
-                setFilteredQuizItems(formattedItems); // Initialize filtered items
+                setFilteredQuizItems(formattedItems);
                 setTotal(data.totalItems || formattedItems.length);
             } catch (error) {
                 setQuizItems([]);
-                setFilteredQuizItems([]); // Clear filtered items on error
+                setFilteredQuizItems([]);
                 handleError(error);
             } finally {
                 setLoading(false);
@@ -82,26 +77,24 @@ export default function ManageQuiz() {
         [formatItems, handleError, pageSize]
     );
 
-    // Handle search input change
     const handleSearch = useCallback(
         (value) => {
             setSearchValue(value);
             if (value.trim() === '') {
-                setFilteredQuizItems(quizItems); // Reset to full list if search is empty
-                setTotal(quizItems.length); // Reset total
+                setFilteredQuizItems(quizItems);
+                setTotal(quizItems.length);
             } else {
                 const filtered = quizItems.filter(item =>
                     String(item.questionId).includes(value.trim())
                 );
                 setFilteredQuizItems(filtered);
-                setTotal(filtered.length); // Update total based on filtered items
+                setTotal(filtered.length);
             }
-            setCurrentPage(1); // Reset to first page on search
+            setCurrentPage(1);
         },
         [quizItems]
     );
 
-    // CRUD operations
     const handleCreate = async (values) => {
         try {
             setError(null);
@@ -111,7 +104,7 @@ export default function ManageQuiz() {
             message.success("Question created successfully");
             setModalState((prev) => ({ ...prev, createVisible: false }));
             form.resetFields();
-            fetchQuizItems(currentPage); // Refresh data
+            fetchQuizItems(currentPage);
         } catch (error) {
             console.error("Create Question Error:", error.message);
             setError(error.message);
@@ -134,17 +127,25 @@ export default function ManageQuiz() {
         [modalState.selectedQuestion, currentPage, fetchQuizItems, form, handleError]
     );
 
-    // Handle delete confirmation
     const handleDeleteConfirm = useCallback(() => {
         setModalState((prev) => ({
             ...prev,
             deleteVisible: false,
             selectedQuestionId: null,
         }));
-        fetchQuizItems(currentPage); // Refresh data after deletion
+        fetchQuizItems(currentPage);
     }, [currentPage, fetchQuizItems]);
 
-    // Show delete modal
+    // New callback for updating answers
+    const handleUpdateAnswersConfirm = useCallback(() => {
+        setModalState((prev) => ({
+            ...prev,
+            updateVisible: false,
+            selectedQuestion: null,
+        }));
+        fetchQuizItems(currentPage); // Refresh data after updating answers
+    }, [currentPage, fetchQuizItems]);
+
     const showDeleteModal = useCallback((questionId) => {
         setModalState((prev) => ({
             ...prev,
@@ -153,7 +154,6 @@ export default function ManageQuiz() {
         }));
     }, []);
 
-    // Consolidated modal handling
     const handleModalCancel = useCallback(() => {
         setModalState((prev) => ({
             ...prev,
@@ -317,7 +317,7 @@ export default function ManageQuiz() {
                             </Col>
                         </Row>
                         <Table
-                            dataSource={filteredQuizItems} // Use filtered items instead of quizItems
+                            dataSource={filteredQuizItems}
                             columns={columns}
                             rowKey="questionId"
                             loading={loading}
@@ -342,6 +342,7 @@ export default function ManageQuiz() {
                 visible={modalState.updateVisible}
                 onCancel={handleModalCancel}
                 onUpdate={handleUpdate}
+                onUpdateAnswers={handleUpdateAnswersConfirm} // Pass new callback
                 selectedQuestion={modalState.selectedQuestion}
                 form={form}
             />
