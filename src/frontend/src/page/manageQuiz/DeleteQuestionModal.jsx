@@ -1,6 +1,6 @@
 import { Modal, message } from "antd";
 import PropTypes from "prop-types";
-import quizService from "../../component/quizService/quizService"; // Adjust the path as necessary
+import quizService from "../../component/quizService/quizService";
 
 const DeleteQuestionModal = ({ visible, onCancel, onDelete, questionId }) => {
     const handleDelete = async () => {
@@ -13,7 +13,7 @@ const DeleteQuestionModal = ({ visible, onCancel, onDelete, questionId }) => {
         }
     };
 
-    // Stop event propagation on modal clicks to prevent affecting parent elements
+
     const handleModalClick = (e) => {
         e.stopPropagation();
     };
@@ -27,7 +27,7 @@ const DeleteQuestionModal = ({ visible, onCancel, onDelete, questionId }) => {
                         fontFamily: "Nunito, sans-serif",
                         fontSize: "25px",
                         fontWeight: "bold",
-                        color: "#5A2D2F", // Match color scheme
+                        color: "#5A2D2F",
                     }}
                 >
                     Xác nhận xóa câu hỏi
@@ -49,29 +49,29 @@ const DeleteQuestionModal = ({ visible, onCancel, onDelete, questionId }) => {
             }}
             cancelButtonProps={{
                 style: {
-                    backgroundColor: "#FFFFFF", // White background for cancel
+                    backgroundColor: "#FFFFFF",
                     color: "#5A2D2F",
                     borderColor: "#5A2D2F",
                     fontFamily: "Nunito, sans-serif",
                     fontWeight: "bold",
                 },
             }}
-            onClick={handleModalClick} // Stop propagation on modal clicks
-            keyboard={true} // Allow keyboard navigation (e.g., Esc to close)
-            maskClosable={false} // Prevent closing modal by clicking outside (optional, for better focus control)
-            zIndex={1100} // Ensure modal is above other elements
+            onClick={handleModalClick}
+            keyboard={true}
+            maskClosable={false}
+            zIndex={1100}
             bodyStyle={{
-                padding: "16px", // Consistent padding
+                padding: "16px",
             }}
-            width={400} // Set a reasonable width for the modal
-            aria-labelledby="delete-question-modal-title" // Accessibility: Link title to modal
+            width={400}
+            aria-labelledby="delete-question-modal-title"
         >
             <p
                 style={{
                     textAlign: "center",
                     fontFamily: "Nunito, sans-serif",
                     fontSize: "16px",
-                    color: "#5A2D2F", // Match color scheme
+                    color: "#5A2D2F",
                 }}
             >
                 Bạn có chắc chắn muốn xóa câu hỏi này không?

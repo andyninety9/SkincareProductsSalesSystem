@@ -16,6 +16,7 @@ const UpdateQuestionModal = ({
     const [error, setError] = useState(null);
     const [answersChanged, setAnswersChanged] = useState(false);
     const [questionChanged, setQuestionChanged] = useState(false);
+
     useEffect(() => {
         if (selectedQuestion) {
             form.setFieldsValue({
@@ -33,7 +34,6 @@ const UpdateQuestionModal = ({
         }
     }, [selectedQuestion, form]);
 
-    // Custom validator for questionId uniqueness
     const validateQuestionId = async (_, value) => {
         if (!value) {
             return Promise.reject(new Error('Vui lòng nhập Question ID!'));
@@ -42,7 +42,7 @@ const UpdateQuestionModal = ({
             return Promise.reject(new Error('Question ID phải là số!'));
         }
         try {
-            const response = await quizService.checkQuestionId(value); // Hypothetical API call
+            const response = await quizService.checkQuestionId(value);
             if (response.exists && value !== String(selectedQuestion?.questionId)) {
                 return Promise.reject(new Error('Question ID đã tồn tại!'));
             }
@@ -51,6 +51,7 @@ const UpdateQuestionModal = ({
             return Promise.reject(new Error('Không thể kiểm tra Question ID!'));
         }
     };
+
     const handleFinish = async (values) => {
         try {
             setError(null);
@@ -69,7 +70,7 @@ const UpdateQuestionModal = ({
             const response = await quizService.updateQuestion(payload);
             console.log('Received response from updateQuestion:', JSON.stringify(response, null, 2));
             message.success('Cập nhật câu hỏi thành công');
-            onUpdate(response); // Pass response to parent
+            onUpdate(response);
         } catch (error) {
             const errorResponse = error.response?.data || error.message;
             console.error('Error in handleFinish:', JSON.stringify(errorResponse, null, 2));
@@ -77,31 +78,31 @@ const UpdateQuestionModal = ({
             message.error('Cập nhật câu hỏi thất bại');
         }
     };
+
     const handleUpdateAnswers = async () => {
         try {
             setError(null);
             const values = form.getFieldsValue();
             const existingAnswers = values.keyQuestions.map((answer, index) => ({
-                keyId: selectedQuestion.keyQuestions[index].keyId,
+                keyId: answer.keyId || selectedQuestion.keyQuestions[index]?.keyId,
                 keyContent: String(answer.keyContent || ''),
                 keyScore: String(answer.keyScore || ''),
             }));
 
             const updatedAnswers = [];
             for (const answer of existingAnswers) {
-                console.log('Updating answer:', answer);
+                console.log('Processing answer:', answer);
                 const response = await quizService.updateAnswer(answer);
                 updatedAnswers.push(response);
             }
 
-            // Update the selectedQuestion state with the new answers
             const updatedQuestion = {
                 ...selectedQuestion,
                 keyQuestions: updatedAnswers,
             };
 
             message.success('Cập nhật câu trả lời thành công');
-            onUpdateAnswers(updatedQuestion); // Pass updatedQuestion to parent
+            onUpdateAnswers(updatedQuestion);
         } catch (error) {
             const errorResponse = error.response?.data || error.message;
             console.error('Full error response:', JSON.stringify(errorResponse, null, 2));
@@ -115,7 +116,6 @@ const UpdateQuestionModal = ({
             setError(null);
             const values = form.getFieldsValue();
 
-            // Update question
             const questionPayload = {
                 questionId: (values.questionId !== undefined && values.questionId !== '')
                     ? String(values.questionId)
@@ -131,19 +131,18 @@ const UpdateQuestionModal = ({
             const questionResponse = await quizService.updateQuestion(questionPayload);
             console.log('Received response from updateQuestion (all):', JSON.stringify(questionResponse, null, 2));
 
-            // Update answers
             const existingAnswers = values.keyQuestions.map((answer, index) => ({
-                keyId: selectedQuestion.keyQuestions[index].keyId,
+                keyId: answer.keyId || selectedQuestion.keyQuestions[index]?.keyId,
                 keyContent: String(answer.keyContent || ''),
                 keyScore: String(answer.keyScore || ''),
             }));
             for (const answer of existingAnswers) {
-                console.log('Updating answer:', answer);
+                console.log('Processing answer:', answer);
                 await quizService.updateAnswer(answer);
             }
 
             message.success('Cập nhật tất cả thành công');
-            onUpdateAnswers(questionResponse); // Pass questionResponse to parent
+            onUpdateAnswers(questionResponse);
         } catch (error) {
             const errorResponse = error.response?.data || error.message;
             console.error('Error in handleUpdateAll:', JSON.stringify(errorResponse, null, 2));
@@ -209,7 +208,6 @@ const UpdateQuestionModal = ({
                 <Form.Item
                     name="questionContent"
                     label="Câu Hỏi"
-
                     style={{ color: "#5A2D2F", fontWeight: "bold" }}
                 >
                     <TextArea
@@ -224,7 +222,6 @@ const UpdateQuestionModal = ({
                         }}
                     />
                 </Form.Item>
-
 
                 <Form.Item
                     name="cateQuestionId"
@@ -253,16 +250,13 @@ const UpdateQuestionModal = ({
                     />
                 </Form.Item>
 
-
                 <Col span={24}>
                     <Divider style={{ borderColor: "#56021F" }} />
                 </Col>
 
-
-
                 <Form.List name="keyQuestions">
-                    {(fields, { remove }) => (
-                        <>
+                    {(fields, { add, remove }) => (
+                        <div>
                             {fields.map(({ key, name, ...restField }) => (
                                 <div key={key} style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '16px', marginBottom: '30px' }}>
                                     <Form.Item
@@ -310,7 +304,27 @@ const UpdateQuestionModal = ({
                                     </Button>
                                 </div>
                             ))}
-                        </>
+                            <Button
+                                onClick={() => {
+                                    console.log('Adding new answer field');
+                                    add();
+                                }}
+                                block
+                                style={{
+                                    color: "#5A2D2F",
+                                    borderColor: "#5A2D2F",
+                                    backgroundColor: "#F6EEF0",
+                                    marginBottom: '16px',
+                                    width: '60%',
+                                    margin: '0 auto 10px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                Thêm câu hỏi
+                            </Button>
+                        </div>
                     )}
                 </Form.List>
 
@@ -376,7 +390,7 @@ const UpdateQuestionModal = ({
 UpdateQuestionModal.propTypes = {
     visible: PropTypes.bool.isRequired,
     onCancel: PropTypes.func.isRequired,
-    onUpdate: PropTypes.func.isRequired, // Adjusted to expect a no-arg callback
+    onUpdate: PropTypes.func.isRequired,
     onUpdateAnswers: PropTypes.func.isRequired,
     selectedQuestion: PropTypes.shape({
         questionId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
@@ -392,4 +406,5 @@ UpdateQuestionModal.propTypes = {
     }),
     form: PropTypes.object.isRequired,
 };
+
 export default UpdateQuestionModal;
