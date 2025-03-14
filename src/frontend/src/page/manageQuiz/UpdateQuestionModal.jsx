@@ -16,10 +16,10 @@ const UpdateQuestionModal = ({
     const [error, setError] = useState(null);
     const [answersChanged, setAnswersChanged] = useState(false);
     const [questionChanged, setQuestionChanged] = useState(false);
-
     useEffect(() => {
         if (selectedQuestion) {
             form.setFieldsValue({
+                questionId: String(selectedQuestion.questionId), // Add questionId to form
                 questionContent: selectedQuestion.questionContent,
                 cateQuestionId: selectedQuestion.cateQuestionId,
                 keyQuestions: selectedQuestion.keyQuestions.map(({ keyContent, keyScore }) => ({
@@ -33,10 +33,35 @@ const UpdateQuestionModal = ({
         }
     }, [selectedQuestion, form]);
 
+    // Custom validator for questionId uniqueness
+    const validateQuestionId = async (_, value) => {
+        if (!value) {
+            return Promise.reject(new Error('Vui lòng nhập Question ID!'));
+        }
+        if (!/^\d+$/.test(value)) {
+            return Promise.reject(new Error('Question ID phải là số!'));
+        }
+        try {
+            const response = await quizService.checkQuestionId(value); // Hypothetical API call
+            if (response.exists && value !== String(selectedQuestion?.questionId)) {
+                return Promise.reject(new Error('Question ID đã tồn tại!'));
+            }
+            return Promise.resolve();
+        } catch (error) {
+            return Promise.reject(new Error('Không thể kiểm tra Question ID!'));
+        }
+    };
     const handleFinish = async (values) => {
         try {
             setError(null);
-            await onUpdate(values);
+            const payload = {
+                questionId: String(selectedQuestion.questionId),
+                cateQuestionId: String(values.cateQuestionId),
+                questionContent: String(values.questionContent || ''),
+            };
+            await quizService.updateQuestion(payload); // Direct call instead of onUpdate
+            message.success('Cập nhật câu hỏi thành công');
+            onUpdate(); // Notify parent to refresh or close modal
         } catch (error) {
             setError(error.response?.data?.message || error.message || 'Failed to update question');
         }
@@ -62,6 +87,40 @@ const UpdateQuestionModal = ({
             const errorResponse = error.response?.data || error.message;
             console.error('Full error response:', JSON.stringify(errorResponse, null, 2));
             setError(errorResponse?.detail || errorResponse?.message || 'Failed to update answers');
+            message.error(error.message);
+        }
+    };
+
+    const handleUpdateAll = async () => {
+        try {
+            setError(null);
+            const values = form.getFieldsValue();
+
+            // Update question
+            const questionPayload = {
+                questionId: String(selectedQuestion.questionId),
+                cateQuestionId: String(values.cateQuestionId),
+                questionContent: String(values.questionContent || ''),
+            };
+            await quizService.updateQuestion(questionPayload);
+
+            // Update answers (no changes here)
+            const existingAnswers = values.keyQuestions.map((answer, index) => ({
+                keyId: selectedQuestion.keyQuestions[index].keyId,
+                keyContent: String(answer.keyContent || ''),
+                keyScore: String(answer.keyScore || ''),
+            }));
+            for (const answer of existingAnswers) {
+                console.log('Updating answer:', answer);
+                await quizService.updateAnswer(answer);
+            }
+
+            message.success('Cập nhật tất cả thành công');
+            onUpdateAnswers();
+        } catch (error) {
+            const errorResponse = error.response?.data || error.message;
+            console.error('Full error response:', JSON.stringify(errorResponse, null, 2));
+            setError(errorResponse?.detail || errorResponse?.message || 'Failed to update all');
             message.error(error.message);
         }
     };
@@ -96,6 +155,8 @@ const UpdateQuestionModal = ({
             });
         setAnswersChanged(hasAnswersChanges);
     }, [currentAnswers, originalAnswers, selectedQuestion, currentQuestionContent, currentCateQuestionId]);
+
+    const bothChanged = questionChanged && answersChanged;
 
     const handleButtonClick = (e, callback) => {
         e.stopPropagation();
@@ -133,11 +194,15 @@ const UpdateQuestionModal = ({
                     label="Category ID"
                     rules={[
                         { required: true, message: 'Vui lòng nhập Category ID!' },
-                        { type: 'string', pattern: /^[1-4]$/, message: 'Category ID must be a string between 1 and 4!' },
+
                     ]}
                     style={{ color: '#5A2D2F', fontWeight: 'bold' }}
                 >
                     <AntInput
+                        type="number"
+                        placeholder="Category ID"
+                        min={0}
+                        max={4}
                         style={{ color: "#5A2D2F", borderColor: "#5A2D2F", backgroundColor: "#F6EEF0", width: '30%' }}
                     />
                 </Form.Item>
@@ -168,12 +233,25 @@ const UpdateQuestionModal = ({
                                     >
                                         <AntInput
                                             placeholder="Điểm"
+                                            type="number"
+                                            min={0}
+                                            max={4}
                                             style={{ color: "#5A2D2F", borderColor: "#5A2D2F", backgroundColor: "#F6EEF0" }}
                                         />
                                     </Form.Item>
                                     <Button
                                         onClick={(e) => handleButtonClick(e, () => remove(name))}
-                                        style={{ padding: '4px 10px', borderRadius: '10px', border: '1px solid #5A2D2F', backgroundColor: '#F6EEF0', color: '#5A2D2F', fontWeight: 'bold', fontSize: '13px' }}
+                                        style={{
+                                            padding: '4px 10px',
+                                            width: '80px',
+                                            borderRadius: '10px',
+                                            border: '1px solid #5A2D2F',
+                                            backgroundColor: '#F6EEF0',
+                                            color: '#5A2D2F',
+                                            fontWeight: 'bold',
+                                            fontSize: '13px',
+                                            textAlign: "center"
+                                        }}
                                     >
                                         Xóa
                                     </Button>
@@ -188,36 +266,54 @@ const UpdateQuestionModal = ({
                         style={{
                             width: '60%',
                             margin: '0 auto 10px',
-                            backgroundColor: questionChanged ? '#C87E83' : '#d9d9d9',
-                            borderColor: questionChanged ? '#C87E83' : '#d9d9d9',
-                            color: questionChanged ? '#fff' : '#999',
+                            backgroundColor: questionChanged && !bothChanged ? '#C87E83' : '#d9d9d9',
+                            borderColor: questionChanged && !bothChanged ? '#C87E83' : '#d9d9d9',
+                            color: questionChanged && !bothChanged ? '#fff' : '#999',
                             borderRadius: '10px',
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
                         }}
                         htmlType="submit"
-                        disabled={!questionChanged}
+                        disabled={!questionChanged || bothChanged}
                     >
                         Cập nhật câu hỏi
                     </Button>
                     <Button
                         style={{
                             width: '60%',
-                            margin: '0 auto',
-                            backgroundColor: answersChanged ? '#D8959A' : '#d9d9d9',
-                            borderColor: answersChanged ? '#D8959A' : '#d9d9d9',
-                            color: answersChanged ? '#fff' : '#999',
+                            margin: '0 auto 10px',
+                            backgroundColor: answersChanged && !bothChanged ? '#D8959A' : '#d9d9d9',
+                            borderColor: answersChanged && !bothChanged ? '#D8959A' : '#d9d9d9',
+                            color: answersChanged && !bothChanged ? '#fff' : '#999',
                             borderRadius: '10px',
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
                         }}
                         onClick={(e) => handleButtonClick(e, handleUpdateAnswers)}
-                        disabled={!answersChanged}
+                        disabled={!answersChanged || bothChanged}
                     >
                         Cập nhật câu trả lời
                     </Button>
+                    {bothChanged && (
+                        <Button
+                            style={{
+                                width: '60%',
+                                margin: '0 auto',
+                                backgroundColor: '#5A2D2F',
+                                borderColor: '#5A2D2F',
+                                color: '#fff',
+                                borderRadius: '10px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                            onClick={(e) => handleButtonClick(e, handleUpdateAll)}
+                        >
+                            Cập Nhật Tất Cả
+                        </Button>
+                    )}
                 </Form.Item>
             </Form>
         </Modal>
@@ -227,7 +323,7 @@ const UpdateQuestionModal = ({
 UpdateQuestionModal.propTypes = {
     visible: PropTypes.bool.isRequired,
     onCancel: PropTypes.func.isRequired,
-    onUpdate: PropTypes.func.isRequired,
+    onUpdate: PropTypes.func.isRequired, // Adjusted to expect a no-arg callback
     onUpdateAnswers: PropTypes.func.isRequired,
     selectedQuestion: PropTypes.shape({
         questionId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
@@ -243,5 +339,4 @@ UpdateQuestionModal.propTypes = {
     }),
     form: PropTypes.object.isRequired,
 };
-
 export default UpdateQuestionModal;

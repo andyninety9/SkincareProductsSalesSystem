@@ -119,7 +119,7 @@ const CreateQuestionModal = ({
                                             type="number"
                                             placeholder="Score"
                                             min={0}
-                                            max={10}
+                                            max={4}
                                             style={{
                                                 color: "#5A2D2F",
                                                 borderColor: "#5A2D2F",

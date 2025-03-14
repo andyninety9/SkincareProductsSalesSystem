@@ -34,11 +34,16 @@ const quizService = {
             throw new Error(`${errorMessage}${specificErrors ? ` Errors: ${specificErrors}` : ''}`);
         }
     },
-    updateQuestion: async (questionId, questionData) => {
+    updateQuestion: async (questionData) => {
         try {
-            const response = await api.post('Question/update', {
-                ...questionData,
-                questionId,
+            const payload = {
+                questionId: String(questionData.questionId),
+                cateQuestionId: String(questionData.cateQuestionId),
+                questionContent: String(questionData.questionContent || ''),
+            };
+            console.log('POST Payload for updateQuestion:', JSON.stringify(payload, null, 2));
+            const response = await api.post('Question/update', payload, {
+                headers: { 'Content-Type': 'application/json' },
             });
             if (response.status !== 200) {
                 throw new Error(`HTTP Error: ${response.status}`);
@@ -48,7 +53,6 @@ const quizService = {
             throw new Error(error.response?.data?.message || error.message || 'Failed to update question');
         }
     },
-
     deleteQuestion: async (questionId) => {
         try {
             const response = await api.delete('Question/delete', {
