@@ -21,5 +21,6 @@ namespace Domain.Repositories
             CancellationToken cancellationToken);
         Task<Product?> GetProductByIdAsync(long productId, CancellationToken cancellationToken);
         Task<IEnumerable<Product>> GetProductByListIdAsync(List<long> listProductId, CancellationToken cancellationToken);
+        Task<bool> UpdateRatingProductAsync(long productId, double rating, CancellationToken cancellationToken);
     }
 }

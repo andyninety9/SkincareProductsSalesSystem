@@ -13,7 +13,7 @@ namespace Application.Features.Brands.Commands
 {
     public sealed record UpdateProductBrandCommand
     (
-        long BrandId,
+        string BrandId,
         string? BrandName,
         string? BrandDesc,
         string? BrandOrigin,
@@ -44,7 +44,12 @@ namespace Application.Features.Brands.Commands
         {
             try
             {
-                var brand = await _brandRepository.GetByIdAsync(command.BrandId, cancellationToken);
+                long parstedBrandId;
+                if (!long.TryParse(command.BrandId, out parstedBrandId))
+                {
+                    return Result<CreateProductBrandResponse>.Failure<CreateProductBrandResponse>(new Error("UpdateBrand.InvalidId", "Invalid BrandId"));
+                }
+                var brand = await _brandRepository.GetByIdAsync(parstedBrandId, cancellationToken);
                 if (brand == null)
                 {
                     return Result<CreateProductBrandResponse>.Failure<CreateProductBrandResponse>(new Error("UpdateBrand.NotFound", "Brand not found"));

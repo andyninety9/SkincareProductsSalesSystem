@@ -18,6 +18,10 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Common;
+using Application.Constant;
+using System.Security.Claims;
+using Application.Features.Reviews.Commands.Validator;
+using Application.Features.Reviews.Commands;
 
 namespace WebApi.Controllers.Products
 {
@@ -802,5 +806,79 @@ namespace WebApi.Controllers.Products
 
             return Ok(new { statusCode = 200, message = "Delete brand successfully", data = result.Value });
         }
+
+        /// <summary>
+        ///  Create user review
+        ///  </summary>
+        ///  <param name="command">Review creation request containing review details.</param>
+        ///  <param name="cancellationToken">Cancellation token.</param>
+        ///  <returns>Returns the created review details.</returns>
+        ///  Headers:
+        ///  - Authorization: Bearer {token}
+        ///  -Role: Customer
+        ///      <remarks>
+        ///  Sample request:
+        ///  {
+        ///    "reviewContent": "Review Content",
+        ///    "userId": "1" ,
+        ///    "prodID": "1",
+        ///    "rating": 5,
+        ///   }   
+        ///   
+        ///  </remarks>
+        ///  
+        [HttpPost("review/create")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Customer)]
+        public async Task<IActionResult> CreateReview([FromBody] CreateReviewCommand command, CancellationToken cancellationToken = default)
+        {
+            if (User == null)
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.USER_INFORMATION_NOT_FOUND });
+            }
+
+            var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(usrID))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+            }
+
+            if (!long.TryParse(usrID, out var userId))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
+            }
+
+            if (_mediator == null)
+            {
+                return StatusCode(500, new { statusCode = 500, message = IConstantMessage.INTERNAL_SERVER_MEDIATOR_ERROR });
+            }
+            var newCommand = command with { UserId = userId };
+
+
+            var validator = new CreateProductReviewCommandValidator();
+
+            var validationResult = validator.Validate(newCommand);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(newCommand, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Create review successfully", data = result.Value });
+
+        }
+
     }
 }

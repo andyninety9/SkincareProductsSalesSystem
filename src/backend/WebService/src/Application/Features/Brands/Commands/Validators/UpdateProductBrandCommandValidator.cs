@@ -7,7 +7,7 @@ namespace Application.Features.Brands.Commands.Validators
     {
         public UpdateProductBrandCommandValidator()
         {
-            RuleFor(x => x.BrandId).GreaterThan(0).WithMessage("BrandId must be greater than 0");
+            RuleFor(x => x.BrandId).NotEmpty().WithMessage("BrandId is required");
             
             When(x => !string.IsNullOrEmpty(x.BrandName), () => {
                 RuleFor(x => x.BrandName).NotEmpty().WithMessage("BrandName is required");

@@ -35,6 +35,10 @@ public partial class Product
 
     public string? ProdUseFor { get; set; }
 
+    public int Totalsold { get; set; }
+
+    public int Totalreview { get; set; }
+
     public virtual Brand Brand { get; set; } = null!;
 
     public virtual CategoryProduct Cate { get; set; } = null!;
