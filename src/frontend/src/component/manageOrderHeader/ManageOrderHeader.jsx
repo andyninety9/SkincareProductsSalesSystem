@@ -1,17 +1,18 @@
+// src/component/manageOrderHeader/ManageOrderHeader.jsx
 import React from "react";
-import { Layout, Typography, Space, Avatar } from "antd";
+import { Layout, Typography } from "antd";
 import { BellOutlined, MessageOutlined, UserOutlined } from "@ant-design/icons";
+import PropTypes from 'prop-types'; // For PropTypes validation
 
 const { Header } = Layout;
 const { Text } = Typography;
 
-const ManageOrderHeader = () => {
+const ManageOrderHeader = ({ isModalOpen }) => {
     return (
-
         <Header
             style={{
                 background: '#fff',
-                display: 'flex',
+                display: 'flex', // Keep navbar visible
                 alignItems: 'center',
                 padding: '12px 24px',
                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
@@ -20,6 +21,7 @@ const ManageOrderHeader = () => {
                 top: 0,
                 left: 0,
                 zIndex: 1050,
+                tabIndex: isModalOpen ? "-1" : "0", // Still disable focus when modal is open
             }}
         >
             <Text
@@ -27,6 +29,7 @@ const ManageOrderHeader = () => {
                     fontFamily: 'Marko One, serif',
                     fontSize: '38px',
                     fontWeight: 'bold',
+                    color: '#000',
                 }}
             >
                 Mavid
@@ -38,27 +41,22 @@ const ManageOrderHeader = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '20px',
-
                 }}
             >
                 <MessageOutlined
                     style={{
                         fontSize: '23px',
                         cursor: 'pointer',
-                        transition: 'color 0.3s',
+                        color: '#000',
                     }}
-                    onMouseOver={(e) => (e.target.style.color = '#333')}
-                    onMouseOut={(e) => (e.target.style.color = '')}
                 />
 
                 <BellOutlined
                     style={{
                         fontSize: '23px',
                         cursor: 'pointer',
-                        transition: 'color 0.3s',
+                        color: '#000',
                     }}
-                    onMouseOver={(e) => (e.target.style.color = '#333')}
-                    onMouseOut={(e) => (e.target.style.color = '')}
                 />
 
                 <div
@@ -67,32 +65,35 @@ const ManageOrderHeader = () => {
                         alignItems: 'center',
                         cursor: 'pointer',
                         gap: '8px',
-                        transition: 'color 0.3s',
-                    }}
-                    onMouseOver={(e) => {
-                        e.currentTarget.querySelector('.staff-name').style.color = '#333';
-                    }}
-                    onMouseOut={(e) => {
-                        e.currentTarget.querySelector('.staff-name').style.color = '';
                     }}
                 >
                     <UserOutlined
                         style={{
                             fontSize: '23px',
                             cursor: 'pointer',
-                            transition: 'color 0.3s',
+                            color: '#000',
                         }}
-                        onMouseOver={(e) => (e.target.style.color = '#333')}
-                        onMouseOut={(e) => (e.target.style.color = '')} />
+                    />
 
-                    <Text className="staff-name" style={{ fontSize: '16px', fontWeight: '600', marginLeft: "10px" }}>
+                    <Text
+                        style={{
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            marginLeft: '10px',
+                            color: '#000',
+                        }}
+                    >
                         Staff Name
                     </Text>
                 </div>
             </div>
         </Header>
-
     );
+};
+
+// Add PropTypes validation
+ManageOrderHeader.propTypes = {
+    isModalOpen: PropTypes.bool, // Optional boolean prop to indicate if modal is open
 };
 
 export default ManageOrderHeader;

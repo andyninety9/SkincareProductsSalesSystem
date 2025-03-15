@@ -27,9 +27,10 @@ const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("view-comments")) return "4";
     if (pathname.includes("review-comments")) return "5";
     if (pathname.includes("manage-category")) return "11";
-    if (pathname.includes("manage-quiz")) return "7"; // Added for Manage Quiz
+    if (pathname.includes("manage-quiz")) return "7";
+    if (pathname.includes("manage-skintype")) return "12";
     if (pathname.includes("manage-brand")) return "10";
-    return "0"; 
+    return "0";
 };
 
 const ManageOrderSidebar = () => {
@@ -52,6 +53,8 @@ const ManageOrderSidebar = () => {
             setOpenKeys(["sub2"]);
         } else if (path.includes("manage-product")) {
             setOpenKeys(["sub3"]);
+        } else if (path.includes("manage-quiz") || path.includes("manage-skintype")) {
+            setOpenKeys(["sub4"]); // Open "Manage Quiz" submenu
         }
     }, [location.pathname]);
 
@@ -64,7 +67,8 @@ const ManageOrderSidebar = () => {
                             e.key === "10" ? "/manage-brand" :
                                 e.key === "11" ? "/manage-category" :
                                     e.key === "7" ? "/manage-quiz" :
-                                        "/"
+                                        e.key === "12" ? "/manage-skintype" : // Added for Manage Skintype
+                                            "/"
         );
     };
 
@@ -115,7 +119,10 @@ const ManageOrderSidebar = () => {
                     <Menu.Item key="5">Review Comments</Menu.Item>
                 </SubMenu>
                 <Menu.Item key="8" icon={<CalendarOutlined />}>Manage Events</Menu.Item>
-                <Menu.Item key="7" icon={<QuestionCircleOutlined />}>Manage Quiz</Menu.Item>
+                <SubMenu key="sub4" icon={<QuestionCircleOutlined />} title="Manage Quiz">
+                    <Menu.Item key="7">Manage Quiz</Menu.Item>
+                    <Menu.Item key="12">Manage Skintype</Menu.Item> {/* Added for Manage Skintype */}
+                </SubMenu>
             </Menu>
             <div
                 style={{
