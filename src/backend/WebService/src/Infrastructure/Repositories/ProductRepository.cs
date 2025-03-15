@@ -119,6 +119,7 @@ namespace Infrastructure.Repositories
             if (totalReview == 0)
             {
                 product.TotalRating = rating;
+                product.Totalreview += 1;
                 IsSuccess = true;
             }
             else
