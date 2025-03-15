@@ -486,6 +486,12 @@ public partial class MyDbContext : DbContext
                 .HasDefaultValue(0)
                 .HasColumnName("stocks");
             entity.Property(e => e.TotalRating).HasColumnName("totalRating");
+            entity.Property(e => e.Totalreview)
+                .HasDefaultValue(0)
+                .HasColumnName("totalreview");
+            entity.Property(e => e.Totalsold)
+                .HasDefaultValue(0)
+                .HasColumnName("totalsold");
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("updatedAt");

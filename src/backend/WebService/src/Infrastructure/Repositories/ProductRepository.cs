@@ -105,5 +105,31 @@ namespace Infrastructure.Repositories
                 .Where(p => listProductId.Contains(p.ProductId))
                 .ToListAsync(cancellationToken);
         }
+
+        public Task<bool> UpdateRatingProductAsync(long productId, double rating, CancellationToken cancellationToken)
+        {
+            bool IsSuccess = false;
+            var product = _context.Set<Product>().Find(productId);
+            if (product == null)
+            {
+                return Task.FromResult(false);
+            }
+
+            var totalReview = product.Totalreview;
+            if (totalReview == 0)
+            {
+                product.TotalRating = rating;
+                IsSuccess = true;
+            }
+            else
+            {
+                product.TotalRating = (product.TotalRating * totalReview + rating) / (totalReview + 1);
+                product.Totalreview += 1;
+                IsSuccess = true;
+            }
+
+            return Task.FromResult(IsSuccess);
+            
+        }
     }
 }
