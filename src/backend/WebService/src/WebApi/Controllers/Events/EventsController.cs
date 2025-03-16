@@ -1,8 +1,11 @@
+using Application.Attributes;
+using Application.Common.Enum;
 using Application.Common.Paginations;
 using Application.Features.Events.Commands;
 using Application.Features.Events.Queries;
 using Application.Features.Events.Queries.Validator;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Common;
 
@@ -140,6 +143,8 @@ namespace WebApi.Controllers.Events
         ///     
         /// </remarks>
         [HttpPost]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
         public async Task<IActionResult> CreateEvent([FromBody] CreateEventCommand command, CancellationToken cancellationToken = default)
         {
             var result = await _mediator.Send(command, cancellationToken);
