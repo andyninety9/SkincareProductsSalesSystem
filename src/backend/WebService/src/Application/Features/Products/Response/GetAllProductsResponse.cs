@@ -12,6 +12,7 @@ namespace Application.Features.Products.Response
         public int Stocks { get; set; }
         public double CostPrice { get; set; }
         public double SellPrice { get; set; }
+        public double DiscountedPrice { get; set; }
         public double? TotalRating { get; set; }
         public string Ingredient { get; set; } = null!;
         public string Instruction { get; set; } = null!;

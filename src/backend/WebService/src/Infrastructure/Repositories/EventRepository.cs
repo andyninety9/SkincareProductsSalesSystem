@@ -119,5 +119,31 @@ namespace Infrastructure.Repositories
             return result ?? throw new KeyNotFoundException($"Event with ID {eventId} was not found.");
             
         }
+
+        public async Task<bool> ExistsInAnotherEventAsync(long productId, long currentEventId)
+        {
+            // Kiểm tra sản phẩm có đang nằm trong sự kiện khác không, nếu có thì kiểm tra xem sự kiện đó có end chưa
+
+            var query = _context.EventDetails
+                .Include(ed => ed.Event)
+                .Where(ed => ed.ProductId == productId && ed.EventId != currentEventId);
+
+            Event? currentEvent = await _context.Events.FirstOrDefaultAsync(e => e.EventId == currentEventId);
+
+
+            if (query != null)
+            {
+                var endTimes = await query.Select(ed => ed.Event.EndTime).ToListAsync();
+                foreach (var endTime in endTimes)
+                {
+                    if (endTime > currentEvent.StartTime)
+                    {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
     }
 }

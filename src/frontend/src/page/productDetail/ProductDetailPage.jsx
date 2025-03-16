@@ -21,7 +21,7 @@ export default function ProductDetailPage() {
     const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems);
     const { id } = useParams();
-    
+
     const [product, setProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [mainImage, setMainImage] = useState('');
@@ -30,7 +30,6 @@ export default function ProductDetailPage() {
     const userAuth = Cookies.get('user');
     const navigate = useNavigate();
 
-    
     const handleCheckLogin = () => {
         if (!userAuth) {
             toast.error('Vui lòng đăng nhập để mua hàng');
@@ -260,16 +259,47 @@ export default function ProductDetailPage() {
                         </div>
                         {/* Hiển thị giá tiền */}
                         <div style={{ marginBottom: '15px' }}>
-                            <h3
-                                style={{
-                                    fontSize: '24px',
-                                    fontWeight: 'bold',
-                                    color: '#D8959A',
-                                    marginBottom: '5px',
-                                }}>
-                                {product.sellPrice ? `${product.sellPrice.toLocaleString()} đ` : 'Liên hệ để biết giá'}
-                            </h3>
+                            {product?.discountedPrice ? (
+                                <>
+                                    <div>
+                                        <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>
+                                            Giá giảm còn:
+                                        </span>
+                                        <span style={{ color: '#D8959A', fontWeight: 'bold', fontSize: '26px' }}>
+                                            {product.discountedPrice.toLocaleString()} đ
+                                        </span>
+                                    </div>
+                                    <div style={{ marginTop: '5px' }}>
+                                        <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>
+                                            Giá niêm yết:
+                                        </span>
+                                        <span style={{ textDecoration: 'line-through', fontSize: '14px', color: '#888' }}>
+                                            {product.sellPrice.toLocaleString()} đ
+                                        </span>
+                                        <span
+                                            style={{
+                                                fontSize: '16px',
+                                                color: 'white',
+                                                backgroundColor: '#D8959A',
+                                                padding: '2px 8px',
+                                                borderRadius: '4px',
+                                                fontWeight: '500',
+                                                marginLeft: '8px'
+                                            }}>
+                                            -{Math.round((1 - product.discountedPrice / product.sellPrice) * 100)}%
+                                        </span>
+                                    </div>
+                                </>
+                            ) : (
+                                <div>
+                                    <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>Giá niêm yết:</span>
+                                    <span style={{ color: '#D8959A', fontWeight: 'bold', fontSize: '26px' }}>
+                                        {product?.sellPrice ? `${product.sellPrice.toLocaleString()} đ` : 'Liên hệ'}
+                                    </span>
+                                </div>
+                            )}
                         </div>
+
                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                             {/* Nút chọn số lượng */}
                             <div

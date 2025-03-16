@@ -39,6 +39,8 @@ public partial class Product
 
     public int Totalreview { get; set; }
 
+    public double? DiscountedPrice { get; set; }
+
     public virtual Brand Brand { get; set; } = null!;
 
     public virtual CategoryProduct Cate { get; set; } = null!;

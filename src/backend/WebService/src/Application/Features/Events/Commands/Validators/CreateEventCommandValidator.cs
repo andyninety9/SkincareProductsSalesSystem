@@ -25,8 +25,8 @@ namespace Application.Features.Events.Commands.Validators
             RuleFor(x => x.DiscountPercent)
                 .InclusiveBetween(0, 100).WithMessage("Discount percent must be between 0 and 100.");
 
-            RuleFor(x => x.StatusEvent)
-                .NotNull().WithMessage("Status event is required.");
+            // RuleFor(x => x.StatusEvent)
+            //     .NotNull().WithMessage("Status event is required.");
 
         }
 

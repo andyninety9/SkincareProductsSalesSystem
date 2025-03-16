@@ -34,6 +34,7 @@ CardProduct.propTypes = {
         productDesc: PropTypes.string,
         sellPrice: PropTypes.number,
         costPrice: PropTypes.number,
+        discountedPrice: PropTypes.number,
         stocks: PropTypes.number,
         totalRating: PropTypes.number,
         ingredient: PropTypes.string,
@@ -75,8 +76,7 @@ export default function CardProduct({ product }) {
         <div
             className="cardProduct"
             onClick={handleClick}
-            style={{ cursor: 'pointer', userSelect: 'none', position: 'relative' }}
-        >
+            style={{ cursor: 'pointer', userSelect: 'none', position: 'relative' }}>
             {product?.stocks === 0 && (
                 <Tag color="red" style={{ position: 'absolute', top: 10, left: 10, fontWeight: 'bold' }}>
                     Sold Out
@@ -94,12 +94,53 @@ export default function CardProduct({ product }) {
             <div className="cardProduct-content">
                 <div className="cardProduct-content-left">
                     <Rate defaultValue={3} className="cardProduct-content-left-rate" />
-                    <p style={{ fontWeight: 500, fontSize: '14px' }}>{product?.productName || 'Không có tên'}</p>
-                    <p>{product?.productDesc || 'Không có mô tả'}</p>
+                    <p style={{ fontWeight: 700, fontSize: '16px', 
+                               overflow: 'hidden', 
+                               textOverflow: 'ellipsis', 
+                               display: '-webkit-box', 
+                               WebkitLineClamp: 1, 
+                               WebkitBoxOrient: 'vertical' }}>
+                        {product?.productName || 'Không có tên'}
+                    </p>
+                    <p style={{ 
+                        overflow: 'hidden', 
+                        textOverflow: 'ellipsis', 
+                        display: '-webkit-box', 
+                        WebkitLineClamp: 2, 
+                        WebkitBoxOrient: 'vertical'
+                    }}>
+                        {product?.productDesc || 'Không có mô tả'}
+                    </p>
                 </div>
 
                 <div className="cardProduct-content-right">
-                    {product?.sellPrice ? formatCurrency(product.sellPrice) : 'Liên hệ'}
+                    {product?.discountedPrice ? (
+                        <>
+                            <div>
+                                <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>
+                                    Giá giảm còn:
+                                </span>
+                                <span style={{ color: '#ff4d4f', fontWeight: 'bold' }}>
+                                    {formatCurrency(product.discountedPrice)}
+                                </span>
+                            </div>
+                            <div>
+                                <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>
+                                    Giá niêm yết:
+                                </span>
+                                <span style={{ textDecoration: 'line-through', fontSize: '14px', color: '#888' }}>
+                                    {formatCurrency(product.sellPrice)}
+                                </span>
+                            </div>
+                        </>
+                    ) : (
+                        <div>
+                            <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>Giá niêm yết:</span>
+                            <span style={{ color: '#ff4d4f', fontWeight: 'bold' }}>
+                                {product?.sellPrice ? formatCurrency(product.sellPrice) : 'Liên hệ'}
+                            </span>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

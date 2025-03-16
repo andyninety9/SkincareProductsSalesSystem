@@ -14,5 +14,7 @@ namespace Domain.Repositories
         Task<int> CountEventsAsync(string? keyword, bool? status, DateTime? fromDate, DateTime? toDate);
 
         Task<GetEventDetailResponse> GetEventDetailByIdAsync(long eventId);
+
+        Task<bool> ExistsInAnotherEventAsync(long productId, long currentEventId);
     }
 }

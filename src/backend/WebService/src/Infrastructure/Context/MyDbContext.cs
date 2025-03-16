@@ -471,6 +471,7 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("createdAt");
+            entity.Property(e => e.DiscountedPrice).HasColumnName("discountedPrice");
             entity.Property(e => e.Ingredient).HasColumnName("ingredient");
             entity.Property(e => e.Instruction).HasColumnName("instruction");
             entity.Property(e => e.ProdStatusId).HasColumnName("prodStatusID");
