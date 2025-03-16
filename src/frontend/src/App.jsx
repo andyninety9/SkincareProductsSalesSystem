@@ -41,6 +41,7 @@ import ManageCategory from './page/manageCategory/ManageCategory';
 import ManageSkintype from './page/manageSkintype/ManageSkintype';
 import ManageBrand from './page/manageBrand/ManageBrand';
 
+
 function App() {
     const router = createBrowserRouter([
         {
@@ -53,7 +54,7 @@ function App() {
             element: <Register />,
         },
         {
-            path: routes.resetPassword,
+            path: routes.changePasswordByToken,
             element: <ResetPassword />,
         },
         {
@@ -68,12 +69,11 @@ function App() {
                 </ProtectedRoute>
             ),
         },
-
         {
             path: routes.home,
             element: <UserLayout />,
             children: [
-                { path: "/demoUpload", element: <DemoUpload /> },
+                { path: '/demoUpload', element: <DemoUpload /> },
 
                 { path: routes.home, element: <HomePage /> },
                 { path: routes.about, element: <AboutPage /> },

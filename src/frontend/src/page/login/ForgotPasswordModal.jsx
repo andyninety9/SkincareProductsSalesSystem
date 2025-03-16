@@ -4,8 +4,10 @@ import { AiOutlineMail, AiOutlineArrowLeft } from "react-icons/ai";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Box } from "@mui/material";
 import * as Yup from "yup";
+import axios from "axios";
 
 
+// eslint-disable-next-line react/prop-types
 const ForgotPasswordModal = ({ isOpen, onClose }) => {
     const [email, setEmail] = useState("");
     const [isSent, setIsSent] = useState(false);
@@ -15,12 +17,16 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
             .email("Email không hợp lệ")
             .required("Vui lòng nhập email"),
     });
+    const backesUrl = import.meta.env.VITE_BACK_END_BASE_URL;
+    const handleSend = async (emailValue) => {
+        const response = await axios.post(`${backesUrl}authen/forgot-password`, {
+            Email: emailValue,
+        });
 
-    const handleSend = (emailValue) => {
-        console.log("Email gửi đi:", emailValue);
-        setEmail(emailValue);
+        // setEmail(emailValue);
         setIsSent(true);
     };
+
 
     return (
         <>
@@ -161,7 +167,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                     </Typography>
                     
                     {/* Resend Email */}
-                    <Button
+                    {/* <Button
                         onClick={() => handleSend(email)}
                         sx={{
                             color: "#C87E83",
@@ -172,7 +178,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                         }}
                     >
                         Gửi lại email
-                    </Button>
+                    </Button> */}
 
                     <AiOutlineMail style={{ color: "#C87E83", marginBottom: "10px", marginTop: "40px", transform: "scale(8)"}} />
 
