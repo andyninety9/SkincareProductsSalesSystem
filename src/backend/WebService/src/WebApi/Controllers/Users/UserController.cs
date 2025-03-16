@@ -5,6 +5,8 @@ using Application.Common.Paginations;
 using Application.Constant;
 using Application.Features.Orders.Queries;
 using Application.Features.Orders.Queries.Validator;
+using Application.Features.Users.Commands;
+using Application.Features.Users.Commands.Validations;
 using Application.Features.Users.Queries;
 using Application.Users.Commands;
 using Application.Users.Queries;
@@ -685,6 +687,56 @@ namespace WebApi.Controllers.Users
             }
 
             return Ok(new { statusCode = 200, message = "Get user vouchers successfully", data = result.Value });
+        }
+
+        /// <summary>
+        /// Assigns a voucher to the user.
+        /// </summary>
+        /// <param name="command">Request containing the voucher ID.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a success message if the voucher is assigned successfully.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///   POST /api/User/assign-voucher
+        ///   {
+        ///   "voucherDiscount": 20,
+        ///   "usrId": "string",
+        ///   "voucherDesc": "string",
+        ///  "statusVoucher": "string",
+        ///   }
+        ///   Headers:
+        ///   Authorization: Bearer {token}
+        ///   Role:
+        ///   Manager
+        /// </remarks>
+        /// <response code="200">Returns a success message if the voucher is assigned successfully.</response>
+        /// <response code="400">If the request is invalid.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="500">If an unexpected error occurs.</response>
+        [HttpPost("assign-voucher")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
+        public async Task<IActionResult> AssignVoucher([FromBody] AssignVoucherCommand command, CancellationToken cancellationToken)
+        {
+            var validator = new AssignVoucherCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error.Description });
+            }
+
+            return Ok(new { statusCode = 200, message = "Assign voucher successfully" });
         }
     }
 }
