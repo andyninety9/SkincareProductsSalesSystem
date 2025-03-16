@@ -15,6 +15,12 @@ namespace Infrastructure.Repositories
         {
         }
 
+        public Task<Voucher?> GetByCodeAsync(string code, CancellationToken cancellationToken)
+        {
+            var result = _context.Vouchers.FirstOrDefault(v => v.VoucherCode == code);
+            return Task.FromResult(result);
+        }
+
         public Task<List<Voucher>> GetVouchersByUserIdAsync(long userId, CancellationToken cancellationToken)
         {
             var result = _context.Vouchers.Where(v => v.UsrId == userId && v.StatusVoucher == true).ToList();
