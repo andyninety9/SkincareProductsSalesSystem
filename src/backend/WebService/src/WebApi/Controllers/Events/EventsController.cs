@@ -106,7 +106,7 @@ namespace WebApi.Controllers.Events
         ///
         /// </remarks>
         [HttpGet("{eventId}")]
-        public async Task<IActionResult> GetEventDetailById([FromRoute] int eventId, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetEventDetailById([FromRoute] long eventId, CancellationToken cancellationToken = default)
         {
             var query = new GetEventDetailByIdQuery(eventId);
 
