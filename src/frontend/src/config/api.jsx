@@ -35,6 +35,14 @@ const handleBefore = async (config) => {
                 });
             } catch (error) {
                 console.error('Failed to refresh token:', error);
+
+                // Implement logout functionality
+                Cookies.remove('accessToken');
+                Cookies.remove('refreshToken');
+
+                // Dispatch logout event or redirect to login page
+                window.location.href = '/login'; // Adjust the path according to your app's routing
+
                 return Promise.reject(error);
             }
         }

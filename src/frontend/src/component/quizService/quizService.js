@@ -1,10 +1,9 @@
-import api from "../../config/api.jsx";
-
+import api from '../../config/api.jsx';
 
 const quizService = {
-    getAllQuizItems: async (page, pageSize) => {
+    getAllQuizItems: async (keyword, page, pageSize) => {
         try {
-            const response = await api.get(`Question/get-all?page=${page}&pageSize=${pageSize}`);
+            const response = await api.get(`Question/get-all?keyword=${keyword}&page=${page}&pageSize=${pageSize}`);
             if (response.status !== 200) {
                 throw new Error(`HTTP Error: ${response.status}`);
             }
@@ -22,7 +21,11 @@ const quizService = {
                 console.log('Error Response:', JSON.stringify(errorData, null, 2));
                 const errorDetail = errorData.detail || 'No details provided';
                 const specificErrors = errorData.errors ? JSON.stringify(errorData.errors) : '';
-                throw new Error(`HTTP Error: ${response.status}. Details: ${errorDetail}${specificErrors ? ` Errors: ${specificErrors}` : ''}`);
+                throw new Error(
+                    `HTTP Error: ${response.status}. Details: ${errorDetail}${
+                        specificErrors ? ` Errors: ${specificErrors}` : ''
+                    }`
+                );
             }
             console.log('Success Response:', JSON.stringify(response.data, null, 2));
             return response.data;
@@ -69,7 +72,8 @@ const quizService = {
             throw new Error(error.response?.data?.message || error.message || 'Failed to delete question');
         }
     },
-    updateAnswer: async (answerData) => { // Remove questionId parameter if not needed
+    updateAnswer: async (answerData) => {
+        // Remove questionId parameter if not needed
         try {
             const payload = {
                 keyId: String(answerData.keyId),
@@ -80,7 +84,8 @@ const quizService = {
             const response = await api.patch('Question/update-answer', payload, {
                 headers: { 'Content-Type': 'application/json' },
             });
-            if (response.status !== 200 && response.status !== 204) { // Accept 200 OK or 204 No Content
+            if (response.status !== 200 && response.status !== 204) {
+                // Accept 200 OK or 204 No Content
                 throw new Error(`HTTP Error: ${response.status}`);
             }
             return response.data;
