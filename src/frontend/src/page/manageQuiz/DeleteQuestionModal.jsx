@@ -2,17 +2,41 @@ import { Modal, message } from "antd";
 import PropTypes from "prop-types";
 import quizService from "../../component/quizService/quizService";
 
-const DeleteQuestionModal = ({ visible, onCancel, onDelete, questionId }) => {
+const DeleteQuestionModal = ({ visible, onCancel, onDelete, questionId, type = "question" }) => {
+    const isQuestion = type === "question";
+    const titleText = isQuestion ? "Xác nhận xóa câu hỏi" : "Xác nhận xóa câu trả lời";
+    const bodyText = isQuestion
+        ? "Bạn có chắc chắn muốn xóa câu hỏi này không?"
+        : "Bạn có chắc chắn muốn xóa câu trả lời này không?";
+    const successMessage = isQuestion ? "Xóa câu hỏi thành công" : "Xóa câu trả lời thành công";
+
     const handleDelete = async () => {
         try {
-            await quizService.deleteQuestion(questionId);
-            message.success("Xóa câu hỏi thành công");
-            onDelete();
+            console.log(`Deleting ${type} with questionId:`, questionId);
+            let response;
+            if (isQuestion) {
+                if (!questionId) {
+                    throw new Error('Question ID is missing');
+                }
+                response = await quizService.deleteQuestion(questionId);
+            } else {
+                if (!questionId) {
+                    throw new Error('Answer ID is missing');
+                }
+                response = await quizService.deleteAnswer(questionId);
+            }
+            console.log(`${type} deletion response:`, response);
+            if (response === undefined || response === null || Object.keys(response).length === 0 || response.success !== false) {
+                message.success(successMessage);
+                onDelete();
+            } else {
+                throw new Error(response.message || 'Deletion failed according to response');
+            }
         } catch (error) {
-            message.error(error.message);
+            console.error('Deletion error:', error.message);
+            message.error(error.message || 'Failed to delete');
         }
     };
-
 
     const handleModalClick = (e) => {
         e.stopPropagation();
@@ -30,7 +54,7 @@ const DeleteQuestionModal = ({ visible, onCancel, onDelete, questionId }) => {
                         color: "#5A2D2F",
                     }}
                 >
-                    Xác nhận xóa câu hỏi
+                    {titleText}
                 </div>
             }
             visible={visible}
@@ -64,7 +88,7 @@ const DeleteQuestionModal = ({ visible, onCancel, onDelete, questionId }) => {
                 padding: "16px",
             }}
             width={400}
-            aria-labelledby="delete-question-modal-title"
+            aria-labelledby="delete-modal-title"
         >
             <p
                 style={{
@@ -74,7 +98,7 @@ const DeleteQuestionModal = ({ visible, onCancel, onDelete, questionId }) => {
                     color: "#5A2D2F",
                 }}
             >
-                Bạn có chắc chắn muốn xóa câu hỏi này không?
+                {bodyText}
             </p>
         </Modal>
     );
@@ -84,7 +108,12 @@ DeleteQuestionModal.propTypes = {
     visible: PropTypes.bool.isRequired,
     onCancel: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
-    questionId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    questionId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired, // Changed from id to questionId
+    type: PropTypes.oneOf(["question", "answer"]),
+};
+
+DeleteQuestionModal.defaultProps = {
+    type: "question",
 };
 
 export default DeleteQuestionModal;

@@ -22,8 +22,7 @@ const quizService = {
                 const errorDetail = errorData.detail || 'No details provided';
                 const specificErrors = errorData.errors ? JSON.stringify(errorData.errors) : '';
                 throw new Error(
-                    `HTTP Error: ${response.status}. Details: ${errorDetail}${
-                        specificErrors ? ` Errors: ${specificErrors}` : ''
+                    `HTTP Error: ${response.status}. Details: ${errorDetail}${specificErrors ? ` Errors: ${specificErrors}` : ''
                     }`
                 );
             }
@@ -58,17 +57,24 @@ const quizService = {
     },
     deleteQuestion: async (questionId) => {
         try {
+            if (!questionId) {
+                throw new Error('questionId is required but was not provided');
+            }
+            const payload = { questionId: String(questionId) };
+            console.log('DELETE Payload for deleteQuestion:', JSON.stringify(payload, null, 2));
             const response = await api.delete('Question/delete', {
-                data: { questionId },
+                data: payload,
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
-            if (response.status !== 200) {
+            console.log('deleteQuestion Response:', JSON.stringify(response, null, 2));
+            if (response.status !== 200 && response.status !== 204) {
                 throw new Error(`HTTP Error: ${response.status}`);
             }
             return response.data;
         } catch (error) {
+            console.error('Error in deleteQuestion:', JSON.stringify(error.response?.data || error.message, null, 2));
             throw new Error(error.response?.data?.message || error.message || 'Failed to delete question');
         }
     },
@@ -91,6 +97,42 @@ const quizService = {
             return response.data;
         } catch (error) {
             throw new Error(error.response?.data?.message || error.message || 'Failed to update answer');
+        }
+    },
+
+    createAnswer: async (answerData) => {
+        try {
+            const payload = {
+                questionId: String(answerData.questionId),
+                keyContent: String(answerData.keyContent || ''),
+                keyScore: String(answerData.keyScore || ''),
+            };
+            console.log('POST Payload for createAnswer:', JSON.stringify(payload, null, 2));
+            const response = await api.post('Question/create-answer', payload, {
+                headers: { 'Content-Type': 'application/json' },
+            });
+            if (response.status !== 200) {
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || error.message || 'Failed to create answer');
+        }
+    },
+    deleteAnswer: async (keyId) => {
+        try {
+            const payload = { keyId: String(keyId) };
+            console.log('DELETE Payload for deleteAnswer:', JSON.stringify(payload, null, 2));
+            const response = await api.delete('Question/delete-answer', {
+                data: payload,
+                headers: { 'Content-Type': 'application/json' },
+            });
+            if (response.status !== 200 && response.status !== 204) {
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || error.message || 'Failed to delete answer');
         }
     },
 };

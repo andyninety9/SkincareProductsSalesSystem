@@ -130,14 +130,36 @@ export default function ManageQuiz() {
         try {
             setError(null);
             console.log('Form Values:', JSON.stringify(values, null, 2));
-            const response = await quizService.createQuestion(values);
-            console.log('Create Question Response:', JSON.stringify(response, null, 2));
-            message.success('Question created successfully');
+
+            // Step 1: Create the question
+            const questionData = {
+                questionContent: values.questionContent,
+                cateQuestionId: values.cateQuestionId,
+            };
+            const questionResponse = await quizService.createQuestion(questionData);
+            console.log('Create Question Response:', JSON.stringify(questionResponse, null, 2));
+
+            // Step 2: Create each answer
+            const questionId = questionResponse.questionId;
+            if (values.keyQuestions && values.keyQuestions.length > 0) {
+                const answerPromises = values.keyQuestions.map(async (answer) => {
+                    const answerData = {
+                        questionId: questionId,
+                        keyContent: answer.keyContent,
+                        keyScore: answer.keyScore,
+                    };
+                    return quizService.createAnswer(answerData);
+                });
+                await Promise.all(answerPromises);
+                console.log('All answers created successfully');
+            }
+
+            message.success('Question and answers created successfully');
             setModalState((prev) => ({ ...prev, createVisible: false }));
             form.resetFields();
             fetchQuizItems(currentPage, searchValue);
         } catch (error) {
-            console.error('Create Question Error:', error.message);
+            console.error('Create Question or Answers Error:', error.message);
             setError(error.message);
             message.error(error.message);
         }
@@ -145,7 +167,6 @@ export default function ManageQuiz() {
 
     const handleUpdate = useCallback(
         (updatedQuestion) => {
-            // Changed from `values` to `updatedQuestion`
             try {
                 // Update state immediately with the response
                 setQuizItems((prev) =>
@@ -157,7 +178,7 @@ export default function ManageQuiz() {
                 message.success('Cập nhật câu hỏi thành công');
                 setModalState((prev) => ({ ...prev, updateVisible: false, selectedQuestion: null }));
                 form.resetFields();
-                fetchQuizItems(currentPage, searchValue); // Still fetch to ensure server sync
+                fetchQuizItems(currentPage, searchValue);
             } catch (error) {
                 handleError(error);
             }
@@ -414,8 +435,8 @@ export default function ManageQuiz() {
             <UpdateQuestionModal
                 visible={modalState.updateVisible}
                 onCancel={handleModalCancel}
-                onUpdate={handleUpdate} // Now expects response object
-                onUpdateAnswers={handleUpdateAnswersConfirm} // Now handles optional response
+                onUpdate={handleUpdate}
+                onUpdateAnswers={handleUpdateAnswersConfirm}
                 selectedQuestion={modalState.selectedQuestion}
                 form={form}
             />
