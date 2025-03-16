@@ -1,5 +1,3 @@
-
-
 export const routes = {
     home: '/',
     about: '/about',
@@ -35,5 +33,5 @@ export const routes = {
     paymentReturn: '/payment-return',
     notfound: '/404',
     restricted: '/restricted',
-
+    changePasswordByToken: '/reset-password',
 };
