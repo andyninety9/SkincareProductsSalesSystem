@@ -22,6 +22,9 @@ export default function CheckOutPage() {
         return total + item.sellPrice * item.quantity;
     }, 0);
     const [userAddress, setUserAddress] = React.useState([]);
+    const [userVoucher, setUserVoucher] = React.useState([]);
+        const [selectedVoucher, setSelectedVoucher] = React.useState(null);
+    const [voucherCode, setVoucherCode] = React.useState('');
 
     const handleAddressChange = (value) => {
         const selectedAddress = userAddress.find((address) => address.addressId === value);
@@ -34,6 +37,22 @@ export default function CheckOutPage() {
             });
         }
     };
+
+    const handleFetchVoucher = async () => {
+        try {
+            const response = await api.get('user/vouchers');
+            if (response.data.statusCode === 200) {
+                setUserVoucher(response.data.data);
+            }
+            console.log(response.data);
+        } catch (error) {
+            console.error('Failed to fetch voucher:', error.response?.data);
+        }
+    };
+
+    useEffect(() => {
+        handleFetchVoucher();
+    }, []);
 
     const handleCheckout = async (values) => {
         values.eventId = 5;
@@ -103,7 +122,11 @@ export default function CheckOutPage() {
     return (
         <Container>
             <Link to={routes.cart}>
-                <Button type="default" icon={<LeftOutlined />} size="large" style={{ fontWeight: 'bold', marginTop: '3%' }}>
+                <Button
+                    type="default"
+                    icon={<LeftOutlined />}
+                    size="large"
+                    style={{ fontWeight: 'bold', marginTop: '3%' }}>
                     Quay về giỏ hàng
                 </Button>
             </Link>
@@ -188,16 +211,16 @@ export default function CheckOutPage() {
                                 <div>
                                     <h5 className="font-bold">Vận chuyển</h5>
                                     <Radio.Group className="radio-group2">
-                                        <Radio value="Ahamove" className="border-bottom">
+                                        <Radio value="Ahamove" className="">
                                             <div className="ship-row-ahamove">
-                                                <p> Vận chuyển Ahamove</p>
+                                                <p> Vận chuyển Giao Hàng Nhanh</p>
                                                 <img
-                                                    src="https://home.ahamove.com/wp-content/uploads/2022/04/Logo-dung-full-color-moi-2022-03.png"
+                                                    src="https://cdn.haitrieu.com/wp-content/uploads/2022/05/Logo-GHN-Orange.png"
                                                     alt=""
                                                 />
                                             </div>
                                         </Radio>
-                                        <Radio value="GHTK">
+                                        {/* <Radio value="GHTK">
                                             <div className="ship-row-ghtk">
                                                 <p> Vận chuyển GHTK</p>
                                                 <img
@@ -205,7 +228,7 @@ export default function CheckOutPage() {
                                                     alt=""
                                                 />
                                             </div>
-                                        </Radio>
+                                        </Radio> */}
                                     </Radio.Group>
                                 </div>
                             </Form.Item>
@@ -244,9 +267,47 @@ export default function CheckOutPage() {
                                 </div>
                             ))}
                         </div>
+                        <div className="available-vouchers">
+                            <h6 style={{ fontWeight: 'bold', marginBottom: '10px' }}>Voucher khả dụng</h6>
+                            <div className="voucher-list">
+                                {userVoucher.length > 0 ? (
+                                    userVoucher.map((voucher, index) => (
+                                        <div
+                                            key={index}
+                                            className={`voucher-card ${
+                                                selectedVoucher === voucher.voucherId ? 'selected' : ''
+                                            }`}
+                                            onClick={() => {
+                                                setSelectedVoucher(voucher.voucherId);
+                                                setVoucherCode(voucher.voucherCode);
+                                            }}>
+                                            <div className="voucher-info">
+                                                <div className="voucher-code">{voucher.voucherCode}</div>
+                                                <div className="voucher-discount">Giảm {voucher.voucherDiscount}%</div>
+                                                <div className="voucher-desc">{voucher.voucherDesc}</div>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p>Không có voucher nào khả dụng</p>
+                                )}
+                            </div>
+                        </div>
                         <div className="confirm-receipt-voucher">
-                            <input type="text" placeholder="Mã giảm giá" />
-                            <button>Áp dụng</button>
+                            <input
+                                type="text"
+                                placeholder="Mã giảm giá"
+                                value={voucherCode}
+                                onChange={(e) => setVoucherCode(e.target.value)}
+                            />
+                            <button
+                                onClick={() => {
+                                    // Apply voucher logic here
+                                    console.log('Applying voucher:', voucherCode);
+                                    // You can add logic to calculate discount based on the selected voucher
+                                }}>
+                                Áp dụng
+                            </button>
                         </div>
                         <div className="confirm-receipt-price">
                             <div className="confirm-receipt-price-spacebetween">
