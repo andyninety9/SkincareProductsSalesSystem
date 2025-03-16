@@ -37,8 +37,6 @@ export default function ProductPage() {
     const [skinTypes, setSkinTypes] = useState([]);
     const [skinTypeMap, setSkinTypeMap] = useState({});
     const [skinTypeId, setSkinTypeId] = useState();
-    const [categoriesLoading, setCategoriesLoading] = useState(false);
-    const [brandsLoading, setBrandsLoading] = useState(false);
 
     const skinTypeImages = {
         OSPW: ospw, // 1
@@ -57,64 +55,6 @@ export default function ProductPage() {
         DRPT: drpt, // 14
         DRNW: drnw, // 15
         DRNT: drnt, // 16
-    };
-
-    const fetchBrands = async () => {
-        try {
-            setBrandsLoading(true);
-            const response = await api.get('products/brands', {
-                params: {
-                    pageSize: 1000, // Load all brands at once
-                },
-            });
-
-            if (response.data && response.data.data && Array.isArray(response.data.data.items)) {
-                // Assuming the API returns brands with active status
-                const activeBrands = response.data.data.items;
-                setBrands(activeBrands);
-            } else {
-                console.error('❌ Invalid API response format for brands:', response.data);
-            }
-        } catch (error) {
-            console.error('Lỗi khi lấy thương hiệu:', error);
-        } finally {
-            setBrandsLoading(false);
-        }
-    };
-
-    const fetchCategories = async () => {
-        try {
-            setCategoriesLoading(true);
-            console.log('🔍 Fetching categories...');
-            const response = await api.get('products/categories', {
-                params: {
-                    pageSize: 1000,
-                },
-            });
-
-            console.log('📊 Raw category response:', response);
-
-            if (response.data && response.data.data && Array.isArray(response.data.data.items)) {
-                console.log('📋 Categories before filtering:', response.data.data.items);
-                // Filter categories where cateProdStatus is true
-                const activeCategories = response.data.data.items.filter(
-                    (category) => category.cateProdStatus === true
-                );
-                console.log('✅ Active categories after filtering:', activeCategories);
-                setCategories(activeCategories);
-            } else {
-                console.error('❌ Invalid API response format for categories:', response.data);
-            }
-        } catch (error) {
-            console.error('❌ Error fetching categories:', error);
-            // Log more details about the error
-            if (error.response) {
-                console.error('📡 Error response data:', error.response.data);
-                console.error('📡 Error response status:', error.response.status);
-            }
-        } finally {
-            setCategoriesLoading(false);
-        }
     };
 
     const fetchSkinTypes = async () => {
@@ -144,7 +84,7 @@ export default function ProductPage() {
 
     const fetchProduct = async () => {
         try {
-            const response = await api.get('Products', {
+            const response = await api.get('products', {
                 params: {
                     keyword: '',
                     cateID: '',
@@ -178,33 +118,16 @@ export default function ProductPage() {
 
     useEffect(() => {
         fetchSkinTypes();
-    }, []);
-
-    useEffect(() => {
-        fetchCategories();
-        fetchBrands();
-    }, []);
-
-    useEffect(() => {
         fetchProduct();
     }, [skinTypeId]);
 
     const handleFilter = () => {
         let filtered = products;
         if (brandFilter) {
-            filtered = filtered.filter((product) => {
-                // Handle both cases - filtering by ID or name
-                return typeof brandFilter === 'number' || brandFilter.toString().match(/^\d+$/)
-                    ? product.brandId?.toString() === brandFilter.toString()
-                    : product.brandName === brandFilter;
-            });
+            filtered = filtered.filter((product) => product.brandName === brandFilter);
         }
         if (categoryFilter) {
-            filtered = filtered.filter((product) => {
-                return typeof categoryFilter === 'number' || categoryFilter.toString().match(/^\d+$/)
-                    ? product.categoryId?.toString() === categoryFilter.toString()
-                    : product.categoryName === categoryFilter;
-            });
+            filtered = filtered.filter((product) => product.categoryName === categoryFilter);
         }
 
         setFilteredProducts(filtered);
@@ -337,28 +260,16 @@ export default function ProductPage() {
                     <Select
                         style={{ width: '200px' }}
                         placeholder="Chọn thương hiệu"
-                        options={brands.map((brand) => ({
-                            label: brand.brandName || brand,
-                            value: brand.brandId || brand,
-                        }))}
+                        options={brands.map((brand) => ({ label: brand, value: brand }))}
                         onChange={(value) => setBrandFilter(value)}
                         allowClear
-                        loading={brandsLoading}
-                        listHeight={170}
-                        dropdownStyle={{ maxHeight: '170px', overflow: 'auto' }}
                     />
                     <Select
                         style={{ width: '200px' }}
                         placeholder="Chọn danh mục"
-                        options={categories.map((category) => ({
-                            label: category.cateProdName || '',
-                            value: category.cateProdId || '',
-                        }))}
+                        options={categories.map((category) => ({ label: category, value: category }))}
                         onChange={(value) => setCategoryFilter(value)}
                         allowClear
-                        loading={categoriesLoading}
-                        listHeight={170}
-                        dropdownStyle={{ maxHeight: '170px', overflow: 'auto' }}
                     />
                     <Button
                         text="Lọc"
