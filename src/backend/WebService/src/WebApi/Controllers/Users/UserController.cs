@@ -804,5 +804,50 @@ namespace WebApi.Controllers.Users
 
             return Ok(new { statusCode = 200, message = "Apply voucher successfully", data = result.Value });
         }
+
+        /// <summary>
+        /// Change password by forgot password.
+        /// </summary>
+        /// <param name="command">Request containing the new password.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a success message if the password is changed successfully.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///   POST /api/User/change-password-forgot
+        ///   {
+        ///   "forgotPasswordToken": "string",
+        ///   "newPassword": "string",
+        ///   "confirmPassword": "string",
+        ///   }
+        ///   
+        /// </remarks>
+        /// <response code="200">Returns a success message if the password is changed successfully.</response>
+        /// <response code="400">If the request is invalid.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="500">If an unexpected error occurs.</response>
+        [HttpPost("change-password-forgot")]
+        public async Task<IActionResult> ChangePasswordForgot([FromBody] ChangePasswordForgotCommand command, CancellationToken cancellationToken)
+        {
+            var validator = new ChangePasswordForgotCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error.Description });
+            }
+
+            return Ok(new { statusCode = 200, message = "Change password by forgot password successfully" });
+        }
+        
     }
 }
