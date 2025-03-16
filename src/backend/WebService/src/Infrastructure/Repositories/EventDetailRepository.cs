@@ -38,6 +38,10 @@ namespace Infrastructure.Repositories
             return Task.FromResult(isExisted);
         }
 
-       
+        public Task<IEnumerable<EventDetail>> GetListEventDetailByEventIdAsync(long eventId, CancellationToken cancellationToken)
+        {
+            IEnumerable<EventDetail> eventDetails = _context.EventDetails.Where(ed => ed.EventId == eventId);
+            return Task.FromResult(eventDetails);
+        }
     }
 }

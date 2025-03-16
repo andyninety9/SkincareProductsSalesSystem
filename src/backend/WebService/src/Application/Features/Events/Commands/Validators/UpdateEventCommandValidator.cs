@@ -31,9 +31,9 @@ namespace Application.Features.Events.Commands.Validators
                 .InclusiveBetween(0, 100).WithMessage("Discount percent must be between 0 and 100.")
                 .When(x => x.DiscountPercent.HasValue); // Chỉ kiểm tra nếu có giá trị
 
-            RuleFor(x => x.StatusEvent)
-                .NotNull().WithMessage("Status event is required.")
-                .When(x => x.StatusEvent.HasValue); // Chỉ kiểm tra nếu có giá trị
+            // RuleFor(x => x.StatusEvent)
+            //     .NotNull().WithMessage("Status event is required.")
+            //     .When(x => x.StatusEvent.HasValue); // Chỉ kiểm tra nếu có giá trị
         }
 
         private bool BeValidIsoTimestamp(string timestamp)

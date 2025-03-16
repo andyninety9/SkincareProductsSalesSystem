@@ -11,6 +11,7 @@ namespace Domain.Repositories
     {
         Task<bool> AddProductToEventAsync(long eventId, long productId);
         Task<bool> ExistsAsync(long eventId, long productId);
+        Task<IEnumerable<EventDetail>> GetListEventDetailByEventIdAsync(long eventId, CancellationToken cancellationToken);
 
     }
 }

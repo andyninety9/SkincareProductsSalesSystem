@@ -25,8 +25,8 @@ namespace Application.Features.Events.Commands
         string StartTime,
         string EndTime,
         string EventDesc,
-        decimal DiscountPercent,
-        bool StatusEvent
+        decimal DiscountPercent
+        // bool StatusEvent
     ) : ICommand<CreateEventResponse>;
 
     internal sealed class CreateEventCommandHandler : ICommandHandler<CreateEventCommand, CreateEventResponse>
@@ -63,7 +63,7 @@ namespace Application.Features.Events.Commands
                     EndTime = DateTime.Parse(command.EndTime),
                     EventDesc = command.EventDesc,
                     DiscountPercent = (double)command.DiscountPercent,
-                    StatusEvent = command.StatusEvent
+                    StatusEvent = false
                 };
 
                 await _eventRepository.AddAsync(newEvent, cancellationToken);

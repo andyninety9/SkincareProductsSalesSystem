@@ -15,8 +15,7 @@ namespace Application.Features.Events.Commands
         string? StartTime,
         string? EndTime,
         string? EventDesc,
-        decimal? DiscountPercent,
-        bool? StatusEvent
+        decimal? DiscountPercent
     ) : ICommand<CreateEventResponse>;
 
     internal sealed class UpdateEventCommandHandler : ICommandHandler<UpdateEventCommand, CreateEventResponse>
@@ -43,7 +42,10 @@ namespace Application.Features.Events.Commands
         {
             try
             {
-                long eventId = long.Parse(command.EventId);
+                if (!long.TryParse(command.EventId, out var eventId))
+                {
+                    return Result<CreateEventResponse>.Failure<CreateEventResponse>(new Error("Events.AddProduct", "Invalid Event Id"));
+                }
                 var existingEvent = await _eventRepository.GetByIdAsync(eventId, cancellationToken);
                 if (existingEvent == null)
                 {
@@ -75,10 +77,6 @@ namespace Application.Features.Events.Commands
                     existingEvent.DiscountPercent = (double)command.DiscountPercent.Value;
                 }
 
-                if (command.StatusEvent != null)
-                {
-                    existingEvent.StatusEvent = command.StatusEvent.Value;
-                }
 
                 _eventRepository.Update(existingEvent);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);

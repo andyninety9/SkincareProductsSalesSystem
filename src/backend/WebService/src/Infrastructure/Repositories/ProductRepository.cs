@@ -106,6 +106,12 @@ namespace Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        public Task<bool> UpdateAsync(Product product)
+        {
+            _context.Set<Product>().Update(product);
+            return Task.FromResult(true);
+        }
+
         public Task<bool> UpdateRatingProductAsync(long productId, double rating, CancellationToken cancellationToken)
         {
             bool IsSuccess = false;
