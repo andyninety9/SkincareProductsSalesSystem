@@ -738,5 +738,71 @@ namespace WebApi.Controllers.Users
 
             return Ok(new { statusCode = 200, message = "Assign voucher successfully" });
         }
+
+        /// <summary>
+        /// Apply voucher to the user.
+        /// </summary>
+        /// <param name="command">Request containing the voucher ID.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a success message if the voucher is applied successfully.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///   POST /api/User/apply-voucher
+        ///   {
+        ///   "voucherCode": "string,
+        ///   }
+        ///   Headers:
+        ///   Authorization: Bearer {token}
+        ///   Role:
+        ///   Customer
+        /// </remarks>
+        /// <response code="200">Returns a success message if the voucher is applied successfully.</response>
+        /// <response code="400">If the request is invalid.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="500">If an unexpected error occurs.</response>
+        [HttpPost("apply-voucher")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Customer)]
+        public async Task<IActionResult> ApplyVoucher([FromBody] ApplyVoucherCommand command, CancellationToken cancellationToken)
+        {
+            if (User == null)
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.USER_INFORMATION_NOT_FOUND });
+            }
+
+            var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(usrID))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+            }
+
+            if (!long.TryParse(usrID, out var userId))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
+            }
+
+            command = command with { UsrId = userId };
+
+            var validator = new ApplyVoucherCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error.Description });
+            }
+
+            return Ok(new { statusCode = 200, message = "Apply voucher successfully" });
+        }
     }
 }

@@ -10,6 +10,8 @@ namespace Domain.Repositories
     public interface IVoucherRepository : IRepository<Voucher>
     {
         Task<List<Voucher>> GetVouchersByUserIdAsync(long userId, CancellationToken cancellationToken);
+
+        Task<Voucher?> GetByCodeAsync(string code, CancellationToken cancellationToken);
         
     }
 }
