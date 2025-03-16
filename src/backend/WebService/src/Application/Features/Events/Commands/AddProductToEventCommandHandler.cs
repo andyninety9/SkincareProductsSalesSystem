@@ -67,6 +67,11 @@ namespace Application.Features.Events.Commands
                     return Result<GetEventDetailResponse>.Failure<GetEventDetailResponse>(new Error("Events.AddProduct", "Event not found"));
                 }
 
+                if (eventEntity.StatusEvent)
+                {
+                    return Result<GetEventDetailResponse>.Failure<GetEventDetailResponse>(new Error("Events.AddProduct", "Deactive event first to add product"));
+                }
+
                 var productEntity = await _productRepository.GetByIdAsync(productId, cancellationToken);
                 if (productEntity == null)
                 {
@@ -82,6 +87,7 @@ namespace Application.Features.Events.Commands
 
                 // Kiểm tra sản phẩm có đang nằm trong sự kiện khác không, nếu có thì kiểm tra xem sự kiện đó có end chưa
                 var isExistInAnotherEvent = await _eventRepository.ExistsInAnotherEventAsync(productId, eventId);
+                _logger.LogInformation($"Product {productId} isExistInAnotherEvent: {isExistInAnotherEvent}");
                 if (isExistInAnotherEvent)
                 {
                     return Result<GetEventDetailResponse>.Failure<GetEventDetailResponse>(new Error("Events.AddProduct", "Product already added to another event"));
