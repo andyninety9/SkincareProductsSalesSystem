@@ -139,25 +139,18 @@ export default function ManageQuiz() {
             const questionResponse = await quizService.createQuestion(questionData);
             console.log('Create Question Response:', JSON.stringify(questionResponse, null, 2));
 
-            // Step 2: Extract questionId from the response
-            const questionId = questionResponse.questionId || questionResponse.data?.questionId || questionResponse.id;
-            if (!questionId) {
-                throw new Error('Failed to retrieve questionId from createQuestion response');
-            }
-
-            // Step 3: Create each answer
+            // Step 2: Create each answer
+            const questionId = questionResponse.questionId;
             if (values.keyQuestions && values.keyQuestions.length > 0) {
                 const answerPromises = values.keyQuestions.map(async (answer) => {
                     const answerData = {
                         questionId: questionId,
                         keyContent: answer.keyContent,
                         keyScore: answer.keyScore,
-                        // Include ansId if provided (optional, see Step 2 below)
-                        ...(answer.ansId && { keyId: answer.ansId }), // Rename ansId to keyId to match API
                     };
                     return quizService.createAnswer(answerData);
                 });
-                await Promise.all(answerPromises); // Wait for all answers to be created
+                await Promise.all(answerPromises);
                 console.log('All answers created successfully');
             }
 

@@ -23,7 +23,8 @@ const UpdateQuestionModal = ({
                 questionId: String(selectedQuestion.questionId),
                 questionContent: selectedQuestion.questionContent,
                 cateQuestionId: selectedQuestion.cateQuestionId,
-                keyQuestions: selectedQuestion.keyQuestions.map(({ keyContent, keyScore }) => ({
+                keyQuestions: selectedQuestion.keyQuestions.map(({ keyId, keyContent, keyScore }) => ({
+                    keyId, // Include keyId for existing answers
                     keyContent,
                     keyScore,
                 })),
@@ -83,17 +84,42 @@ const UpdateQuestionModal = ({
         try {
             setError(null);
             const values = form.getFieldsValue();
-            const existingAnswers = values.keyQuestions.map((answer, index) => ({
-                keyId: answer.keyId || selectedQuestion.keyQuestions[index]?.keyId,
-                keyContent: String(answer.keyContent || ''),
-                keyScore: String(answer.keyScore || ''),
-            }));
+            const existingAnswers = selectedQuestion.keyQuestions;
+            const currentAnswers = values.keyQuestions || [];
 
             const updatedAnswers = [];
-            for (const answer of existingAnswers) {
-                console.log('Processing answer:', answer);
-                const response = await quizService.updateAnswer(answer);
-                updatedAnswers.push(response);
+            for (let i = 0; i < currentAnswers.length; i++) {
+                const answer = currentAnswers[i];
+                const existingAnswer = existingAnswers[i];
+
+                if (!answer.keyId) {
+                    // New answer: Call createAnswer
+                    const newAnswerPayload = {
+                        questionId: String(selectedQuestion.questionId),
+                        keyContent: String(answer.keyContent || ''),
+                        keyScore: String(answer.keyScore || ''),
+                    };
+                    console.log('Creating new answer:', JSON.stringify(newAnswerPayload, null, 2));
+                    const newAnswerResponse = await quizService.createAnswer(newAnswerPayload);
+                    updatedAnswers.push(newAnswerResponse);
+                } else if (existingAnswer && answer.keyId === existingAnswer.keyId) {
+                    // Existing answer: Call updateAnswer if changed
+                    const hasChanges =
+                        answer.keyContent !== existingAnswer.keyContent ||
+                        answer.keyScore !== existingAnswer.keyScore;
+                    if (hasChanges) {
+                        const updateAnswerPayload = {
+                            keyId: String(answer.keyId),
+                            keyContent: String(answer.keyContent || ''),
+                            keyScore: String(answer.keyScore || ''),
+                        };
+                        console.log('Updating answer:', JSON.stringify(updateAnswerPayload, null, 2));
+                        const updateAnswerResponse = await quizService.updateAnswer(updateAnswerPayload);
+                        updatedAnswers.push(updateAnswerResponse);
+                    } else {
+                        updatedAnswers.push(existingAnswer); // No changes, keep as is
+                    }
+                }
             }
 
             const updatedQuestion = {
@@ -131,18 +157,51 @@ const UpdateQuestionModal = ({
             const questionResponse = await quizService.updateQuestion(questionPayload);
             console.log('Received response from updateQuestion (all):', JSON.stringify(questionResponse, null, 2));
 
-            const existingAnswers = values.keyQuestions.map((answer, index) => ({
-                keyId: answer.keyId || selectedQuestion.keyQuestions[index]?.keyId,
-                keyContent: String(answer.keyContent || ''),
-                keyScore: String(answer.keyScore || ''),
-            }));
-            for (const answer of existingAnswers) {
-                console.log('Processing answer:', answer);
-                await quizService.updateAnswer(answer);
+            const existingAnswers = selectedQuestion.keyQuestions;
+            const currentAnswers = values.keyQuestions || [];
+
+            const updatedAnswers = [];
+            for (let i = 0; i < currentAnswers.length; i++) {
+                const answer = currentAnswers[i];
+                const existingAnswer = existingAnswers[i];
+
+                if (!answer.keyId) {
+                    // New answer: Call createAnswer
+                    const newAnswerPayload = {
+                        questionId: String(selectedQuestion.questionId),
+                        keyContent: String(answer.keyContent || ''),
+                        keyScore: String(answer.keyScore || ''),
+                    };
+                    console.log('Creating new answer:', JSON.stringify(newAnswerPayload, null, 2));
+                    const newAnswerResponse = await quizService.createAnswer(newAnswerPayload);
+                    updatedAnswers.push(newAnswerResponse);
+                } else if (existingAnswer && answer.keyId === existingAnswer.keyId) {
+                    // Existing answer: Call updateAnswer if changed
+                    const hasChanges =
+                        answer.keyContent !== existingAnswer.keyContent ||
+                        answer.keyScore !== existingAnswer.keyScore;
+                    if (hasChanges) {
+                        const updateAnswerPayload = {
+                            keyId: String(answer.keyId),
+                            keyContent: String(answer.keyContent || ''),
+                            keyScore: String(answer.keyScore || ''),
+                        };
+                        console.log('Updating answer:', JSON.stringify(updateAnswerPayload, null, 2));
+                        const updateAnswerResponse = await quizService.updateAnswer(updateAnswerPayload);
+                        updatedAnswers.push(updateAnswerResponse);
+                    } else {
+                        updatedAnswers.push(existingAnswer); // No changes, keep as is
+                    }
+                }
             }
 
+            const updatedQuestion = {
+                ...questionResponse,
+                keyQuestions: updatedAnswers,
+            };
+
             message.success('Cập nhật tất cả thành công');
-            onUpdateAnswers(questionResponse);
+            onUpdateAnswers(updatedQuestion);
         } catch (error) {
             const errorResponse = error.response?.data || error.message;
             console.error('Error in handleUpdateAll:', JSON.stringify(errorResponse, null, 2));
@@ -157,7 +216,8 @@ const UpdateQuestionModal = ({
     const currentQuestionId = Form.useWatch('questionId', form) || '';
 
     const originalAnswers = useMemo(() =>
-        selectedQuestion?.keyQuestions.map(({ keyContent, keyScore }) => ({
+        selectedQuestion?.keyQuestions.map(({ keyId, keyContent, keyScore }) => ({
+            keyId,
             keyContent,
             keyScore,
         })) || [],
@@ -322,7 +382,7 @@ const UpdateQuestionModal = ({
                                     alignItems: 'center',
                                 }}
                             >
-                                Thêm câu hỏi
+                                Thêm câu trả lời {/* Fixed label */}
                             </Button>
                         </div>
                     )}
