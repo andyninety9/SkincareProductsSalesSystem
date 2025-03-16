@@ -37,5 +37,7 @@ namespace Infrastructure.Repositories
             bool isExisted = _context.EventDetails.Any(ed => ed.EventId == eventId && ed.ProductId == productId);
             return Task.FromResult(isExisted);
         }
+
+       
     }
 }

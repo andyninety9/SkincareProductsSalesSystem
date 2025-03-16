@@ -80,6 +80,13 @@ namespace Application.Features.Events.Commands
                     return Result<GetEventDetailResponse>.Failure<GetEventDetailResponse>(new Error("Events.AddProduct", "Product already added to event"));
                 }
 
+                // Kiểm tra sản phẩm có đang nằm trong sự kiện khác không, nếu có thì kiểm tra xem sự kiện đó có end chưa
+                var isExistInAnotherEvent = await _eventRepository.ExistsInAnotherEventAsync(productId, eventId);
+                if (isExistInAnotherEvent)
+                {
+                    return Result<GetEventDetailResponse>.Failure<GetEventDetailResponse>(new Error("Events.AddProduct", "Product already added to another event"));
+                }
+
                 var eventDetail = new EventDetail
                 {
                     EventDetailId = _idGenerator.GenerateLongId(),
