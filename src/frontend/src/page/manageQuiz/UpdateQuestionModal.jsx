@@ -488,7 +488,7 @@ const UpdateQuestionModal = ({
                 visible={deleteModalVisible}
                 onCancel={handleDeleteCancel}
                 onDelete={handleDeleteAnswerConfirm}
-                id={answerToDelete?.keyId}
+                questionId={answerToDelete?.keyId} // This might be undefined
                 type="answer"
             />
         </Modal>
