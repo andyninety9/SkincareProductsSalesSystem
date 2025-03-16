@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Form, Input as AntInput, Button, Row, Col } from 'antd';
+import { Modal, Form, Input as AntInput, Button, Row, Col, Divider } from 'antd';
 
 const { TextArea } = AntInput;
 
@@ -33,7 +33,6 @@ const CreateQuestionModal = ({
                 <Form.Item
                     style={{
                         color: '#5A2D2F',
-                        fontWeight: 'bold',
                         fontSize: '16px',
                         fontFamily: "'Nunito', sans-serif",
                     }}
@@ -54,13 +53,12 @@ const CreateQuestionModal = ({
                 <Form.Item
                     style={{
                         color: '#5A2D2F',
-                        fontWeight: 'bold',
                         fontSize: '16px',
                         fontFamily: "'Nunito', sans-serif",
                     }}
                     name="cateQuestionId"
                     label="Category ID"
-                    rules={[{ required: true, message: "Vui lòng nhập ID danh mục!" }]}
+                    rules={[{ required: true, message: "Vui lòng nhập Category ID!" }]}
                 >
                     <AntInput
                         type="number"
@@ -75,6 +73,12 @@ const CreateQuestionModal = ({
                     />
                 </Form.Item>
 
+
+                <Col span={24}>
+                    <Divider style={{ borderColor: "#56021F" }} />
+                </Col>
+
+
                 <Form.List name="keyQuestions">
                     {(fields, { add, remove }) => (
                         <>
@@ -86,6 +90,7 @@ const CreateQuestionModal = ({
                                         gap: '16px',
                                         marginBottom: '30px',
                                     }}>
+
                                     <Form.Item
                                         {...restField}
                                         name={[name, "keyContent"]}
@@ -98,6 +103,24 @@ const CreateQuestionModal = ({
                                     >
                                         <TextArea
                                             autoSize={{ minRows: 1, maxRows: 5 }}
+                                            style={{
+                                                color: "#5A2D2F",
+                                                borderColor: "#5A2D2F",
+                                                backgroundColor: "#F6EEF0",
+                                            }}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item
+                                        {...restField}
+                                        name={[name, "ansId"]}
+                                        label="Answer ID"
+                                        style={{
+                                            marginBottom: 0,
+                                            color: '#5A2D2F',
+                                        }}
+                                    >
+                                        <AntInput
+                                            placeholder="Enter Answer ID"
                                             style={{
                                                 color: "#5A2D2F",
                                                 borderColor: "#5A2D2F",
@@ -127,6 +150,7 @@ const CreateQuestionModal = ({
                                             }}
                                         />
                                     </Form.Item>
+
                                     <div style={{ gridColumn: '1 / -1', textAlign: 'left' }}>
                                         <Button
                                             onClick={() => remove(name)}
