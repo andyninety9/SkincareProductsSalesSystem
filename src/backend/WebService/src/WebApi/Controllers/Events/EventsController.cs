@@ -311,5 +311,48 @@ namespace WebApi.Controllers.Events
             return Ok(new { statusCode = 200, message = "Active event successfully", data = result.Value });
         }
 
+        /// <summary>
+        /// Inactive event  
+        /// </summary>
+        /// <param name="command">The command to inactive event.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the ID of the inactive event.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT /api/events/inactive
+        ///     {
+        ///     "eventId": "string",
+        ///     }
+        ///
+        /// </remarks>
+        [HttpPatch("inactive")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> InactiveEvent([FromBody] InactiveEventCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new InactiveEventCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("BadRequest: Command failed with error: {Error}", result.Error?.Description);
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Inactive event successfully", data = result.Value });
+        }
+
     }
 }
