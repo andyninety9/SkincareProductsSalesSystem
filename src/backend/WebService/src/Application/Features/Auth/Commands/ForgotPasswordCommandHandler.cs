@@ -82,7 +82,7 @@ namespace Application.Auth.Commands
                 var emailBody = EmailTemplate.GenerateForgotPasswordEmailHtml(
                     username: account.Username,
                     resetToken: newForgotPasswordToken,
-                    baseUrl: endpointUrl + "/reset-password"
+                    baseUrl: endpointUrl 
                 );
                 await _emailService.SendEmailAsync(new EmailModel
                 {
