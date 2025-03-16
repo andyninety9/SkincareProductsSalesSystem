@@ -2,6 +2,7 @@ using Application.Attributes;
 using Application.Common.Enum;
 using Application.Common.Paginations;
 using Application.Features.Events.Commands;
+using Application.Features.Events.Commands.Validators;
 using Application.Features.Events.Queries;
 using Application.Features.Events.Queries.Validator;
 using MediatR;
@@ -131,22 +132,33 @@ namespace WebApi.Controllers.Events
         /// <remarks>
         /// Sample request:
         ///
-        ///     POST /api/events
+        ///     POST /api/events/create
         ///     {
         ///     "eventName": "string",
-        ///     "startTime": "2021-01-01T00:00:00",
-        ///     "endTime": "2021-01-01T00:00:00",
+        ///     "startTime": "2025-03-20T09:00:00.000Z",
+        ///     "endTime": "2025-03-27T18:00:00.000Z",
         ///     "eventDesc": "string",
         ///     "discountPercent": 35.5,
         ///     "statusEvent": true
         ///     }
         ///     
         /// </remarks>
-        [HttpPost]
+        [HttpPost("create")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
         public async Task<IActionResult> CreateEvent([FromBody] CreateEventCommand command, CancellationToken cancellationToken = default)
         {
+            var validator = new CreateEventCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
             var result = await _mediator.Send(command, cancellationToken);
 
             if (!result.IsSuccess)
