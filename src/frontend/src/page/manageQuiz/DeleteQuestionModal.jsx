@@ -2,7 +2,7 @@ import { Modal, message } from "antd";
 import PropTypes from "prop-types";
 import quizService from "../../component/quizService/quizService";
 
-const DeleteQuestionModal = ({ visible, onCancel, onDelete, id, type = "question" }) => {
+const DeleteQuestionModal = ({ visible, onCancel, onDelete, questionId, type = "question" }) => {
     const isQuestion = type === "question";
     const titleText = isQuestion ? "Xác nhận xóa câu hỏi" : "Xác nhận xóa câu trả lời";
     const bodyText = isQuestion
@@ -12,15 +12,29 @@ const DeleteQuestionModal = ({ visible, onCancel, onDelete, id, type = "question
 
     const handleDelete = async () => {
         try {
+            console.log(`Deleting ${type} with questionId:`, questionId);
+            let response;
             if (isQuestion) {
-                await quizService.deleteQuestion(id);
+                if (!questionId) {
+                    throw new Error('Question ID is missing');
+                }
+                response = await quizService.deleteQuestion(questionId);
             } else {
-                await quizService.deleteAnswer(id);
+                if (!questionId) {
+                    throw new Error('Answer ID is missing');
+                }
+                response = await quizService.deleteAnswer(questionId);
             }
-            message.success(successMessage);
-            onDelete();
+            console.log(`${type} deletion response:`, response);
+            if (response === undefined || response === null || Object.keys(response).length === 0 || response.success !== false) {
+                message.success(successMessage);
+                onDelete();
+            } else {
+                throw new Error(response.message || 'Deletion failed according to response');
+            }
         } catch (error) {
-            message.error(error.message);
+            console.error('Deletion error:', error.message);
+            message.error(error.message || 'Failed to delete');
         }
     };
 
@@ -94,12 +108,12 @@ DeleteQuestionModal.propTypes = {
     visible: PropTypes.bool.isRequired,
     onCancel: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
-    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-    type: PropTypes.oneOf(["question", "answer"]), // New prop to specify type
+    questionId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired, // Changed from id to questionId
+    type: PropTypes.oneOf(["question", "answer"]),
 };
 
 DeleteQuestionModal.defaultProps = {
-    type: "question", // Default to question deletion
+    type: "question",
 };
 
 export default DeleteQuestionModal;
