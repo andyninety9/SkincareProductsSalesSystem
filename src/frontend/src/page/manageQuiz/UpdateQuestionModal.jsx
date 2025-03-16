@@ -468,8 +468,8 @@ const UpdateQuestionModal = ({
                             style={{
                                 width: '60%',
                                 margin: '0 auto',
-                                backgroundColor: '#5A2D2F',
-                                borderColor: '#5A2D2F',
+                                backgroundColor: '#E6B2BA',
+                                borderColor: '#E6B2BA',
                                 color: '#fff',
                                 borderRadius: '10px',
                                 display: 'flex',
