@@ -210,7 +210,7 @@ namespace WebApi.Controllers.Events
                 });
             }
 
-            
+
 
             var result = await _mediator.Send(command, cancellationToken);
 
@@ -222,6 +222,50 @@ namespace WebApi.Controllers.Events
 
 
             return Ok(new { statusCode = 200, message = "Update event successfully", data = result.Value });
+        }
+
+        /// <summary>
+        /// Adds a new product to an event.
+        /// </summary>
+        /// <param name="command">The command to add a product to an event.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the ID of the newly added product.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/events/add-product
+        ///     {
+        ///     "eventId": "string",
+        ///     "productId": "string",
+        ///     }
+        ///     
+        /// </remarks>
+        [HttpPost("add-product")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> AddProductToEvent([FromBody] AddProductToEventCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new AddProductToEventCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("BadRequest: Command failed with error: {Error}", result.Error?.Description);
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Add product to event successfully", data = result.Value });
         }
 
 
