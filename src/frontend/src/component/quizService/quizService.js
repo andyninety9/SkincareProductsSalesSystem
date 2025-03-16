@@ -22,8 +22,7 @@ const quizService = {
                 const errorDetail = errorData.detail || 'No details provided';
                 const specificErrors = errorData.errors ? JSON.stringify(errorData.errors) : '';
                 throw new Error(
-                    `HTTP Error: ${response.status}. Details: ${errorDetail}${
-                        specificErrors ? ` Errors: ${specificErrors}` : ''
+                    `HTTP Error: ${response.status}. Details: ${errorDetail}${specificErrors ? ` Errors: ${specificErrors}` : ''
                     }`
                 );
             }
@@ -91,6 +90,26 @@ const quizService = {
             return response.data;
         } catch (error) {
             throw new Error(error.response?.data?.message || error.message || 'Failed to update answer');
+        }
+    },
+
+    createAnswer: async (answerData) => {
+        try {
+            const payload = {
+                questionId: String(answerData.questionId),
+                keyContent: String(answerData.keyContent || ''),
+                keyScore: String(answerData.keyScore || ''),
+            };
+            console.log('POST Payload for createAnswer:', JSON.stringify(payload, null, 2));
+            const response = await api.post('Question/create-answer', payload, {
+                headers: { 'Content-Type': 'application/json' },
+            });
+            if (response.status !== 200) {
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || error.message || 'Failed to create answer');
         }
     },
 };

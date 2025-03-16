@@ -21,7 +21,7 @@ const CreateQuestionModal = ({
                     Tạo Câu Hỏi Mới
                 </div>
             }
-            width={600}
+            width={500}
             visible={visible}
             onCancel={onCancel}
             footer={null}

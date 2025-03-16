@@ -322,7 +322,7 @@ const UpdateQuestionModal = ({
                                     alignItems: 'center',
                                 }}
                             >
-                                Thêm câu trả lời
+                                Thêm câu hỏi
                             </Button>
                         </div>
                     )}
