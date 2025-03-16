@@ -172,6 +172,58 @@ namespace WebApi.Controllers.Events
             return Ok(new { statusCode = 200, message = "Create event successfully", data = result.Value });
         }
 
+        /// <summary>
+        /// Updates an existing event.
+        /// </summary>
+        /// <param name="command">The command to update the event.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the ID of the updated event.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT /api/events/update
+        ///     {
+        ///     "eventId": "string",
+        ///     "eventName": "string",
+        ///     "startTime": "2025-03-20T09:00:00.000Z",
+        ///     "endTime": "2025-03-27T18:00:00.000Z",
+        ///     "eventDesc": "string",
+        ///     "discountPercent": 35.5,
+        ///     "statusEvent": true
+        ///     }
+        ///
+        /// </remarks>
+        [HttpPatch("update")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> UpdateEvent([FromBody] UpdateEventCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new UpdateEventCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("BadRequest: Command failed with error: {Error}", result.Error?.Description);
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+
+            return Ok(new { statusCode = 200, message = "Update event successfully", data = result.Value });
+        }
+
 
     }
 }
