@@ -1,4 +1,4 @@
-import { Table, Button, Input, Select, Modal, Form, DatePicker, notification } from "antd";
+import { Table, Button, Input, Modal, Form, DatePicker, notification, Checkbox, Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import ManageOrderSidebar from "../../component/manageOrderSidebar/ManageOrderSidebar";
@@ -9,6 +9,9 @@ const { Option } = Select;
 
 export default function ManageEvent() {
     const [events, setEvents] = useState([]);
+    const [products, setProducts] = useState([]);  // Sản phẩm
+    const [selectedProducts, setSelectedProducts] = useState([]);  // Sản phẩm đã chọn
+    const [isProductModalVisible, setIsProductModalVisible] = useState(false);  // Modal chọn sản phẩm
     const [searchTerm, setSearchTerm] = useState("");
     const [sortOrder, setSortOrder] = useState("newest");
     const [currentPage, setCurrentPage] = useState(1);
@@ -19,7 +22,7 @@ export default function ManageEvent() {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const response = await api.get("Events");
+                const response = await api.get("Events?page=1&pageSize=100");
                 if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
                     setEvents(response.data.data.items);
                 } else {
@@ -32,6 +35,35 @@ export default function ManageEvent() {
 
         fetchEvents();
     }, []);
+
+    const fetchProducts = async () => {
+        try {
+            const response = await api.get("Products");
+
+            // Debugging: Check API response
+            console.log(response.data);  // Add this line to inspect the full response
+
+            if (response.status === 200) {
+                setProducts(response.data.products);  // Ensure this points to the correct data structure
+            }
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            notification.error({
+                message: 'Error',
+                description: 'There was an error fetching products.',
+                placement: 'topRight',
+            });
+        }
+    };
+
+    const showProductModal = () => {
+        setIsProductModalVisible(true);
+        fetchProducts();  // Lấy danh sách sản phẩm khi mở modal
+    };
+
+    const handleProductSelection = (product) => {
+        setSelectedProducts(prev => [...prev, product]);
+    };
 
     const sortedEvents = [...events].sort((a, b) => {
         const dateA = new Date(a.startTime);
@@ -65,12 +97,20 @@ export default function ManageEvent() {
                 setIsModalVisible(false);
                 form.resetFields();
     
-                // Thêm sản phẩm vào sự kiện
-                const productsToAdd = await getValidProductsForEvent(createdEvent);
+                // Sau khi sự kiện được tạo thành công, bạn sẽ lấy sản phẩm đã chọn
+                const productsToAdd = selectedProducts;
     
-                // Gọi API để thêm sản phẩm vào sự kiện
-                for (const product of productsToAdd) {
-                    await addProductToEvent(createdEvent.eventId, product.productId);
+                if (productsToAdd.length > 0) {
+                    // Gọi API để thêm sản phẩm vào sự kiện
+                    for (const product of productsToAdd) {
+                        await addProductToEvent(createdEvent.eventId, product.productId);
+                    }
+                    // Hiển thị thông báo thành công
+                    notification.success({
+                        message: 'Products Added',
+                        description: 'The selected products have been successfully added to the event.',
+                        placement: 'topRight',
+                    });
                 }
     
                 // Kích hoạt sự kiện
@@ -100,61 +140,28 @@ export default function ManageEvent() {
         }
     };
     
-    
 
-    const getValidProductsForEvent = async (event) => {
+    const handleAddProductsToEvent = async (eventId) => {
         try {
-            const productResponse = await api.get("Products");
-            const allProducts = productResponse.data;
-    
-            // Kiểm tra xem allProducts có phải là mảng không
-            if (!Array.isArray(allProducts)) {
-                throw new Error("Invalid data format: Products data is not an array.");
-            }
-    
-            // Kiểm tra điều kiện để chọn sản phẩm hợp lệ cho event
-            const validProducts = allProducts.filter(product => {
-                // Kiểm tra sản phẩm chưa nằm trong event nào
-                const existingEventsResponse = api.get(`/events/products/${product.productId}`);
-                const existingEvents = existingEventsResponse.data;
-    
-                const isProductValid = existingEvents.every(event => {
-                    if (event.endTime >= event.startTime) {
-                        return false; // Nếu ngày kết thúc của event đã qua, sản phẩm có thể thêm vào event mới
-                    }
-                    return true;
+            for (const product of selectedProducts) {
+                await api.post("/api/Events/add-product", {
+                    eventId: eventId,
+                    productId: product.productId,
                 });
-    
-                return isProductValid;
-            });
-    
-            return validProducts;
-        } catch (error) {
-            console.error("Error in getValidProductsForEvent:", error);
-            notification.error({
-                message: 'Error',
-                description: `Error in fetching products: ${error.message}`,
+            }
+            notification.success({
+                message: 'Products Added',
+                description: 'The selected products have been successfully added to the event.',
                 placement: 'topRight',
             });
-            return []; // Trả về mảng rỗng nếu có lỗi
-        }
-    };
-    
-
-    const addProductToEvent = async (eventId, productId) => {
-        try {
-            const response = await api.post("events/add-product", {
-                eventId: eventId,
-                productId: productId
-            });
-    
-            if (response.data.statusCode === 200) {
-                console.log(`Product ${productId} successfully added to event ${eventId}`);
-            } else {
-                console.log(`Failed to add product ${productId} to event ${eventId}`);
-            }
+            setIsProductModalVisible(false);
         } catch (error) {
-            console.error(`Error adding product ${productId} to event ${eventId}:`, error);
+            console.error("Error adding products:", error);
+            notification.error({
+                message: 'Error',
+                description: 'There was an error adding products.',
+                placement: 'topRight',
+            });
         }
     };
 
@@ -184,6 +191,13 @@ export default function ManageEvent() {
                 <Button style={{ backgroundColor: status ? "#AEBCFF" : "#FFB6C1", borderRadius: "12px", width: "150px" }}>
                     {status ? "Ongoing" : "Finished"}
                 </Button>
+            ),
+        },
+        {
+            title: "Action",
+            key: "action",
+            render: (text, record) => (
+                <Button onClick={showProductModal} type="primary">Select Product</Button>
             ),
         },
     ];
@@ -288,6 +302,38 @@ export default function ManageEvent() {
                                 </Button>
                             </Form.Item>
                         </Form>
+                    </Modal>
+                    <Modal
+                        title="Select Products"
+                        visible={isProductModalVisible}
+                        onCancel={() => setIsProductModalVisible(false)}
+                        footer={null}
+                        destroyOnClose
+                    >
+                        <Table
+                            dataSource={products}
+                            columns={[
+                                { title: "Product ID", dataIndex: "productId", key: "productId" },
+                                { title: "Product Name", dataIndex: "productName", key: "productName" },
+                                { title: "Brand", dataIndex: "brandName", key: "brandName" },
+                                { title: "Category", dataIndex: "categoryName", key: "categoryName" },
+                                {
+                                    title: "Select",
+                                    render: (_, record) => (
+                                        <Checkbox onChange={() => handleProductSelection(record)} />
+                                    ),
+                                },
+                            ]}
+                            rowKey="productId"
+                        />
+
+                        <Button
+                            type="primary"
+                            onClick={() => handleAddProductsToEvent(1)}  // Pass actual eventId here
+                            style={{ marginTop: "20px" }}
+                        >
+                            Add Selected Products
+                        </Button>
                     </Modal>
                 </div>
             </div>
