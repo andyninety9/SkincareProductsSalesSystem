@@ -15,6 +15,7 @@ using Application.Features.Products.Commands.Response;
 using Application.Features.Brands.Queries.Response;
 using Application.Features.Brands.Commands.Response;
 using Application.Features.Reviews.Commands.Response;
+using Application.Features.Events.Commands.Response;
 
 namespace Application.Common.Mapper
 {
@@ -53,6 +54,8 @@ namespace Application.Common.Mapper
             CreateMap<CreateProductBrandResponse, Brand>();
             CreateMap<Review, CreateReviewResponse>();
             CreateMap<CreateReviewResponse, Review>();
+            CreateMap<Event, CreateEventResponse>();
+            CreateMap<CreateEventResponse, Event>();
 
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();
