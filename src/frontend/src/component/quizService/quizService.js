@@ -112,5 +112,21 @@ const quizService = {
             throw new Error(error.response?.data?.message || error.message || 'Failed to create answer');
         }
     },
+    deleteAnswer: async (keyId) => {
+        try {
+            const payload = { keyId: String(keyId) };
+            console.log('DELETE Payload for deleteAnswer:', JSON.stringify(payload, null, 2));
+            const response = await api.delete('Question/delete-answer', {
+                data: payload,
+                headers: { 'Content-Type': 'application/json' },
+            });
+            if (response.status !== 200 && response.status !== 204) {
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || error.message || 'Failed to delete answer');
+        }
+    },
 };
 export default quizService;

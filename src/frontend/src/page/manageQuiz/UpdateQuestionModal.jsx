@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { Modal, Form, Input as AntInput, Button, Alert, message, Col, Row, Divider } from "antd";
 import { useEffect, useState, useMemo } from "react";
 import quizService from "../../component/quizService/quizService";
+import DeleteQuestionModal from './DeleteQuestionModal';
 
 const { TextArea } = AntInput;
 
@@ -16,6 +17,8 @@ const UpdateQuestionModal = ({
     const [error, setError] = useState(null);
     const [answersChanged, setAnswersChanged] = useState(false);
     const [questionChanged, setQuestionChanged] = useState(false);
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const [answerToDelete, setAnswerToDelete] = useState(null);
 
     useEffect(() => {
         if (selectedQuestion) {
@@ -24,7 +27,7 @@ const UpdateQuestionModal = ({
                 questionContent: selectedQuestion.questionContent,
                 cateQuestionId: selectedQuestion.cateQuestionId,
                 keyQuestions: selectedQuestion.keyQuestions.map(({ keyId, keyContent, keyScore }) => ({
-                    keyId, // Include keyId for existing answers
+                    keyId,
                     keyContent,
                     keyScore,
                 })),
@@ -88,12 +91,13 @@ const UpdateQuestionModal = ({
             const currentAnswers = values.keyQuestions || [];
 
             const updatedAnswers = [];
-            for (let i = 0; i < currentAnswers.length; i++) {
-                const answer = currentAnswers[i];
-                const existingAnswer = existingAnswers[i];
+            const deletedAnswerIds = existingAnswers
+                .filter((ea) => !currentAnswers.some((ca) => ca.keyId === ea.keyId))
+                .map((ea) => ea.keyId);
 
+            // Process remaining answers (create new or update existing)
+            for (const answer of currentAnswers) {
                 if (!answer.keyId) {
-                    // New answer: Call createAnswer
                     const newAnswerPayload = {
                         questionId: String(selectedQuestion.questionId),
                         keyContent: String(answer.keyContent || ''),
@@ -102,22 +106,24 @@ const UpdateQuestionModal = ({
                     console.log('Creating new answer:', JSON.stringify(newAnswerPayload, null, 2));
                     const newAnswerResponse = await quizService.createAnswer(newAnswerPayload);
                     updatedAnswers.push(newAnswerResponse);
-                } else if (existingAnswer && answer.keyId === existingAnswer.keyId) {
-                    // Existing answer: Call updateAnswer if changed
-                    const hasChanges =
-                        answer.keyContent !== existingAnswer.keyContent ||
-                        answer.keyScore !== existingAnswer.keyScore;
-                    if (hasChanges) {
-                        const updateAnswerPayload = {
-                            keyId: String(answer.keyId),
-                            keyContent: String(answer.keyContent || ''),
-                            keyScore: String(answer.keyScore || ''),
-                        };
-                        console.log('Updating answer:', JSON.stringify(updateAnswerPayload, null, 2));
-                        const updateAnswerResponse = await quizService.updateAnswer(updateAnswerPayload);
-                        updatedAnswers.push(updateAnswerResponse);
-                    } else {
-                        updatedAnswers.push(existingAnswer); // No changes, keep as is
+                } else {
+                    const existingAnswer = existingAnswers.find((ea) => ea.keyId === answer.keyId);
+                    if (existingAnswer) {
+                        const hasChanges =
+                            answer.keyContent !== existingAnswer.keyContent ||
+                            answer.keyScore !== existingAnswer.keyScore;
+                        if (hasChanges) {
+                            const updateAnswerPayload = {
+                                keyId: String(answer.keyId),
+                                keyContent: String(answer.keyContent || ''),
+                                keyScore: String(answer.keyScore || ''),
+                            };
+                            console.log('Updating answer:', JSON.stringify(updateAnswerPayload, null, 2));
+                            const updateAnswerResponse = await quizService.updateAnswer(updateAnswerPayload);
+                            updatedAnswers.push(updateAnswerResponse);
+                        } else {
+                            updatedAnswers.push(existingAnswer);
+                        }
                     }
                 }
             }
@@ -161,12 +167,13 @@ const UpdateQuestionModal = ({
             const currentAnswers = values.keyQuestions || [];
 
             const updatedAnswers = [];
-            for (let i = 0; i < currentAnswers.length; i++) {
-                const answer = currentAnswers[i];
-                const existingAnswer = existingAnswers[i];
+            const deletedAnswerIds = existingAnswers
+                .filter((ea) => !currentAnswers.some((ca) => ca.keyId === ea.keyId))
+                .map((ea) => ea.keyId);
 
+            // Process remaining answers (create new or update existing)
+            for (const answer of currentAnswers) {
                 if (!answer.keyId) {
-                    // New answer: Call createAnswer
                     const newAnswerPayload = {
                         questionId: String(selectedQuestion.questionId),
                         keyContent: String(answer.keyContent || ''),
@@ -175,22 +182,24 @@ const UpdateQuestionModal = ({
                     console.log('Creating new answer:', JSON.stringify(newAnswerPayload, null, 2));
                     const newAnswerResponse = await quizService.createAnswer(newAnswerPayload);
                     updatedAnswers.push(newAnswerResponse);
-                } else if (existingAnswer && answer.keyId === existingAnswer.keyId) {
-                    // Existing answer: Call updateAnswer if changed
-                    const hasChanges =
-                        answer.keyContent !== existingAnswer.keyContent ||
-                        answer.keyScore !== existingAnswer.keyScore;
-                    if (hasChanges) {
-                        const updateAnswerPayload = {
-                            keyId: String(answer.keyId),
-                            keyContent: String(answer.keyContent || ''),
-                            keyScore: String(answer.keyScore || ''),
-                        };
-                        console.log('Updating answer:', JSON.stringify(updateAnswerPayload, null, 2));
-                        const updateAnswerResponse = await quizService.updateAnswer(updateAnswerPayload);
-                        updatedAnswers.push(updateAnswerResponse);
-                    } else {
-                        updatedAnswers.push(existingAnswer); // No changes, keep as is
+                } else {
+                    const existingAnswer = existingAnswers.find((ea) => ea.keyId === answer.keyId);
+                    if (existingAnswer) {
+                        const hasChanges =
+                            answer.keyContent !== existingAnswer.keyContent ||
+                            answer.keyScore !== existingAnswer.keyScore;
+                        if (hasChanges) {
+                            const updateAnswerPayload = {
+                                keyId: String(answer.keyId),
+                                keyContent: String(answer.keyContent || ''),
+                                keyScore: String(answer.keyScore || ''),
+                            };
+                            console.log('Updating answer:', JSON.stringify(updateAnswerPayload, null, 2));
+                            const updateAnswerResponse = await quizService.updateAnswer(updateAnswerPayload);
+                            updatedAnswers.push(updateAnswerResponse);
+                        } else {
+                            updatedAnswers.push(existingAnswer);
+                        }
                     }
                 }
             }
@@ -234,13 +243,14 @@ const UpdateQuestionModal = ({
         setQuestionChanged(questionHasChanges);
 
         const hasAnswersChanges = currentAnswers.length !== originalAnswers.length ||
-            currentAnswers.some((answer, index) => {
-                const original = originalAnswers[index];
+            currentAnswers.some((answer) => {
+                const original = originalAnswers.find((oa) => oa.keyId === answer.keyId);
                 return original && (
                     answer.keyContent !== original.keyContent ||
                     answer.keyScore !== original.keyScore
                 );
-            });
+            }) ||
+            currentAnswers.some((answer) => !answer.keyId && (answer.keyContent || answer.keyScore)); // New answers with content
         setAnswersChanged(hasAnswersChanges);
     }, [currentAnswers, originalAnswers, selectedQuestion, currentQuestionContent, currentCateQuestionId, currentQuestionId]);
 
@@ -249,6 +259,36 @@ const UpdateQuestionModal = ({
     const handleButtonClick = (e, callback) => {
         e.stopPropagation();
         callback();
+    };
+
+    const showDeleteAnswerModal = (name) => {
+        const answer = form.getFieldValue(['keyQuestions', name]);
+        if (answer?.keyId) {
+            setAnswerToDelete({ name, keyId: answer.keyId });
+            setDeleteModalVisible(true);
+        } else {
+            // Remove new answers directly
+            form.setFieldsValue({
+                keyQuestions: form.getFieldValue('keyQuestions').filter((_, index) => index !== name),
+            });
+            // Do not set answersChanged here to avoid enabling the button
+        }
+    };
+
+    const handleDeleteAnswerConfirm = () => {
+        if (answerToDelete) {
+            form.setFieldsValue({
+                keyQuestions: form.getFieldValue('keyQuestions').filter((_, index) => index !== answerToDelete.name),
+            });
+            // Do not set answersChanged here to avoid counting deletion as a change
+        }
+        setDeleteModalVisible(false);
+        setAnswerToDelete(null);
+    };
+
+    const handleDeleteCancel = () => {
+        setDeleteModalVisible(false);
+        setAnswerToDelete(null);
     };
 
     return (
@@ -347,7 +387,7 @@ const UpdateQuestionModal = ({
                                         />
                                     </Form.Item>
                                     <Button
-                                        onClick={(e) => handleButtonClick(e, () => remove(name))}
+                                        onClick={(e) => handleButtonClick(e, () => showDeleteAnswerModal(name))}
                                         style={{
                                             padding: '4px 10px',
                                             width: '80px',
@@ -382,7 +422,7 @@ const UpdateQuestionModal = ({
                                     alignItems: 'center',
                                 }}
                             >
-                                Thêm câu trả lời {/* Fixed label */}
+                                Thêm câu trả lời
                             </Button>
                         </div>
                     )}
@@ -443,6 +483,14 @@ const UpdateQuestionModal = ({
                     )}
                 </Form.Item>
             </Form>
+
+            <DeleteQuestionModal
+                visible={deleteModalVisible}
+                onCancel={handleDeleteCancel}
+                onDelete={handleDeleteAnswerConfirm}
+                id={answerToDelete?.keyId}
+                type="answer"
+            />
         </Modal>
     );
 };
