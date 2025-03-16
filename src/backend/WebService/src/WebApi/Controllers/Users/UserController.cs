@@ -749,7 +749,7 @@ namespace WebApi.Controllers.Users
         /// Sample request:
         ///   POST /api/User/apply-voucher
         ///   {
-        ///   "voucherCode": "string,
+        ///   "voucherCode": "string",
         ///   }
         ///   Headers:
         ///   Authorization: Bearer {token}
@@ -802,7 +802,7 @@ namespace WebApi.Controllers.Users
                 return BadRequest(new { statusCode = 400, message = result.Error.Description });
             }
 
-            return Ok(new { statusCode = 200, message = "Apply voucher successfully" });
+            return Ok(new { statusCode = 200, message = "Apply voucher successfully", data = result.Value });
         }
     }
 }
