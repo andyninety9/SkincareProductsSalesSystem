@@ -1,4 +1,4 @@
-import { Modal, Form, Input, Switch, message } from 'antd';
+import { Modal, Form, Input, Switch, message, InputNumber } from 'antd';
 import PropTypes from 'prop-types';
 import api from '../../config/api';
 
@@ -61,23 +61,25 @@ const AssignVoucherModal = ({
                 <Form.Item
                     name="voucherDiscount"
                     label="Voucher Discount (%)"
-                    min={0}
-                    max={100}
                     rules={[
                         { required: true, message: 'Please enter a discount percentage' },
                     ]}
                 >
-                    <Input type="number" placeholder="Enter discount percentage (e.g., 20)" />
+                    <InputNumber
+                        min={0}
+                        max={100}
+                        placeholder="Enter discount percentage (e.g., 20)"
+                        style={{ width: '100%' }} // Ensure it fits the form layout
+                    />
                 </Form.Item>
                 <Form.Item
                     name="usrId"
                     label="User ID"
-                    initialValue={selectedUser?.usrId.toString()} // Pre-fill with selected user's ID
+                    initialValue={selectedUser?.usrId.toString()}
                     rules={[{ required: true, message: 'User ID is required' }]}
                 >
-                    <Input /> {/* Now the input is editable */}
+                    <Input />
                 </Form.Item>
-
             </Form>
         </Modal>
     );
