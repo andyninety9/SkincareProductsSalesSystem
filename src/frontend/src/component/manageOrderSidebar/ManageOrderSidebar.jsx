@@ -104,6 +104,7 @@ const ManageOrderSidebar = () => {
                 style={{ flex: 1, borderRight: 0 }}
             >
                 <Menu.Item key="0" icon={<UserOutlined />}>Manage Account</Menu.Item>
+                <Menu.Item key="8" icon={<CalendarOutlined />}>Manage Events</Menu.Item>
                 <SubMenu key="sub1" icon={<ContainerOutlined />} title="Manage Orders">
                     <Menu.Item key="1">Manage Order Status</Menu.Item>
                     <Menu.Item key="2">Manage Cancel Order</Menu.Item>
@@ -118,7 +119,7 @@ const ManageOrderSidebar = () => {
                     <Menu.Item key="4">View Comments</Menu.Item>
                     <Menu.Item key="5">Review Comments</Menu.Item>
                 </SubMenu>
-                <Menu.Item key="8" icon={<CalendarOutlined />}>Manage Events</Menu.Item>
+
                 <SubMenu key="sub4" icon={<QuestionCircleOutlined />} title="Manage Quiz">
                     <Menu.Item key="7">Manage Quiz</Menu.Item>
                     <Menu.Item key="12">Manage Skintype</Menu.Item> {/* Added for Manage Skintype */}
