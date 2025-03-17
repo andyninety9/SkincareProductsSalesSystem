@@ -1,5 +1,5 @@
 // Add these imports at the top
-import { Table, Button, Input, Avatar, Select, Modal, Form, Tooltip, message, Upload } from 'antd';
+import { Table, Button, Input, Avatar, Select, Modal, Form, Tooltip, message, Upload, Tabs } from 'antd';
 import {
     LeftOutlined,
     RightOutlined,
@@ -18,6 +18,7 @@ import { Formik, Field, Form as FormikForm, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import './ManageProduct.css';
 import uploadFile from '../../utils/uploadImages';
+import RecommendationModal from './ManageRecommendForModal';
 
 const { Option } = Select;
 
@@ -61,6 +62,8 @@ export default function ManageProduct() {
     const [updateLoading, setUpdateLoading] = useState(false);
     const [imageUploading, setImageUploading] = useState(false);
     const [deleteImageLoading, setDeleteImageLoading] = useState(false);
+    const [isRecommendModalVisible, setIsRecommendModalVisible] = useState(false);
+    const [selectedProductForRecommend, setSelectedProductForRecommend] = useState(null);
     // const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
     // const [productToDelete, setProductToDelete] = useState(null);
 
@@ -81,6 +84,21 @@ export default function ManageProduct() {
         prodStatusName: Yup.string().required('Status is required'),
     });
 
+    const showRecommendModal = (product) => {
+        setSelectedProductForRecommend(product);
+        setIsRecommendModalVisible(true);
+    };
+
+    const handleRecommendModalCancel = () => {
+        setIsRecommendModalVisible(false);
+        setSelectedProductForRecommend(null);
+    };
+
+    const handleRecommendModalOk = () => {
+        // Handle recommendation logic here
+        setIsRecommendModalVisible(false);
+        setSelectedProductForRecommend(null);
+    };
     // Handle image upload
     const handleImageUpload = async (file, productId) => {
         try {
@@ -150,8 +168,10 @@ export default function ManageProduct() {
     const refreshProductData = async () => {
         try {
             const refreshResponse = await api.get(
-                `Products?page=${currentPage}&pageSize=${pageSize}${debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
-                }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
+                `Products?page=${currentPage}&pageSize=${pageSize}${
+                    debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
+                }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${
+                    debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
                 }`
             );
 
@@ -195,7 +215,7 @@ export default function ManageProduct() {
                 'On Sale': 5,
             };
 
-            let productStatus = statusMapping[values.prodStatusName] || 1;  // Set default status
+            let productStatus = statusMapping[values.prodStatusName] || 1; // Set default status
             if (values.stocks === 0) {
                 productStatus = 2; // Set status to 'Out of Stock' if stock is 0
             }
@@ -214,7 +234,6 @@ export default function ManageProduct() {
                 cateId: Number(values.categoryId),
                 // prodStatusId: statusMapping[values.prodStatusName] || 1,
                 prodStatusId: productStatus, // Use the determined productStatus
-
             };
 
             const response = await api.patch('products/update', updateData);
@@ -224,8 +243,10 @@ export default function ManageProduct() {
 
                 // Refresh product list
                 const refreshResponse = await api.get(
-                    `Products?page=${currentPage}&pageSize=${pageSize}${debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
-                    }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
+                    `Products?page=${currentPage}&pageSize=${pageSize}${
+                        debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
+                    }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${
+                        debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
                     }`
                 );
 
@@ -249,7 +270,6 @@ export default function ManageProduct() {
         }
     };
 
-
     // const handleDelete = (productId) => {
     //     setProductToDelete(productId);
     //     setDeleteModalVisible(true);
@@ -260,8 +280,10 @@ export default function ManageProduct() {
             setLoading(true);
             try {
                 const response = await api.get(
-                    `Products?page=${currentPage}&pageSize=${pageSize}${debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
-                    }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
+                    `Products?page=${currentPage}&pageSize=${pageSize}${
+                        debouncedSearchTerm ? `&keyword=${debouncedSearchTerm}` : ''
+                    }${debouncedBrandId ? `&brandId=${debouncedBrandId}` : ''}${
+                        debouncedCategoryId ? `&cateId=${debouncedCategoryId}` : ''
                     }`
                 );
 
@@ -386,9 +408,6 @@ export default function ManageProduct() {
                 prodStatusId: statusMapping[values.prodStatusName] || 1, // Mặc định là "Available"
             };
 
-            // console.log('📤 Payload to API:', requestData);
-
-            // Gửi dữ liệu lên API
             const response = await api.post('Products/create', requestData);
             // console.log('✅ Product added successfully:', response.data);
 
@@ -397,7 +416,8 @@ export default function ManageProduct() {
 
                 // Update refresh API call with correct parameters
                 const refreshResponse = await api.get(
-                    `Products?page=${currentPage}&pageSize=${pageSize}${searchTerm ? `&keyword=${searchTerm}` : ''}${selectedBrandId ? `&brandId=${selectedBrandId}` : ''
+                    `Products?page=${currentPage}&pageSize=${pageSize}${searchTerm ? `&keyword=${searchTerm}` : ''}${
+                        selectedBrandId ? `&brandId=${selectedBrandId}` : ''
                     }${selectedCategoryId ? `&cateId=${selectedCategoryId}` : ''}`
                 );
 
@@ -947,7 +967,36 @@ export default function ManageProduct() {
                 </div>
             ),
         },
-
+        {
+            title: 'Recommendations',
+            key: 'recommendations',
+            align: 'center',
+            width: 180,
+            render: (_, record) => (
+                <Button
+                    type="primary"
+                    onClick={() => showRecommendModal(record)}
+                    style={{
+                        backgroundColor: '#D8959B',
+                        borderColor: '#D8959B',
+                        fontSize: '12px',
+                        padding: '4px 8px',
+                        height: 'auto',
+                        minHeight: '40px',
+                        width: '100%',
+                        maxWidth: '160px',
+                        whiteSpace: 'normal',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        lineHeight: '1.2',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                    Manage Recommendations
+                </Button>
+            ),
+        },
     ];
 
     return (
@@ -964,7 +1013,6 @@ export default function ManageProduct() {
                         style={{ marginBottom: '20px', backgroundColor: '#D8959A', borderColor: '#D8959A' }}>
                         Create Product
                     </Button>
-
 
                     {/* Filters and Search */}
                     <div style={{ display: 'flex', gap: '10px', marginBottom: '30px', alignItems: 'center' }}>
@@ -1154,6 +1202,14 @@ export default function ManageProduct() {
                             </Form.Item>
                         </Form>
                     </Modal>
+                    {/* Recommendation Management Modal */}
+                    <RecommendationModal
+                        isVisible={isRecommendModalVisible}
+                        onOk={handleRecommendModalOk}
+                        onCancel={handleRecommendModalCancel}
+                        selectedProduct={selectedProductForRecommend}
+                        productsList={products}
+                    />
                 </div>
             </div>
         </div>
