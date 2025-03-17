@@ -54,7 +54,9 @@ namespace Application.Features.ProductCategory.Queries
                         RecForId = recommendFor.RecForId,
                         ProdId = recommendFor.ProdId,
                         SkinTypeId = recommendFor.SkinTypeId,
-                        SkinTypeName = skinType.SkinTypeName
+                        SkinTypeName = skinType.SkinTypeName,
+                        SkinTypeCodes = skinType.SkinTypeCodes
+
                     });
                 }
 

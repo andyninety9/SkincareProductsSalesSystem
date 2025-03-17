@@ -21,7 +21,7 @@ const RecommendationModal = ({ isVisible, onOk, onCancel, selectedProduct, produ
         try {
             setLoading(true);
             const productId = selectedProduct.productId;
-            console.log('Fetching recommendations for product ID:', productId);
+            // console.log('Fetching recommendations for product ID:', productId);
 
             const response = await api.get(`products/recommendation/${productId}?page=1&pageSize=100`);
 
@@ -211,7 +211,7 @@ const RecommendationModal = ({ isVisible, onOk, onCancel, selectedProduct, produ
                             )}
                         </Tabs.TabPane>
 
-                        <Tabs.TabPane tab="Related Products" key="2">
+                        {/* <Tabs.TabPane tab="Related Products" key="2">
                             <h4>Related Products</h4>
                             <p>Select products that should be shown alongside this product:</p>
                             <Select
@@ -227,9 +227,9 @@ const RecommendationModal = ({ isVisible, onOk, onCancel, selectedProduct, produ
                                         </Option>
                                     ))}
                             </Select>
-                        </Tabs.TabPane>
+                        </Tabs.TabPane> */}
 
-                        <Tabs.TabPane tab="Display Settings" key="3">
+                        {/* <Tabs.TabPane tab="Display Settings" key="3">
                             <h4>Display Configuration</h4>
                             <p>Configure how recommendations appear on the product page:</p>
                             <Form layout="vertical">
@@ -240,7 +240,7 @@ const RecommendationModal = ({ isVisible, onOk, onCancel, selectedProduct, produ
                                     <Input defaultValue="Customers also bought" />
                                 </Form.Item>
                             </Form>
-                        </Tabs.TabPane>
+                        </Tabs.TabPane> */}
                     </Tabs>
                 </div>
             )}

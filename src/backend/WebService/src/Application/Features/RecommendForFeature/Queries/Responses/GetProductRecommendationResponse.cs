@@ -13,6 +13,7 @@ namespace Application.Features.RecommendForFeature.Queries.Responses
 
         public short SkinTypeId { get; set; }
         public string SkinTypeName { get; set; } = null!;
+        public string SkinTypeCodes { get; set; } = null!;
 
     }
 }
