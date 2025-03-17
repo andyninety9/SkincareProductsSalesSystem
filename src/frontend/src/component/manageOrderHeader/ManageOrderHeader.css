@@ -1,57 +1,74 @@
-.container {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 0 15px;
+/* src/component/manageOrderHeader/ManageOrderHeader.css */
+.manage-order-container {
     display: flex;
     align-items: center;
     width: 100%;
-    /* Ensure it takes full width */
+    justify-content: space-between;
+    /* Pushes children to the edges */
 }
 
-.d-flex {
+.manage-order-logo-wrapper {
+    max-width: 1440px;
+    /* Constrain "Mavid" to 1440px */
+    margin: 0 auto;
+    /* Center within its space */
+    padding: 0 15px;
+    /* Match previous padding */
+    flex: 1;
+    /* Allow it to take available space */
+    display: flex;
+    justify-content: flex-start;
+    /* Align "Mavid" to the left */
+}
+
+.manage-order-user-wrapper {
+    padding: 0 15px;
+    /* Match padding for consistency */
+    display: flex;
+    justify-content: flex-end;
+    /* Push avatar to the right */
+}
+
+.manage-order-d-flex {
     display: flex;
 }
 
-.gap-2 {
+.manage-order-gap-2 {
     gap: 0.5rem;
-    /* 8px spacing */
 }
 
-.align-items-center {
+.manage-order-align-items-center {
     align-items: center;
 }
 
-.text-dark {
+.manage-order-text-dark {
     color: #000 !important;
 }
 
-.text-decoration-none {
+.manage-order-text-decoration-none {
     text-decoration: none;
 }
 
-/* Dropdown styling */
-.position-relative {
+.manage-order-position-relative {
     position: relative;
 }
 
-.position-absolute {
+.manage-order-position-absolute {
     position: absolute;
 }
 
-.p-2 {
+.manage-order-p-2 {
     padding: 0.5rem;
-    /* 8px padding */
 }
 
-.rounded {
+.manage-order-rounded {
     border-radius: 4px;
 }
 
-.d-block {
+.manage-order-d-block {
     display: block !important;
 }
 
-.d-block:hover {
+.manage-order-d-block:hover {
     background-color: #f5f5f5;
-    /* Light grey hover effect */
 }

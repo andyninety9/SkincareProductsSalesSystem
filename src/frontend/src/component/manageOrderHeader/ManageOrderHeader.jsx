@@ -22,7 +22,7 @@ const ManageOrderHeader = ({ isModalOpen }) => {
 
     const fetchUserData = async () => {
         try {
-            setLoading(true); // Set loading to true before fetching
+            setLoading(true);
             const response = await api.get('User/get-me');
             if (response?.data?.statusCode === 200 && response?.data?.data) {
                 const data = response.data.data;
@@ -111,80 +111,89 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                 height: '60px',
                 display: 'flex',
                 alignItems: 'center',
-                lineHeight: 'normal'
+                lineHeight: 'normal',
             }}
         >
-            <div className="container d-flex justify-content-between align-items-center">
-                <Text
-                    style={{
-                        fontFamily: 'Marko One, serif',
-                        fontSize: '32px',
-                        fontWeight: 'bold',
-                        color: '#000',
-                        margin: 0,
-                    }}
-                >
-                    <Link to={routes.home} className="text-dark text-decoration-none">
-                        Mavid
-                    </Link>
-                </Text>
-
-                <div className="d-flex gap-2 align-items-center">
-                    {user ? (
-                        <div
-                            className="position-relative"
-                            ref={dropdownRef}
-                            onMouseEnter={() => setIsDropdownOpen(true)}
-                            onMouseLeave={() => setIsDropdownOpen(false)}
-                        >
-                            <div className="d-flex align-items-center">
-                                <Avatar
-                                    src={<img src={user.avatarUrl || 'https://via.placeholder.com/40'} alt="avatar" />}
-                                    style={{ cursor: 'pointer' }}
-                                />
-                                <Text
-                                    style={{ marginLeft: '8px', color: '#A76A6E', whiteSpace: 'nowrap', fontFamily: 'Nunito, sans-serif', fontSize: '16px', fontWeight: 'bold' }}
-                                >
-                                    {loading ? 'Loading...' : (userInfo.fullname || '')}
-                                </Text>
-
-                            </div>
-                            {isDropdownOpen && !loading && (
-                                <div
-                                    className="position-absolute p-2 rounded"
-                                    style={{
-                                        top: '100%',
-                                        left: '50%',
-                                        transform: 'translateX(-50%)',
-                                        background: 'white',
-                                        padding: '10px',
-                                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                                        zIndex: 1000,
-                                        minWidth: '120px',
-                                    }}
-                                >
+            <div className="manage-order-container">
+                <div className="manage-order-logo-wrapper">
+                    <Text
+                        style={{
+                            fontFamily: 'Marko One, serif',
+                            fontSize: '32px',
+                            fontWeight: 'bold',
+                            color: '#000',
+                            margin: 0,
+                        }}
+                    >
+                        <Link to={routes.home} className="manage-order-text-dark manage-order-text-decoration-none">
+                            Mavid
+                        </Link>
+                    </Text>
+                </div>
+                <div className="manage-order-user-wrapper">
+                    <div className="manage-order-d-flex manage-order-gap-2 manage-order-align-items-center">
+                        {Object.keys(userInfo).length > 0 ? (
+                            <div
+                                className="manage-order-position-relative"
+                                ref={dropdownRef}
+                                onMouseEnter={() => setIsDropdownOpen(true)}
+                                onMouseLeave={() => setIsDropdownOpen(false)}
+                            >
+                                <div className="manage-order-d-flex manage-order-align-items-center">
+                                    <Avatar
+                                        src={<img src={userInfo.avatarUrl || 'https://via.placeholder.com/40'} alt="avatar" />}
+                                        style={{ cursor: 'pointer' }}
+                                    />
                                     <Text
-                                        className="d-block text-dark text-decoration-none"
-                                        style={{ padding: '4px 8px', cursor: 'pointer' }}
-                                        onClick={() => navigate(routes.profile)}
+                                        style={{
+                                            marginLeft: '8px',
+                                            color: '#A76A6E',
+                                            whiteSpace: 'nowrap',
+                                            fontFamily: 'Nunito, sans-serif',
+                                            fontSize: '16px',
+                                            fontWeight: 'bold',
+                                        }}
                                     >
-                                        Xem hồ sơ
-                                    </Text>
-                                    <Text
-                                        className="d-block text-dark text-decoration-none"
-                                        style={{ padding: '4px 8px', cursor: 'pointer' }}
-                                        onClick={handleLogout}
-                                    >
-                                        Đăng xuất
+                                        {loading ? 'Loading...' : (userInfo.fullname || '')}
                                     </Text>
                                 </div>
-                            )}
-                        </div>
-                    ) : (
-                        <Link to={routes.login} className="text-dark text-decoration-none">
-                            Đăng nhập
-                        </Link>
-                    )}
+                                {isDropdownOpen && !loading && (
+                                    <div
+                                        className="manage-order-position-absolute manage-order-p-2 manage-order-rounded"
+                                        style={{
+                                            top: '100%',
+                                            left: '50%',
+                                            transform: 'translateX(-50%)',
+                                            background: '#fffbfc',
+                                            padding: '10px',
+                                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                                            zIndex: 1000,
+                                            minWidth: '120px',
+                                        }}
+                                    >
+                                        <Text
+                                            className="manage-order-d-block manage-order-text-dark manage-order-text-decoration-none"
+                                            style={{ padding: '4px 8px', cursor: 'pointer' }}
+                                            onClick={() => navigate(routes.profile)}
+                                        >
+                                            Profile
+                                        </Text>
+                                        <Text
+                                            className="manage-order-d-block manage-order-text-dark manage-order-text-decoration-none"
+                                            style={{ padding: '4px 8px', cursor: 'pointer' }}
+                                            onClick={handleLogout}
+                                        >
+                                            Logout
+                                        </Text>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <Link to={routes.login} className="manage-order-text-dark manage-order-text-decoration-none">
+                                Đăng nhập
+                            </Link>
+                        )}
+                    </div>
                 </div>
             </div>
         </Header>
