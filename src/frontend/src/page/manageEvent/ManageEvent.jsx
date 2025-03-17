@@ -48,10 +48,17 @@ export default function ManageEvent() {
             const response = await api.get("Products");
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             console.log("Fetched products:", response.data.data.items);  // Kiểm tra dữ liệu trả về từ API
 
             if (response.status === 200 && response.data.data.items) {
                 setProducts(response.data.data.items);
+=======
+            console.log("Fetched products:", response.data);  // Kiểm tra dữ liệu trả về từ API
+
+            if (response.status === 200 && response.data.items) {
+                setProducts(response.data.items);  // Đảm bảo rằng 'items' chứa sản phẩm
+>>>>>>> Stashed changes
 =======
             console.log("Fetched products:", response.data);  // Kiểm tra dữ liệu trả về từ API
 
@@ -593,6 +600,7 @@ export default function ManageEvent() {
                         <Button
                             type="primary"
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                             onClick={() => handleAddProductsToEvent(selectedEventId)}  // Pass actual eventId here
                             style={{
                                 marginTop: "20px",
@@ -608,6 +616,11 @@ export default function ManageEvent() {
                         // onClick={() => handleAddProductsToEvent(createdEvent.eventId)} 
                         // style={{ marginTop: "20px" }}
                         // disabled={selectedProducts.length === 0}
+=======
+                            onClick={() => handleAddProductsToEvent(createdEvent.eventId)}  // Chắc chắn sử dụng eventId thực tế
+                            style={{ marginTop: "20px" }}
+                            disabled={selectedProducts.length === 0}  // Disable nếu không có sản phẩm được chọn
+>>>>>>> Stashed changes
 =======
                             onClick={() => handleAddProductsToEvent(createdEvent.eventId)}  // Chắc chắn sử dụng eventId thực tế
                             style={{ marginTop: "20px" }}
