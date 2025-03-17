@@ -142,22 +142,33 @@ export default function CheckOutPage() {
                         // Continue with payment even if voucher marking fails
                     }
                 }
-                const paymentCreate = {
-                    OrderId,
-                    PaymentMethod: values.paymentMethod,
-                    PaymentAmount: finalAmount,
-                    ShippingMethod: values.shippingMethod,
-                };
-                try {
-                    const responsePayment = await api.post('Payment/create', paymentCreate);
-                    const paymentUrl = responsePayment.data.data.paymentUrl;
-                    // Clear the cart after successful payment initiation
+                if (values.paymentMethod === 'COD') {
+                    // For COD, skip payment API call
                     message.success('Đặt hàng thành công!');
                     dispatch(clearCart());
-                    window.location.assign(paymentUrl);
-                } catch (error) {
-                    message.error('Không thể tạo thanh toán: ' + (error.response?.data?.message || 'Đã xảy ra lỗi'));
-                    console.log('Failed to create payment:', error.response?.data);
+                    // Redirect to order confirmation page or homepage
+                    window.location.href = routes.orderSuccess || routes.home;
+                } else {
+                    // For VNPay, proceed with payment creation
+                    const paymentCreate = {
+                        OrderId,
+                        PaymentMethod: values.paymentMethod,
+                        PaymentAmount: finalAmount,
+                        ShippingMethod: values.shippingMethod,
+                    };
+                    try {
+                        const responsePayment = await api.post('Payment/create', paymentCreate);
+                        const paymentUrl = responsePayment.data.data.paymentUrl;
+                        // Clear the cart after successful payment initiation
+                        message.success('Đặt hàng thành công!');
+                        dispatch(clearCart());
+                        window.location.assign(paymentUrl);
+                    } catch (error) {
+                        message.error(
+                            'Không thể tạo thanh toán: ' + (error.response?.data?.message || 'Đã xảy ra lỗi')
+                        );
+                        console.log('Failed to create payment:', error.response?.data);
+                    }
                 }
             }
         } catch (error) {

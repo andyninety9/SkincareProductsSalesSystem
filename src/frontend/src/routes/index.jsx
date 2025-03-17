@@ -34,4 +34,5 @@ export const routes = {
     notfound: '/404',
     restricted: '/restricted',
     changePasswordByToken: '/reset-password',
+    orderSuccess: '/order-success',
 };
