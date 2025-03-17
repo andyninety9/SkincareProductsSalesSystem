@@ -62,7 +62,7 @@ const AssignVoucherModal = ({
                     name="statusVoucher"
                     label="Voucher Status"
                     valuePropName="checked"
-                    initialValue={true} // Default to true as per the example
+                    initialValue={true}
                 >
                     <Switch
                         checkedChildren="Active"
