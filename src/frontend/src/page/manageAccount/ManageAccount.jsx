@@ -163,13 +163,13 @@ export default function ManageAccount() {
             key: 'statusId',
             align: 'center',
             render: (statusId) => {
-                let color = '#FFCC00'; // Inactive (Yellow)
+                let color = '#FFCC00'; 
                 let text = 'Inactive';
                 if (statusId === 2) {
-                    color = '#28A745'; // Active (Green)
+                    color = '#28A745'; 
                     text = 'Active';
                 } else if (statusId === 3) {
-                    color = '#DC3545'; // Banned (Red)
+                    color = '#DC3545'; 
                     text = 'Banned';
                 }
                 return (

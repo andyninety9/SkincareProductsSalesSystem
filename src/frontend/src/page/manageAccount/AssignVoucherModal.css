@@ -1,0 +1,28 @@
+/* AssignVoucherModal.css */
+
+/* Custom styles for Input components */
+.custom-input {
+    border-color: #E6B2BA !important;
+    /* Override Ant Design's default border color */
+    background-color: #E6B2BA20 !important;
+    /* Light background with transparency */
+}
+
+.custom-input:hover,
+.custom-input:focus {
+    border-color: #E6B2BA !important;
+    /* Ensure hover/focus states use the same color */
+    box-shadow: 0 0 0 2px rgba(230, 178, 186, 0.2) !important;
+    /* Subtle focus shadow */
+}
+
+/* Custom styles for Switch component */
+.custom-switch.ant-switch-checked {
+    background-color: #E6B2BA !important;
+    /* Background color when checked */
+}
+
+.custom-switch:not(.ant-switch-checked) {
+    background-color: #E6B2BA80 !important;
+    /* Background color when unchecked, with 50% opacity */
+}

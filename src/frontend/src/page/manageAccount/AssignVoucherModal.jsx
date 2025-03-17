@@ -2,6 +2,8 @@ import { Modal, Form, Input, Switch, message, InputNumber } from 'antd';
 import PropTypes from 'prop-types';
 import api from '../../config/api';
 
+const customColor = '#E6B2BA';
+const inactiveColor = '#d9d9d9';
 const AssignVoucherModal = ({
     visible,
     onCancel,
@@ -48,7 +50,13 @@ const AssignVoucherModal = ({
                     label="Voucher Description"
                     rules={[{ required: true, message: 'Please enter a voucher description' }]}
                 >
-                    <Input placeholder="Enter voucher description (e.g., THEWEEKND)" />
+                    <Input
+                        placeholder="Enter voucher description (e.g., THEWEEKND)"
+                        style={{
+                            borderColor: customColor,
+                            backgroundColor: `${customColor}20`,
+                        }}
+                    />
                 </Form.Item>
                 <Form.Item
                     name="statusVoucher"
@@ -56,29 +64,43 @@ const AssignVoucherModal = ({
                     valuePropName="checked"
                     initialValue={true} // Default to true as per the example
                 >
-                    <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
+                    <Switch
+                        checkedChildren="Active"
+                        unCheckedChildren="Inactive"
+                        style={{
+                            backgroundColor: form.getFieldValue('statusVoucher') ? customColor : inactiveColor,
+                        }}
+                    />
                 </Form.Item>
                 <Form.Item
                     name="voucherDiscount"
                     label="Voucher Discount (%)"
                     rules={[
                         { required: true, message: 'Please enter a discount percentage' },
+                        { type: 'number', min: 0, max: 100, message: 'Discount must be between 0 and 100' },
                     ]}
                 >
-                    <InputNumber
-                        min={0}
-                        max={100}
+                    <Input
+                        type="number"
                         placeholder="Enter discount percentage (e.g., 20)"
-                        style={{ width: '100%' }} // Ensure it fits the form layout
+                        style={{
+                            borderColor: customColor, // Border color for the input
+                            backgroundColor: `${customColor}20`, // Light background with transparency
+                        }}
                     />
                 </Form.Item>
                 <Form.Item
                     name="usrId"
                     label="User ID"
-                    initialValue={selectedUser?.usrId.toString()}
+                    initialValue={selectedUser?.usrId.toString()} // Auto-fill with the usrId of the clicked user row
                     rules={[{ required: true, message: 'User ID is required' }]}
                 >
-                    <Input />
+                    <Input
+                        style={{
+                            borderColor: customColor, // Border color for the input
+                            backgroundColor: `${customColor}20`, // Light background with transparency
+                        }}
+                    />
                 </Form.Item>
             </Form>
         </Modal>
