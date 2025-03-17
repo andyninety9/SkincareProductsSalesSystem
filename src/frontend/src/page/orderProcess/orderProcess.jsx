@@ -17,6 +17,8 @@ export default function OrderProcess() {
     console.log(paramsCheck);
     const [loading, setLoading] = useState(true);
 
+    
+
     useEffect(() => {
         const handlePaymentReturn = async () => {
             setLoading(true);

@@ -43,7 +43,12 @@ export default function CheckOutPage() {
             message.error('Vui lòng nhập hoặc chọn mã giảm giá');
             return;
         }
+        const voucherToApply = userVoucher.find((v) => v.voucherCode === voucherCode && v.statusVoucher === true);
 
+        if (!voucherToApply) {
+            message.error('Mã giảm giá không hợp lệ hoặc đã hết hạn');
+            return;
+        }
         const usrId = user.userId;
         try {
             const response = await api.post('user/apply-voucher', { usrId, voucherCode });
@@ -90,6 +95,25 @@ export default function CheckOutPage() {
         handleFetchVoucher();
     }, []);
 
+    const handleUseVoucher = async (orderId) => {
+        try {
+            const response = await api.post('user/use-voucher', {
+                voucherCode: voucherCode,
+                orderId: orderId,
+            });
+
+            if (response.data.statusCode === 200) {
+                console.log('Voucher used successfully');
+                return true;
+            } else {
+                console.error('Failed to use voucher:', response.data.message);
+                return false;
+            }
+        } catch (error) {
+            console.error('Error using voucher:', error.response?.data || error);
+            throw error;
+        }
+    };
     const handleCheckout = async (values) => {
         values.eventId = 5;
         values.orderItems = cartItems.map((item) => ({
@@ -104,6 +128,15 @@ export default function CheckOutPage() {
 
             if (response.data.statusCode === 201) {
                 const OrderId = BigInt(response.data.data.ordId).toString();
+                if (voucherCode && discountAmount > 0) {
+                    try {
+                        await handleUseVoucher(OrderId);
+                        console.log('Voucher marked as used successfully');
+                    } catch (error) {
+                        console.error('Failed to mark voucher as used:', error);
+                        // Continue with payment even if voucher marking fails
+                    }
+                }
                 const paymentCreate = {
                     OrderId,
                     PaymentMethod: values.paymentMethod,
@@ -294,24 +327,28 @@ export default function CheckOutPage() {
                         <div className="available-vouchers">
                             <h6 style={{ fontWeight: 'bold', marginBottom: '10px' }}>Voucher khả dụng</h6>
                             <div className="voucher-list">
-                                {userVoucher.length > 0 ? (
-                                    userVoucher.map((voucher, index) => (
-                                        <div
-                                            key={index}
-                                            className={`voucher-card ${
-                                                selectedVoucher === voucher.voucherId ? 'selected' : ''
-                                            }`}
-                                            onClick={() => {
-                                                setSelectedVoucher(voucher.voucherId);
-                                                setVoucherCode(voucher.voucherCode);
-                                            }}>
-                                            <div className="voucher-info">
-                                                <div className="voucher-code">{voucher.voucherCode}</div>
-                                                <div className="voucher-discount">Giảm {voucher.voucherDiscount}%</div>
-                                                <div className="voucher-desc">{voucher.voucherDesc}</div>
+                                {userVoucher.filter((voucher) => voucher.statusVoucher === true).length > 0 ? (
+                                    userVoucher
+                                        .filter((voucher) => voucher.statusVoucher === true)
+                                        .map((voucher, index) => (
+                                            <div
+                                                key={index}
+                                                className={`voucher-card ${
+                                                    selectedVoucher === voucher.voucherId ? 'selected' : ''
+                                                }`}
+                                                onClick={() => {
+                                                    setSelectedVoucher(voucher.voucherId);
+                                                    setVoucherCode(voucher.voucherCode);
+                                                }}>
+                                                <div className="voucher-info">
+                                                    <div className="voucher-code">{voucher.voucherCode}</div>
+                                                    <div className="voucher-discount">
+                                                        Giảm {voucher.voucherDiscount}%
+                                                    </div>
+                                                    <div className="voucher-desc">{voucher.voucherDesc}</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))
+                                        ))
                                 ) : (
                                     <p>Không có voucher nào khả dụng</p>
                                 )}
