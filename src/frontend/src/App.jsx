@@ -40,7 +40,7 @@ import DemoUpload from './page/DemoUpload';
 import ManageCategory from './page/manageCategory/ManageCategory';
 import ManageSkintype from './page/manageSkintype/ManageSkintype';
 import ManageBrand from './page/manageBrand/ManageBrand';
-
+import ThankForOrderPage from './page/thankForOrderPage/ThankForOrderPage';
 
 function App() {
     const router = createBrowserRouter([
@@ -107,6 +107,14 @@ function App() {
                     element: (
                         <ProtectedRoute roles={['Customer']}>
                             <OrderProcess />
+                        </ProtectedRoute>
+                    ),
+                },
+                {
+                    path: routes.orderSuccess,
+                    element: (
+                        <ProtectedRoute roles={['Customer']}>
+                            <ThankForOrderPage />
                         </ProtectedRoute>
                     ),
                 },

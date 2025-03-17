@@ -14,7 +14,7 @@ export default function OrderProcess() {
     const paramsCheck = Object.fromEntries(queryParams.entries());
     const dispatch = useDispatch();
 
-    console.log(paramsCheck);
+    // console.log(paramsCheck);
     const [loading, setLoading] = useState(true);
 
     
