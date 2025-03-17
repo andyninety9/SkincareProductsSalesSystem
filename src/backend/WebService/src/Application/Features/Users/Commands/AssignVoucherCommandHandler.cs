@@ -88,19 +88,9 @@ namespace Application.Features.Users.Commands
                 await _voucherRepository.AddAsync(newVoucher, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                List<Voucher> userVouchers = await _voucherRepository.GetVouchersByUserIdAsync(usrId, cancellationToken);
+                
 
-                var response = new GetUserVoucherResponse
-                {
-                    UsrId = user.UsrId,
-                    VoucherId = userVouchers.First().VoucherId,
-                    VoucherDiscount = userVouchers.First().VoucherDiscount,
-                    VoucherDesc = userVouchers.First().VoucherDesc,
-                    VoucherCode = userVouchers.First().VoucherCode,
-                    StatusVoucher = userVouchers.First().StatusVoucher
-                };
-
-                return Result<GetUserVoucherResponse>.Success(response);
+                return Result<GetUserVoucherResponse>.Success(_mapper.Map<GetUserVoucherResponse>(newVoucher));
 
 
             }

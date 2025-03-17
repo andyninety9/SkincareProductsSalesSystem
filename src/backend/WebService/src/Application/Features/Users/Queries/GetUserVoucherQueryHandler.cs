@@ -1,21 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Application.Abstractions.Messaging;
-using Application.Common.Enum;
+using Application.Common.Paginations;
 using Application.Common.ResponseModel;
 using Application.Features.Users.Response;
 using AutoMapper;
-using Domain.DTOs;
 using Domain.Entities;
 using Domain.Repositories;
-using MediatR;
 
 namespace Application.Features.Users.Queries
 {
-    public sealed record GetUserVouchersQuery(long UserId) : IQuery<GetUserVoucherResponse>;
-    internal sealed class GetUserVoucherQueryHandler : IQueryHandler<GetUserVouchersQuery, GetUserVoucherResponse>
+    public sealed record GetUserVouchersQuery(
+        long UserId,
+        PaginationParams PaginationParams) : IQuery<PagedResult<GetUserVoucherResponse>>;
+    internal sealed class GetUserVoucherQueryHandler : IQueryHandler<GetUserVouchersQuery, PagedResult<GetUserVoucherResponse>>
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
@@ -29,34 +25,38 @@ namespace Application.Features.Users.Queries
         }
 
 
-        public async Task<Result<GetUserVoucherResponse>> Handle(GetUserVouchersQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResult<GetUserVoucherResponse>>> Handle(GetUserVouchersQuery request, CancellationToken cancellationToken)
         {
             try
             {
                 var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
                 if (user == null)
                 {
-                    return Result<GetUserVoucherResponse>.Failure<GetUserVoucherResponse>(new Error("Error", "User not found"));
+                    return Result.Failure<PagedResult<GetUserVoucherResponse>>(new Error("Error", "User not found"));
                 }
 
-                List<Voucher> userVouchers = await _voucherRepository.GetVouchersByUserIdAsync(request.UserId, cancellationToken);
+                var userVouchers = await _voucherRepository.GetVouchersByUserIdAsync(request.UserId, cancellationToken);
 
-                var response = new GetUserVoucherResponse
+                List<GetUserVoucherResponse> listRespone = new();
+                foreach (var voucher in userVouchers)
                 {
-                    UsrId = user.UsrId,
-                    VoucherId = userVouchers.First().VoucherId,
-                    VoucherDiscount = userVouchers.First().VoucherDiscount,
-                    VoucherDesc = userVouchers.First().VoucherDesc,
-                    VoucherCode = userVouchers.First().VoucherCode,
-                    StatusVoucher = userVouchers.First().StatusVoucher
+                    var voucherResponse = _mapper.Map<GetUserVoucherResponse>(voucher);
+                    listRespone.Add(voucherResponse);
+                }
+
+                var result = new PagedResult<GetUserVoucherResponse>
+                {
+                    Items = listRespone,
+                    TotalItems = listRespone.Count,
+                    Page = request.PaginationParams.Page,
+                    PageSize = request.PaginationParams.PageSize
                 };
 
-                
-                return Result<GetUserVoucherResponse>.Success(response);
+                return Result.Success(result);
             }
             catch (Exception e)
             {
-                return Result<GetUserVoucherResponse>.Failure<GetUserVoucherResponse>(new Error("Error", e.Message));
+                return Result.Failure<PagedResult<GetUserVoucherResponse>>(new Error("Error", e.Message));
             }
             
         }

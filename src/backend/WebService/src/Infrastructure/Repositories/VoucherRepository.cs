@@ -21,10 +21,10 @@ namespace Infrastructure.Repositories
             return Task.FromResult(result);
         }
 
-        public Task<List<Voucher>> GetVouchersByUserIdAsync(long userId, CancellationToken cancellationToken)
+        public Task<IEnumerable<Voucher>> GetVouchersByUserIdAsync(long userId, CancellationToken cancellationToken)
         {
-            var result = _context.Vouchers.Where(v => v.UsrId == userId && v.StatusVoucher == true).ToList();
-            return Task.FromResult(result);
+            var result = _context.Vouchers.Where(v => v.UsrId == userId).ToList();
+            return Task.FromResult<IEnumerable<Voucher>>(result);
         }
     }
 }

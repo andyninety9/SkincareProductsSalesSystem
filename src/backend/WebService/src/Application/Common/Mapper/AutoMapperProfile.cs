@@ -58,6 +58,8 @@ namespace Application.Common.Mapper
             CreateMap<CreateEventResponse, Event>();
             CreateMap<GetUserVoucherResponse, Voucher>();
             CreateMap<Voucher, GetUserVoucherResponse>();
+            CreateMap<GetUserVoucherResponse, Voucher>();
+            CreateMap<Voucher, GetUserVoucherResponse>();
 
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();
