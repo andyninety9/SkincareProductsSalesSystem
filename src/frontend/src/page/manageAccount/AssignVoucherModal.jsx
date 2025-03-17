@@ -16,7 +16,7 @@ const AssignVoucherModal = ({
         try {
             const payload = {
                 voucherDesc: values.voucherDesc,
-                statusVoucher: true, // Hardcode statusVoucher to true
+                statusVoucher: true,
                 voucherDiscount: values.voucherDiscount,
                 usrId: selectedUser.usrId.toString(),
             };
@@ -39,18 +39,21 @@ const AssignVoucherModal = ({
 
     return (
         <Modal
-            title="Assign Voucher"
+            title={<div style={{ textAlign: 'center', width: '100%', fontFamily: 'Nunito, sans-serif', fontSize: '35px', }}>Assign Voucher</div>}
             visible={visible}
             onCancel={onCancel}
             onOk={() => form.submit()}
+            centered
             okButtonProps={{
                 style: {
-                    backgroundColor: customColor, // Set OK button background to #E6B2BA
-                    borderColor: customColor, // Match border color to background
-                    color: '#fff', // White text for contrast
+                    backgroundColor: customColor,
+                    borderColor: customColor,
+                    color: '#fff',
+
                 },
             }}
         >
+
             <Form form={form} onFinish={handleAssignVoucher} layout="vertical">
                 <Form.Item
                     name="voucherDesc"
