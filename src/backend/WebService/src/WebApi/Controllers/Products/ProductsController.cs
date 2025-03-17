@@ -22,6 +22,8 @@ using Application.Constant;
 using System.Security.Claims;
 using Application.Features.Reviews.Commands.Validator;
 using Application.Features.Reviews.Commands;
+using Application.Features.RecommendForFeature.Commands;
+using Application.Features.RecommendForFeature.Commands.Validators;
 
 namespace WebApi.Controllers.Products
 {
@@ -909,5 +911,94 @@ namespace WebApi.Controllers.Products
 
             return Ok(new { statusCode = 200, message = "Fetch product recommendation successfully", data = result.Value });
         }
+
+        /// <summary>
+        /// Add product recommendFor
+        /// </summary>
+        /// <param name="command">RecommendFor creation request containing recommendFor details.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the created recommendFor details.</returns>
+        /// <remarks>
+        /// Sample request:
+        /// {
+        ///    "prodId": "string",
+        ///    "skinTypeId": "string"
+        /// }
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// -Role: Manager, Staff
+        /// </remarks>
+        /// <returns></returns>
+        [HttpPost("recommendation/create")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> CreateRecommendFor([FromBody] CreateRecommendForCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new CreateRecommendForCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Create recommendFor successfully", data = result.Value });
+        }
+
+        /// <summary>
+        /// Deletes a product recommendFor.
+        ///    </summary>
+        ///    <param name="command">RecommendFor deletion request containing recommendFor ID.</param>
+        ///    <param name="cancellationToken">Cancellation token.</param>
+        ///    <returns>Returns the status of the deletion process.</returns>
+        ///    <remarks>
+        ///    Sample request:
+        ///    {
+        ///    "recForId": "string"
+        ///    }
+        ///    Headers:
+        ///    - Authorization: Bearer {token}
+        ///    -Role: Manager, Staff
+        ///    </remarks>
+        ///    <returns></returns>
+        ///    
+        [HttpDelete("recommendation/delete")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> DeleteRecommendFor([FromBody] DeleteRecommendForCommand command, CancellationToken cancellationToken = default)
+        {
+            var validator = new DeleteRecommendForCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Delete recommendFor successfully", data = result.Value });
+        }
+
     }
 }

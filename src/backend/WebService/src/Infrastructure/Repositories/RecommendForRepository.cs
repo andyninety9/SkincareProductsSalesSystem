@@ -26,5 +26,17 @@ namespace Infrastructure.Repositories
                 throw new Exception(e.Message);
             }
         }
+
+        public Task<bool> IsExistAsync(RecommendFor recommendFor, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return Task.FromResult(_context.RecommendFors.Any(x => x.ProdId == recommendFor.ProdId && x.SkinTypeId == recommendFor.SkinTypeId));
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }   
+        }
     }
 }
