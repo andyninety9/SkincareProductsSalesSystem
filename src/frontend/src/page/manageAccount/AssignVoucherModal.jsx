@@ -1,9 +1,9 @@
-import { Modal, Form, Input, Switch, message, InputNumber } from 'antd';
+import { Modal, Form, Input, message } from 'antd';
 import PropTypes from 'prop-types';
 import api from '../../config/api';
 
 const customColor = '#E6B2BA';
-const inactiveColor = '#d9d9d9';
+
 const AssignVoucherModal = ({
     visible,
     onCancel,
@@ -16,7 +16,7 @@ const AssignVoucherModal = ({
         try {
             const payload = {
                 voucherDesc: values.voucherDesc,
-                statusVoucher: values.statusVoucher,
+                statusVoucher: true, // Hardcode statusVoucher to true
                 voucherDiscount: values.voucherDiscount,
                 usrId: selectedUser.usrId.toString(),
             };
@@ -43,6 +43,13 @@ const AssignVoucherModal = ({
             visible={visible}
             onCancel={onCancel}
             onOk={() => form.submit()}
+            okButtonProps={{
+                style: {
+                    backgroundColor: customColor, // Set OK button background to #E6B2BA
+                    borderColor: customColor, // Match border color to background
+                    color: '#fff', // White text for contrast
+                },
+            }}
         >
             <Form form={form} onFinish={handleAssignVoucher} layout="vertical">
                 <Form.Item
@@ -51,24 +58,10 @@ const AssignVoucherModal = ({
                     rules={[{ required: true, message: 'Please enter a voucher description' }]}
                 >
                     <Input
-                        placeholder="Enter voucher description (e.g., THEWEEKND)"
+                        placeholder="Enter voucher description"
                         style={{
                             borderColor: customColor,
                             backgroundColor: `${customColor}20`,
-                        }}
-                    />
-                </Form.Item>
-                <Form.Item
-                    name="statusVoucher"
-                    label="Voucher Status"
-                    valuePropName="checked"
-                    initialValue={true}
-                >
-                    <Switch
-                        checkedChildren="Active"
-                        unCheckedChildren="Inactive"
-                        style={{
-                            backgroundColor: form.getFieldValue('statusVoucher') ? customColor : inactiveColor,
                         }}
                     />
                 </Form.Item>
@@ -77,28 +70,29 @@ const AssignVoucherModal = ({
                     label="Voucher Discount (%)"
                     rules={[
                         { required: true, message: 'Please enter a discount percentage' },
-                        { type: 'number', min: 0, max: 100, message: 'Discount must be between 0 and 100' },
                     ]}
                 >
                     <Input
                         type="number"
                         placeholder="Enter discount percentage (e.g., 20)"
+                        min={0}
+                        max={100}
                         style={{
-                            borderColor: customColor, // Border color for the input
-                            backgroundColor: `${customColor}20`, // Light background with transparency
+                            borderColor: customColor,
+                            backgroundColor: `${customColor}20`,
                         }}
                     />
                 </Form.Item>
                 <Form.Item
                     name="usrId"
                     label="User ID"
-                    initialValue={selectedUser?.usrId.toString()} // Auto-fill with the usrId of the clicked user row
+                    initialValue={selectedUser?.usrId.toString()}
                     rules={[{ required: true, message: 'User ID is required' }]}
                 >
                     <Input
                         style={{
-                            borderColor: customColor, // Border color for the input
-                            backgroundColor: `${customColor}20`, // Light background with transparency
+                            borderColor: customColor,
+                            backgroundColor: `${customColor}20`,
                         }}
                     />
                 </Form.Item>
