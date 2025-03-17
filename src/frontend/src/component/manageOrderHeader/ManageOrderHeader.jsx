@@ -16,24 +16,41 @@ const ManageOrderHeader = ({ isModalOpen }) => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [userInfo, setUserInfo] = useState({});
     const dropdownRef = useRef(null);
 
-    useEffect(() => {
-        function updateUserFromCookies() {
-            const userCookie = Cookies.get('user');
-            try {
-                setUser(userCookie ? JSON.parse(userCookie) : null);
-            } catch (error) {
-                console.error('Failed to parse user cookie:', error);
-                setUser(null);
+    const fetchUserData = async () => {
+        try {
+            const response = await api.get('User/get-me');
+            if (response?.data?.statusCode === 200 && response?.data?.data) {
+                const data = response.data.data;
+                setUserInfo({
+                    fullname: data.fullname || '',
+                    avatarUrl: data.avatarUrl || '',
+                });
+                Cookies.set('user', JSON.stringify(data), {
+                    expires: 5,
+                    secure: true,
+                });
+            } else {
+                console.warn('Unexpected API response:', response);
+                setUserInfo({});
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            setUserInfo({});
+            if (error.response?.status === 401) {
+                toast.error('Session expired. Please log in again.');
+                navigate(routes.login);
             }
         }
+    };
 
-        updateUserFromCookies();
-        const cookieCheckInterval = setInterval(updateUserFromCookies, 1000);
-
-        return () => clearInterval(cookieCheckInterval);
-    }, []);
+    useEffect(() => {
+        fetchUserData();
+        const interval = setInterval(fetchUserData, 1000);
+        return () => clearInterval(interval);
+    }, [navigate]);
 
     const fetchLogout = async () => {
         try {
@@ -58,6 +75,24 @@ const ManageOrderHeader = ({ isModalOpen }) => {
     async function handleLogout() {
         await fetchLogout();
     }
+
+    useEffect(() => {
+        function updateUserFromCookies() {
+            const userCookie = Cookies.get('user');
+            try {
+                setUser(userCookie ? JSON.parse(userCookie) : null);
+            } catch (error) {
+                console.error('Failed to parse user cookie:', error);
+                setUser(null);
+            }
+        }
+
+        updateUserFromCookies();
+        const cookieCheckInterval = setInterval(updateUserFromCookies, 1000);
+
+        return () => clearInterval(cookieCheckInterval);
+    }, []);
+
 
     return (
         <Header
@@ -105,9 +140,19 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                                     src={<img src={user.avatarUrl || 'https://via.placeholder.com/40'} alt="avatar" />}
                                     style={{ cursor: 'pointer' }}
                                 />
-                                <Text style={{ marginLeft: '8px', color: '#000', whiteSpace: 'nowrap' }}>
-                                    {user.fullName || 'User'}
+                                <Text
+                                    style={{
+                                        marginLeft: '8px',
+                                        color: '#A76A6E',
+                                        whiteSpace: 'nowrap',
+                                        fontFamily: 'Nunito, sans-serif',
+                                        fontSize: '16px',
+                                        fontWeight: 'bold',
+                                    }}
+                                >
+                                    {userInfo.fullname || 'User'}
                                 </Text>
+
                             </div>
                             {isDropdownOpen && (
                                 <div
