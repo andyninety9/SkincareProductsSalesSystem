@@ -220,7 +220,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        max-height: 150px;
+        max-height: 250px;
         overflow-y: auto;
         padding-right: 5px;
     }
@@ -236,12 +236,12 @@
         background: #f9f9f9;
 
         &:hover {
-            border-color: #1890ff;
+            border-color: #d8959a;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
         }
 
         &.selected {
-            border-color: #1890ff;
+            border-color: #d8959a;
             background-color: #e6f7ff;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
         }
@@ -253,7 +253,7 @@
 
         .voucher-code {
             font-weight: bold;
-            color: #1890ff;
+            color: #e4757d;
             margin-bottom: 5px;
         }
 
