@@ -11,5 +11,6 @@ namespace Application.Constant
         public static string API_GET_WARDS_GHN = "master-data/ward";
         public static string API_GET_PROVINCES_GHN = "master-data/province";
         public static string API_CREATE_ORDER_GHN = "v2/shipping-order/create";
+        public static string API_GET_SHIPPING_FEE_GHN = "v2/shipping-order/fee";
     }
 }

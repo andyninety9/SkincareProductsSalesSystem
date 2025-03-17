@@ -134,5 +134,56 @@ namespace Infrastructure.Delivery
             return new GetWardResponse { Value = responseObject?.Value ?? new List<WardDto>() };
 
         }
+
+        public async Task<GetShippingFeeResponse> GetShippingFee(GetShippingFeeRequest request)
+        {
+            var url = $"{_config.BaseUrl}" + IConstantAPIUrl.API_GET_SHIPPING_FEE_GHN;
+
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
+            httpRequest.Headers.Add("Token", _config.TokenId);
+            httpRequest.Headers.Add("ShopId", _config.ShopId);
+
+            // Chuyển request thành JSON
+            var jsonContent = JsonSerializer.Serialize(request);
+            httpRequest.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json"); // ✅ Đúng cách thiết lập Content-Type
+
+            try
+            {
+                // Gửi request đến GHN API
+                var response = await _httpClient.SendAsync(httpRequest);
+
+                // Nếu API GHN trả về lỗi
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorResponse = await response.Content.ReadAsStringAsync();
+
+                    try
+                    {
+                        // Parse lỗi thành object để hiển thị dễ đọc hơn
+                        var ghnError = JsonSerializer.Deserialize<GhnErrorResponse>(errorResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                        throw new Exception($"GHN API Error: {ghnError.CodeMessageValue}\nChi tiết lỗi:\n{string.Join("\n", ghnError.GetErrorDetails())}");
+                    }
+                    catch
+                    {
+                        // Nếu không parse được, trả về lỗi thô
+                        throw new Exception($"GHN API Error: {response.StatusCode} - {errorResponse}");
+                    }
+                }
+
+                // Đọc dữ liệu phản hồi từ GHN
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                // Deserialize dữ liệu JSON
+                return JsonSerializer.Deserialize<GetShippingFeeResponse>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                       ?? new GetShippingFeeResponse();
+            }
+            catch (Exception ex)
+            {
+                // Ghi log lỗi nếu cần
+                Console.WriteLine($"Error in GetShippingFee: {ex.Message}");
+                throw new Exception($"Lỗi khi gọi GHN API: {ex.Message}");
+            }
+        }
     }
 }
