@@ -651,11 +651,13 @@ namespace WebApi.Controllers.Users
         /// <summary>
         /// Retrieves user vouchers.
         /// </summary>
+        /// <param name="page">Page number for pagination (default: 1).</param>
+        /// <param name="pageSize">Number of records per page (default: 10).</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Returns a list of user vouchers.</returns>
         /// <remarks>
         /// Sample request:
-        ///   GET /api/User/vouchers
+        ///   GET /api/User/vouchers?page=1&pageSize=10
         ///   Headers:
         ///   Authorization: Bearer {token}
         ///   Role:
@@ -668,7 +670,8 @@ namespace WebApi.Controllers.Users
         [HttpGet("vouchers")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Customer)]
-        public async Task<IActionResult> GetUserVouchers(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetUserVouchers([FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
         {
             var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(usrID))
@@ -677,8 +680,9 @@ namespace WebApi.Controllers.Users
             }
 
             var userId = long.Parse(usrID);
+            PaginationParams paginationParams = new() { Page = page, PageSize = pageSize };
 
-            var query = new GetUserVouchersQuery(userId);
+            var query = new GetUserVouchersQuery(userId, paginationParams);
             var result = await _mediator.Send(query, cancellationToken);
 
             if (!result.IsSuccess)
