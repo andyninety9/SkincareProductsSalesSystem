@@ -24,7 +24,12 @@ export default function ManageEvent() {
             try {
                 const response = await api.get("Events?page=1&pageSize=100");
                 if (response.data.statusCode === 200 && Array.isArray(response.data.data.items)) {
-                    setEvents(response.data.data.items);
+                    // Chuyển tất cả các eventId thành chuỗi (string)
+                    const eventsWithCorrectIds = response.data.data.items.map(event => ({
+                        ...event,
+                        eventId: BigInt(event.eventId), 
+                    }));
+                    setEvents(eventsWithCorrectIds);
                 } else {
                     console.error("Invalid API response:", response.data);
                 }
@@ -32,19 +37,20 @@ export default function ManageEvent() {
                 console.error("Error fetching events:", error);
             }
         };
-
+    
         fetchEvents();
     }, []);
+    
 
     const fetchProducts = async () => {
         try {
             const response = await api.get("Products");
 
             // Debugging: Check API response
-            console.log(response.data);  // Add this line to inspect the full response
+            console.log("Response:", response.data.data.items);  // Add this line to inspect the full response
 
             if (response.status === 200) {
-                setProducts(response.data.products);  // Ensure this points to the correct data structure
+                setProducts(response.data.data.items);  // Ensure this points to the correct data structure
             }
         } catch (error) {
             console.error("Error fetching products:", error);
@@ -62,7 +68,16 @@ export default function ManageEvent() {
     };
 
     const handleProductSelection = (product) => {
-        setSelectedProducts(prev => [...prev, product]);
+        // Kiểm tra nếu sản phẩm đã được chọn chưa
+        setSelectedProducts((prev) => {
+            if (prev.find((p) => p.productId === product.productId)) {
+                // Nếu sản phẩm đã được chọn rồi, bỏ chọn sản phẩm đó
+                return prev.filter((p) => p.productId !== product.productId);
+            } else {
+                // Nếu chưa chọn, thêm sản phẩm vào mảng
+                return [...prev, product];
+            }
+        });
     };
 
     const sortedEvents = [...events].sort((a, b) => {
@@ -88,18 +103,18 @@ export default function ManageEvent() {
                 startTime: values.startTime.toISOString(),
                 endTime: values.endTime.toISOString(),
             });
-    
+
             console.log("Create Event Response:", response);  // In ra để kiểm tra
-    
+
             if (response.status === 200 || response.status === 201) {
                 const createdEvent = response.data.data;
                 setEvents([...events, createdEvent]);
                 setIsModalVisible(false);
                 form.resetFields();
-    
+
                 // Sau khi sự kiện được tạo thành công, bạn sẽ lấy sản phẩm đã chọn
                 const productsToAdd = selectedProducts;
-    
+
                 if (productsToAdd.length > 0) {
                     // Gọi API để thêm sản phẩm vào sự kiện
                     for (const product of productsToAdd) {
@@ -112,10 +127,10 @@ export default function ManageEvent() {
                         placement: 'topRight',
                     });
                 }
-    
+
                 // Kích hoạt sự kiện
                 await activateEvent(createdEvent.eventId);
-    
+
                 // Hiển thị thông báo thành công
                 notification.success({
                     message: 'Event Created',
@@ -139,21 +154,46 @@ export default function ManageEvent() {
             });
         }
     };
-    
+
 
     const handleAddProductsToEvent = async (eventId) => {
         try {
-            for (const product of selectedProducts) {
-                await api.post("/api/Events/add-product", {
-                    eventId: eventId,
-                    productId: product.productId,
+            if (selectedProducts.length === 0) {
+                notification.error({
+                    message: 'No Products Selected',
+                    description: 'Please select at least one product before adding.',
+                    placement: 'topRight',
                 });
+                return;
             }
-            notification.success({
-                message: 'Products Added',
-                description: 'The selected products have been successfully added to the event.',
-                placement: 'topRight',
-            });
+    
+            // Kiểm tra giá trị của eventId và productId
+            console.log("Adding products to event:", eventId, selectedProducts);
+    
+            // Lặp qua từng sản phẩm đã chọn và gửi yêu cầu API
+            for (const product of selectedProducts) {
+                const response = await api.post("Events/add-product", {
+                    eventId: String(eventId),  // Chuyển eventId thành chuỗi
+                    productId: String(product.productId),  // Chuyển productId thành chuỗi
+                });
+    
+                console.log("Add Product Response:", response);
+    
+                if (response.status === 200) {
+                    notification.success({
+                        message: 'Product Added',
+                        description: `Product ID ${product.productId} has been added successfully.`,
+                        placement: 'topRight',
+                    });
+                } else {
+                    notification.error({
+                        message: 'Error Adding Product',
+                        description: `Failed to add product ID ${product.productId}.`,
+                        placement: 'topRight',
+                    });
+                }
+            }
+    
             setIsProductModalVisible(false);
         } catch (error) {
             console.error("Error adding products:", error);
@@ -164,6 +204,8 @@ export default function ManageEvent() {
             });
         }
     };
+    
+    
 
     const activateEvent = async (eventId) => {
         try {
@@ -176,7 +218,21 @@ export default function ManageEvent() {
     };
 
     const columns = [
-        { title: "Event ID", dataIndex: "eventId", key: "eventId", align: "center", render: (text) => text.toString() },
+        { 
+            title: "Event ID", 
+            dataIndex: "eventId", 
+            key: "eventId", 
+            align: "center", 
+            render: (id) => {
+                if (!id) return '-';  // Nếu id không có, trả về '-'
+                try {
+                    return BigInt(id).toString();  // Chuyển BigInt thành chuỗi
+                } catch (error) {
+                    console.error("Error converting ID to BigInt:", error);
+                    return id.toString();  // Nếu không thể chuyển, trả về chuỗi gốc
+                }
+            }
+        },
         { title: "Event Name", dataIndex: "eventName", key: "eventName", align: "center" },
         { title: "Start Time", dataIndex: "startTime", key: "startTime", align: "center", render: formatDate },
         { title: "End Time", dataIndex: "endTime", key: "endTime", align: "center", render: formatDate },
@@ -309,29 +365,39 @@ export default function ManageEvent() {
                         onCancel={() => setIsProductModalVisible(false)}
                         footer={null}
                         destroyOnClose
+                        width={1000}  // Tăng chiều rộng của modal
                     >
                         <Table
                             dataSource={products}
                             columns={[
-                                { title: "Product ID", dataIndex: "productId", key: "productId" },
-                                { title: "Product Name", dataIndex: "productName", key: "productName" },
-                                { title: "Brand", dataIndex: "brandName", key: "brandName" },
-                                { title: "Category", dataIndex: "categoryName", key: "categoryName" },
                                 {
                                     title: "Select",
                                     render: (_, record) => (
                                         <Checkbox onChange={() => handleProductSelection(record)} />
                                     ),
                                 },
+                                { title: "Product ID", dataIndex: "productId", key: "productId" },
+                                { title: "Product Name", dataIndex: "productName", key: "productName" },
+                                { title: "Brand", dataIndex: "brandName", key: "brandName" },
+                                { title: "Category", dataIndex: "categoryName", key: "categoryName" },
                             ]}
                             rowKey="productId"
+                            scroll={{ x: 'max-content' }}  // Đảm bảo bảng có thể cuộn ngang nếu cần
                         />
-
                         <Button
                             type="primary"
                             onClick={() => handleAddProductsToEvent(1)}  // Pass actual eventId here
-                            style={{ marginTop: "20px" }}
-                        >
+                            style={{
+                                marginTop: "20px",
+                                width: "40%",
+                                display: "flex",
+                                justifyContent: "center",
+                                backgroundColor: selectedProducts.length > 0 ? "#FFB6C1" : "#D3D3D3",
+                                borderColor: selectedProducts.length > 0 ? "#FFB6C1" : "#D3D3D3",
+                                cursor: selectedProducts.length > 0 ? "pointer" : "not-allowed"
+                            }}
+                            disabled={selectedProducts.length === 0}  // Disable nút khi không có sản phẩm được chọn
+                            >
                             Add Selected Products
                         </Button>
                     </Modal>
