@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import './CheckOutPage.scss';
 import { Col, Container, Row } from 'react-bootstrap';
 import { useForm } from 'antd/es/form/Form';
-import { Form, Input, Radio, Select } from 'antd';
+import { Form, Input, message, Radio, Select } from 'antd';
 import { Link } from 'react-router-dom';
 import { routes } from '../../routes';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,9 +23,9 @@ export default function CheckOutPage() {
     }, 0);
     const [userAddress, setUserAddress] = React.useState([]);
     const [userVoucher, setUserVoucher] = React.useState([]);
-        const [selectedVoucher, setSelectedVoucher] = React.useState(null);
+    const [selectedVoucher, setSelectedVoucher] = React.useState(null);
     const [voucherCode, setVoucherCode] = React.useState('');
-
+    const [discountAmount, setDiscountAmount] = React.useState(0);
     const handleAddressChange = (value) => {
         const selectedAddress = userAddress.find((address) => address.addressId === value);
         if (selectedAddress) {
@@ -38,11 +38,47 @@ export default function CheckOutPage() {
         }
     };
 
+    const handleApplyVoucher = async (voucherCode) => {
+        if (!voucherCode.trim()) {
+            message.error('Vui lòng nhập hoặc chọn mã giảm giá');
+            return;
+        }
+
+        const usrId = user.userId;
+        try {
+            const response = await api.post('user/apply-voucher', { usrId, voucherCode });
+            if (response.data.statusCode === 200) {
+                // Find the voucher and calculate discount
+                const appliedVoucher = userVoucher.find((v) => v.voucherCode === voucherCode);
+                if (appliedVoucher) {
+                    const discount = (totalAmount * appliedVoucher.voucherDiscount) / 100;
+                    setDiscountAmount(discount);
+                    setSelectedVoucher(appliedVoucher.voucherId);
+                    message.success(`Áp dụng mã giảm giá thành công! Giảm ${appliedVoucher.voucherDiscount}%`);
+                } else {
+                    message.success('Áp dụng mã giảm giá thành công');
+                }
+                handleFetchVoucher();
+            } else {
+                message.error('Áp dụng mã giảm giá thất bại: ' + response.data.message);
+            }
+        } catch (error) {
+            message.error('Áp dụng mã giảm giá thất bại: ' + (error.response?.data?.message || 'Đã xảy ra lỗi'));
+        }
+    };
+
+    const clearAppliedVoucher = () => {
+        setSelectedVoucher(null);
+        setVoucherCode('');
+        setDiscountAmount(0);
+        message.info('Đã xóa mã giảm giá');
+    };
+
     const handleFetchVoucher = async () => {
         try {
-            const response = await api.get('user/vouchers');
+            const response = await api.get('user/vouchers?page=1&pageSize=1000');
             if (response.data.statusCode === 200) {
-                setUserVoucher(response.data.data);
+                setUserVoucher(response.data.data.items);
             }
             console.log(response.data);
         } catch (error) {
@@ -71,21 +107,24 @@ export default function CheckOutPage() {
                 const paymentCreate = {
                     OrderId,
                     PaymentMethod: values.paymentMethod,
-                    PaymentAmount: totalAmount,
+                    PaymentAmount: totalAmount - discountAmount,
+                    ShippingMethod: values.shippingMethod,
                 };
                 try {
                     const responsePayment = await api.post('Payment/create', paymentCreate);
                     const paymentUrl = responsePayment.data.data.paymentUrl;
                     // Clear the cart after successful payment initiation
-
+                    message.success('Đặt hàng thành công!');
                     dispatch(clearCart());
                     window.location.assign(paymentUrl);
                 } catch (error) {
-                    console.log('Failed to create payment:', error.response.data);
+                    message.error('Không thể tạo thanh toán: ' + (error.response?.data?.message || 'Đã xảy ra lỗi'));
+                    console.log('Failed to create payment:', error.response?.data);
                 }
             }
         } catch (error) {
-            console.error('Failed to checkout:', error.response.data);
+            message.error('Không thể đặt hàng: ' + (error.response?.data?.message || 'Đã xảy ra lỗi'));
+            console.error('Failed to checkout:', error.response?.data);
         }
     };
 
@@ -207,7 +246,8 @@ export default function CheckOutPage() {
 
                             <Form.Item
                                 className="order-method-ship"
-                                rules={[{ required: true, message: 'Chọn phướng thức vận chuyển' }]}>
+                                name="shippingMethod"
+                                rules={[{ required: true, message: 'Chọn phương thức vận chuyển' }]}>
                                 <div>
                                     <h5 className="font-bold">Vận chuyển</h5>
                                     <Radio.Group className="radio-group2">
@@ -220,15 +260,6 @@ export default function CheckOutPage() {
                                                 />
                                             </div>
                                         </Radio>
-                                        {/* <Radio value="GHTK">
-                                            <div className="ship-row-ghtk">
-                                                <p> Vận chuyển GHTK</p>
-                                                <img
-                                                    src="https://cdn.haitrieu.com/wp-content/uploads/2022/05/Logo-GHTK-H.png"
-                                                    alt=""
-                                                />
-                                            </div>
-                                        </Radio> */}
                                     </Radio.Group>
                                 </div>
                             </Form.Item>
@@ -245,13 +276,6 @@ export default function CheckOutPage() {
                         <div className="confirm-receipt-items">
                             {cartItems.map((item, index) => (
                                 <div key={index} className="confirm-receipt-items-row">
-                                    {/* <div className="confirm-receipt-items-row-part">
-                    <div className="confirm-receipt-items-row-part-img">
-                      <img src={item.img} alt="" />
-                    </div>
-                    <p>{item.name}</p>
-                  </div>
-                  <p>{item.price.toLocaleString()} đ</p> */}
                                     <div className="confirm-receipt-items-row-part1">
                                         <div className="confirm-receipt-items-row-part1-img">
                                             <img src={item.images[0]} alt="" />
@@ -302,13 +326,16 @@ export default function CheckOutPage() {
                             />
                             <button
                                 onClick={() => {
-                                    // Apply voucher logic here
-                                    console.log('Applying voucher:', voucherCode);
-                                    // You can add logic to calculate discount based on the selected voucher
+                                    handleApplyVoucher(voucherCode);
                                 }}>
                                 Áp dụng
                             </button>
                         </div>
+                        {selectedVoucher && discountAmount === 0 && (
+                            <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>
+                                Nhấn Áp dụng để sử dụng voucher
+                            </div>
+                        )}
                         <div className="confirm-receipt-price">
                             <div className="confirm-receipt-price-spacebetween">
                                 <p>Tạm tính: </p>
@@ -318,12 +345,52 @@ export default function CheckOutPage() {
                                 <p>Phí vận chuyển </p>
                                 <span className="font-bold">-</span>
                             </div>
+                            {discountAmount > 0 && (
+                                <div className="confirm-receipt-price-spacebetween">
+                                    <p>Giảm giá: </p>
+                                    <div>
+                                        <span className="font-bold text-success">
+                                            -{discountAmount.toLocaleString()} đ
+                                        </span>
+                                        <button
+                                            style={{
+                                                marginLeft: '8px',
+                                                background: 'none',
+                                                border: 'none',
+                                                color: '#ff4d4f',
+                                                cursor: 'pointer',
+                                            }}
+                                            onClick={clearAppliedVoucher}>
+                                            ✕
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                         <div className="confirm-receipt-total">
                             <h5>Tổng cộng</h5>
-                            <span className="font-bold">{totalAmount.toLocaleString()} đ</span>
+                            <span className="font-bold">{(totalAmount - discountAmount).toLocaleString()} đ</span>
                         </div>
-                        <div className="confirm-receipt-button" onClick={() => form.submit()}>
+                        <div
+                            className="confirm-receipt-button"
+                            onClick={() => {
+                                form.validateFields(['paymentMethod', 'shippingMethod'])
+                                    .then(() => {
+                                        form.submit();
+                                    })
+                                    .catch(() => {
+                                        const paymentMethod = form.getFieldValue('paymentMethod');
+                                        const shippingMethod = form.getFieldValue('shippingMethod');
+
+                                        if (!paymentMethod) {
+                                            message.error('Vui lòng chọn phương thức thanh toán');
+                                        }
+
+                                        if (!shippingMethod) {
+                                            message.error('Vui lòng chọn phương thức vận chuyển');
+                                        }
+                                    });
+                            }}>
                             <button>Đặt hàng</button>
                         </div>
                     </div>
