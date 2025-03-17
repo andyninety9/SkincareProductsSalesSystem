@@ -23,6 +23,8 @@ public partial class Order
 
     public bool? IsPaid { get; set; }
 
+    public string? VoucherCodeApplied { get; set; }
+
     public virtual ICollection<DeliveryDetail> DeliveryDetails { get; set; } = new List<DeliveryDetail>();
 
     public virtual Event? Event { get; set; }

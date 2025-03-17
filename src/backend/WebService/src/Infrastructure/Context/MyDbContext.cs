@@ -350,6 +350,9 @@ public partial class MyDbContext : DbContext
                 .HasColumnType("timestamp(0) without time zone")
                 .HasColumnName("updatedAt");
             entity.Property(e => e.UsrId).HasColumnName("usrID");
+            entity.Property(e => e.VoucherCodeApplied)
+                .HasMaxLength(255)
+                .HasColumnName("voucherCodeApplied");
 
             entity.HasOne(d => d.Event).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.EventId)

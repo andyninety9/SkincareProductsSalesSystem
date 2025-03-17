@@ -852,6 +852,54 @@ namespace WebApi.Controllers.Users
 
             return Ok(new { statusCode = 200, message = "Change password by forgot password successfully" });
         }
+
+        /// <summary>
+        /// Use voucher to order.
+        /// </summary>
+        /// <param name="command">Request containing the order ID and voucher ID.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a success message if the voucher is used successfully.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///   POST /api/User/use-voucher
+        ///   {
+        ///   "orderId": "string",
+        ///   "voucherCode": "string",
+        ///   }
+        ///   Headers:
+        ///   Authorization: Bearer {token}
+        ///   Role:
+        ///   Customer
+        /// </remarks>
+        /// <response code="200">Returns a success message if the voucher is used successfully.</response>
+        /// <response code="400">If the request is invalid.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="500">If an unexpected error occurs.</response>
+        [HttpPost("use-voucher")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Customer)]
+        public async Task<IActionResult> UseVoucher([FromBody] UseVoucherCommand command, CancellationToken cancellationToken)
+        {
+            var validator = new UseVoucherCommandValidator();
+            var validationResult = validator.Validate(command);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error.Description });
+            }
+
+            return Ok(new { statusCode = 200, message = "Use voucher successfully" });
+        }
         
     }
 }
