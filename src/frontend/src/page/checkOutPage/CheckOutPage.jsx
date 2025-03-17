@@ -115,6 +115,11 @@ export default function CheckOutPage() {
         }
     };
     const handleCheckout = async (values) => {
+        // Recalculate total amount to ensure it's current
+        const currentTotalAmount = cartItems.reduce((total, item) => {
+            return total + item.sellPrice * item.quantity;
+        }, 0);
+        const finalAmount = currentTotalAmount - discountAmount;
         values.eventId = 5;
         values.orderItems = cartItems.map((item) => ({
             productId: item.productId,
@@ -140,7 +145,7 @@ export default function CheckOutPage() {
                 const paymentCreate = {
                     OrderId,
                     PaymentMethod: values.paymentMethod,
-                    PaymentAmount: totalAmount - discountAmount,
+                    PaymentAmount: finalAmount,
                     ShippingMethod: values.shippingMethod,
                 };
                 try {
