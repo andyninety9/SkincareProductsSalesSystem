@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../config/api';
 import { MailOutlined, PhoneOutlined, CalendarOutlined } from '@ant-design/icons';
-import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col, Modal, Form, message, Upload } from 'antd';
+import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col, Modal, Form, message, Upload, Spin } from 'antd';
 import { DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import UpdateProfileModal from './UpdateProfileModal';
 import AddressModal from './AddressModal';
@@ -10,9 +10,11 @@ import ChangePasswordModal from './ChangePasswordModal';
 import 'antd/dist/reset.css';
 import './ProfilePage.css';
 import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const { TabPane } = Tabs;
 const ProfilePage = () => {
+    const navigate = useNavigate();
     //addresses
     const [loadingAddresses, setLoadingAddresses] = useState(true);
     const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
@@ -335,7 +337,19 @@ const ProfilePage = () => {
     };
 
     if (loading) {
-        return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
+        return (
+            <div
+                style={{
+                    textAlign: 'center',
+                    marginTop: '50px',
+                    height: '100vh',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
+                <Spin size="large" tip="Đang tải..." style={{ color: '#D8959A' }} />
+            </div>
+        );
     }
 
     if (!userInfo) {
@@ -553,7 +567,9 @@ const ProfilePage = () => {
                             tab={<span style={{ color: activeTab === '1' ? '#D8959A' : 'gray' }}>Địa Chỉ</span>}
                             key="1">
                             {loadingAddresses ? (
-                                <div style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</div>
+                                <div style={{ textAlign: 'center', padding: '20px' }}>
+                                    <Spin size="large" tip="Đang tải..." style={{ color: '#D8959A' }} />
+                                </div>
                             ) : addresses.length === 0 ? (
                                 <div style={{ textAlign: 'center', padding: '20px' }}>Không có địa chỉ nào.</div>
                             ) : (
@@ -640,7 +656,9 @@ const ProfilePage = () => {
                             tab={<span style={{ color: activeTab === '2' ? '#D8959A' : 'gray' }}>Mã Khuyến Mãi</span>}
                             key="2">
                             {loadingPromos ? (
-                                <div style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</div>
+                                <div style={{ textAlign: 'center', padding: '20px' }}>
+                                    <Spin size="large" tip="Đang tải..." style={{ color: '#D8959A' }} />
+                                </div>
                             ) : (
                                 <div
                                     style={{
@@ -696,6 +714,9 @@ const ProfilePage = () => {
                                             </div>
                                             <Button
                                                 type="primary"
+                                                onClick={() => {
+                                                    navigate('/cart');
+                                                }}
                                                 style={{
                                                     backgroundColor: '#D8959A',
                                                     borderColor: '#D8959A',
@@ -703,7 +724,7 @@ const ProfilePage = () => {
                                                     minWidth: '150px',
                                                     marginTop: '8px',
                                                 }}>
-                                                Lưu ngay
+                                                Sử dụng ngay
                                             </Button>
                                         </Card>
                                     ))}
@@ -716,7 +737,9 @@ const ProfilePage = () => {
                             }
                             key="3">
                             {loadingOrders ? (
-                                <div style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</div>
+                                <div style={{ textAlign: 'center', padding: '20px' }}>
+                                    <Spin size="large" tip="Đang tải..." style={{ color: '#D8959A' }} />
+                                </div>
                             ) : ordersHistory.length === 0 ? (
                                 <div style={{ textAlign: 'center', padding: '20px' }}>Không có lịch sử mua hàng.</div>
                             ) : (
