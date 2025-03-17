@@ -1,24 +1,19 @@
-// src/component/manageOrderHeader/ManageOrderHeader.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { routes } from '../../routes'; // Adjust the import path as needed
+import { routes } from '../../routes';
 import '@fontsource/marko-one';
 import Cookies from 'js-cookie';
 import api from '../../config/api';
 import { toast } from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
-import { clearCart } from '../../redux/feature/cartSlice'; // Adjust Redux paths as needed
-import { resetQuiz } from '../../redux/feature/quizSlice'; // Adjust Redux paths as needed
 import { Layout, Typography, Avatar } from 'antd';
-import PropTypes from 'prop-types'; // For PropTypes validation
-import './ManageOrderHeader.css'; // Ensure CSS file is imported
+import PropTypes from 'prop-types';
+import './ManageOrderHeader.css';
 
 const { Header } = Layout;
 const { Text } = Typography;
 
 const ManageOrderHeader = ({ isModalOpen }) => {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
     const [user, setUser] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -56,8 +51,6 @@ const ManageOrderHeader = ({ isModalOpen }) => {
             Cookies.remove('accessToken');
             Cookies.remove('refreshToken');
             Cookies.remove('user');
-            dispatch(clearCart());
-            dispatch(resetQuiz());
             navigate(routes.home);
         }
     };
@@ -70,7 +63,7 @@ const ManageOrderHeader = ({ isModalOpen }) => {
         <Header
             style={{
                 background: '#fff',
-                padding: '6px 24px', // Reduced from 12px to 6px
+                padding: '6px 24px',
                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                 width: '100%',
                 position: 'fixed',
@@ -78,17 +71,17 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                 left: 0,
                 zIndex: 1050,
                 tabIndex: isModalOpen ? '-1' : '0',
-                height: '60px', // Explicitly set a smaller height
+                height: '60px',
                 display: 'flex',
                 alignItems: 'center',
-                lineHeight: 'normal' // Override Ant Design's default line height
+                lineHeight: 'normal'
             }}
         >
             <div className="container d-flex justify-content-between align-items-center">
                 <Text
                     style={{
                         fontFamily: 'Marko One, serif',
-                        fontSize: '32px', // Reduced font size
+                        fontSize: '32px',
                         fontWeight: 'bold',
                         color: '#000',
                         margin: 0,
@@ -123,7 +116,7 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                                         top: '100%',
                                         left: '50%',
                                         transform: 'translateX(-50%)',
-                                        background: '#fffbfc',
+                                        background: 'white',
                                         padding: '10px',
                                         boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
                                         zIndex: 1000,
@@ -135,14 +128,14 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                                         style={{ padding: '4px 8px', cursor: 'pointer' }}
                                         onClick={() => navigate(routes.profile)}
                                     >
-                                        Profile
+                                        Xem hồ sơ
                                     </Text>
                                     <Text
                                         className="d-block text-dark text-decoration-none"
                                         style={{ padding: '4px 8px', cursor: 'pointer' }}
                                         onClick={handleLogout}
                                     >
-                                        Logout
+                                        Đăng xuất
                                     </Text>
                                 </div>
                             )}
@@ -158,7 +151,6 @@ const ManageOrderHeader = ({ isModalOpen }) => {
     );
 };
 
-// Add PropTypes validation
 ManageOrderHeader.propTypes = {
     isModalOpen: PropTypes.bool,
 };
