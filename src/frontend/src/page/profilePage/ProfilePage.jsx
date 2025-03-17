@@ -91,17 +91,17 @@ const ProfilePage = () => {
                 const addressData = response.data.data.items;
                 const formattedAddresses = Array.isArray(addressData)
                     ? addressData
-                          .map((addr) => ({
-                              addressId: addr.addressId,
-                              addDetail: addr.addDetail,
-                              ward: addr.ward,
-                              district: addr.district,
-                              city: addr.city,
-                              country: addr.country,
-                              isDefault: addr.isDefault,
-                              status: addr.status,
-                          }))
-                          .filter((addr) => addr.status === true)
+                        .map((addr) => ({
+                            addressId: addr.addressId,
+                            addDetail: addr.addDetail,
+                            ward: addr.ward,
+                            district: addr.district,
+                            city: addr.city,
+                            country: addr.country,
+                            isDefault: addr.isDefault,
+                            status: addr.status,
+                        }))
+                        .filter((addr) => addr.status === true)
                     : [];
                 formattedAddresses.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
                 setAddresses(formattedAddresses);
@@ -662,11 +662,15 @@ const ProfilePage = () => {
                             ) : (
                                 <div
                                     style={{
-                                        display: 'flex',
-                                        overflowX: 'auto',
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(2, 1fr)',
+                                        gap: '10px',
+                                        maxHeight: '400px',
+                                        overflowY: 'auto',
+                                        overflowX: 'hidden',
                                         padding: '12px 0',
                                         scrollbarWidth: 'thin',
-                                        msOverflowStyle: 'none',
+                                        msOverflowStyle: 'none', // Hide scrollbar for IE/Edge
                                     }}>
                                     {promoCodes.map((item, index) => (
                                         <Card
@@ -674,11 +678,10 @@ const ProfilePage = () => {
                                             style={{
                                                 borderRadius: 10,
                                                 boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                                                minWidth: '280px',
+                                                minWidth: '200px',
+                                                width: '100%',
                                                 height: '100%',
                                                 textAlign: 'left',
-                                                flex: '0 0 auto',
-                                                marginRight: '16px',
                                             }}>
                                             <div style={{ transform: 'translateX(-15px)' }}>
                                                 <h4
@@ -686,15 +689,16 @@ const ProfilePage = () => {
                                                         color: '#D8959A',
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        gap: '25px',
-                                                        fontSize: '16px',
+                                                        gap: '20px',
+                                                        fontSize: '15px',
                                                         justifyContent: 'flex-start',
+                                                        whiteSpace: 'nowrap',
                                                     }}>
                                                     #{item.voucherCode}
                                                     <span
                                                         style={{
                                                             color: '#D8959A',
-                                                            fontSize: '25px',
+                                                            fontSize: '22px',
                                                             fontWeight: 'bold',
                                                         }}>
                                                         {item.voucherDiscount}%
@@ -720,8 +724,8 @@ const ProfilePage = () => {
                                                 style={{
                                                     backgroundColor: '#D8959A',
                                                     borderColor: '#D8959A',
-                                                    width: '180px',
-                                                    minWidth: '150px',
+                                                    width: '100%',
+                                                    minWidth: '120px',
                                                     marginTop: '8px',
                                                 }}>
                                                 Sử dụng ngay

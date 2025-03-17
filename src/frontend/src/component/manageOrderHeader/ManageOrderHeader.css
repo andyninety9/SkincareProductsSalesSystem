@@ -1,20 +1,57 @@
-/* index.css */
-.navbar-icon,
-.staff-section {
-    transition: color 0.3s;
+.container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    /* Ensure it takes full width */
 }
 
-.navbar-icon:hover,
-.staff-section:hover .staff-name,
-.staff-section:hover .navbar-icon {
-    color: #333 !important;
-    /* Hover color */
+.d-flex {
+    display: flex;
 }
 
-/* Disable hover effects when modal is open */
-.modal-open .navbar-icon:hover,
-.modal-open .staff-section:hover .staff-name,
-.modal-open .staff-section:hover .navbar-icon {
+.gap-2 {
+    gap: 0.5rem;
+    /* 8px spacing */
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.text-dark {
     color: #000 !important;
-    /* Revert to default color */
+}
+
+.text-decoration-none {
+    text-decoration: none;
+}
+
+/* Dropdown styling */
+.position-relative {
+    position: relative;
+}
+
+.position-absolute {
+    position: absolute;
+}
+
+.p-2 {
+    padding: 0.5rem;
+    /* 8px padding */
+}
+
+.rounded {
+    border-radius: 4px;
+}
+
+.d-block {
+    display: block !important;
+}
+
+.d-block:hover {
+    background-color: #f5f5f5;
+    /* Light grey hover effect */
 }

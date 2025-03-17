@@ -1,99 +1,198 @@
-// src/component/manageOrderHeader/ManageOrderHeader.jsx
-import React from "react";
-import { Layout, Typography } from "antd";
-import { BellOutlined, MessageOutlined, UserOutlined } from "@ant-design/icons";
-import PropTypes from 'prop-types'; // For PropTypes validation
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { routes } from '../../routes';
+import '@fontsource/marko-one';
+import Cookies from 'js-cookie';
+import api from '../../config/api';
+import { toast } from 'react-hot-toast';
+import { Layout, Typography, Avatar } from 'antd';
+import PropTypes from 'prop-types';
+import './ManageOrderHeader.css';
 
 const { Header } = Layout;
 const { Text } = Typography;
 
 const ManageOrderHeader = ({ isModalOpen }) => {
+    const navigate = useNavigate();
+    const [user, setUser] = useState(null);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [userInfo, setUserInfo] = useState({});
+    const dropdownRef = useRef(null);
+
+    const fetchUserData = async () => {
+        try {
+            setLoading(true); // Set loading to true before fetching
+            const response = await api.get('User/get-me');
+            if (response?.data?.statusCode === 200 && response?.data?.data) {
+                const data = response.data.data;
+                setUserInfo({
+                    fullname: data.fullname || '',
+                    avatarUrl: data.avatarUrl || '',
+                });
+                Cookies.set('user', JSON.stringify(data), {
+                    expires: 5,
+                    secure: true,
+                });
+            } else {
+                console.warn('Unexpected API response:', response);
+                setUserInfo({});
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            setUserInfo({});
+            if (error.response?.status === 401) {
+                toast.error('Session expired. Please log in again.');
+                navigate(routes.login);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchUserData();
+    }, [navigate]);
+
+    const fetchLogout = async () => {
+        try {
+            const response = await api.post('/authen/logout', {
+                refreshToken: Cookies.get('refreshToken'),
+            });
+            if (response.status === 200) {
+                toast.success('Logout successfully');
+            } else {
+                console.error('Logout failed:', response);
+            }
+        } catch (error) {
+            console.error('Error during logout:', error);
+        } finally {
+            Cookies.remove('accessToken');
+            Cookies.remove('refreshToken');
+            Cookies.remove('user');
+            navigate(routes.home);
+        }
+    };
+
+    async function handleLogout() {
+        await fetchLogout();
+    }
+
+    useEffect(() => {
+        function updateUserFromCookies() {
+            const userCookie = Cookies.get('user');
+            try {
+                setUser(userCookie ? JSON.parse(userCookie) : null);
+            } catch (error) {
+                console.error('Failed to parse user cookie:', error);
+                setUser(null);
+            }
+        }
+
+        updateUserFromCookies();
+        const cookieCheckInterval = setInterval(updateUserFromCookies, 1000);
+
+        return () => clearInterval(cookieCheckInterval);
+    }, []);
+
+
     return (
         <Header
             style={{
                 background: '#fff',
-                display: 'flex', // Keep navbar visible
-                alignItems: 'center',
-                padding: '12px 24px',
+                padding: '6px 24px',
                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                 width: '100%',
                 position: 'fixed',
                 top: 0,
                 left: 0,
                 zIndex: 1050,
-                tabIndex: isModalOpen ? "-1" : "0", // Still disable focus when modal is open
+                tabIndex: isModalOpen ? '-1' : '0',
+                height: '60px',
+                display: 'flex',
+                alignItems: 'center',
+                lineHeight: 'normal'
             }}
         >
-            <Text
-                style={{
-                    fontFamily: 'Marko One, serif',
-                    fontSize: '38px',
-                    fontWeight: 'bold',
-                    color: '#000',
-                }}
-            >
-                Mavid
-            </Text>
-
-            <div
-                style={{
-                    marginLeft: 'auto',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '20px',
-                }}
-            >
-                <MessageOutlined
+            <div className="container d-flex justify-content-between align-items-center">
+                <Text
                     style={{
-                        fontSize: '23px',
-                        cursor: 'pointer',
+                        fontFamily: 'Marko One, serif',
+                        fontSize: '32px',
+                        fontWeight: 'bold',
                         color: '#000',
-                    }}
-                />
-
-                <BellOutlined
-                    style={{
-                        fontSize: '23px',
-                        cursor: 'pointer',
-                        color: '#000',
-                    }}
-                />
-
-                <div
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        cursor: 'pointer',
-                        gap: '8px',
+                        margin: 0,
                     }}
                 >
-                    <UserOutlined
-                        style={{
-                            fontSize: '23px',
-                            cursor: 'pointer',
-                            color: '#000',
-                        }}
-                    />
+                    <Link to={routes.home} className="text-dark text-decoration-none">
+                        Mavid
+                    </Link>
+                </Text>
 
-                    <Text
-                        style={{
-                            fontSize: '16px',
-                            fontWeight: '600',
-                            marginLeft: '10px',
-                            color: '#000',
-                        }}
-                    >
-                        Staff Name
-                    </Text>
+                <div className="d-flex gap-2 align-items-center">
+                    {user ? (
+                        <div
+                            className="position-relative"
+                            ref={dropdownRef}
+                            onMouseEnter={() => setIsDropdownOpen(true)}
+                            onMouseLeave={() => setIsDropdownOpen(false)}
+                        >
+                            <div className="d-flex align-items-center">
+                                <Avatar
+                                    src={<img src={user.avatarUrl || 'https://via.placeholder.com/40'} alt="avatar" />}
+                                    style={{ cursor: 'pointer' }}
+                                />
+                                <Text
+                                    style={{ marginLeft: '8px', color: '#A76A6E', whiteSpace: 'nowrap', fontFamily: 'Nunito, sans-serif', fontSize: '16px', fontWeight: 'bold' }}
+                                >
+                                    {loading ? 'Loading...' : (userInfo.fullname || '')}
+                                </Text>
+
+                            </div>
+                            {isDropdownOpen && !loading && (
+                                <div
+                                    className="position-absolute p-2 rounded"
+                                    style={{
+                                        top: '100%',
+                                        left: '50%',
+                                        transform: 'translateX(-50%)',
+                                        background: 'white',
+                                        padding: '10px',
+                                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                                        zIndex: 1000,
+                                        minWidth: '120px',
+                                    }}
+                                >
+                                    <Text
+                                        className="d-block text-dark text-decoration-none"
+                                        style={{ padding: '4px 8px', cursor: 'pointer' }}
+                                        onClick={() => navigate(routes.profile)}
+                                    >
+                                        Xem hồ sơ
+                                    </Text>
+                                    <Text
+                                        className="d-block text-dark text-decoration-none"
+                                        style={{ padding: '4px 8px', cursor: 'pointer' }}
+                                        onClick={handleLogout}
+                                    >
+                                        Đăng xuất
+                                    </Text>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <Link to={routes.login} className="text-dark text-decoration-none">
+                            Đăng nhập
+                        </Link>
+                    )}
                 </div>
             </div>
         </Header>
     );
 };
 
-// Add PropTypes validation
 ManageOrderHeader.propTypes = {
-    isModalOpen: PropTypes.bool, // Optional boolean prop to indicate if modal is open
+    isModalOpen: PropTypes.bool,
 };
 
 export default ManageOrderHeader;
