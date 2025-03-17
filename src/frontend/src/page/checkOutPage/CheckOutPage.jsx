@@ -120,12 +120,19 @@ export default function CheckOutPage() {
             return total + item.sellPrice * item.quantity;
         }, 0);
         const finalAmount = currentTotalAmount - discountAmount;
-        values.eventId = 5;
+        // values.eventId = 5;
+
+        if (selectedVoucher !== null) {
+            values.VoucherCodeApplied = voucherCode;
+        }
         values.orderItems = cartItems.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
             sellPrice: item.sellPrice,
+            discountedPrice: item.discountedPrice,
         }));
+
+        console.log('values', values);
 
         try {
             const response = await api.post('Orders/create', values);

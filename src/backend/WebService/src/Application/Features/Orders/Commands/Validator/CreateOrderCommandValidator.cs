@@ -17,6 +17,14 @@ namespace Application.Features.Orders.Commands.Validator
                 .When(x => x.EventId.HasValue)
                 .WithMessage("EventId must be a positive number if provided");
 
+
+            // Validate VoucherCodeApplied (nếu có thì không được rỗng)
+            
+            RuleFor(x => x.VoucherCodeApplied)
+                .NotEmpty()
+                .When(x => !string.IsNullOrWhiteSpace(x.VoucherCodeApplied))
+                .WithMessage("VoucherCodeApplied must not be empty if provided");
+
             // Validate OrderItems (không được rỗng)
             RuleFor(x => x.OrderItems)
                 .NotEmpty()

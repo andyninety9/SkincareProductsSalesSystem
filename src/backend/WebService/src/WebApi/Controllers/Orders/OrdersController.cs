@@ -333,6 +333,9 @@ namespace WebApi.Controllers.Orders
         ///
         ///     POST /api/orders/create
         ///     {
+        ///        "userId": 1,
+        ///         "eventId": 1,
+        ///         "voucherCodeApplied": "ABC123", 
         ///         "orderItems": [
         ///             {
         ///                 "productId": 1,
