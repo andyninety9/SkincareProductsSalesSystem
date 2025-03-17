@@ -65,6 +65,7 @@ namespace Infrastructure
             services.AddScoped<IKeyQuestionRepository, KeyQuestionRepository>();
             services.AddScoped<IBrandRepository, BrandRepository>();
             services.AddScoped<IEventDetailRepository, EventDetailRepository>();
+            services.AddScoped<IRecommendForRepository, RecommendForRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

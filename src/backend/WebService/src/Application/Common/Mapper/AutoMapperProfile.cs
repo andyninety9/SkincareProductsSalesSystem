@@ -16,6 +16,8 @@ using Application.Features.Brands.Queries.Response;
 using Application.Features.Brands.Commands.Response;
 using Application.Features.Reviews.Commands.Response;
 using Application.Features.Events.Commands.Response;
+using Application.Features.ProductCategory.Commands.Response;
+using Application.Features.RecommendForFeature.Commands.Response;
 
 namespace Application.Common.Mapper
 {
@@ -60,6 +62,8 @@ namespace Application.Common.Mapper
             CreateMap<Voucher, GetUserVoucherResponse>();
             CreateMap<GetUserVoucherResponse, Voucher>();
             CreateMap<Voucher, GetUserVoucherResponse>();
+            CreateMap<CreateRecommendForResponse, RecommendFor>();
+            CreateMap<RecommendFor, CreateRecommendForResponse>();
 
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();
