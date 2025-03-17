@@ -6,12 +6,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../../config/api';
+import { addToCart, increaseQuantity, selectCartItems } from '../../redux/feature/cartSlice';
+import Cookies from 'js-cookie';
 
 const { Title, Paragraph } = Typography;
 
 // Component hiển thị một danh mục sản phẩm
 const ProductCategorySection = ({ title, products, loading }) => {
     const [showOptions, setShowOptions] = useState(false);
+    const dispatch = useDispatch();
+    const cartItems = useSelector(selectCartItems);
+    const userAuth = Cookies.get('user');
+    const navigate = useNavigate();
 
     if (loading) {
         return (
@@ -21,11 +27,38 @@ const ProductCategorySection = ({ title, products, loading }) => {
             </Card>
         );
     }
-    const handleAddToCart = (product) => {
-        // Implement add to cart logic here
-        toast.success(`Đã thêm ${product.productName} vào giỏ hàng`);
-        // Here you would typically dispatch an action to add the item to cart
+    const handleCheckLogin = () => {
+        if (!userAuth) {
+            toast.error('Vui lòng đăng nhập để mua hàng');
+            navigate('/login');
+            return false;
+        }
+        return true;
     };
+    const handleAddToCart = (product) => {
+        if (!handleCheckLogin()) return;
+
+        // Default quantity to 1 for each product
+        const quantity = 1;
+
+        const productToAdd = {
+            ...product,
+            quantity,
+        };
+
+        // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+        const existingProduct = cartItems.find((item) => item.productId === product.productId);
+
+        if (existingProduct) {
+            // Nếu sản phẩm đã có trong giỏ hàng, chỉ cập nhật số lượng
+            dispatch(increaseQuantity({ productId: product.productId, quantity }));
+        } else {
+            // Nếu sản phẩm chưa có, thêm sản phẩm mới vào giỏ
+            dispatch(addToCart(productToAdd));
+        }
+        toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+    };
+
 
     if (!products || products.length === 0) {
         return (
