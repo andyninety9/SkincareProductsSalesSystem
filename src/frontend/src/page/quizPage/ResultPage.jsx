@@ -21,6 +21,11 @@ const ProductCategorySection = ({ title, products, loading }) => {
             </Card>
         );
     }
+    const handleAddToCart = (product) => {
+        // Implement add to cart logic here
+        toast.success(`Đã thêm ${product.productName} vào giỏ hàng`);
+        // Here you would typically dispatch an action to add the item to cart
+    };
 
     if (!products || products.length === 0) {
         return (
@@ -36,69 +41,158 @@ const ProductCategorySection = ({ title, products, loading }) => {
             <Title level={4}>{title}</Title>
 
             {/* Sản phẩm chính được đề xuất */}
-            <Row align="middle" style={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '10px' }}>
-                <Col flex="0 0 150px" style={{ textAlign: 'center' }}>
+            <Row
+                align="middle"
+                style={{
+                    display: 'flex',
+                    alignItems: 'stretch',
+                    flexWrap: 'nowrap',
+                    gap: '20px',
+                    borderBottom: '1px solid #f0f0f0',
+                    paddingBottom: '20px',
+                    marginBottom: '20px',
+                }}>
+                <Col flex="0 0 180px" style={{ textAlign: 'center' }}>
                     <Image
-                        src={products[0].productImages?.[0]?.prodImageUrl || 'https://via.placeholder.com/150'}
+                        src={products[0].productImages?.[0]?.prodImageUrl || 'https://via.placeholder.com/180'}
                         alt={products[0].productName}
-                        style={{ maxWidth: '100%', height: 'auto' }}
+                        style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '8px' }}
                     />
-                    {products.length > 1 && (
-                        <Link
-                            style={{
-                                color: 'black',
-                                textDecoration: 'underline',
-                                marginTop: '10px',
-                                display: 'block',
-                                cursor: 'pointer',
-                            }}
-                            onClick={() => setShowOptions(!showOptions)}>
-                            {showOptions ? 'Ẩn các tùy chọn khác' : 'Tùy chọn khác'}
-                        </Link>
-                    )}
                 </Col>
-                <Col flex="1">
-                    <Title level={5}>{products[0].productName}</Title>
-                    <Paragraph>{products[0].productDesc}</Paragraph>
-                    <Paragraph style={{ fontWeight: 'bold', color: '#D8959A' }}>
-                        Giá: {products[0].sellPrice?.toLocaleString() || 0} VNĐ
-                    </Paragraph>
+                <Col flex="1" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div>
+                        <Title level={5} style={{ margin: '0 0 10px 0' }}>
+                            {products[0].productName}
+                        </Title>
+                        <Paragraph ellipsis={{ rows: 3 }}>{products[0].productDesc}</Paragraph>
+                    </div>
+                    <div>
+                        <Paragraph
+                            style={{ fontWeight: 'bold', color: '#D8959A', fontSize: '16px', margin: '15px 0 10px' }}>
+                            Giá: {products[0].sellPrice?.toLocaleString() || 0} VNĐ
+                        </Paragraph>
+                        <button
+                            onClick={() => handleAddToCart(products[0])}
+                            style={{
+                                backgroundColor: '#D8959A',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                padding: '8px 16px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                                transition: 'background-color 0.3s',
+                                width: '180px',
+                            }}
+                            onMouseOver={(e) => (e.target.style.backgroundColor = '#c27f85')}
+                            onMouseOut={(e) => (e.target.style.backgroundColor = '#D8959A')}>
+                            Thêm vào giỏ hàng
+                        </button>
+                    </div>
                 </Col>
             </Row>
 
-            {/* Danh sách sản phẩm thay thế */}
+            {/* Danh sách sản phẩm thay thế với scroll ngang */}
             {products.length > 1 && (
-                <div
-                    style={{
-                        display: showOptions ? 'flex' : 'none',
-                        gap: '10px',
-                        marginTop: '20px',
-                        justifyContent: 'center',
-                        flexWrap: 'wrap',
-                        opacity: showOptions ? 1 : 0,
-                        transform: showOptions ? 'translateY(0)' : 'translateY(-20px)',
-                        transition: 'opacity 0.5s ease-in-out, transform 0.5s ease-in-out',
-                    }}>
-                    {products.slice(1).map((product, idx) => (
+                <div>
+                    <Title level={5} style={{ marginBottom: '15px' }}>
+                        Sản phẩm tương tự
+                    </Title>
+                    <div
+                        style={{
+                            overflowX: 'auto',
+                            WebkitOverflowScrolling: 'touch',
+                            scrollbarWidth: 'thin',
+                            scrollBehavior: 'smooth',
+                            padding: '5px 0 15px',
+                        }}>
                         <div
-                            key={idx}
                             style={{
-                                width: '150px',
-                                textAlign: 'center',
-                                border: '1px solid #ddd',
-                                padding: '10px',
-                                borderRadius: '5px',
-                                background: '#fff',
+                                display: 'flex',
+                                gap: '15px',
+                                paddingBottom: '5px',
+                                minWidth: 'min-content',
                             }}>
-                            <Image
-                                src={product.productImages?.[0]?.prodImageUrl || 'https://via.placeholder.com/150'}
-                                alt={product.productName}
-                                style={{ maxWidth: '100%' }}
-                            />
-                            <p style={{ marginTop: '5px', fontWeight: 'bold' }}>{product.productName}</p>
-                            <p>{product.sellPrice?.toLocaleString() || 0} VNĐ</p>
+                            {products.slice(1).map((product, idx) => (
+                                <div
+                                    key={idx}
+                                    style={{
+                                        width: '180px',
+                                        flex: '0 0 180px',
+                                        textAlign: 'center',
+                                        border: '1px solid #f0f0f0',
+                                        borderRadius: '8px',
+                                        padding: '12px',
+                                        background: '#fff',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        height: '320px',
+                                    }}>
+                                    <div style={{ flex: '0 0 160px', marginBottom: '10px' }}>
+                                        <Image
+                                            src={
+                                                product.productImages?.[0]?.prodImageUrl ||
+                                                'https://via.placeholder.com/160'
+                                            }
+                                            alt={product.productName}
+                                            style={{
+                                                width: '100%',
+                                                height: '160px',
+                                                objectFit: 'cover',
+                                                borderRadius: '4px',
+                                            }}
+                                        />
+                                    </div>
+                                    <div
+                                        style={{
+                                            flex: '1',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            justifyContent: 'space-between',
+                                        }}>
+                                        <p
+                                            style={{
+                                                fontWeight: 'bold',
+                                                margin: '0 0 5px 0',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: '2',
+                                                WebkitBoxOrient: 'vertical',
+                                                lineHeight: '1.3em',
+                                                maxHeight: '2.6em',
+                                            }}>
+                                            {product.productName}
+                                        </p>
+                                        <div>
+                                            <p style={{ fontWeight: 'bold', color: '#D8959A', margin: '10px 0' }}>
+                                                {product.sellPrice?.toLocaleString() || 0} VNĐ
+                                            </p>
+                                            <button
+                                                onClick={() => handleAddToCart(product)}
+                                                style={{
+                                                    backgroundColor: '#D8959A',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    padding: '6px 12px',
+                                                    cursor: 'pointer',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '12px',
+                                                    width: '100%',
+                                                    transition: 'background-color 0.3s',
+                                                }}
+                                                onMouseOver={(e) => (e.target.style.backgroundColor = '#c27f85')}
+                                                onMouseOut={(e) => (e.target.style.backgroundColor = '#D8959A')}>
+                                                Thêm vào giỏ
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
                 </div>
             )}
         </Card>
