@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Rate, Collapse, Button, Row, Col } from 'antd';
+import { Rate, Collapse, Button, Row, Col, Spin } from 'antd';
 import { BorderTopOutlined, HeartOutlined } from '@ant-design/icons';
 import '@fontsource/nunito';
 import './ProductDetailPage.scss';
@@ -74,7 +74,12 @@ export default function ProductDetailPage() {
         navigate('/cart'); // Navigate to cart page
     };
 
-    if (!product) return <p>Đang tải dữ liệu...</p>;
+    if (!product)
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+                <Spin size="large" tip="Đang tải..." />
+            </div>
+        );
 
     const handleAddToCart = () => {
         if (!handleCheckLogin()) return;
