@@ -10,6 +10,8 @@ namespace Domain.DTOs
         public long ProductId { get; set; }
         public short Quantity { get; set; }
         public double SellPrice { get; set; }
+        public double DiscountedPrice { get; set; }
+        
         
     }
 }

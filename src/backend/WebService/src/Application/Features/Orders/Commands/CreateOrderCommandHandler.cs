@@ -18,6 +18,7 @@ namespace Application.Features.Orders.Commands
     public sealed record CreateOrderCommand(
         long ?UserId,
         long ?EventId,
+        string? VoucherCodeApplied,
         List<OrderItem> OrderItems
     ) : ICommand<CreateOrderResponse>;
     internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCommand, CreateOrderResponse>
@@ -31,6 +32,7 @@ namespace Application.Features.Orders.Commands
         private readonly IOrderDetailRepository _orderDetailRepository;
         private readonly IWarantyOrderRepository _warantyOrderRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IVoucherRepository _voucherRepository;
 
         public CreateOrderCommandHandler(
             IMapper mapper,
@@ -41,8 +43,10 @@ namespace Application.Features.Orders.Commands
             IdGeneratorService idGeneratorService,
             IOrderDetailRepository orderDetailRepository,
             IWarantyOrderRepository warantyOrderRepository,
-            IProductRepository productRepository)
+            IProductRepository productRepository,
+            IVoucherRepository voucherRepository)
         {
+            _voucherRepository = voucherRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -71,6 +75,15 @@ namespace Application.Features.Orders.Commands
                     {
                         throw new ValidationException("Order must contain at least one product.");
                     }
+                    Domain.Entities.Voucher? voucher = null;
+                    if (command.VoucherCodeApplied != null)
+                    {
+                        voucher = await _voucherRepository.GetByCodeAsync(command.VoucherCodeApplied, cancellationToken);
+                        if (voucher == null)
+                        {
+                            throw new KeyNotFoundException("Voucher code is not valid.");
+                        }
+                    }
 
                     // 2️⃣ Kiểm tra sản phẩm có tồn tại trong kho không
                     var productIds = command.OrderItems.Select(x => x.ProductId).ToList();
@@ -91,10 +104,18 @@ namespace Application.Features.Orders.Commands
                     }
 
                     // 4️⃣ Tính tổng tiền đơn hàng
-                    double totalPrice = command.OrderItems.Sum(item => item.Quantity * item.SellPrice);
+                    double totalPrice = command.OrderItems.Sum(item =>
+                        item.Quantity * (item.DiscountedPrice > 0
+                            ? item.DiscountedPrice
+                            : item.SellPrice));
                     if (totalPrice <= 0)
                     {
                         throw new ValidationException("Total price must be greater than zero.");
+                    }
+
+                    if (voucher != null)
+                    {
+                        totalPrice -= ((totalPrice * voucher.VoucherDiscount) / 100);
                     }
 
                     // 5️⃣ Tạo đơn hàng
@@ -108,6 +129,7 @@ namespace Application.Features.Orders.Commands
                         TotalOrdPrice = totalPrice,
                         CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
                         UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                        VoucherCodeApplied = command.VoucherCodeApplied ?? string.Empty,
                         IsPaid = false
                     };
 
