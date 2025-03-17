@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../config/api';
 import { MailOutlined, PhoneOutlined, CalendarOutlined } from '@ant-design/icons';
-import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col, Modal, Form, message, Upload } from 'antd';
+import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col, Modal, Form, message, Upload, Spin } from 'antd';
 import { DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import UpdateProfileModal from './UpdateProfileModal';
 import AddressModal from './AddressModal';
@@ -10,9 +10,11 @@ import ChangePasswordModal from './ChangePasswordModal';
 import 'antd/dist/reset.css';
 import './ProfilePage.css';
 import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const { TabPane } = Tabs;
 const ProfilePage = () => {
+    const navigate = useNavigate();
     //addresses
     const [loadingAddresses, setLoadingAddresses] = useState(true);
     const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
@@ -89,17 +91,17 @@ const ProfilePage = () => {
                 const addressData = response.data.data.items;
                 const formattedAddresses = Array.isArray(addressData)
                     ? addressData
-                        .map((addr) => ({
-                            addressId: addr.addressId,
-                            addDetail: addr.addDetail,
-                            ward: addr.ward,
-                            district: addr.district,
-                            city: addr.city,
-                            country: addr.country,
-                            isDefault: addr.isDefault,
-                            status: addr.status,
-                        }))
-                        .filter((addr) => addr.status === true)
+                          .map((addr) => ({
+                              addressId: addr.addressId,
+                              addDetail: addr.addDetail,
+                              ward: addr.ward,
+                              district: addr.district,
+                              city: addr.city,
+                              country: addr.country,
+                              isDefault: addr.isDefault,
+                              status: addr.status,
+                          }))
+                          .filter((addr) => addr.status === true)
                     : [];
                 formattedAddresses.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
                 setAddresses(formattedAddresses);
@@ -172,10 +174,10 @@ const ProfilePage = () => {
     const fetchPromoCodes = async () => {
         try {
             setLoadingPromos(true);
-            const response = await api.get('User/vouchers');
+            const response = await api.get('user/vouchers?page=1&pageSize=1000');
             if (response.data.statusCode === 200) {
-                const data = response.data.data;
-                setPromoCodes(Array.isArray(data) ? data : [data] || []);
+                const data = response.data.data.items;
+                setPromoCodes(data);
             }
         } catch (error) {
             console.error('Error fetching promo codes:', error);
@@ -289,7 +291,7 @@ const ProfilePage = () => {
         setAvatarPreview(previewUrl);
     };
 
-    //cover change 
+    //cover change
     const handleCoverChange = async () => {
         if (!coverFile) {
             message.error('Vui lòng chọn file ảnh để tải lên!');
@@ -307,9 +309,7 @@ const ProfilePage = () => {
                 setCoverFile(null);
                 await refreshUserData();
             } else {
-                message.error(
-                    `Cập nhật ảnh bìa thất bại: ${response.data.detail || 'Lỗi không xác định'}`
-                );
+                message.error(`Cập nhật ảnh bìa thất bại: ${response.data.detail || 'Lỗi không xác định'}`);
             }
         } catch (error) {
             console.error('Error uploading cover:', error);
@@ -337,20 +337,33 @@ const ProfilePage = () => {
     };
 
     if (loading) {
-        return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
+        return (
+            <div
+                style={{
+                    textAlign: 'center',
+                    marginTop: '50px',
+                    height: '100vh',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
+                <Spin size="large" tip="Đang tải..." style={{ color: '#D8959A' }} />
+            </div>
+        );
     }
 
     if (!userInfo) {
         return <div style={{ textAlign: 'center', marginTop: '50px' }}>No user data available.</div>;
     }
     return (
-        <div style={{
-            width: '100%',
-            minHeight: '100vh', 
-            display: 'flex',
-            flexDirection: 'column',
-            position: 'relative',
-        }}>
+        <div
+            style={{
+                width: '100%',
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                position: 'relative',
+            }}>
             <div style={{ position: 'relative', width: '100%', height: '30vh', marginBottom: 10 }}>
                 <div
                     style={{
@@ -361,20 +374,19 @@ const ProfilePage = () => {
                     }}
                 />
 
-                <div style={{
-                    position: 'absolute',
-                    bottom: 10,
-                    left: 2,
-                    display: 'flex',
-                    gap: '10px',
-
-                }}>
+                <div
+                    style={{
+                        position: 'absolute',
+                        bottom: 10,
+                        left: 2,
+                        display: 'flex',
+                        gap: '10px',
+                    }}>
                     <Upload
                         name="CoverFile"
                         showUploadList={false}
                         beforeUpload={() => false}
-                        onChange={handleCoverFileChange}
-                    >
+                        onChange={handleCoverFileChange}>
                         <Button
                             icon={<UploadOutlined />}
                             style={{
@@ -386,7 +398,8 @@ const ProfilePage = () => {
                                 height: '25px',
                                 fontSize: '12px',
                             }}>
-                            Đổi ảnh bìa</Button>
+                            Đổi ảnh bìa
+                        </Button>
                     </Upload>
 
                     {coverFile && (
@@ -405,20 +418,20 @@ const ProfilePage = () => {
                             }}
                             type="primary"
                             loading={coverLoading}
-                            onClick={handleCoverChange}
-                        >
+                            onClick={handleCoverChange}>
                             Xác nhận
                         </Button>
                     )}
                 </div>
             </div>
 
-            <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                padding: 40,
-                flexGrow: 1,
-            }}>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    padding: 40,
+                    flexGrow: 1,
+                }}>
                 <Card
                     style={{
                         width: 250,
@@ -427,7 +440,6 @@ const ProfilePage = () => {
                         top: '50%',
                         transform: 'translateY(-50%)',
                         marginTop: 80,
-
                     }}>
                     <Avatar
                         size={100}
@@ -474,7 +486,6 @@ const ProfilePage = () => {
                                 }}>
                                 Xác nhận
                             </Button>
-
                         )}
                     </div>
                     <h3
@@ -546,7 +557,6 @@ const ProfilePage = () => {
                         top: '50%',
                         transform: 'translateY(-50%)',
                         marginTop: 80,
-
                     }}>
                     <Tabs
                         activeKey={activeTab}
@@ -557,7 +567,9 @@ const ProfilePage = () => {
                             tab={<span style={{ color: activeTab === '1' ? '#D8959A' : 'gray' }}>Địa Chỉ</span>}
                             key="1">
                             {loadingAddresses ? (
-                                <div style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</div>
+                                <div style={{ textAlign: 'center', padding: '20px' }}>
+                                    <Spin size="large" tip="Đang tải..." style={{ color: '#D8959A' }} />
+                                </div>
                             ) : addresses.length === 0 ? (
                                 <div style={{ textAlign: 'center', padding: '20px' }}>Không có địa chỉ nào.</div>
                             ) : (
@@ -644,65 +656,79 @@ const ProfilePage = () => {
                             tab={<span style={{ color: activeTab === '2' ? '#D8959A' : 'gray' }}>Mã Khuyến Mãi</span>}
                             key="2">
                             {loadingPromos ? (
-                                <div style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</div>
+                                <div style={{ textAlign: 'center', padding: '20px' }}>
+                                    <Spin size="large" tip="Đang tải..." style={{ color: '#D8959A' }} />
+                                </div>
                             ) : (
-                                <Row gutter={[16, 16]}>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        overflowX: 'auto',
+                                        padding: '12px 0',
+                                        scrollbarWidth: 'thin',
+                                        msOverflowStyle: 'none',
+                                    }}>
                                     {promoCodes.map((item, index) => (
-                                        <Col span={12} key={index} style={{ marginBottom: 16, marginRight: 18 }}>
-                                            <Card
-                                                style={{
-                                                    borderRadius: 10,
-                                                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                                                    height: '100%',
-                                                    textAlign: 'left',
-                                                }}>
-                                                <div style={{ transform: 'translateX(-15px)' }}>
-                                                    <h4
+                                        <Card
+                                            key={index}
+                                            style={{
+                                                borderRadius: 10,
+                                                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                                                minWidth: '280px',
+                                                height: '100%',
+                                                textAlign: 'left',
+                                                flex: '0 0 auto',
+                                                marginRight: '16px',
+                                            }}>
+                                            <div style={{ transform: 'translateX(-15px)' }}>
+                                                <h4
+                                                    style={{
+                                                        color: '#D8959A',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '25px',
+                                                        fontSize: '16px',
+                                                        justifyContent: 'flex-start',
+                                                    }}>
+                                                    #{item.voucherCode}
+                                                    <span
                                                         style={{
                                                             color: '#D8959A',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '25px',
-                                                            fontSize: '16px',
-                                                            justifyContent: 'flex-start',
+                                                            fontSize: '25px',
+                                                            fontWeight: 'bold',
                                                         }}>
-                                                        #{item.voucherCode}
-                                                        <span
-                                                            style={{
-                                                                color: '#D8959A',
-                                                                fontSize: '25px',
-                                                                fontWeight: 'bold',
-                                                            }}>
-                                                            {item.voucherDiscount}%
-                                                        </span>
-                                                    </h4>
-                                                    <p style={{ color: 'gray', fontSize: '14px', margin: 0 }}>
-                                                        {item.voucherDesc}
-                                                    </p>
-                                                    <p
-                                                        style={{
-                                                            fontSize: '12px',
-                                                            color: item.statusVoucher ? 'green' : 'red',
-                                                            margin: 0,
-                                                        }}>
-                                                        {item.statusVoucher ? 'Còn hiệu lực' : 'Hết hạn'}
-                                                    </p>
-                                                </div>
-                                                <Button
-                                                    type="primary"
+                                                        {item.voucherDiscount}%
+                                                    </span>
+                                                </h4>
+                                                <p style={{ color: 'gray', fontSize: '14px', margin: 0 }}>
+                                                    {item.voucherDesc}
+                                                </p>
+                                                <p
                                                     style={{
-                                                        backgroundColor: '#D8959A',
-                                                        borderColor: '#D8959A',
-                                                        width: '180px',
-                                                        minWidth: '150px',
-                                                        marginTop: '8px',
+                                                        fontSize: '12px',
+                                                        color: item.statusVoucher ? 'green' : 'red',
+                                                        margin: 0,
                                                     }}>
-                                                    Lưu ngay
-                                                </Button>
-                                            </Card>
-                                        </Col>
+                                                    {item.statusVoucher ? 'Còn hiệu lực' : 'Hết hạn'}
+                                                </p>
+                                            </div>
+                                            <Button
+                                                type="primary"
+                                                onClick={() => {
+                                                    navigate('/cart');
+                                                }}
+                                                style={{
+                                                    backgroundColor: '#D8959A',
+                                                    borderColor: '#D8959A',
+                                                    width: '180px',
+                                                    minWidth: '150px',
+                                                    marginTop: '8px',
+                                                }}>
+                                                Sử dụng ngay
+                                            </Button>
+                                        </Card>
                                     ))}
-                                </Row>
+                                </div>
                             )}
                         </TabPane>
                         <TabPane
@@ -711,7 +737,9 @@ const ProfilePage = () => {
                             }
                             key="3">
                             {loadingOrders ? (
-                                <div style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</div>
+                                <div style={{ textAlign: 'center', padding: '20px' }}>
+                                    <Spin size="large" tip="Đang tải..." style={{ color: '#D8959A' }} />
+                                </div>
                             ) : ordersHistory.length === 0 ? (
                                 <div style={{ textAlign: 'center', padding: '20px' }}>Không có lịch sử mua hàng.</div>
                             ) : (
@@ -805,12 +833,12 @@ const ProfilePage = () => {
                                     style={{ backgroundColor: '#D8959A', borderColor: '#D8959A' }}>
                                     Cập Nhật Thông Tin
                                 </Button>
-                                <Button type="primary"
+                                <Button
+                                    type="primary"
                                     onClick={() => setIsPasswordModalVisible(true)}
                                     style={{ backgroundColor: '#C87E83', borderColor: '#C87E83' }}>
                                     Thay đổi mật khẩu
                                 </Button>
-
                             </div>
                         </TabPane>
                     </Tabs>
@@ -822,10 +850,7 @@ const ProfilePage = () => {
                 userInfo={userInfo}
                 refreshUserData={refreshUserData}
             />
-            <ChangePasswordModal
-                visible={isPasswordModalVisible}
-                onClose={handlePasswordModalClose}
-            />
+            <ChangePasswordModal visible={isPasswordModalVisible} onClose={handlePasswordModalClose} />
         </div>
     );
 };
