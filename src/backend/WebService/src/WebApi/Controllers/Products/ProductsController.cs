@@ -880,5 +880,34 @@ namespace WebApi.Controllers.Products
 
         }
 
+        /// <summary>
+        /// Get Product Recommendation
+        /// </summary>
+        /// <param name="productId">The product id.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the recommended product details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///   GET /api/products/recommendation/{productId}
+
+        /// </remarks>
+        ///     
+        [HttpGet("recommendation/{productId}")]
+
+        public async Task<IActionResult> GetProductRecommendation(long productId, [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        {
+            PaginationParams paginationParams = new() { Page = page, PageSize = pageSize };
+
+            var query = new GetProductRecommendationQuery(productId, paginationParams);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Fetch product recommendation successfully", data = result.Value });
+        }
     }
 }
