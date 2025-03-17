@@ -16,11 +16,13 @@ const ManageOrderHeader = ({ isModalOpen }) => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [userInfo, setUserInfo] = useState({});
     const dropdownRef = useRef(null);
 
     const fetchUserData = async () => {
         try {
+            setLoading(true); // Set loading to true before fetching
             const response = await api.get('User/get-me');
             if (response?.data?.statusCode === 200 && response?.data?.data) {
                 const data = response.data.data;
@@ -43,13 +45,13 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                 toast.error('Session expired. Please log in again.');
                 navigate(routes.login);
             }
+        } finally {
+            setLoading(false);
         }
     };
 
     useEffect(() => {
         fetchUserData();
-        const interval = setInterval(fetchUserData, 1000);
-        return () => clearInterval(interval);
     }, [navigate]);
 
     const fetchLogout = async () => {
@@ -141,20 +143,13 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                                     style={{ cursor: 'pointer' }}
                                 />
                                 <Text
-                                    style={{
-                                        marginLeft: '8px',
-                                        color: '#A76A6E',
-                                        whiteSpace: 'nowrap',
-                                        fontFamily: 'Nunito, sans-serif',
-                                        fontSize: '16px',
-                                        fontWeight: 'bold',
-                                    }}
+                                    style={{ marginLeft: '8px', color: '#A76A6E', whiteSpace: 'nowrap', fontFamily: 'Nunito, sans-serif', fontSize: '16px', fontWeight: 'bold' }}
                                 >
-                                    {userInfo.fullname || 'User'}
+                                    {loading ? 'Loading...' : (userInfo.fullname || '')}
                                 </Text>
 
                             </div>
-                            {isDropdownOpen && (
+                            {isDropdownOpen && !loading && (
                                 <div
                                     className="position-absolute p-2 rounded"
                                     style={{
