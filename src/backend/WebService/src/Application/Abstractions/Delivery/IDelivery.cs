@@ -13,5 +13,6 @@ namespace Application.Abstractions.Delivery
         Task<GetWardResponse> GetWards(int districtId);
 
         Task<CreateOrderResponseDto> CreateOrder(CreateOrderDeliRequestDto request);
+        Task<GetShippingFeeResponse> GetShippingFee(GetShippingFeeRequest request);
     }
 }

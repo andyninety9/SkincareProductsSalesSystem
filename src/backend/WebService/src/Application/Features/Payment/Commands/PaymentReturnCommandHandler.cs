@@ -37,14 +37,17 @@ namespace Application.Features.Payment.Commands
         private readonly ILogger<PaymentReturnCommandHandler> _logger;
         private readonly IPaymentVNPayService _paymentVNPayService;
         private readonly IPaymentRepository _paymentRepository;
+        private readonly IOrderRepository _orderRepository;
 
         public PaymentReturnCommandHandler(
             IMapper mapper,
             IUnitOfWork unitOfWork,
             ILogger<PaymentReturnCommandHandler> logger,
             IPaymentVNPayService paymentVNPayService,
-            IPaymentRepository paymentRepository)
+            IPaymentRepository paymentRepository,
+            IOrderRepository orderRepository)
         {
+            _orderRepository = orderRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -68,12 +71,22 @@ namespace Application.Features.Payment.Commands
                     return Result<PaymentResponseDto>.Failure<PaymentResponseDto>(new Error("PaymentAlreadyVerified", "Payment record already verified."));
                 }
 
-                if (command.Vnp_TransactionStatus == "00") 
+                if (command.Vnp_TransactionStatus == "00")
                 {
-                    payment.PaymentStatus = true; 
+                    payment.PaymentStatus = true;
                     payment.PaymentMethod = command.Method;
                     payment.PaymentAmount = command.Vnp_Amount;
-                    payment.CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified); 
+                    payment.CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
+
+                    var order = await _orderRepository.GetByIdAsync(command.OrderId, cancellationToken);
+
+                    if (order == null)
+                    {
+                        _logger.LogError("Order not found for Order ID: {OrderId}", command.OrderId);
+                        return Result<PaymentResponseDto>.Failure<PaymentResponseDto>(new Error("OrderNotFound", "Order record not found."));
+                    }
+                    
+                    order.IsPaid = true;
                 }
                 else
                 {
