@@ -256,11 +256,11 @@ const OrderHistoryPage = () => {
                                             type="secondary"
                                             style={{
                                                 fontSize: '12px',
-                                                wordBreak: 'break-word', // Ensures long words wrap
-                                                overflowWrap: 'break-word', // Alternative word wrapping
-                                                whiteSpace: 'normal', // Allows normal text wrapping
-                                                maxWidth: '100%', // Prevents text from exceeding container width
-                                                display: 'block', // Forces block display for better wrapping
+                                                wordBreak: 'break-word',
+                                                overflowWrap: 'break-word',
+                                                whiteSpace: 'normal',
+                                                maxWidth: '100%',
+                                                display: 'block',
                                             }}
                                         >
                                             {product.productDesc}
