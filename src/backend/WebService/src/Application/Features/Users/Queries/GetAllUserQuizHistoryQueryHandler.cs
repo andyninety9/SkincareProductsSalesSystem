@@ -58,7 +58,7 @@ namespace Application.Features.Users.Queries
 
                 if (!string.IsNullOrWhiteSpace(request.Keyword))
                 {
-                    listResponse = listResponse.Where(x => x.QuizName.Contains(request.Keyword)).ToList();
+                    listResponse = listResponse.Where(x => x.QuizName.Contains(request.Keyword) || x.QuizDesc.Contains(request.Keyword)).ToList();
                 }
 
                 var items = listResponse
