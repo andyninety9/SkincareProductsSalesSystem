@@ -1,4 +1,3 @@
-/* eslint-disable no-constant-binary-expression */
 import React, { useState, useEffect } from 'react';
 import api from '../../config/api';
 import { MailOutlined, PhoneOutlined, CalendarOutlined } from '@ant-design/icons';
@@ -80,6 +79,15 @@ const ProfilePage = () => {
 
     const handleCloseAddressModal = () => {
         setIsAddressModalVisible(false);
+    };
+
+    const toBigIntString = (value) => {
+        try {
+            return value != null ? BigInt(value).toString() : "N/A";
+        } catch (error) {
+            console.error(`Error converting to BigInt: ${value}`, error.message);
+            return "N/A";
+        }
     };
 
     // Get all addresses
@@ -800,7 +808,7 @@ const ProfilePage = () => {
                                                             margin: '0 0 8px 0',
                                                             fontSize: '12px',
                                                         }}>
-                                                        #{order.orderId}
+                                                        #{toBigIntString(order.orderId)}
                                                     </p>
                                                     <Tag
                                                         color="#D8959A"

@@ -36,4 +36,5 @@ export const routes = {
     changePasswordByToken: '/reset-password',
     orderSuccess: '/order-success',
     resultQuizHistory: '/result-quiz-history',
+    orderHistory: '/order-history',
 };
