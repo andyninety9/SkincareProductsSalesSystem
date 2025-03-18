@@ -35,4 +35,5 @@ export const routes = {
     restricted: '/restricted',
     changePasswordByToken: '/reset-password',
     orderSuccess: '/order-success',
+    resultQuizHistory: '/result-quiz-history',
 };
