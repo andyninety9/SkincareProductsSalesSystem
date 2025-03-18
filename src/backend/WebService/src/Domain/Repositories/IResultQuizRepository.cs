@@ -18,5 +18,6 @@ namespace Domain.Repositories
         Task<long> GetResultQuizIdByQuizIdAsync(long quizId);
         Task<GetQuizResultResponse> GetByQuizIdAsync(long quizId);
         Task<ResultQuiz> GetResultQuizByUserId(long userId);
+        Task<IEnumerable<ResultQuiz>> GetListResultQuizByUserIdAsync(long userId, CancellationToken cancellationToken);
     }
 }

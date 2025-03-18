@@ -257,5 +257,13 @@ namespace Infrastructure.Repositories
                 .Where(r => r.UsrId == userId && r.IsDefault) 
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<IEnumerable<ResultQuiz>> GetListResultQuizByUserIdAsync(long userId, CancellationToken cancellationToken)
+        {
+            return await _context.ResultQuizzes
+                .Include(r => r.SkinType)
+                .Where(r => r.UsrId == userId)
+                .ToListAsync(cancellationToken);
+        }
     }
 }

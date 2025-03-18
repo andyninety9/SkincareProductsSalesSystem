@@ -141,29 +141,29 @@ namespace WebApi.Controllers.SkinTest
         {
             if (User == null)
             {
-            return Unauthorized(new { statusCode = 401, message = IConstantMessage.USER_INFORMATION_NOT_FOUND });
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.USER_INFORMATION_NOT_FOUND });
             }
 
             var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(usrID))
             {
-            return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
             }
 
             if (!long.TryParse(usrID, out var userId))
             {
-            return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
             }
 
             if (string.IsNullOrEmpty(quizId))
             {
-            return BadRequest(new { statusCode = 400, message = "Quiz ID is required" });
+                return BadRequest(new { statusCode = 400, message = "Quiz ID is required" });
             }
 
             if (!long.TryParse(quizId, out var parsedQuizId))
             {
-            return BadRequest(new { statusCode = 400, message = "Invalid Quiz ID format" });
+                return BadRequest(new { statusCode = 400, message = "Invalid Quiz ID format" });
             }
 
             var query = new GetQuizResultQuery(userId, parsedQuizId);
@@ -172,7 +172,7 @@ namespace WebApi.Controllers.SkinTest
 
             if (!validationResult.IsValid)
             {
-            return BadRequest(new { statusCode = 400, message = validationResult.Errors.First().ErrorMessage });
+                return BadRequest(new { statusCode = 400, message = validationResult.Errors.First().ErrorMessage });
             }
 
             var result = await _mediator.Send(query, cancellationToken);
@@ -180,4 +180,6 @@ namespace WebApi.Controllers.SkinTest
         }
 
     }
+    
+    
 }
