@@ -11,8 +11,26 @@ import './ProfilePage.css';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../routes';
+import {
+    CheckCircleOutlined,
+    ClockCircleOutlined,
+    CloseCircleOutlined,
+    ExclamationCircleOutlined,
+    MinusCircleOutlined,
+    SyncOutlined,
+} from '@ant-design/icons';
 
 const { TabPane } = Tabs;
+
+const statusConfig = {
+    Pending: { icon: <ClockCircleOutlined />, color: 'default' },
+    Processing: { icon: <SyncOutlined spin />, color: '#D8959A' },
+    Shipping: { icon: <SyncOutlined />, color: 'blue' },
+    Shipped: { icon: <CheckCircleOutlined />, color: 'cyan' },
+    Completed: { icon: <CheckCircleOutlined />, color: 'success' },
+    Cancelled: { icon: <CloseCircleOutlined />, color: 'error' },
+};
+
 const ProfilePage = () => {
     const navigate = useNavigate();
     //addresses
@@ -817,14 +835,18 @@ const ProfilePage = () => {
                                                             #{toBigIntString(order.orderId)}
                                                         </p>
                                                         <Tag
-                                                            color="#D8959A"
+                                                            icon={statusConfig[order.orderStatus]?.icon}
+                                                            color={statusConfig[order.orderStatus]?.color || 'default'}
                                                             style={{
                                                                 borderRadius: 5,
                                                                 height: '30px',
+                                                                width: '100px', // Fixed width for all tags
                                                                 display: 'flex',
                                                                 alignItems: 'center',
                                                                 justifyContent: 'center',
                                                                 marginTop: '5px',
+                                                                fontSize: '12px',
+                                                                padding: '0 8px', // Ensure padding doesn't affect width
                                                             }}
                                                         >
                                                             {order.orderStatus}
@@ -832,21 +854,22 @@ const ProfilePage = () => {
                                                     </div>
                                                 </div>
 
+                                                {/* Centered Button Below */}
                                                 <div
                                                     style={{
                                                         display: 'flex',
                                                         justifyContent: 'center',
-                                                        marginTop: 10, 
+                                                        marginTop: 10, // Space between content and button
                                                     }}
                                                 >
                                                     <Button
                                                         type="primary"
                                                         style={{
-                                                            backgroundColor: '#D8959A',
-                                                            borderColor: '#D8959A',
+                                                            backgroundColor: '#C87E83',
+                                                            borderColor: '#C87E83',
                                                             padding: '4px 8px',
                                                             height: 30,
-                                                            fontSize: 15,
+                                                            fontSize: 12,
                                                         }}
                                                         onClick={() => navigate(`/order-history/${toBigIntString(order.orderId)}`)}
                                                     >
