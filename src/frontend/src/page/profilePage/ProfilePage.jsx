@@ -10,6 +10,7 @@ import 'antd/dist/reset.css';
 import './ProfilePage.css';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
+import { routes } from '../../routes';
 
 const { TabPane } = Tabs;
 const ProfilePage = () => {
@@ -743,10 +744,9 @@ const ProfilePage = () => {
                                 </div>
                             )}
                         </TabPane>
+
                         <TabPane
-                            tab={
-                                <span style={{ color: activeTab === '3' ? '#D8959A' : 'gray' }}>Lịch Sử Mua Hàng</span>
-                            }
+                            tab={<span style={{ color: activeTab === '3' ? '#D8959A' : 'gray' }}>Lịch Sử Mua Hàng</span>}
                             key="3">
                             {loadingOrders ? (
                                 <div style={{ textAlign: 'center', padding: '20px' }}>
@@ -790,7 +790,6 @@ const ProfilePage = () => {
                                                         {order.totalPrice.toLocaleString('vi-VN')} vnd -{' '}
                                                         {order.products.length} món
                                                     </p>
-
                                                     <p style={{ marginTop: -2, color: 'gray', fontSize: '10px' }}>
                                                         {order.products[0]?.productName}
                                                     </p>
@@ -822,6 +821,16 @@ const ProfilePage = () => {
                                                         }}>
                                                         {order.orderStatus}
                                                     </Tag>
+                                                    <Button
+                                                        type="primary"
+                                                        style={{
+                                                            backgroundColor: '#D8959A',
+                                                            borderColor: '#D8959A',
+                                                            marginTop: 8,
+                                                        }}
+                                                        onClick={() => navigate(`${routes.orderHistory.replace(':orderId', toBigIntString(order.orderId))}`)}>
+                                                        Xem Chi Tiết
+                                                    </Button>
                                                 </div>
                                             </List.Item>
                                         )}
