@@ -59,6 +59,12 @@ const HeaderUser = () => {
         },
         {
             key: '2',
+            icon: <>Kết quả kiểm tra da</>,
+            text: 'History',
+            onClick: () => navigate(routes.resultQuizHistory),
+        },
+        {
+            key: '3',
             icon: <>Đăng xuất</>,
             text: 'Logout',
             onClick: handleLogout,

@@ -41,6 +41,7 @@ import ManageCategory from './page/manageCategory/ManageCategory';
 import ManageSkintype from './page/manageSkintype/ManageSkintype';
 import ManageBrand from './page/manageBrand/ManageBrand';
 import ThankForOrderPage from './page/thankForOrderPage/ThankForOrderPage';
+import ResultQuizHistoryPage from './page/resultQuizHistory/ResultQuizHistoryPage';
 
 function App() {
     const router = createBrowserRouter([
@@ -89,6 +90,14 @@ function App() {
                     element: (
                         <ProtectedRoute roles={['Customer']}>
                             <CheckOutPage />
+                        </ProtectedRoute>
+                    ),
+                },
+                {
+                    path: routes.resultQuizHistory,
+                    element: (
+                        <ProtectedRoute roles={['Customer']}>
+                            <ResultQuizHistoryPage />
                         </ProtectedRoute>
                     ),
                 },
