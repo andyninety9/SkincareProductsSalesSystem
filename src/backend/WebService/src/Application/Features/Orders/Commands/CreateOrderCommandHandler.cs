@@ -19,6 +19,7 @@ namespace Application.Features.Orders.Commands
         long ?UserId,
         long ?EventId,
         string? VoucherCodeApplied,
+        string? ShippingFee,
         List<OrderItem> OrderItems
     ) : ICommand<CreateOrderResponse>;
     internal sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCommand, CreateOrderResponse>
@@ -116,6 +117,11 @@ namespace Application.Features.Orders.Commands
                     if (voucher != null)
                     {
                         totalPrice -= ((totalPrice * voucher.VoucherDiscount) / 100);
+                    }
+
+                    if (command.ShippingFee != null)
+                    {
+                        totalPrice += double.Parse(command.ShippingFee);
                     }
 
                     // 5️⃣ Tạo đơn hàng
