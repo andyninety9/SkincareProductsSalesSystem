@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Avatar, Tabs, Select, Form, Input, Spin, List, Tag, Button, message } from 'antd';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import noImg from '../../assets/noImg/noImg.png';
+
 import api from '../../config/api';
 
 const { Option } = Select;
@@ -133,7 +133,7 @@ const RecommendationModal = ({ isVisible, onOk, onCancel, selectedProduct, produ
                         {selectedProduct.images && selectedProduct.images.length > 0 ? (
                             <Avatar src={selectedProduct.images[0]?.prodImageUrl} size={80} />
                         ) : (
-                            <Avatar src={noImg} size={80} />
+                            <Avatar src="" size={80} />
                         )}
                         <div>
                             <h3 style={{ margin: '0 0 8px 0' }}>{selectedProduct.productName}</h3>
