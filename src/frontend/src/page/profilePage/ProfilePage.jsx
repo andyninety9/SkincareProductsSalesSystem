@@ -118,17 +118,17 @@ const ProfilePage = () => {
                 const addressData = response.data.data.items;
                 const formattedAddresses = Array.isArray(addressData)
                     ? addressData
-                        .map((addr) => ({
-                            addressId: addr.addressId,
-                            addDetail: addr.addDetail,
-                            ward: addr.ward,
-                            district: addr.district,
-                            city: addr.city,
-                            country: addr.country,
-                            isDefault: addr.isDefault,
-                            status: addr.status,
-                        }))
-                        .filter((addr) => addr.status === true)
+                          .map((addr) => ({
+                              addressId: addr.addressId,
+                              addDetail: addr.addDetail,
+                              ward: addr.ward,
+                              district: addr.district,
+                              city: addr.city,
+                              country: addr.country,
+                              isDefault: addr.isDefault,
+                              status: addr.status,
+                          }))
+                          .filter((addr) => addr.status === true)
                     : [];
                 formattedAddresses.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
                 setAddresses(formattedAddresses);
@@ -307,6 +307,22 @@ const ProfilePage = () => {
             message.error('Lỗi khi cập nhật avatar!');
         } finally {
             setAvatarLoading(false);
+        }
+    };
+
+    const handleResendVerifyEmail = async () => {
+        try {
+            const response = await api.post('authen/resend-verify-email', {
+                email: userInfo.email,
+            });
+            if (response.data.statusCode === 200) {
+                message.success('Đã gửi lại email xác thực!');
+            } else {
+                message.error(`Gửi lại email xác thực thất bại: ${response.data.detail || 'Lỗi không xác định'}`);
+            }
+        } catch (error) {
+            console.error('Error resending verification email:', error);
+            message.error('Lỗi khi gửi lại email xác thực!');
         }
     };
 
@@ -547,6 +563,7 @@ const ProfilePage = () => {
                             height: 50,
                         }}
                     />
+
                     <Input
                         prefix={<PhoneOutlined />}
                         value={userInfo.phone}
@@ -572,6 +589,20 @@ const ProfilePage = () => {
                             height: 50,
                         }}
                     />
+                    {userInfo.accountStatus === 'Unverified' && (
+                        <Button
+                            onClick={handleResendVerifyEmail}
+                            style={{
+                                marginBottom: 10,
+                                marginTop: 30,
+                                backgroundColor: '#D8959A',
+                                borderColor: '#D8959A',
+                                color: '#fff',
+                                width: '100%',
+                            }}>
+                            Xác nhận lại email
+                        </Button>
+                    )}
                 </Card>
 
                 <Card
@@ -885,12 +916,12 @@ const ProfilePage = () => {
                             tab={<span style={{ color: activeTab === '4' ? '#D8959A' : 'gray' }}>Cài Đặt</span>}
                             key="4">
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px' }}>
-                                <Button type="primary" style={{ backgroundColor: '#D8959A', borderColor: '#D8959A' }}>
+                                {/* <Button type="primary" style={{ backgroundColor: '#D8959A', borderColor: '#D8959A' }}>
                                     Ngôn Ngữ: Tiếng Việt
                                 </Button>
                                 <Button type="primary" style={{ backgroundColor: '#C87E83', borderColor: '#C87E83' }}>
                                     Chế độ: Sáng
-                                </Button>
+                                </Button> */}
                                 <Button
                                     type="primary"
                                     onClick={() => setIsModalVisible(true)}
