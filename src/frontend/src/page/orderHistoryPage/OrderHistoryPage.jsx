@@ -3,10 +3,10 @@ import { useNavigate, useParams, useRouteError, isRouteErrorResponse } from 'rea
 import { routes } from '../../routes';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Button, Skeleton, Card, Typography, Image, Steps, Popover } from 'antd';
-import PropTypes from 'prop-types'; 
-import api from '../../config/api'; 
+import PropTypes from 'prop-types';
+import api from '../../config/api';
 import { toast } from 'react-hot-toast';
-import '../../component/manageOrderSteps/ManageOrderSteps.css'; 
+import '../../component/manageOrderSteps/ManageOrderSteps.css';
 
 import {
     CheckCircleOutlined,
@@ -203,7 +203,7 @@ const OrderHistoryPage = () => {
     const currentStep = getNumericStatus(order?.orderStatus);
 
     return (
-        <Container style={{ marginTop: '80px', padding: '24px', maxWidth: '1200px' }}>
+        <Container style={{ marginTop: '80px', padding: '24px', maxWidth: '1200px', marginBottom: '80px', }}>
             <Row>
                 <Col>
                     <Card
@@ -238,12 +238,12 @@ const OrderHistoryPage = () => {
                                         current={currentStep}
                                         progressDot={(dot, props) => customDot(dot, { ...props, currentStep })}
                                         items={statusSteps}
-                                        disabled={true} 
+                                        disabled={true}
                                     />
                                 </div>
 
-                                        {/* Divider */}
-                                        <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
+                                {/* Divider */}
+                                <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
 
                                 {/* Product */}
                                 <div className="product-section" style={{
