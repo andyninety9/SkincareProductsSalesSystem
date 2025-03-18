@@ -744,7 +744,6 @@ const ProfilePage = () => {
                                 </div>
                             )}
                         </TabPane>
-
                         <TabPane
                             tab={<span style={{ color: activeTab === '3' ? '#D8959A' : 'gray' }}>Lịch Sử Mua Hàng</span>}
                             key="3">
@@ -828,7 +827,7 @@ const ProfilePage = () => {
                                                             borderColor: '#D8959A',
                                                             marginTop: 8,
                                                         }}
-                                                        onClick={() => navigate(`${routes.orderHistory.replace(':orderId', toBigIntString(order.orderId))}`)}>
+                                                        onClick={() => navigate(`/order-history/${toBigIntString(order.orderId)}`)}>
                                                         Xem Chi Tiết
                                                     </Button>
                                                 </div>
@@ -838,6 +837,7 @@ const ProfilePage = () => {
                                 </div>
                             )}
                         </TabPane>
+                        
                         <TabPane
                             tab={<span style={{ color: activeTab === '4' ? '#D8959A' : 'gray' }}>Cài Đặt</span>}
                             key="4">

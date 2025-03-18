@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams, useRouteError, isRouteErrorResponse } from 'react-router-dom';
+import { useNavigate, useParams, useRouteError, isRouteErrorResponse } from 'react-router-dom';
 import { routes } from '../../routes';
-import '@fontsource/marko-one';
-import '@fontsource/nunito';
-import { Layout, Typography, Button, Skeleton, Card, Table, Select, Collapse, Image } from 'antd';
+import { Container, Row, Col } from 'react-bootstrap';
+import { Button, Skeleton, Card, Table, Typography, Image } from 'antd';
 import PropTypes from 'prop-types'; // Import PropTypes for validation
 import api from '../../config/api'; // Using the configured api with interceptors
 import { toast } from 'react-hot-toast';
 
-const { Header, Content } = Layout;
-const { Text, Title } = Typography;
-const { Option } = Select;
-const { Panel } = Collapse;
+const { Text } = Typography;
 
 // Utility function to convert to BigInt string
 const toBigIntString = (value) => {
@@ -32,32 +28,24 @@ const ErrorBoundaryFallback = ({ error }) => {
     };
 
     return (
-        <Layout style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
-            <Content
+        <Container style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', marginTop: '80px' }}>
+            <Card
                 style={{
-                    marginTop: 80,
-                    padding: '24px',
-                    maxWidth: '1200px',
+                    backgroundColor: '#fff',
+                    borderRadius: 10,
+                    minHeight: 300,
                     width: '100%',
+                    padding: '16px',
                 }}
             >
-                <Card
-                    style={{
-                        backgroundColor: '#fff',
-                        borderRadius: 10,
-                        minHeight: 300,
-                    }}
-                    bodyStyle={{ padding: '16px' }}
-                >
-                    <Text type="danger">
-                        {error?.message || 'An unexpected error occurred. Please try again later.'}
-                    </Text>
-                    <Button type="primary" onClick={() => window.location.reload()} style={{ marginTop: 16 }}>
-                        Refresh Page
-                    </Button>
-                </Card>
-            </Content>
-        </Layout>
+                <Text type="danger">
+                    {error?.message || 'An unexpected error occurred. Please try again later.'}
+                </Text>
+                <Button type="primary" onClick={() => window.location.reload()} style={{ marginTop: 16 }}>
+                    Refresh Page
+                </Button>
+            </Card>
+        </Container>
     );
 };
 
@@ -69,7 +57,6 @@ const OrderHistoryPage = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [fetchError, setFetchError] = useState(null); // Track fetch-specific errors
-    const [selectedSection, setSelectedSection] = useState(null); // Default to null, show orderSummary
 
     const fetchOrderDetails = async (orderId) => {
         try {
@@ -146,269 +133,140 @@ const OrderHistoryPage = () => {
         return <ErrorBoundaryFallback error={error} />;
     }
 
-    const sectionColumns = [
+    // Prepare data for the table (single row based on the first product)
+    const tableData = product
+        ? [
+            {
+                key: '1',
+                images: product.images || [],
+                brandName: product.brandName || 'Eucerin',
+                productName: product.productName || 'Eucerin Hyaluron-Filler Night Cream',
+                sellPrice: product.sellPrice || 600000,
+                quantity: order.products && order.products.length > 0 ? order.products[0].quantity || 1 : 1,
+                stocks: product.stocks || 39,
+                totalPrice: (product.sellPrice || 600000) * (order.products && order.products.length > 0 ? order.products[0].quantity || 1 : 1),
+            },
+        ]
+        : [];
+
+    const columns = [
         {
-            title: 'Section',
-            dataIndex: 'name',
-            key: 'name',
-            render: (text, record) => (
-                <a
-                    onClick={() => setSelectedSection(record.key)}
-                    style={{ cursor: 'pointer', color: record.key === selectedSection ? '#D8959A' : 'inherit' }}
-                >
-                    {text}
-                </a>
+            title: 'Sản phẩm',
+            dataIndex: 'images',
+            key: 'images',
+            render: (_, record) => (
+                <div className="table-col-name">
+                    <div className="table-col-name-img">
+                        <img
+                            src={record.images?.[0] || 'https://via.placeholder.com/100'}
+                            alt={record.productName || 'Product Image'}
+                            onError={(e) => {
+                                console.error(`Failed to load image: ${record.images?.[0]}`);
+                                e.target.src = 'https://via.placeholder.com/100';
+                            }}
+                            style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                        />
+                    </div>
+                    <div className="table-col-name-content">
+                        <h5>{record.brandName}</h5>
+                        <Text>{record.productName || 'Unnamed Product'}</Text>
+                        <br />
+                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                            Còn lại: {record.stocks !== undefined ? record.stocks : 'N/A'} sản phẩm
+                        </Text>
+                    </div>
+                </div>
             ),
+            width: '40%',
+        },
+        {
+            title: 'Giá tiền',
+            dataIndex: 'sellPrice',
+            key: 'sellPrice',
+            render: (sellPrice) => (
+                <Text className="font-bold">{(sellPrice || 0).toLocaleString()} đ</Text>
+            ),
+            width: '20%',
+            align: 'center',
+        },
+        {
+            title: 'Số lượng',
+            dataIndex: 'quantity',
+            key: 'quantity',
+            render: (quantity) => <Text>{quantity || 0}</Text>, // Static quantity, no controls
+            width: '15%',
+            align: 'center',
+        },
+        {
+            title: 'Thành tiền',
+            dataIndex: 'totalPrice',
+            key: 'totalPrice',
+            render: (totalPrice) => (
+                <Text className="font-bold">{(totalPrice || 0).toLocaleString()} đ</Text>
+            ),
+            width: '20%',
+            align: 'center',
+        },
+        {
+            title: 'Hành động',
+            render: () => null, // No delete action for order history
+            width: '5%',
+            align: 'center',
         },
     ];
 
-    const sectionData = [
-        { key: 'orderSummary', name: 'Order Summary' },
-        { key: 'payment', name: 'Payment Details' },
-        { key: 'products', name: 'Products' },
-        { key: 'delivery', name: 'Delivery Details' },
-    ];
-
     return (
-        <Layout style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
-            <Content
-                style={{
-                    marginTop: 80,
-                    padding: '24px',
-                    maxWidth: '1200px',
-                    width: '100%',
-                }}
-            >
-                <Card
-                    style={{
-                        backgroundColor: '#fff',
-                        borderRadius: 10,
-                        minHeight: 300,
-                    }}
-                    bodyStyle={{ padding: '16px' }}
-                >
-                    {loading ? (
-                        <Skeleton active paragraph={{ rows: 4 }} />
-                    ) : fetchError ? (
-                        <Text type="danger">{fetchError}</Text>
-                    ) : order ? (
-                        <>
-                            {/* Default Order Summary with Product Details */}
-                            {!selectedSection && (
-                                <div className="order-details">
-                                    <div className="order-item-header">
-                                        <Text type="secondary">
-                                            Đơn hàng #{toBigIntString(order.orderId) || '689691046673645600'} - {order.orderDate || '2025-03-18T04:25:59'}
-                                        </Text>
-                                        <Text type="danger">
-                                            Trạng thái: {order.orderStatus || 'Completed'} - Đánh giá ngay với nhận 300 Xu
-                                        </Text>
-                                    </div>
-                                    <div className="order-item-details-expanded">
-                                        <div className="order-item-details">
-                                            <Text strong>Tổng tiền:</Text>
-                                            <Text type="danger">đ{order.totalPrice || 861500}</Text>
-                                        </div>
-                                        {product && (
-                                            <>
-                                                <Text strong>Product Name:</Text>
-                                                <Text>{product.productName || 'Eucerin Hyaluron-Filler Night Cream'}</Text>
-                                                <Text strong>Product Description:</Text>
-                                                <Text>{product.productDesc || 'Kem dưỡng đêm chống lão hóa cho da khô.'}</Text>
-                                                <Text strong>Cost Price:</Text>
-                                                <Text>đ{product.costPrice || 500000}</Text>
-                                                <Text strong>Sell Price:</Text>
-                                                <Text>đ{product.sellPrice || 600000}</Text>
-                                                <Text strong>Discounted Price:</Text>
-                                                <Text>đ{product.discountedPrice || 0}</Text>
-                                                <Text strong>Brand Name:</Text>
-                                                <Text>{product.brandName || 'Eucerin'}</Text>
-                                                <Text strong>Images:</Text>
-                                                {product.images && product.images.length > 0 ? (
-                                                    product.images.map((imageUrl, index) => (
-                                                        <Image
-                                                            key={index}
-                                                            src={imageUrl || 'https://image.cocoonvietnam.com/uploads/Website_Avatar_Sua_rua_mat_Sen_Hau_Giang_140ml_573f5b39f6.jpg'}
-                                                            alt={`Product Image ${index + 1}`}
-                                                            style={{ width: '100px', marginRight: '8px' }}
-                                                        />
-                                                    ))
-                                                ) : (
-                                                    <Text>No images available</Text>
-                                                )}
-                                            </>
-                                        )}
-                                    </div>
-                                    <div className="order-item-footer" style={{ marginBottom: '16px' }}>
-                                        <Text type="danger">Thành tiền: đ{order.totalPrice || 861500}</Text>
-                                        <Button type="primary" danger>
-                                            Đánh Giá
-                                        </Button>
-                                        <Button>Liên Hệ Người Bán</Button>
-                                        <Button>Mua Lại</Button>
-                                    </div>
-                                    <div style={{ marginBottom: '16px' }}>
-                                        <Text strong>View All Details: </Text>
-                                        <Select
-                                            defaultValue=""
-                                            style={{ width: 200, marginLeft: '8px' }}
-                                            onChange={(value) => setSelectedSection(value === 'all' ? 'all' : null)}
-                                        >
-                                            <Option value="">Select an Option</Option>
-                                            <Option value="all">View All Details</Option>
-                                        </Select>
-                                    </div>
+        <Container style={{ marginTop: '80px', padding: '24px', maxWidth: '1200px' }}>
+            <Row>
+                <Col>
+                    <Card
+                        style={{
+                            backgroundColor: '#fff',
+                            borderRadius: '10px',
+                            minHeight: '300px',
+                        }}
+                        bodyStyle={{ padding: '16px' }}
+                    >
+                        {loading ? (
+                            <Skeleton active paragraph={{ rows: 4 }} />
+                        ) : fetchError ? (
+                            <Text type="danger">{fetchError}</Text>
+                        ) : order ? (
+                            <>
+                                <div className="order-header">
+                                    <Text type="secondary">
+                                        Đơn hàng #{toBigIntString(order.orderId) || '689691046673645600'} -{' '}
+                                        {order.orderDate || '2025-03-18T04:25:59'}
+                                    </Text>
+                                    <Text type="danger">
+                                        Trạng thái: {order.orderStatus || 'Completed'} - Đánh giá ngay với nhận 300 Xu
+                                    </Text>
                                 </div>
-                            )}
-
-                            {/* Table for navigation to all sections */}
-                            <Table
-                                columns={sectionColumns}
-                                dataSource={sectionData}
-                                rowKey="key"
-                                pagination={false}
-                                size="small"
-                                style={{ marginBottom: '16px', marginTop: '16px' }}
-                                onRow={(record) => ({
-                                    onClick: () => setSelectedSection(record.key),
-                                })}
-                            />
-
-                            {/* Details for selected section or all details */}
-                            {selectedSection === 'orderSummary' && (
-                                <div className="order-details">
-                                    <div className="order-item-header">
-                                        <Text type="secondary">
-                                            Đơn hàng #{toBigIntString(order.orderId) || '689691046673645600'} - {order.orderDate || '2025-03-18T04:25:59'}
-                                        </Text>
-                                        <Text type="danger">
-                                            Trạng thái: {order.orderStatus || 'Completed'} - Đánh giá ngay với nhận 300 Xu
-                                        </Text>
-                                    </div>
-                                    <div className="order-item-details-expanded">
-                                        <div className="order-item-details">
-                                            <Text strong>Tổng tiền:</Text>
-                                            <Text type="danger">đ{order.totalPrice || 861500}</Text>
-                                        </div>
-                                        {product && (
-                                            <>
-                                                <Text strong>Product Name:</Text>
-                                                <Text>{product.productName || 'Eucerin Hyaluron-Filler Night Cream'}</Text>
-                                                <Text strong>Product Description:</Text>
-                                                <Text>{product.productDesc || 'Kem dưỡng đêm chống lão hóa cho da khô.'}</Text>
-                                                <Text strong>Cost Price:</Text>
-                                                <Text>đ{product.costPrice || 500000}</Text>
-                                                <Text strong>Sell Price:</Text>
-                                                <Text>đ{product.sellPrice || 600000}</Text>
-                                                <Text strong>Discounted Price:</Text>
-                                                <Text>đ{product.discountedPrice || 0}</Text>
-                                                <Text strong>Brand Name:</Text>
-                                                <Text>{product.brandName || 'Eucerin'}</Text>
-                                                <Text strong>Images:</Text>
-                                                {product.images && product.images.length > 0 ? (
-                                                    product.images.map((imageUrl, index) => (
-                                                        <Image
-                                                            key={index}
-                                                            src={imageUrl || 'https://image.cocoonvietnam.com/uploads/Website_Avatar_Sua_rua_mat_Sen_Hau_Giang_140ml_573f5b39f6.jpg'}
-                                                            alt={`Product Image ${index + 1}`}
-                                                            style={{ width: '100px', marginRight: '8px' }}
-                                                        />
-                                                    ))
-                                                ) : (
-                                                    <Text>No images available</Text>
-                                                )}
-                                            </>
-                                        )}
-                                    </div>
-                                    <div className="order-item-footer">
-                                        <Text type="danger">Thành tiền: đ{order.totalPrice || 861500}</Text>
-                                        <Button type="primary" danger>
-                                            Đánh Giá
-                                        </Button>
-                                        <Button>Liên Hệ Người Bán</Button>
-                                        <Button>Mua Lại</Button>
-                                    </div>
+                                <Table
+                                    columns={columns}
+                                    dataSource={tableData}
+                                    pagination={false}
+                                    size="middle"
+                                    style={{ marginTop: '16px' }}
+                                />
+                                <div className="order-footer" style={{ marginTop: '16px', textAlign: 'right' }}>
+                                    <Text type="danger" strong>
+                                        Thành tiền: đ{order.totalPrice?.toLocaleString() || '861500'} đ
+                                    </Text>
+                                    <Button type="primary" danger style={{ marginLeft: '16px' }}>
+                                        Đánh Giá
+                                    </Button>
+                                    <Button style={{ marginLeft: '8px' }}>Liên Hệ Người Bán</Button>
+                                    <Button style={{ marginLeft: '8px' }}>Mua Lại</Button>
                                 </div>
-                            )}
-
-                            {selectedSection === 'payment' && order.payment && (
-                                <div className="order-details">
-                                    <Text strong>Payment Details:</Text>
-                                    <p>Payment ID: {order.payment.paymentId || 'N/A'}</p>
-                                    <p>Order ID: {toBigIntString(order.payment.orderId) || 'N/A'}</p>
-                                    <p>Payment Method: {order.payment.paymentMethod || 'N/A'}</p>
-                                    <p>Payment Amount: đ{order.payment.paymentAmount || 'N/A'}</p>
-                                </div>
-                            )}
-
-                            {selectedSection === 'products' && order.products && (
-                                <div className="order-details">
-                                    <Text strong>Products:</Text>
-                                    {order.products.map((product, index) => (
-                                        <div key={index} style={{ marginBottom: 8 }}>
-                                            <p>Product ID: {product.productId || 'N/A'}</p>
-                                            <p>Product Name: {product.productName || 'N/A'}</p>
-                                            <p>Quantity: {product.quantity || 'N/A'}</p>
-                                            <p>Unit Price: đ{product.unitPrice || 'N/A'}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {selectedSection === 'delivery' && order.delivery && (
-                                <div className="order-details">
-                                    <Text strong>Delivery Details:</Text>
-                                    <p>Delivery ID: {toBigIntString(order.delivery.deliveryId) || 'N/A'}</p>
-                                    <p>Delivery Service: {order.delivery.deliveryService || 'N/A'}</p>
-                                    <p>Delivery Phone: {order.delivery.deliveryPhone || 'N/A'}</p>
-                                    <p>Delivery Status: {order.delivery.deliveryStatus || 'N/A'}</p>
-                                    <p>Created At: {order.delivery.createdAt || 'N/A'}</p>
-                                </div>
-                            )}
-
-                            {/* View All Details */}
-                            {selectedSection === 'all' && (
-                                <div className="order-details">
-                                    <Collapse defaultActiveKey={['1', '2', '3']}>
-                                        {order.payment && (
-                                            <Panel header="Payment Details" key="1">
-                                                <p>Payment ID: {order.payment.paymentId || 'N/A'}</p>
-                                                <p>Order ID: {toBigIntString(order.payment.orderId) || 'N/A'}</p>
-                                                <p>Payment Method: {order.payment.paymentMethod || 'N/A'}</p>
-                                                <p>Payment Amount: đ{order.payment.paymentAmount || 'N/A'}</p>
-                                            </Panel>
-                                        )}
-                                        {order.products && (
-                                            <Panel header="Products" key="2">
-                                                {order.products.map((product, index) => (
-                                                    <div key={index} style={{ marginBottom: 8 }}>
-                                                        <p>Product ID: {product.productId || 'N/A'}</p>
-                                                        <p>Product Name: {product.productName || 'N/A'}</p>
-                                                        <p>Quantity: {product.quantity || 'N/A'}</p>
-                                                        <p>Unit Price: đ{product.unitPrice || 'N/A'}</p>
-                                                    </div>
-                                                ))}
-                                            </Panel>
-                                        )}
-                                        {order.delivery && (
-                                            <Panel header="Delivery Details" key="3">
-                                                <p>Delivery ID: {toBigIntString(order.delivery.deliveryId) || 'N/A'}</p>
-                                                <p>Delivery Service: {order.delivery.deliveryService || 'N/A'}</p>
-                                                <p>Delivery Phone: {order.delivery.deliveryPhone || 'N/A'}</p>
-                                                <p>Delivery Status: {order.delivery.deliveryStatus || 'N/A'}</p>
-                                                <p>Created At: {order.delivery.createdAt || 'N/A'}</p>
-                                            </Panel>
-                                        )}
-                                    </Collapse>
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        <Text>Không có đơn hàng nào.</Text>
-                    )}
-                </Card>
-            </Content>
-        </Layout>
+                            </>
+                        ) : (
+                            <Text>Không có đơn hàng nào.</Text>
+                        )}
+                    </Card>
+                </Col>
+            </Row>
+        </Container>
     );
 };
 
