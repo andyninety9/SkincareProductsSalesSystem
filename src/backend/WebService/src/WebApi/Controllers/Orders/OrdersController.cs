@@ -466,6 +466,7 @@ namespace WebApi.Controllers.Orders
         /// Get user orders detail
         /// </summary>
         /// <param name="cancellationToken">Cancellation token.</param>
+        /// <param name="orderId">The ID of the order to be reversed.</param>
         /// <returns>Returns the details of the user orders.</returns>
         /// <remarks>
         /// Sample request:
@@ -478,7 +479,7 @@ namespace WebApi.Controllers.Orders
         [HttpGet("user/{orderId}")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Customer)]
-        public async Task<IActionResult> GetUserOrders(CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetUserOrders(string orderId, CancellationToken cancellationToken = default)
         {
             if (User == null)
             {
@@ -496,8 +497,12 @@ namespace WebApi.Controllers.Orders
             {
                 return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
             }
+            if (!long.TryParse(orderId, out var ordId))
+            {
+                return BadRequest(new { statusCode = 400, message = IConstantMessage.INTERNAL_SERVER_ERROR });
+            }
 
-            var query = new GetUserOrdersQuery(userId);
+            var query = new GetUserOrderDetailQuery(userId, ordId);
 
             var result = await _mediator.Send(query, cancellationToken);
 
@@ -507,5 +512,6 @@ namespace WebApi.Controllers.Orders
                 message = "User orders retrieved successfully",
                 data = result.Value
             });
+        }
     }
 }
