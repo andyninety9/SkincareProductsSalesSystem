@@ -18,6 +18,7 @@ const StartQuizPage = ({ onExit }) => {
     const navigate = useNavigate();
     const handleStartQuiz = async (values) => {
         try {
+            setLoading(true); // Set loading state to true when API call starts
             const response = await api.get('/skintest/start', {
                 params: {
                     quizname: values.quizName,
@@ -34,10 +35,11 @@ const StartQuizPage = ({ onExit }) => {
             } else {
                 toast.error('Không thể kiểm tra da lúc này, vui lòng thử lại sau');
             }
-
         } catch (error) {
             console.log(error);
             toast.error('Không thể kiểm tra da lúc này, vui lòng thử lại sau');
+        } finally {
+            setLoading(false); // Reset loading state when API call completes (success or error)
         }
     };
 
@@ -117,16 +119,19 @@ const StartQuizPage = ({ onExit }) => {
                         <Form>
                             {/* Quiz Name */}
                             <div className="mb-3">
-                                <label className="form-label" style={{ fontSize: '14px', color: '#C87E83' }}>
-                                    Tên bài quiz
+                                <label className="form-label" style={{ fontSize: '44px', color: '#C87E83' }}>
+                                    Bắt đầu làm bài kiểm tra da
                                 </label>
                                 <Field
                                     name="quizName"
                                     type="text"
                                     className="form-control border-0 border-bottom rounded-0 custom-border-bottom"
                                     style={{ backgroundColor: '#F6EEF0' }}
+                                    placeholder="Nhập tên bài quiz: (Ví dụ: Kiểm tra da của tôi)"
                                 />
-                                <ErrorMessage name="quizName" component="div" className="text-danger small mt-1" />
+                                <div style={{ height: '44px', textAlign: 'left' }}>
+                                    <ErrorMessage name="quizName" component="div" className="text-danger small mt-1 h-full" />
+                                </div>
                             </div>
 
                             {/* Quiz Description */}
@@ -139,8 +144,11 @@ const StartQuizPage = ({ onExit }) => {
                                     as="textarea"
                                     className="form-control border-0 border-bottom rounded-0 custom-border-bottom"
                                     style={{ backgroundColor: '#F6EEF0' }}
+                                    placeholder="Nhập mô tả bài quiz: (Ví dụ: Bài quiz giúp xác định loại da của bạn)"
                                 />
-                                <ErrorMessage name="quizDesc" component="div" className="text-danger small mt-1" />
+                                <div style={{ height: '34px', textAlign: 'left' }}>
+                                    <ErrorMessage name="quizDesc" component="div" className="text-danger small mt-1" />
+                                </div>
                             </div>
 
                             {/* Submit Button */}
