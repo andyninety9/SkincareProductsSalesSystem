@@ -34,8 +34,8 @@ export default function CartPage() {
             dataIndex: 'images',
             key: 'images',
             render: (_, record) => {
-                // Debug: Log the images array for this record
-                console.log(`Images for ${record.productName}:`, record.images);
+                // Debug: Log the record to see its structure
+                console.log(`Cart Item Record:`, record);
 
                 return (
                     <div className="table-col-name">
@@ -51,7 +51,7 @@ export default function CartPage() {
                             />
                         </div>
                         <div className="table-col-name-content">
-                            <h5>{record.brandName || 'N/A'}</h5>
+                            {/* Remove brandName display to match screenshot */}
                             <Text>{record.productName || 'Unnamed Product'}</Text>
                             <br />
                             <Text type="secondary" style={{ fontSize: '12px' }}>

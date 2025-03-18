@@ -39,13 +39,21 @@ const ProductCategorySection = ({ title, products, loading }) => {
     const handleAddToCart = (product) => {
         if (!handleCheckLogin()) return;
 
+        // Debug: Log the product object to see its structure
+        console.log('Product being added to cart:', product);
+
         // Default quantity to 1 for each product
         const quantity = 1;
 
+        // Transform productImages into an array of URLs and ensure fields are included
         const productToAdd = {
-            ...product,
+            productId: product.productId,
+            productName: product.productName || product.name || 'Unnamed Product',
+            brandName: product.brandName || product.brand || 'Unknown Brand',
+            stocks: product.stocks || 0,
+            sellPrice: product.sellPrice || 0,
             quantity,
-            images: product.productImages?.map(img => img.prodImageUrl) || [],
+            images: product.images?.map(img => img.prodImageUrl) || [],
         };
 
         // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
@@ -60,7 +68,7 @@ const ProductCategorySection = ({ title, products, loading }) => {
         }
         toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
     };
-
+    
     return (
         <Card style={{ marginBottom: '20px', border: 'none' }}>
             <Title level={4}>{title}</Title>
