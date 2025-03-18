@@ -44,9 +44,18 @@ export default function ProductDetailPage() {
             try {
                 const response = await api.get(`Products/${id}`);
                 if (response.data && response.data.data) {
-                    const productData = response.data.data;
-                    setProduct(productData);
-                    setMainImage(productData.images?.[0] || 'https://via.placeholder.com/400');
+                    let processedItems = response.data.data;
+                    const castProductId = response.data.data.productId
+                        ? BigInt(response.data.data.productId)
+                        : response.data.data.productId;
+
+                    processedItems = {
+                        ...processedItems,
+                        productId: castProductId,
+                    };
+                    // const productData = response.data.data;
+                    setProduct(processedItems);
+                    setMainImage(processedItems.images?.[0] || 'https://via.placeholder.com/400');
                 }
             } catch (error) {
                 console.error('Lỗi khi lấy chi tiết sản phẩm:', error);
@@ -83,21 +92,39 @@ export default function ProductDetailPage() {
 
     const handleAddToCart = () => {
         if (!handleCheckLogin()) return;
+
+        // Convert BigInt productId to string before adding to cart
         const productToAdd = {
             ...product,
+            productId: product.productId ? product.productId.toString() : product.productId,
             quantity, // Thêm số lượng đã chọn
         };
 
         // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-        const existingProduct = cartItems.find((item) => item.productId === product.productId);
+        const existingProduct = cartItems.find(
+            (item) => item.productId && product.productId && item.productId.toString() === product.productId.toString()
+        );
 
         if (existingProduct) {
             // Nếu sản phẩm đã có trong giỏ hàng, chỉ cập nhật số lượng
-            dispatch(increaseQuantity({ productId: product.productId, quantity }));
+            dispatch(
+                increaseQuantity({
+                    productId: product.productId.toString(),
+                    quantity,
+                })
+            );
         } else {
             // Nếu sản phẩm chưa có, thêm sản phẩm mới vào giỏ
             dispatch(addToCart(productToAdd));
         }
+
+        // Lưu giỏ hàng vào localStorage
+        const updatedCartItems = [...cartItems];
+        if (!existingProduct) {
+            updatedCartItems.push(productToAdd);
+        }
+        localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
+
         toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
     };
 
@@ -114,8 +141,6 @@ export default function ProductDetailPage() {
                     maxWidth: '1100px',
                     margin: 'auto',
                     padding: '20px 40px',
-                    // display: "flex",
-                    // gap: "50px",
                     fontFamily: 'Nunito, sans-serif',
                 }}>
                 <div
@@ -278,7 +303,8 @@ export default function ProductDetailPage() {
                                         <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>
                                             Giá niêm yết:
                                         </span>
-                                        <span style={{ textDecoration: 'line-through', fontSize: '14px', color: '#888' }}>
+                                        <span
+                                            style={{ textDecoration: 'line-through', fontSize: '14px', color: '#888' }}>
                                             {product.sellPrice.toLocaleString()} đ
                                         </span>
                                         <span
@@ -289,7 +315,7 @@ export default function ProductDetailPage() {
                                                 padding: '2px 8px',
                                                 borderRadius: '4px',
                                                 fontWeight: '500',
-                                                marginLeft: '8px'
+                                                marginLeft: '8px',
                                             }}>
                                             -{Math.round((1 - product.discountedPrice / product.sellPrice) * 100)}%
                                         </span>
@@ -297,7 +323,9 @@ export default function ProductDetailPage() {
                                 </>
                             ) : (
                                 <div>
-                                    <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>Giá niêm yết:</span>
+                                    <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>
+                                        Giá niêm yết:
+                                    </span>
                                     <span style={{ color: '#D8959A', fontWeight: 'bold', fontSize: '26px' }}>
                                         {product?.sellPrice ? `${product.sellPrice.toLocaleString()} đ` : 'Liên hệ'}
                                     </span>
