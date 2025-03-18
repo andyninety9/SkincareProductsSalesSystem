@@ -42,6 +42,7 @@ import ManageSkintype from './page/manageSkintype/ManageSkintype';
 import ManageBrand from './page/manageBrand/ManageBrand';
 import ThankForOrderPage from './page/thankForOrderPage/ThankForOrderPage';
 import ResultQuizHistoryPage from './page/resultQuizHistory/ResultQuizHistoryPage';
+import VerifyEmailPage from './page/verifyEmailPage/VerifyEmailPage';
 
 function App() {
     const router = createBrowserRouter([
@@ -85,6 +86,7 @@ function App() {
                 { path: routes.service, element: <Service /> },
                 { path: routes.faq, element: <Faq /> },
                 { path: routes.cart, element: <CartPage /> },
+                { path: routes.verifyEmail, element: <VerifyEmailPage /> },
                 {
                     path: routes.checkout,
                     element: (
