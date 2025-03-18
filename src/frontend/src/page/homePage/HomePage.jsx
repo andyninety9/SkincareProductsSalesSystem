@@ -10,80 +10,65 @@ import { Navigation } from 'swiper/modules';
 import { FaChevronCircleLeft, FaChevronCircleRight, FaInstagram } from 'react-icons/fa';
 import { CiCircleChevLeft, CiCircleChevRight } from 'react-icons/ci';
 import ObjectSlider from '../../component/objectSlider/slider';
+import api from '../../config/api';
 
 export default function HomePage() {
     const prevRef = useRef(null);
     const nextRef = useRef(null);
     const swiperRef = useRef(null);
+    const [popularProduct, setPopularProduct] = useState([]);
+    const [category, setCategory] = useState([]);
+
+    const handleFetchPopularProduct = async () => {
+        try {
+            const response = await api.get('/products/top-selling?page=1&pageSize=10');
+            const processedItems = response.data.data.items.map((item) => ({
+                ...item,
+                productId: item.productId ? BigInt(item.productId) : item.productId,
+            }));
+            setPopularProduct(processedItems);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleFetchCategory = async () => {
+        try {
+            const response = await api.get('products/categories');
+            const processedItems = response.data.data.items.map((item) => ({
+                ...item,
+                categoryId: item.categoryId ? BigInt(item.categoryId) : item.categoryId,
+                // Add image URL based on category name
+                img: categoryImages[item.cateProdName] || 'https://placehold.co/600x400?text=No+Image',
+                title: item.cateProdName, // Set title to match the category name
+            }));
+            setCategory(processedItems);
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     useEffect(() => {
+        handleFetchCategory();
+        handleFetchPopularProduct();
         if (swiperRef.current) {
             swiperRef.current.navigation.init();
             swiperRef.current.navigation.update();
         }
     }, []);
 
-    const category = [
-        {
-            img: 'https://cdn.nhathuoclongchau.com.vn/unsafe/800x0/filters:quality(95)/https://cms-prod.s3-sgn09.fptcloud.com/dau1_154087bbdc.jpg',
-            title: 'Da Dầu',
-        },
-        {
-            img: 'https://cdn.nhathuoclongchau.com.vn/unsafe/800x0/filters:quality(95)/https://cms-prod.s3-sgn09.fptcloud.com/dau1_154087bbdc.jpg',
-            title: 'Da mụn',
-        },
-        {
-            img: 'https://cdn.nhathuoclongchau.com.vn/unsafe/800x0/filters:quality(95)/https://cms-prod.s3-sgn09.fptcloud.com/dau1_154087bbdc.jpg',
-            title: 'Da khô',
-        },
-        {
-            img: 'https://cdn.nhathuoclongchau.com.vn/unsafe/800x0/filters:quality(95)/https://cms-prod.s3-sgn09.fptcloud.com/dau1_154087bbdc.jpg',
-            title: 'Da đậu đỏ',
-        },
-        {
-            img: 'https://cdn.nhathuoclongchau.com.vn/unsafe/800x0/filters:quality(95)/https://cms-prod.s3-sgn09.fptcloud.com/dau1_154087bbdc.jpg',
-            title: 'Da abc',
-        },
-    ];
-
-    const product = [
-        {
-            img: 'https://nicolerae.ca/wp-content/uploads/2020/12/ayla-skin-products-nicole-rae-4.jpg',
-            name: 'Sữa tắm',
-            desc: 'daasdaasd',
-            price: '15',
-        },
-        {
-            img: 'https://nicolerae.ca/wp-content/uploads/2020/12/ayla-skin-products-nicole-rae-4.jpg',
-            name: 'Sữa rưa3r mặt',
-            desc: 'daasdaasd',
-            price: '35',
-        },
-        {
-            img: 'https://nicolerae.ca/wp-content/uploads/2020/12/ayla-skin-products-nicole-rae-4.jpg',
-            name: 'Sữa dưỡng ẩm',
-            desc: 'daasdaasd',
-            price: '25',
-        },
-        {
-            img: 'https://en.pimg.jp/083/562/913/1/83562913.jpg',
-            name: 'Dầu gội',
-            desc: 'daasdaasd',
-            price: '15',
-        },
-        {
-            img: 'https://en.pimg.jp/083/562/913/1/83562913.jpg',
-            name: 'Sữa tắm',
-            desc: 'daasdaasd',
-            price: '35',
-        },
-        {
-            img: 'https://en.pimg.jp/083/562/913/1/83562913.jpg',
-            name: 'Sữa abcxyz',
-            desc: 'daasdaasd',
-            price: '35',
-        },
-    ];
+    const categoryImages = {
+        Cleansers:
+            'https://image.cocoonvietnam.com/uploads/Website_448744049_486999170354190_4651515310287941209_240911_2f2521e90d.jpg',
+        Moisturizers: 'https://image.cocoonvietnam.com/uploads/Artboard_1_24cdb0bca9.jpg',
+        'Serums & Treatments': 'https://image.cocoonvietnam.com/uploads/Artboard_10_303004049f.jpg',
+        Sunscreens:
+            'https://image.cocoonvietnam.com/uploads/Website_448744049_486999170354190_4651515310287941209_240911_2f2521e90d.jpg',
+        Toners: 'https://image.cocoonvietnam.com/uploads/Artboard_7_2d844256a8.jpg',
+        Exfoliants: 'https://image.cocoonvietnam.com/uploads/Artboard_5_8c28ccf387.jpg',
+        'Bath & Shower': 'https://image.cocoonvietnam.com/uploads/srm_3efa789217.png',
+        'Body Lotion': 'https://image.cocoonvietnam.com/uploads/banner_green_living_ca9790eb2d.jpg',
+    };
 
     const blog = [
         {
@@ -132,7 +117,7 @@ export default function HomePage() {
                     </h4>
 
                     <ObjectSlider slidesPerView={4} spaceBetween={30} navigationClass="bestsellet-slider-nav">
-                        {product.map((prod, index) => (
+                        {popularProduct.map((prod, index) => (
                             <SwiperSlide key={index}>
                                 <CardProduct product={prod} />
                             </SwiperSlide>
@@ -152,7 +137,7 @@ export default function HomePage() {
                         {category.map((cate, index) => (
                             <SwiperSlide key={index}>
                                 <div className="category-skin">
-                                    <img src={cate.img} alt="" style={{ objectFit: 'cover' }} />
+                                    <img src={cate.img} alt={cate.title} style={{ objectFit: 'cover' }} />
                                     <h5 className="category-name">{cate.title}</h5>
                                 </div>
                             </SwiperSlide>

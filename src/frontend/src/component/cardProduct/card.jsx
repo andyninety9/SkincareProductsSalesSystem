@@ -13,7 +13,7 @@ const bigIntOrNumberType = PropTypes.oneOfType([
         ) {
             return new Error(
                 `Invalid prop '${propName}' of type '${typeof props[
-                propName
+                    propName
                 ]}' supplied to '${componentName}', expected 'number' or 'bigint'.`
             );
         }
@@ -46,6 +46,7 @@ CardProduct.propTypes = {
         createdAt: PropTypes.string,
         updatedAt: PropTypes.string,
         reviewCount: PropTypes.number,
+        totalsold: PropTypes.number,
     }),
 };
 export default function CardProduct({ product }) {
@@ -93,30 +94,30 @@ export default function CardProduct({ product }) {
 
             <div className="cardProduct-content">
                 <div className="cardProduct-content-left">
-                    <Rate
-                        value={product?.totalRating || 0}
-                        disabled
-                        className="cardProduct-content-left-rate"
-                    />
-                    <p style={{
-                        fontWeight: 700, fontSize: '16px',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 1,
-                        WebkitBoxOrient: 'vertical'
-                    }}>
+                    <Rate value={product?.totalRating || 0} disabled className="cardProduct-content-left-rate" />
+                    <p
+                        style={{
+                            fontWeight: 700,
+                            fontSize: '16px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 1,
+                            WebkitBoxOrient: 'vertical',
+                        }}>
                         {product?.productName || 'Không có tên'}
                     </p>
-                    <p style={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical'
-                    }}>
+                    <p
+                        style={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                        }}>
                         {product?.productDesc || 'Không có mô tả'}
                     </p>
+                    
                 </div>
 
                 <div className="cardProduct-content-right">
