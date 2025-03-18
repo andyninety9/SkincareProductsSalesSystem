@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useRouteError, isRouteErrorResponse } from 'react-router-dom';
 import { routes } from '../../routes';
 import { Container, Row, Col } from 'react-bootstrap';
-import { Button, Skeleton, Card, Typography, Image, Tag } from 'antd';
+import { Button, Skeleton, Card, Typography, Image, Steps, Popover } from 'antd';
 import PropTypes from 'prop-types'; // Import PropTypes for validation
 import api from '../../config/api'; // Using the configured api with interceptors
 import { toast } from 'react-hot-toast';
+import '../../component/manageOrderSteps/ManageOrderSteps.css'; // Import CSS for order steps
+
 import {
     CheckCircleOutlined,
     ClockCircleOutlined,
@@ -15,35 +17,61 @@ import {
 
 const { Text } = Typography;
 
-// Status mapping with icons and colors
-const statusConfig = {
-    Pending: { icon: <ClockCircleOutlined />, color: 'default' },
-    Processing: { icon: <SyncOutlined spin />, color: '#E6B2BA' },
-    Shipping: { icon: <SyncOutlined />, color: 'blue' },
-    Shipped: { icon: <CheckCircleOutlined />, color: 'cyan' },
-    Completed: { icon: <CheckCircleOutlined />, color: '#D8959A' },
-    Cancelled: { icon: <CloseCircleOutlined />, color: 'error' },
-};
+// Status steps for Steps component
+const statusSteps = [
+    { title: 'Chờ xử lý', description: 'Đơn hàng đang chờ xác nhận' }, // Pending
+    { title: 'Đang xử lý', description: 'Đơn hàng đang được chuẩn bị' }, // Processing
+    { title: 'Đang vận chuyển', description: 'Đơn hàng đang trên đường giao' }, // Shipping
+    { title: 'Đã vận chuyển', description: 'Đơn hàng đã được vận chuyển' }, // Shipped
+    { title: 'Hoàn thành', description: 'Đơn hàng đã được giao' }, // Completed
+    { title: 'Đã hủy', description: 'Đơn hàng đã bị hủy' }, // Cancelled
+];
 
 // Utility function to convert to BigInt string
 const toBigIntString = (value) => {
     try {
-        return value != null ? BigInt(value).toString() : "N/A";
+        return value != null ? BigInt(value).toString() : 'N/A';
     } catch (error) {
         console.error(`Error converting to BigInt: ${value}`, error.message);
-        return "N/A";
+        return 'N/A';
     }
 };
 
 // Utility function to format date to mm-dd-yy
 const formatDate = (dateStr) => {
-    if (!dateStr) return "N/A";
+    if (!dateStr) return 'N/A';
     const date = new Date(dateStr);
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
     const day = String(date.getDate()).padStart(2, '0');
     const year = String(date.getFullYear()).slice(-2); // Last 2 digits of year
     return `${month}-${day}-${year}`;
 };
+
+// Utility function to get numeric status index
+const getNumericStatus = (status) => {
+    const statusMap = {
+        Pending: 0,
+        Processing: 1,
+        Shipping: 2,
+        Shipped: 3,
+        Completed: 4,
+        Cancelled: 5,
+    };
+    return typeof status === 'string' ? (statusMap[status] || 0) : (Number.isNaN(status) ? 0 : status);
+};
+
+// Custom dot for Steps with Popover
+const customDot = (dot, { status, index, currentStep }) => (
+    <Popover
+        content={
+            <span style={{ color: index <= currentStep ? '#C87E83' : undefined }}>
+                Step {index + 1} status: {status}
+            </span>
+        }
+    >
+        {dot}
+    </Popover>
+);
 
 // ErrorBoundary component with PropTypes validation
 const ErrorBoundaryFallback = ({ error }) => {
@@ -86,7 +114,7 @@ const OrderHistoryPage = () => {
 
     const fetchOrderDetails = async (orderId) => {
         try {
-            if (!orderId || orderId === "N/A") {
+            if (!orderId || orderId === 'N/A') {
                 throw new Error('Invalid Order ID.');
             }
 
@@ -109,7 +137,7 @@ const OrderHistoryPage = () => {
                     fetchProductDetails(response.data.data.products[0].productId);
                 }
                 setFetchError(null);
-            } else if (response?.data?.status === 400 && response?.data?.type === "NotFound") {
+            } else if (response?.data?.status === 400 && response?.data?.type === 'NotFound') {
                 console.warn('Order not found:', orderId);
                 setOrder(null);
                 setFetchError('Order not found.');
@@ -172,23 +200,7 @@ const OrderHistoryPage = () => {
         ? effectivePrice * order.products[0].quantity
         : 0;
 
-    // Dynamic delivery status message based on orderStatus
-    const getDeliveryStatus = (status) => {
-        switch (status) {
-            case 'Shipped':
-            case 'Completed':
-                return 'Đã giao hàng';
-            case 'Processing':
-            case 'Shipping':
-                return 'Đang xử lý';
-            case 'Pending':
-                return 'Chờ xử lý';
-            case 'Cancelled':
-                return 'Đã hủy';
-            default:
-                return 'Trạng thái không xác định';
-        }
-    };
+    const currentStep = getNumericStatus(order?.orderStatus);
 
     return (
         <Container style={{ marginTop: '80px', padding: '24px', maxWidth: '1200px' }}>
@@ -215,25 +227,19 @@ const OrderHistoryPage = () => {
                                             Đơn hàng #{order.orderId}
                                         </Text>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                        <Text type="success">{getDeliveryStatus(order.orderStatus)}</Text>
-                                        <Tag
-                                            icon={statusConfig[order.orderStatus]?.icon}
-                                            color={statusConfig[order.orderStatus]?.color || 'default'}
-                                            style={{
-                                                borderRadius: 5,
-                                                height: '30px',
-                                                width: '100px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                fontSize: '12px',
-                                                padding: '0 8px',
-                                            }}
-                                        >
-                                            {order.orderStatus}
-                                        </Tag>
-                                    </div>
+                                </div>
+
+                                {/* Divider */}
+                                <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
+
+                                {/* Steps Section */}
+                                <div className="manage-order-steps" style={{ marginTop: '16px' }}>
+                                    <Steps
+                                        current={currentStep}
+                                        progressDot={(dot, props) => customDot(dot, { ...props, currentStep })}
+                                        items={statusSteps}
+                                        disabled={true} // Disable interactivity for view-only
+                                    />
                                 </div>
 
                                 {/* Product Section */}
@@ -278,7 +284,6 @@ const OrderHistoryPage = () => {
                                     </div>
                                 </div>
 
-
                                 {/* Divider */}
                                 <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
 
@@ -302,7 +307,7 @@ const OrderHistoryPage = () => {
                                 {/* Divider */}
                                 <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
 
-                                {/* Footer */}
+                                {/* Footer (unchanged as requested) */}
                                 <div className="order-footer" style={{ textAlign: 'right' }}>
                                     <Text style={{ color: '#D8959A', fontWeight: 'bold', fontSize: '18px' }}>
                                         Thành tiền: đ{order.totalPrice.toLocaleString()}
