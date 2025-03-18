@@ -26,6 +26,8 @@ export default function CheckOutPage() {
     const [selectedVoucher, setSelectedVoucher] = React.useState(null);
     const [voucherCode, setVoucherCode] = React.useState('');
     const [discountAmount, setDiscountAmount] = React.useState(0);
+    const [shippingFee, setShippingFee] = React.useState(0);
+
     const handleAddressChange = (value) => {
         const selectedAddress = userAddress.find((address) => address.addressId === value);
         if (selectedAddress) {
@@ -35,6 +37,9 @@ export default function CheckOutPage() {
                 address: selectedAddress.addDetail,
                 ward: selectedAddress.ward,
             });
+
+            // Calculate shipping fee after setting form values
+            setTimeout(() => handleGetShippingFee(), 100); // Small delay to ensure form values are set
         }
     };
 
@@ -88,6 +93,131 @@ export default function CheckOutPage() {
             console.log(response.data);
         } catch (error) {
             console.error('Failed to fetch voucher:', error.response?.data);
+        }
+    };
+
+    const handleGetAddressCodeByAddress = async () => {
+        try {
+            // Get current form values
+            const formValues = form.getFieldsValue();
+            const provinceName = formValues.province;
+            const districtName = formValues.district;
+            const wardName = formValues.ward;
+
+            if (!provinceName || !districtName || !wardName) {
+                message.error('Vui lòng chọn đầy đủ thông tin địa chỉ');
+                return null;
+            }
+
+            // Step 1: Get provinces and find province ID
+            const provinceResponse = await api.get('delivery/provinces');
+            if (provinceResponse.data.statusCode !== 200) {
+                throw new Error('Không thể lấy thông tin tỉnh/thành phố');
+            }
+
+            const provinces = provinceResponse.data.data;
+            const province = provinces.find((p) => p.ProvinceName.toLowerCase() === provinceName.toLowerCase());
+
+            if (!province) {
+                message.error(`Không tìm thấy tỉnh/thành phố: ${provinceName}`);
+                return null;
+            }
+
+            // Step 2: Get districts for the found province
+            const districtResponse = await api.get(`delivery/districts?provinceId=${province.ProvinceID}`);
+            if (districtResponse.data.statusCode !== 200) {
+                throw new Error('Không thể lấy thông tin quận/huyện');
+            }
+
+            const districts = districtResponse.data.data;
+            const district = districts.find((d) => d.DistrictName.toLowerCase() === districtName.toLowerCase());
+
+            if (!district) {
+                message.error(`Không tìm thấy quận/huyện: ${districtName}`);
+                return null;
+            }
+
+            // Step 3: Get wards for the found district
+            const wardResponse = await api.get(`delivery/wards?districtId=${district.DistrictID}`);
+            if (wardResponse.data.statusCode !== 200) {
+                throw new Error('Không thể lấy thông tin phường/xã');
+            }
+
+            const wards = wardResponse.data.data;
+            const ward = wards.find((w) => w.WardName.toLowerCase() === wardName.toLowerCase());
+
+            if (!ward) {
+                message.error(`Không tìm thấy phường/xã: ${wardName}`);
+                return null;
+            }
+
+            // Return the found IDs and codes
+            return {
+                provinceId: province.ProvinceID,
+                districtId: district.DistrictID,
+                wardCode: ward.WardCode,
+            };
+        } catch (error) {
+            console.error('Lỗi khi lấy mã địa chỉ:', error);
+            message.error('Không thể xác định mã địa chỉ: ' + (error.message || 'Đã xảy ra lỗi'));
+            return null;
+        }
+    };
+
+    const handleGetShippingFee = async () => {
+        try {
+            // Get location codes from the address
+            const addressCodes = await handleGetAddressCodeByAddress();
+            if (!addressCodes) {
+                return; // Error message already shown in handleGetAddressCodeByAddress
+            }
+
+            const response = await api.post('delivery/shipping-fee', {
+                from_district_id: 1454, // Origin district ID (shop's location)
+                from_ward_code: '21211', // Origin ward code (shop's location)
+                service_id: 53320,
+                service_type_id: null,
+                to_district_id: addressCodes.districtId, // Customer's district ID
+                to_ward_code: addressCodes.wardCode, // Customer's ward code
+                height: 50,
+                length: 20,
+                weight: 200,
+                width: 20,
+                insurance_value: 10000,
+                cod_failed_amount: 2000,
+                coupon: null,
+                items: cartItems.map((item) => ({
+                    name: item.productName,
+                    quantity: item.quantity,
+                    height: 200,
+                    weight: 1000,
+                    length: 200,
+                    width: 200,
+                })),
+            });
+
+            // Log the entire response to diagnose structure
+            console.log('Shipping fee response:', response.data);
+
+            if (response.data.statusCode === 200) {
+                // Access the deeply nested total field correctly
+                const fee = response.data.data.data.total;
+                setShippingFee(fee);
+                form.setFieldsValue({ shippingFee: fee });
+                message.success(`Phí vận chuyển: ${fee.toLocaleString()} đ`);
+                return fee;
+            } else {
+                message.error('Không thể tính phí vận chuyển: ' + response.data.message);
+                return 0;
+            }
+        } catch (error) {
+            console.error('Failed to get shipping fee:', error);
+            // Better error handling with proper data path
+            if (error.response?.data) {
+                console.error('Error details:', error.response.data);
+            }
+            message.error('Không thể tính phí vận chuyển');
+            return 0;
         }
     };
 
@@ -187,13 +317,19 @@ export default function CheckOutPage() {
     useEffect(() => {
         const fetchAddressAndSetDefault = async () => {
             try {
-                const response = await api.get('address/get-all-address');
+                const response = await api.get('address/get-all-address?page1&pageSize=1000');
                 if (response.data.statusCode === 200) {
                     const addresses = response.data.data.items;
-                    setUserAddress(addresses);
 
-                    const defaultAddress = addresses.find((address) => address.status === true);
-                    if (defaultAddress) {
+                    // Filter addresses to only include those with status === true
+                    const activeAddresses = addresses.filter((address) => address.status === true);
+
+                    // Set only active addresses to state
+                    setUserAddress(activeAddresses);
+
+                    // Select the first active address as default (since all are now active)
+                    if (activeAddresses.length > 0) {
+                        const defaultAddress = activeAddresses[0];
                         form.setFieldsValue({
                             userAddress: defaultAddress.addressId,
                             province: defaultAddress.city,
@@ -204,6 +340,11 @@ export default function CheckOutPage() {
                             name: user?.fullName || '',
                             phone: user?.phone || '',
                         });
+
+                        // Calculate shipping fee for default address
+                        setTimeout(() => handleGetShippingFee(), 500);
+                    } else {
+                        console.log('No active addresses found');
                     }
                 }
             } catch (error) {
@@ -403,7 +544,9 @@ export default function CheckOutPage() {
                             </div>
                             <div className="confirm-receipt-price-spacebetween">
                                 <p>Phí vận chuyển </p>
-                                <span className="font-bold">-</span>
+                                <span className="font-bold">
+                                    {shippingFee > 0 ? `${shippingFee.toLocaleString()} đ` : '-'}
+                                </span>
                             </div>
                             {discountAmount > 0 && (
                                 <div className="confirm-receipt-price-spacebetween">
@@ -429,7 +572,9 @@ export default function CheckOutPage() {
                         </div>
                         <div className="confirm-receipt-total">
                             <h5>Tổng cộng</h5>
-                            <span className="font-bold">{(totalAmount - discountAmount).toLocaleString()} đ</span>
+                            <span className="font-bold">
+                                {(totalAmount + shippingFee - discountAmount).toLocaleString()} đ
+                            </span>
                         </div>
                         <div
                             className="confirm-receipt-button"
