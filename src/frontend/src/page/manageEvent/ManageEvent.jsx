@@ -45,12 +45,18 @@ export default function ManageEvent() {
 
     const fetchProducts = async () => {
         try {
-            const response = await api.get("Products");
-
+            const response = await api.get("Products?page=1&pageSize=1000");
+    
             console.log("Fetched products:", response.data.data.items);  // Kiểm tra dữ liệu trả về từ API
-
+    
             if (response.status === 200 && response.data.data.items) {
-                setProducts(response.data.data.items);
+                // Chuyển đổi productId thành BigInt
+                const productsWithBigIntIds = response.data.data.items.map(product => ({
+                    ...product,
+                    productId: BigInt(product.productId),  // Chuyển đổi productId thành BigInt
+                }));
+    
+                setProducts(productsWithBigIntIds);  // Cập nhật lại danh sách sản phẩm
             } else {
                 console.error("No products found in response:", response.data);
             }
@@ -63,6 +69,7 @@ export default function ManageEvent() {
             });
         }
     };
+    
 
     const handleProductSelection = (product) => {
         // Kiểm tra nếu sản phẩm đã được chọn chưa
@@ -193,13 +200,13 @@ export default function ManageEvent() {
             }
     
             // Sau khi thêm sản phẩm, sự kiện sẽ được kích hoạt ngay lập tức
-            await activateEvent(eventIdStr); // Kích hoạt sự kiện
+            // await activateEvent(eventIdStr); 
     
-            notification.success({
-                message: 'Event Activated',
-                description: 'The event has been successfully activated.',
-                placement: 'topRight',
-            });
+            // notification.success({
+            //     message: 'Event Activated',
+            //     description: 'The event has been successfully activated.',
+            //     placement: 'topRight',
+            // });
     
             setIsProductModalVisible(false);
         } catch (error) {
@@ -242,6 +249,38 @@ export default function ManageEvent() {
             }
         }
     };
+
+
+    const deactivateEvent = async (eventId) => {
+        try {
+            const response = await api.patch("events/inactive", {
+                eventId: String(eventId),  // Chuyển eventId thành chuỗi
+            });
+            console.log(`Event ${eventId} deactivated successfully.`);
+            notification.success({
+                message: 'Event Deactivated',
+                description: 'The event has been successfully deactivated.',
+                placement: 'topRight',
+            });
+        } catch (error) {
+            console.error(`Error deactivating event ${eventId}:`, error);
+            
+            if (error.response && error.response.status === 400) {
+                notification.error({
+                    message: 'Event Deactivation Failed',
+                    description: 'The event cannot be deactivated at this moment. Please check the event status or time.',
+                    placement: 'topRight',
+                });
+            } else {
+                notification.error({
+                    message: 'Error Deactivating Event',
+                    description: 'There was an error deactivating the event.',
+                    placement: 'topRight',
+                });
+            }
+        }
+    };
+    
     
     
 
@@ -261,6 +300,9 @@ export default function ManageEvent() {
             </Menu.Item>
             <Menu.Item key="delete" onClick={() => activateEvent(record.eventId)} >
                 Active Event
+            </Menu.Item>
+            <Menu.Item key="deactivate" onClick={() => deactivateEvent(record.eventId)} >
+                Deactive Event
             </Menu.Item>
         </Menu>
     );
@@ -418,6 +460,15 @@ export default function ManageEvent() {
         },
     ];
 
+    const handleBigIntDisplay = (value) => {
+        // Kiểm tra xem giá trị có phải bigint không và chuyển thành chuỗi
+        if (typeof value === 'bigint') {
+            return value.toString();  // Chuyển bigint thành chuỗi
+        }
+        return value;
+    };
+    
+
 
     return (
         <div style={{ display: "flex", height: "100vh", overflow: "hidden", flexDirection: "column" }}>
@@ -567,8 +618,12 @@ export default function ManageEvent() {
                                         <Checkbox onChange={() => handleProductSelection(record)} />
                                     ),
                                 },
-                                { title: "Product ID", dataIndex: "productId", key: "productId" },
-                                { title: "Product Name", dataIndex: "productName", key: "productName" },
+                                {
+                                    title: "Product ID",
+                                    dataIndex: "productId",
+                                    key: "productId",
+                                    render: (value) => handleBigIntDisplay(value)  // Chuyển đổi giá trị productId thành chuỗi
+                                },                                { title: "Product Name", dataIndex: "productName", key: "productName" },
                                 { title: "Brand", dataIndex: "brandName", key: "brandName" },
                                 { title: "Category", dataIndex: "categoryName", key: "categoryName" },
                             ]}
