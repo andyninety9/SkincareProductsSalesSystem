@@ -185,7 +185,7 @@ const OrderHistoryPage = () => {
     const currentStep = getNumericStatus(order?.orderStatus);
 
     return (
-        <Container style={{ marginTop: '80px', padding: '24px', maxWidth: '1200px', marginBottom: '80px', }}>
+        <Container style={{ marginTop: '80px', padding: '24px', maxWidth: '1200px', marginBottom: '80px', overflow: 'hidden' }}>
             <Row>
                 <Col>
                     <Card
@@ -252,9 +252,21 @@ const OrderHistoryPage = () => {
                                         justifyContent: 'space-between'
                                     }}>
                                         <Text>{product.productName}</Text>
-                                        <Text type="secondary" style={{ fontSize: '12px' }}>
-                                            Phân loại hàng: {product.productDesc}
+                                        <Text
+                                            type="secondary"
+                                            style={{
+                                                fontSize: '12px',
+                                                wordBreak: 'break-word', // Ensures long words wrap
+                                                overflowWrap: 'break-word', // Alternative word wrapping
+                                                whiteSpace: 'normal', // Allows normal text wrapping
+                                                maxWidth: '100%', // Prevents text from exceeding container width
+                                                display: 'block', // Forces block display for better wrapping
+                                            }}
+                                        >
+                                            {product.productDesc}
                                         </Text>
+
+
                                         <Text>x{order.products[0].quantity}</Text>
                                         <div>
                                             {product.discountedPrice > 0 && (
