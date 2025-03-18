@@ -900,6 +900,67 @@ namespace WebApi.Controllers.Users
 
             return Ok(new { statusCode = 200, message = "Use voucher successfully" });
         }
+
+        /// <summary>
+        /// Get User Quiz History.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns a list of user quiz history.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///   GET /api/User/quiz-history
+        ///   Headers:
+        ///   Authorization: Bearer {token}
+        ///   Role:
+        ///   Customer
+        /// </remarks>
+        /// <response code="200">Returns a list of user quiz history.</response>
+        /// <response code="400">If the request is invalid.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="500">If an unexpected error occurs.</response>
+        [HttpGet("quiz-history")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Customer)]
+        public async Task<IActionResult> GetUserQuizHistory([FromQuery] string? keyword, [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(usrID))
+                {
+                    return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+                }
+
+                if (!long.TryParse(usrID, out var userId))
+                {
+                    return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
+                }
+
+                if (page <= 0 || pageSize <= 0)
+                {
+                    return BadRequest(new { statusCode = 400, message = "Page and limit must be greater than 0." });
+                }
+
+                PaginationParams paginationParams = new() { Page = page, PageSize = pageSize };
+
+                var query = new GetUserQuizHistoryQuery(userId, keyword, paginationParams);
+                var result = await _mediator.Send(query, cancellationToken);
+
+                if (!result.IsSuccess)
+                {
+                    return BadRequest(new { statusCode = 400, message = result.Error.Description });
+                }
+
+                return Ok(new { statusCode = 200, message = "Get user quiz history successfully", data = result.Value });
+
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+                return StatusCode(500, new { statusCode = 500, message = "An unexpected error occurred." });
+            }
+        }
         
     }
 }

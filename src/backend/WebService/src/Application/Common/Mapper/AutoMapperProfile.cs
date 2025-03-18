@@ -64,6 +64,8 @@ namespace Application.Common.Mapper
             CreateMap<Voucher, GetUserVoucherResponse>();
             CreateMap<CreateRecommendForResponse, RecommendFor>();
             CreateMap<RecommendFor, CreateRecommendForResponse>();
+            CreateMap<Quiz, GetUserQuizHistoryResponse>();
+            CreateMap<GetUserQuizHistoryResponse, Quiz>();
 
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();
