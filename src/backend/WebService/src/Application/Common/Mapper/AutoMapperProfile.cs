@@ -93,7 +93,8 @@ namespace Application.Common.Mapper
                     ProdImageId = i.ProdImageId,
                     ProdImageUrl = i.ProdImageUrl
                 }).ToList()))
-                .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews.Count()));
+                .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews.Count()))
+                .ForMember(dest => dest.Totalsold, opt => opt.MapFrom(src => src.Totalsold));
 
             CreateMap<GetAllProductsResponse, Product>();
 
@@ -113,7 +114,8 @@ namespace Application.Common.Mapper
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Cate.CateProdName))
                 .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.ProdStatus.ProdStatusName))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.ProductImages.Select(i => i.ProdImageUrl).ToList()))
-                .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Totalreview));
+                .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Totalreview))
+                .ForMember(dest => dest.TotalSold, opt => opt.MapFrom(src => src.Totalsold));
             // Mapping cho Review
             CreateMap<Review, GetAllProductReviewsResponse>()
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.UsrId));
