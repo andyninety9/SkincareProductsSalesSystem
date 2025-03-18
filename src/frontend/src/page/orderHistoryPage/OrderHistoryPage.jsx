@@ -8,16 +8,7 @@ import api from '../../config/api';
 import { toast } from 'react-hot-toast';
 import '../../component/manageOrderSteps/ManageOrderSteps.css';
 
-import {
-    CheckCircleOutlined,
-    ClockCircleOutlined,
-    CloseCircleOutlined,
-    SyncOutlined,
-} from '@ant-design/icons';
-
 const { Text } = Typography;
-
-// Status steps for Steps component
 const statusSteps = [
     { title: 'Chờ xử lý', description: 'Đơn hàng đang chờ xác nhận' }, // Pending
     { title: 'Đang xử lý', description: 'Đơn hàng đang được chuẩn bị' }, // Processing
@@ -27,7 +18,7 @@ const statusSteps = [
     { title: 'Đã hủy', description: 'Đơn hàng đã bị hủy' }, // Cancelled
 ];
 
-// Utility function to convert to BigInt string
+// Convert to BigInt string
 const toBigIntString = (value) => {
     try {
         return value != null ? BigInt(value).toString() : 'N/A';
@@ -37,17 +28,15 @@ const toBigIntString = (value) => {
     }
 };
 
-// Utility function to format date to mm-dd-yy
 const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
     const date = new Date(dateStr);
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(-2); // Last 2 digits of year
+    const year = String(date.getFullYear()).slice(-2);
     return `${month}-${day}-${year}`;
 };
 
-// Utility function to get numeric status index
 const getNumericStatus = (status) => {
     const statusMap = {
         Pending: 0,
@@ -60,7 +49,6 @@ const getNumericStatus = (status) => {
     return typeof status === 'string' ? (statusMap[status] || 0) : (Number.isNaN(status) ? 0 : status);
 };
 
-// Custom dot for Steps with Popover
 const customDot = (dot, { status, index, currentStep }) => (
     <Popover
         content={
@@ -73,11 +61,10 @@ const customDot = (dot, { status, index, currentStep }) => (
     </Popover>
 );
 
-// ErrorBoundary component with PropTypes validation
 const ErrorBoundaryFallback = ({ error }) => {
     ErrorBoundaryFallback.propTypes = {
         error: PropTypes.shape({
-            message: PropTypes.string, // Validate that error can have a message
+            message: PropTypes.string,
         }),
     };
 
@@ -104,13 +91,13 @@ const ErrorBoundaryFallback = ({ error }) => {
 };
 
 const OrderHistoryPage = () => {
-    const { orderId } = useParams(); // Extract orderId from URL parameter
+    const { orderId } = useParams();
     const navigate = useNavigate();
-    const error = useRouteError(); // Capture errors for React Router ErrorBoundary
+    const error = useRouteError();
     const [order, setOrder] = useState(null);
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [fetchError, setFetchError] = useState(null); // Track fetch-specific errors
+    const [fetchError, setFetchError] = useState(null)
 
     const fetchOrderDetails = async (orderId) => {
         try {
@@ -118,7 +105,7 @@ const OrderHistoryPage = () => {
                 throw new Error('Invalid Order ID.');
             }
 
-            const bigIntOrderId = toBigIntString(orderId); // Convert orderId to BigInt string for request
+            const bigIntOrderId = toBigIntString(orderId);
             console.log(`Fetching order details for orderId: ${bigIntOrderId} at endpoint: orders/user/${bigIntOrderId}`);
             const response = await api.get(`orders/user/${bigIntOrderId}`);
             console.log('API Response:', response);
@@ -129,10 +116,8 @@ const OrderHistoryPage = () => {
                     orderStatus: response.data.data.orderStatus,
                     totalPrice: response.data.data.totalPrice,
                     products: response.data.data.products || [],
-                    rewardPoints: response.data.data.rewardPoints || 300, // Assuming rewardPoints from API
-                    payment: response.data.data.payment || {}, // Add payment details
+                    payment: response.data.data.payment || {},
                 });
-                // Fetch product details using the first product's ID
                 if (response.data.data.products && response.data.data.products.length > 0) {
                     fetchProductDetails(response.data.data.products[0].productId);
                 }
@@ -183,19 +168,16 @@ const OrderHistoryPage = () => {
         fetchOrderDetails(orderId);
     }, [orderId]);
 
-    // Handle errors thrown during rendering or data fetching
+
     if (isRouteErrorResponse(error)) {
         return <ErrorBoundaryFallback error={error} />;
     }
-
-    // Determine the effective price (use discountedPrice if available and greater than 0, otherwise use sellPrice)
     const effectivePrice = product
         ? product.discountedPrice > 0
             ? product.discountedPrice
             : product.sellPrice
         : 0;
 
-    // Calculate total price based on effective price and quantity
     const calculatedTotal = order && order.products && order.products.length > 0 && product
         ? effectivePrice * order.products[0].quantity
         : 0;
@@ -263,11 +245,11 @@ const OrderHistoryPage = () => {
                                     />
                                     <div style={{
                                         flex: 1,
-                                        height: '100px',  // Restrict height to match the image
-                                        overflow: 'hidden', // Hide overflow
+                                        height: '100px',
+                                        overflow: 'hidden',
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        justifyContent: 'space-between' // Distribute text properly
+                                        justifyContent: 'space-between'
                                     }}>
                                         <Text>{product.productName}</Text>
                                         <Text type="secondary" style={{ fontSize: '12px' }}>
