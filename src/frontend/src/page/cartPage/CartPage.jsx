@@ -64,7 +64,7 @@ export default function CartPage() {
                 <Text className="font-bold">{(sellPrice || 0).toLocaleString()} đ</Text>
             ),
             width: '20%',
-            align: 'right',
+            align: 'center',
         },
         {
             title: 'Số lượng',
@@ -100,7 +100,7 @@ export default function CartPage() {
                 <Text className="font-bold">{((record.sellPrice || 0) * (record.quantity || 0)).toLocaleString()} đ</Text>
             ),
             width: '20%',
-            align: 'right',
+            align: 'center',
         },
         {
             title: 'Xoá',
