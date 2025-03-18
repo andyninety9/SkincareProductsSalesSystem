@@ -961,6 +961,5 @@ namespace WebApi.Controllers.Users
                 return StatusCode(500, new { statusCode = 500, message = "An unexpected error occurred." });
             }
         }
-        
     }
 }
