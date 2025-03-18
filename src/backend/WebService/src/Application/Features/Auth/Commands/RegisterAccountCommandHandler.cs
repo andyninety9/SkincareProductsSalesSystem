@@ -182,11 +182,11 @@ namespace Application.Auth.Commands
         {
             try
             {
-                var endpointUrl = Environment.GetEnvironmentVariable("ENDPOINT_URL") ?? throw new InvalidOperationException("ENDPOINT_URL environment variable is not set");
+                var endpointUrl = Environment.GetEnvironmentVariable("ENDPOINT_WEBAPP_URL") ?? throw new InvalidOperationException("ENDPOINT_URL environment variable is not set");
                 var emailBody = EmailTemplate.GenerateEmailVerifyTokenHtml(
                     username: command.Username,
                     verifyToken: emailVerifyToken,
-                    baseUrl: endpointUrl + "/api/Authen/verify-email"
+                    baseUrl: endpointUrl + "/verify-email"
                 );
 
                 await _emailService.SendEmailAsync(new EmailModel
