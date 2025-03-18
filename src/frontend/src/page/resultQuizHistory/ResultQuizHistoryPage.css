@@ -4,6 +4,7 @@
     padding: 20px;
     border-radius: 10px;
     max-width: 1440px;
+    font-family: nunito, sans-serif;
 }
 
 .page-title {
@@ -30,7 +31,7 @@
 }
 
 .search-input:focus {
-    border-color: #f06292; /* Pink border on focus */
+    border-color: #D8959A; /* Pink border on focus */
 }
 
 .table-container {
@@ -41,8 +42,8 @@
 }
 
 /* Ant Design Table Overrides */
-.quiz-history-table .ant-table-thead > tr > th {
-    background-color: #fce4ec; /* Very light pink for table headers */
+/* .quiz-history-table .ant-table-thead > tr > th {
+    background-color: #fce4ec; 
     color: #f06292;
     font-weight: bold;
     text-align: center;
@@ -56,23 +57,60 @@
 .quiz-history-table .ant-table-pagination {
     text-align: center;
     color: #f06292;
+} */
+
+.card-container .quiz-card-column {
+    margin-bottom: 20px; 
 }
 
-/* Button styles */
+
+.quiz-card {
+    font-size: 16px; 
+    padding: 20px;
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+
+.quiz-card .card-title {
+    font-size: 25px; 
+    font-weight: bold; 
+}
+
+
+.quiz-card .card-subtitle {
+    font-size: 20px;
+    color: #888; 
+}
+
+
+.ant-btn {
+    font-size: 16px; 
+    padding: 8px 16px; 
+}
+
+
+
+
+
 .ant-btn-primary {
-    background-color: #f06292;
-    border-color: #f06292;
+    background-color: #D8959A;
+    border-color: #D8959A;
     color: white;
 }
 
+
 .ant-btn-primary:hover {
-    background-color: #ec407a;
-    border-color: #ec407a;
+    background-color: #fce4ec;
+    border-color: #fce4ec;
+    color: black; 
 }
 
 .ant-btn:focus,
 .ant-btn:hover {
-    color: #fff;
-    border-color: #f06292;
-    background: #f06292;
+    color: black !important;
+    border-color: #fce4ec !important;
+    background: #fce4ec !important; 
 }
+
+
