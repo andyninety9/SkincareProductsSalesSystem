@@ -125,13 +125,13 @@ namespace Application.Auth.Commands
             // Step 6: Send verification email
             try
             {
-                var endpointUrl = Environment.GetEnvironmentVariable("ENDPOINT_URL")
+                var endpointUrl = Environment.GetEnvironmentVariable("ENDPOINT_WEBAPP_URL")
                     ?? throw new InvalidOperationException("ENDPOINT_URL environment variable is not set");
 
                 var emailBody = EmailTemplate.GenerateEmailVerifyTokenHtml(
                     username: account.Username,
                     verifyToken: createdEmailVerifyToken,
-                    baseUrl: $"{endpointUrl}/api/Authen/verify-email"
+                    baseUrl: $"{endpointUrl}/verify-email"
                 );
 
                 await _emailService.SendEmailAsync(new EmailModel
