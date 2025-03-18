@@ -5,7 +5,7 @@ import '@fontsource/marko-one';
 import Cookies from 'js-cookie';
 import api from '../../config/api';
 import { toast } from 'react-hot-toast';
-import { Layout, Typography, Avatar } from 'antd';
+import { Layout, Typography, Avatar, Skeleton } from 'antd'; // Added Skeleton import
 import PropTypes from 'prop-types';
 import './ManageOrderHeader.css';
 
@@ -95,7 +95,6 @@ const ManageOrderHeader = ({ isModalOpen }) => {
         return () => clearInterval(cookieCheckInterval);
     }, []);
 
-
     return (
         <Header
             style={{
@@ -132,7 +131,16 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                 </div>
                 <div className="manage-order-user-wrapper">
                     <div className="manage-order-d-flex manage-order-gap-2 manage-order-align-items-center">
-                        {Object.keys(userInfo).length > 0 ? (
+                        {loading ? (
+                            <div className="manage-order-d-flex manage-order-align-items-center">
+                                <Skeleton.Avatar active size={40} shape="circle" />
+                                <Skeleton.Input
+                                    active
+                                    size="small"
+                                    style={{ width: 100, marginLeft: 8 }}
+                                />
+                            </div>
+                        ) : Object.keys(userInfo).length > 0 ? (
                             <div
                                 className="manage-order-position-relative"
                                 ref={dropdownRef}
@@ -154,17 +162,17 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {loading ? 'Loading...' : (userInfo.fullname || '')}
+                                        {userInfo.fullname || ''}
                                     </Text>
                                 </div>
-                                {isDropdownOpen && !loading && (
+                                {isDropdownOpen && (
                                     <div
                                         className="manage-order-position-absolute manage-order-p-2 manage-order-rounded"
                                         style={{
                                             top: '100%',
                                             left: '50%',
                                             transform: 'translateX(-50%)',
-                                            background: '#fffbfc',
+                                            background: 'white',
                                             padding: '10px',
                                             boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
                                             zIndex: 1000,
@@ -176,14 +184,14 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                                             style={{ padding: '4px 8px', cursor: 'pointer' }}
                                             onClick={() => navigate(routes.profile)}
                                         >
-                                            Profile
+                                            Xem hồ sơ
                                         </Text>
                                         <Text
                                             className="manage-order-d-block manage-order-text-dark manage-order-text-decoration-none"
                                             style={{ padding: '4px 8px', cursor: 'pointer' }}
                                             onClick={handleLogout}
                                         >
-                                            Logout
+                                            Đăng xuất
                                         </Text>
                                     </div>
                                 )}
