@@ -17,13 +17,11 @@ const { Text } = Typography;
 
 export default function CartPage() {
     const dispatch = useDispatch();
-    const cartItems = useSelector(selectCartItems); // Lấy giỏ hàng từ Redux
+    const cartItems = useSelector(selectCartItems);
     const navigate = useNavigate();
 
-    // Debug: Log cartItems to verify data
     console.log('Cart Items:', cartItems);
 
-    // 🛠 Tránh lỗi NaN khi không có sản phẩm
     const totalAmount = cartItems.length > 0
         ? cartItems.reduce((total, item) => total + (item.sellPrice || 0) * (item.quantity || 0), 0)
         : 0;
@@ -33,35 +31,30 @@ export default function CartPage() {
             title: 'Sản phẩm',
             dataIndex: 'images',
             key: 'images',
-            render: (_, record) => {
-                // Debug: Log the images array for this record
-                console.log(`Images for ${record.productName}:`, record.images);
-
-                return (
-                    <div className="table-col-name">
-                        <div className="table-col-name-img">
-                            <img
-                                src={record.images?.[0] || 'https://via.placeholder.com/100'}
-                                alt={record.productName || 'Product Image'}
-                                onError={(e) => {
-                                    console.error(`Failed to load image: ${record.images?.[0]}`);
-                                    e.target.src = 'https://via.placeholder.com/100'; // Fallback on error
-                                }}
-                                style={{ width: '100px', height: '100px', objectFit: 'cover' }}
-                            />
-                        </div>
-                        <div className="table-col-name-content">
-                            <h5>{record.brandName || 'N/A'}</h5>
-                            <Text>{record.productName || 'Unnamed Product'}</Text>
-                            <br />
-                            <Text type="secondary" style={{ fontSize: '12px' }}>
-                                Còn lại: {record.stocks !== undefined ? record.stocks : 'N/A'} sản phẩm
-                            </Text>
-                        </div>
+            render: (_, record) => (
+                <div className="table-col-name">
+                    <div className="table-col-name-img">
+                        <img
+                            src={record.images?.[0] || 'https://via.placeholder.com/100'}
+                            alt={record.productName || 'Product Image'}
+                            onError={(e) => {
+                                console.error(`Failed to load image: ${record.images?.[0]}`);
+                                e.target.src = 'https://via.placeholder.com/100';
+                            }}
+                            style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                        />
                     </div>
-                );
-            },
-            width: 400,
+                    <div className="table-col-name-content">
+                        <h5>{record.brandName}</h5>
+                        <Text>{record.productName || 'Unnamed Product'}</Text>
+                        <br />
+                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                            Còn lại: {record.stocks !== undefined ? record.stocks : 'N/A'} sản phẩm
+                        </Text>
+                    </div>
+                </div>
+            ),
+            width: '40%', // Relative width to fit within container
         },
         {
             title: 'Giá tiền',
@@ -70,6 +63,8 @@ export default function CartPage() {
             render: (sellPrice) => (
                 <Text className="font-bold">{(sellPrice || 0).toLocaleString()} đ</Text>
             ),
+            width: '20%', // Increased relative width for price
+            align: 'right',
         },
         {
             title: 'Số lượng',
@@ -94,6 +89,8 @@ export default function CartPage() {
                     </Button>
                 </div>
             ),
+            width: '15%', // Compact width for quantity
+            align: 'center',
         },
         {
             title: 'Thành tiền',
@@ -102,6 +99,8 @@ export default function CartPage() {
             render: (_, record) => (
                 <Text className="font-bold">{((record.sellPrice || 0) * (record.quantity || 0)).toLocaleString()} đ</Text>
             ),
+            width: '20%', // Increased relative width for total price
+            align: 'right',
         },
         {
             title: 'Xoá',
@@ -113,6 +112,8 @@ export default function CartPage() {
                     className="button-delete"
                 />
             ),
+            width: '5%', // Minimal width for delete button
+            align: 'center',
         },
     ];
 
@@ -132,6 +133,7 @@ export default function CartPage() {
                                     columns={columns}
                                     pagination={false}
                                     locale={{ emptyText: 'Giỏ hàng trống' }}
+                                // No scroll property to prevent horizontal scrolling
                                 />
                             </ConfigProvider>
                         </Col>
