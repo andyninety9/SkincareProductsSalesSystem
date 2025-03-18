@@ -5,7 +5,7 @@ import '@fontsource/marko-one';
 import Cookies from 'js-cookie';
 import api from '../../config/api';
 import { toast } from 'react-hot-toast';
-import { Layout, Typography, Avatar, Skeleton } from 'antd'; // Added Skeleton import
+import { Layout, Typography, Avatar, Skeleton } from 'antd'; 
 import PropTypes from 'prop-types';
 import './ManageOrderHeader.css';
 

@@ -42,6 +42,7 @@ import ManageSkintype from './page/manageSkintype/ManageSkintype';
 import ManageBrand from './page/manageBrand/ManageBrand';
 import ThankForOrderPage from './page/thankForOrderPage/ThankForOrderPage';
 import ResultQuizHistoryPage from './page/resultQuizHistory/ResultQuizHistoryPage';
+import OrderHistoryPage from './page/orderHistoryPage/OrderHistoryPage';
 import VerifyEmailPage from './page/verifyEmailPage/VerifyEmailPage';
 
 function App() {
@@ -134,6 +135,14 @@ function App() {
                     element: (
                         <ProtectedRoute roles={['Customer']}>
                             <ResultPage />
+                        </ProtectedRoute>
+                    ),
+                },
+                {
+                    path: routes.orderHistory,
+                    element: (
+                        <ProtectedRoute roles={['Customer']}>
+                            <OrderHistoryPage />
                         </ProtectedRoute>
                     ),
                 },
