@@ -14,6 +14,8 @@ import { Button } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
 
 export default function CheckOutPage() {
+    // Add this with your other state declarations
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
     const [form] = useForm();
     const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems);
@@ -48,10 +50,14 @@ export default function CheckOutPage() {
             message.error('Vui lòng nhập hoặc chọn mã giảm giá');
             return;
         }
+
+        setIsSubmitting(true); // Set loading state when applying voucher
+
         const voucherToApply = userVoucher.find((v) => v.voucherCode === voucherCode && v.statusVoucher === true);
 
         if (!voucherToApply) {
             message.error('Mã giảm giá không hợp lệ hoặc đã hết hạn');
+            setIsSubmitting(false);
             return;
         }
         const usrId = user.userId;
@@ -74,6 +80,8 @@ export default function CheckOutPage() {
             }
         } catch (error) {
             message.error('Áp dụng mã giảm giá thất bại: ' + (error.response?.data?.message || 'Đã xảy ra lỗi'));
+        } finally {
+            setIsSubmitting(false); // Reset loading state when done
         }
     };
 
@@ -245,6 +253,9 @@ export default function CheckOutPage() {
         }
     };
     const handleCheckout = async (values) => {
+        // Set loading state to true at the start
+        setIsSubmitting(true);
+
         // Recalculate total amount to ensure it's current
         const currentTotalAmount = cartItems.reduce((total, item) => {
             return total + item.sellPrice * item.quantity;
@@ -262,11 +273,8 @@ export default function CheckOutPage() {
             discountedPrice: item.discountedPrice,
         }));
 
-        // console.log('values', values);
-
         try {
             const response = await api.post('Orders/create', values);
-            // console.log(response.data);
 
             if (response.data.statusCode === 201) {
                 const OrderId = BigInt(response.data.data.ordId).toString();
@@ -301,6 +309,7 @@ export default function CheckOutPage() {
                         dispatch(clearCart());
                         window.location.assign(paymentUrl);
                     } catch (error) {
+                        setIsSubmitting(false); // Reset loading state on error
                         message.error(
                             'Không thể tạo thanh toán: ' + (error.response?.data?.message || 'Đã xảy ra lỗi')
                         );
@@ -309,6 +318,7 @@ export default function CheckOutPage() {
                 }
             }
         } catch (error) {
+            setIsSubmitting(false); // Reset loading state on error
             message.error('Không thể đặt hàng: ' + (error.response?.data?.message || 'Đã xảy ra lỗi'));
             console.error('Failed to checkout:', error.response?.data);
         }
@@ -524,11 +534,13 @@ export default function CheckOutPage() {
                                 placeholder="Mã giảm giá"
                                 value={voucherCode}
                                 onChange={(e) => setVoucherCode(e.target.value)}
+                                disabled={isSubmitting}
                             />
                             <button
                                 onClick={() => {
                                     handleApplyVoucher(voucherCode);
-                                }}>
+                                }}
+                                disabled={isSubmitting}>
                                 Áp dụng
                             </button>
                         </div>
@@ -579,6 +591,8 @@ export default function CheckOutPage() {
                         <div
                             className="confirm-receipt-button"
                             onClick={() => {
+                                if (isSubmitting) return; // Prevent multiple submissions
+
                                 form.validateFields(['paymentMethod', 'shippingMethod'])
                                     .then(() => {
                                         form.submit();
@@ -596,7 +610,7 @@ export default function CheckOutPage() {
                                         }
                                     });
                             }}>
-                            <button>Đặt hàng</button>
+                            <button disabled={isSubmitting}>{isSubmitting ? 'Đang xử lý...' : 'Đặt hàng'}</button>
                         </div>
                     </div>
                 </Col>

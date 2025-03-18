@@ -75,7 +75,7 @@ namespace Application.Features.Payment.Commands
                 {
                     payment.PaymentStatus = true;
                     payment.PaymentMethod = command.Method;
-                    payment.PaymentAmount = command.Vnp_Amount;
+                    payment.PaymentAmount = command.Vnp_Amount / 100;
                     payment.CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
 
                     var order = await _orderRepository.GetByIdAsync(command.OrderId, cancellationToken);
