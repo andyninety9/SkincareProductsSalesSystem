@@ -20,13 +20,10 @@ export default function CartPage() {
     const cartItems = useSelector(selectCartItems); // Lấy giỏ hàng từ Redux
     const navigate = useNavigate();
 
-    // Debug: Log cartItems and image URLs
+    // Debug: Log cartItems to verify data
     console.log('Cart Items:', cartItems);
-    cartItems.forEach((item, index) => {
-        console.log(`Item ${index} Image URL:`, item.images?.[0] || 'Fallback used');
-    });
 
-    // Calculate total amount with fallback
+    // 🛠 Tránh lỗi NaN khi không có sản phẩm
     const totalAmount = cartItems.length > 0
         ? cartItems.reduce((total, item) => total + (item.sellPrice || 0) * (item.quantity || 0), 0)
         : 0;
@@ -37,16 +34,18 @@ export default function CartPage() {
             dataIndex: 'images',
             key: 'images',
             render: (_, record) => {
-                const imageUrl = record.images?.[0] || 'https://picsum.photos/100';
+                // Debug: Log the images array for this record
+                console.log(`Images for ${record.productName}:`, record.images);
+
                 return (
                     <div className="table-col-name">
                         <div className="table-col-name-img">
                             <img
-                                src={imageUrl}
+                                src={record.images?.[0] || 'https://via.placeholder.com/100'}
                                 alt={record.productName || 'Product Image'}
                                 onError={(e) => {
-                                    console.error(`Failed to load image: ${imageUrl}`);
-                                    e.target.src = 'https://picsum.photos/100'; // Fallback on error
+                                    console.error(`Failed to load image: ${record.images?.[0]}`);
+                                    e.target.src = 'https://via.placeholder.com/100'; // Fallback on error
                                 }}
                                 style={{ width: '100px', height: '100px', objectFit: 'cover' }}
                             />
@@ -69,9 +68,7 @@ export default function CartPage() {
             dataIndex: 'sellPrice',
             key: 'sellPrice',
             render: (sellPrice) => (
-                <Text className="font-bold">
-                    {(sellPrice || 0).toLocaleString()} đ
-                </Text>
+                <Text className="font-bold">{(sellPrice || 0).toLocaleString()} đ</Text>
             ),
         },
         {
@@ -103,9 +100,7 @@ export default function CartPage() {
             dataIndex: 'totalPrice',
             key: 'totalPrice',
             render: (_, record) => (
-                <Text className="font-bold">
-                    {((record.sellPrice || 0) * (record.quantity || 0)).toLocaleString()} đ
-                </Text>
+                <Text className="font-bold">{((record.sellPrice || 0) * (record.quantity || 0)).toLocaleString()} đ</Text>
             ),
         },
         {
@@ -125,15 +120,12 @@ export default function CartPage() {
         <Container>
             <div style={{ marginBottom: '3%' }}>
                 <div className="cart-title">
-                    <h5 className="font-bold">Giỏ hàng</h5>{' '}
-                    <span>({cartItems.length} sản phẩm)</span>
+                    <h5 className="font-bold">Giỏ hàng</h5> <span>({cartItems.length} sản phẩm)</span>
                 </div>
                 <div className="cart-div">
                     <Row>
                         <Col xs={8}>
-                            <ConfigProvider
-                                theme={{ components: { Table: { headerBg: '#EFEFEF', borderColor: '#D8959A' } } }}
-                            >
+                            <ConfigProvider theme={{ components: { Table: { headerBg: '#EFEFEF', borderColor: '#D8959A' } } }}>
                                 <Table
                                     className="table-cart"
                                     dataSource={cartItems}

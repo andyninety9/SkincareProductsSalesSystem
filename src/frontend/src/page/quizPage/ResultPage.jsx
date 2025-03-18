@@ -35,15 +35,18 @@ const ProductCategorySection = ({ title, products, loading }) => {
         }
         return true;
     };
+    // In ResultPage.js
     const handleAddToCart = (product) => {
         if (!handleCheckLogin()) return;
 
         // Default quantity to 1 for each product
         const quantity = 1;
 
+        // Transform productImages into an array of URLs
         const productToAdd = {
             ...product,
             quantity,
+            images: product.productImages?.map(img => img.prodImageUrl) || [], // Map to array of URLs
         };
 
         // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa

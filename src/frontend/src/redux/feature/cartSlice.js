@@ -11,11 +11,9 @@ const cartSlice = createSlice({
         addToCart: (state, action) => {
             const item = state.cartItems.find(cartItem => cartItem.productId === action.payload.productId);
             if (item) {
-                item.quantity += action.payload.quantity || 1; // Tăng theo số lượng người dùng đã chọn
+                item.quantity += action.payload.quantity; // Tăng theo số lượng người dùng đã chọn
             } else {
-                // Debug: Log the payload to verify images are included
-                console.log('Adding to cart:', action.payload);
-                state.cartItems.push({ ...action.payload, quantity: action.payload.quantity || 1 }); // Thêm với số lượng người dùng đã chọn
+                state.cartItems.push({ ...action.payload, quantity: action.payload.quantity }); // Thêm với số lượng người dùng đã chọn
             }
         },
         removeFromCart: (state, action) => {
