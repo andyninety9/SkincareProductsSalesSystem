@@ -182,6 +182,7 @@ namespace Application.Features.Orders.Commands
                         var product = products.FirstOrDefault(p => p.ProductId == item.ProductId);
                         if (product != null)
                         {
+                            product.Totalsold += item.Quantity;
                             product.Stocks -= item.Quantity;
                             _productRepository.Update(product);
                         }

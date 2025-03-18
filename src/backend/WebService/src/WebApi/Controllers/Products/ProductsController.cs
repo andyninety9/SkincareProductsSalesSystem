@@ -1000,5 +1000,55 @@ namespace WebApi.Controllers.Products
             return Ok(new { statusCode = 200, message = "Delete recommendFor successfully", data = result.Value });
         }
 
+        /// <summary>
+        /// Get Top Selling Products
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the top selling product details.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///   GET /api/products/top-selling
+        /// </remarks>
+        ///
+        [HttpGet("top-selling")]
+        public async Task<IActionResult> GetTopSellingProducts([FromQuery] string? keyword,
+            [FromQuery] long? cateId,
+            [FromQuery] long? brandId,
+            [FromQuery] long? skinTypeId,
+            [FromQuery] string? fromDate,
+            [FromQuery] string? toDate,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            CancellationToken cancellationToken = default)
+        {
+            if (page <= 0 || pageSize <= 0)
+            {
+                _logger.LogWarning("BadRequest: Invalid pagination parameters. Page={Page}, PageSize={PageSize}", page, pageSize);
+                return BadRequest(new { statusCode = 400, message = "Page and pageSize must be greater than 0." });
+            }
+
+            var paginationParams = new PaginationParams { Page = page, PageSize = pageSize };
+            var query = new GetAllProductsQuery(keyword, paginationParams, cateId, brandId, skinTypeId, fromDate, toDate);
+            var validator = new GetAllProductsQueryValidator();
+            var validationResult = validator.Validate(query);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    statusCode = 400,
+                    errors = validationResult.Errors.Select(e => new { param = e.PropertyName, message = e.ErrorMessage })
+                });
+            }
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { statusCode = 400, message = result.Error?.Description ?? "Unknown error occurred." });
+            }
+
+            return Ok(new { statusCode = 200, message = "Fetch top selling products successfully", data = result.Value });
+        }
+
     }
 }

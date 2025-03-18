@@ -30,5 +30,6 @@ namespace Application.Features.Products.Response
 
         // **Số lượng đánh giá**
         public int ReviewCount { get; set; }
+        public int Totalsold { get; set; }
     }
 }
