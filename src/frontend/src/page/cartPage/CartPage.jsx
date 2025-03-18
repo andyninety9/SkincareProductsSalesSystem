@@ -54,7 +54,7 @@ export default function CartPage() {
                     </div>
                 </div>
             ),
-            width: '40%', // Relative width to fit within container
+            width: '40%',
         },
         {
             title: 'Giá tiền',
@@ -63,7 +63,7 @@ export default function CartPage() {
             render: (sellPrice) => (
                 <Text className="font-bold">{(sellPrice || 0).toLocaleString()} đ</Text>
             ),
-            width: '20%', // Increased relative width for price
+            width: '20%',
             align: 'right',
         },
         {
@@ -99,7 +99,7 @@ export default function CartPage() {
             render: (_, record) => (
                 <Text className="font-bold">{((record.sellPrice || 0) * (record.quantity || 0)).toLocaleString()} đ</Text>
             ),
-            width: '20%', // Increased relative width for total price
+            width: '20%',
             align: 'right',
         },
         {
@@ -112,7 +112,7 @@ export default function CartPage() {
                     className="button-delete"
                 />
             ),
-            width: '5%', // Minimal width for delete button
+            width: '5%',
             align: 'center',
         },
     ];
