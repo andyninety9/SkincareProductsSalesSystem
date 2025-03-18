@@ -64,7 +64,7 @@ const ErrorBoundaryFallback = ({ error }) => {
                     padding: '16px',
                 }}
             >
-                <Text type="danger">
+                <Text style={{ color: '#D8959A' }}>
                     {error?.message || 'An unexpected error occurred. Please try again later.'}
                 </Text>
                 <Button type="primary" onClick={() => window.location.reload()} style={{ marginTop: 16 }}>
@@ -103,7 +103,6 @@ const OrderHistoryPage = () => {
                     products: response.data.data.products || [],
                     rewardPoints: response.data.data.rewardPoints || 300, // Assuming rewardPoints from API
                     payment: response.data.data.payment || {}, // Add payment details
-                    shippingAddress: response.data.data.shippingAddress || {}, // Add shipping address
                 });
                 // Fetch product details using the first product's ID
                 if (response.data.data.products && response.data.data.products.length > 0) {
@@ -206,14 +205,14 @@ const OrderHistoryPage = () => {
                         {loading ? (
                             <Skeleton active paragraph={{ rows: 4 }} />
                         ) : fetchError ? (
-                            <Text type="danger">{fetchError}</Text>
+                            <Text style={{ color: '#D8959A' }}>{fetchError}</Text>
                         ) : order && product ? (
                             <>
                                 {/* Header */}
                                 <div className="order-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div>
                                         <Text type="secondary">
-                                            Đơn hàng #{order.orderId} - {formatDate(order.orderDate)}
+                                            Đơn hàng #{order.orderId}
                                         </Text>
                                     </div>
                                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -238,7 +237,12 @@ const OrderHistoryPage = () => {
                                 </div>
 
                                 {/* Product Section */}
-                                <div className="product-section" style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                <div className="product-section" style={{
+                                    marginTop: '16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '16px'
+                                }}>
                                     <Image
                                         src={product.images?.[0] || 'https://via.placeholder.com/100'}
                                         alt={product.productName || 'Product Image'}
@@ -248,28 +252,32 @@ const OrderHistoryPage = () => {
                                         }}
                                         style={{ width: '100px', height: '100px', objectFit: 'cover' }}
                                     />
-                                    <div style={{ flex: 1 }}>
-                                        <Text>
-                                            ({product.productName})
-                                        </Text>
+                                    <div style={{
+                                        flex: 1,
+                                        height: '100px',  // Restrict height to match the image
+                                        overflow: 'hidden', // Hide overflow
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'space-between' // Distribute text properly
+                                    }}>
+                                        <Text>{product.productName}</Text>
                                         <Text type="secondary" style={{ fontSize: '12px' }}>
                                             Phân loại hàng: {product.productDesc}
                                         </Text>
-                                        <Text style={{ marginTop: '8px' }}>
-                                            x{order.products[0].quantity}
-                                        </Text>
-                                        <div style={{ marginTop: '8px' }}>
+                                        <Text>x{order.products[0].quantity}</Text>
+                                        <div>
                                             {product.discountedPrice > 0 && (
                                                 <Text delete style={{ marginRight: '8px' }}>
                                                     đ{product.sellPrice.toLocaleString()}
                                                 </Text>
                                             )}
-                                            <Text type="danger" strong>
+                                            <Text style={{ color: '#D8959A', fontWeight: 'bold' }}>
                                                 đ{effectivePrice.toLocaleString()}
                                             </Text>
                                         </div>
                                     </div>
                                 </div>
+
 
                                 {/* Divider */}
                                 <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
@@ -291,47 +299,32 @@ const OrderHistoryPage = () => {
                                     </div>
                                 </div>
 
-                                {/* Address Section */}
-                                <div className="address-section" style={{ marginTop: '16px' }}>
-                                    <Text strong style={{ fontSize: '16px' }}>
-                                        Địa chỉ giao hàng
-                                    </Text>
-                                    <div style={{ marginTop: '8px' }}>
-                                        <Text type="secondary" style={{ fontSize: '14px' }}>
-                                            {order.shippingAddress?.detail || 'Địa chỉ không được cung cấp.'}
-                                        </Text>
-                                    </div>
-                                </div>
-
                                 {/* Divider */}
                                 <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
 
                                 {/* Footer */}
                                 <div className="order-footer" style={{ textAlign: 'right' }}>
-                                    <Text type="danger" strong style={{ fontSize: '18px' }}>
+                                    <Text style={{ color: '#D8959A', fontWeight: 'bold', fontSize: '18px' }}>
                                         Thành tiền: đ{order.totalPrice.toLocaleString()}
                                     </Text>
                                     <div style={{ marginTop: '16px' }}>
                                         <Text type="secondary" style={{ fontSize: '12px' }}>
-                                            Đặt hàng ngày: {formatDate(order.orderDate)}
-                                        </Text>
-                                    </div>
-                                    <div style={{ marginTop: '8px' }}>
-                                        <Text type="secondary" style={{ fontSize: '12px' }}>
-                                            Đánh giá để nhận {order.rewardPoints || 300} Xu
+                                            Ngày đặt hàng: {formatDate(order.orderDate)}
                                         </Text>
                                     </div>
                                     <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                                        <Button type="primary" danger>
+                                        <Button
+                                            type="primary"
+                                            style={{ backgroundColor: '#D8959A', borderColor: '#D8959A' }}
+                                        >
                                             Đánh Giá
                                         </Button>
-                                        <Button>Liên Hệ Người Bán</Button>
                                         <Button>Mua Lại</Button>
                                     </div>
                                 </div>
                             </>
                         ) : (
-                            <Text>Không có đơn hàng nào.</Text>
+                            <></>
                         )}
                     </Card>
                 </Col>
