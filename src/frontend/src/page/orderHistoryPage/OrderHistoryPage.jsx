@@ -3,10 +3,10 @@ import { useNavigate, useParams, useRouteError, isRouteErrorResponse } from 'rea
 import { routes } from '../../routes';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Button, Skeleton, Card, Typography, Image, Steps, Popover } from 'antd';
-import PropTypes from 'prop-types'; // Import PropTypes for validation
-import api from '../../config/api'; // Using the configured api with interceptors
+import PropTypes from 'prop-types'; 
+import api from '../../config/api'; 
 import { toast } from 'react-hot-toast';
-import '../../component/manageOrderSteps/ManageOrderSteps.css'; // Import CSS for order steps
+import '../../component/manageOrderSteps/ManageOrderSteps.css'; 
 
 import {
     CheckCircleOutlined,
@@ -232,17 +232,20 @@ const OrderHistoryPage = () => {
                                 {/* Divider */}
                                 <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
 
-                                {/* Steps Section */}
-                                <div className="manage-order-steps" style={{ marginTop: '16px' }}>
+                                {/* Steps */}
+                                <div className="manage-order-steps" style={{ marginTop: '16px', marginBottom: '40px' }}>
                                     <Steps
                                         current={currentStep}
                                         progressDot={(dot, props) => customDot(dot, { ...props, currentStep })}
                                         items={statusSteps}
-                                        disabled={true} // Disable interactivity for view-only
+                                        disabled={true} 
                                     />
                                 </div>
 
-                                {/* Product Section */}
+                                        {/* Divider */}
+                                        <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
+
+                                {/* Product */}
                                 <div className="product-section" style={{
                                     marginTop: '16px',
                                     display: 'flex',
@@ -287,7 +290,7 @@ const OrderHistoryPage = () => {
                                 {/* Divider */}
                                 <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
 
-                                {/* Payment Section */}
+                                {/* Payment */}
                                 <div className="payment-section" style={{ marginTop: '16px' }}>
                                     <Text strong style={{ fontSize: '16px' }}>
                                         Thông tin thanh toán
@@ -307,7 +310,7 @@ const OrderHistoryPage = () => {
                                 {/* Divider */}
                                 <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
 
-                                {/* Footer (unchanged as requested) */}
+                                {/* Footer */}
                                 <div className="order-footer" style={{ textAlign: 'right' }}>
                                     <Text style={{ color: '#D8959A', fontWeight: 'bold', fontSize: '18px' }}>
                                         Thành tiền: đ{order.totalPrice.toLocaleString()}
