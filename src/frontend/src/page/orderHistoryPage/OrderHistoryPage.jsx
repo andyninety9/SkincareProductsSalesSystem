@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useRouteError, isRouteErrorResponse } from 'react-router-dom';
 import { routes } from '../../routes';
 import { Container, Row, Col } from 'react-bootstrap';
-import { Button, Skeleton, Card, Table, Typography, Image } from 'antd';
+import { Button, Skeleton, Card, Typography, Image } from 'antd';
 import PropTypes from 'prop-types'; // Import PropTypes for validation
 import api from '../../config/api'; // Using the configured api with interceptors
 import { toast } from 'react-hot-toast';
@@ -70,12 +70,11 @@ const OrderHistoryPage = () => {
             console.log('API Response:', response);
             if (response?.data?.statusCode === 200 && response?.data?.data) {
                 setOrder({
-                    ...response.data.data,
-                    orderId: toBigIntString(response.data.data.orderId), // Convert returned orderId to BigInt string
-                    orderDate: response.data.data.orderDate || '2025-03-18T04:25:59',
-                    orderStatus: response.data.data.orderStatus || 'Completed',
-                    totalPrice: response.data.data.totalPrice || 861500,
-                    products: response.data.data.products || [], // Ensure products array exists
+                    orderId: toBigIntString(response.data.data.orderId),
+                    orderDate: response.data.data.orderDate,
+                    orderStatus: response.data.data.orderStatus,
+                    totalPrice: response.data.data.totalPrice,
+                    products: response.data.data.products || [],
                 });
                 // Fetch product details using the first product's ID
                 if (response.data.data.products && response.data.data.products.length > 0) {
@@ -133,87 +132,10 @@ const OrderHistoryPage = () => {
         return <ErrorBoundaryFallback error={error} />;
     }
 
-    // Prepare data for the table (single row based on the first product)
-    const tableData = product
-        ? [
-            {
-                key: '1',
-                images: product.images || [],
-                brandName: product.brandName || 'Eucerin',
-                productName: product.productName || 'Eucerin Hyaluron-Filler Night Cream',
-                sellPrice: product.sellPrice || 600000,
-                quantity: order.products && order.products.length > 0 ? order.products[0].quantity || 1 : 1,
-                stocks: product.stocks || 39,
-                totalPrice: (product.sellPrice || 600000) * (order.products && order.products.length > 0 ? order.products[0].quantity || 1 : 1),
-            },
-        ]
-        : [];
-
-    const columns = [
-        {
-            title: 'Sản phẩm',
-            dataIndex: 'images',
-            key: 'images',
-            render: (_, record) => (
-                <div className="table-col-name">
-                    <div className="table-col-name-img">
-                        <img
-                            src={record.images?.[0] || 'https://via.placeholder.com/100'}
-                            alt={record.productName || 'Product Image'}
-                            onError={(e) => {
-                                console.error(`Failed to load image: ${record.images?.[0]}`);
-                                e.target.src = 'https://via.placeholder.com/100';
-                            }}
-                            style={{ width: '80px', height: '80px', objectFit: 'cover' }}
-                        />
-                    </div>
-                    <div className="table-col-name-content">
-                        <h5>{record.brandName}</h5>
-                        <Text>{record.productName || 'Unnamed Product'}</Text>
-                        <br />
-                        <Text type="secondary" style={{ fontSize: '12px' }}>
-                            Còn lại: {record.stocks !== undefined ? record.stocks : 'N/A'} sản phẩm
-                        </Text>
-                    </div>
-                </div>
-            ),
-            width: '40%',
-        },
-        {
-            title: 'Giá tiền',
-            dataIndex: 'sellPrice',
-            key: 'sellPrice',
-            render: (sellPrice) => (
-                <Text className="font-bold">{(sellPrice || 0).toLocaleString()} đ</Text>
-            ),
-            width: '20%',
-            align: 'center',
-        },
-        {
-            title: 'Số lượng',
-            dataIndex: 'quantity',
-            key: 'quantity',
-            render: (quantity) => <Text>{quantity || 0}</Text>, // Static quantity, no controls
-            width: '15%',
-            align: 'center',
-        },
-        {
-            title: 'Thành tiền',
-            dataIndex: 'totalPrice',
-            key: 'totalPrice',
-            render: (totalPrice) => (
-                <Text className="font-bold">{(totalPrice || 0).toLocaleString()} đ</Text>
-            ),
-            width: '20%',
-            align: 'center',
-        },
-        {
-            title: 'Hành động',
-            render: () => null, // No delete action for order history
-            width: '5%',
-            align: 'center',
-        },
-    ];
+    // Calculate total price based on quantity and discounted/sell/unit price
+    const calculatedTotal = order && order.products && order.products.length > 0 && product
+        ? (product.discountedPrice || product.sellPrice || product.unitPrice) * order.products[0].quantity
+        : 0;
 
     return (
         <Container style={{ marginTop: '80px', padding: '24px', maxWidth: '1200px' }}>
@@ -224,40 +146,85 @@ const OrderHistoryPage = () => {
                             backgroundColor: '#fff',
                             borderRadius: '10px',
                             minHeight: '300px',
+                            padding: '16px',
                         }}
-                        bodyStyle={{ padding: '16px' }}
                     >
                         {loading ? (
                             <Skeleton active paragraph={{ rows: 4 }} />
                         ) : fetchError ? (
                             <Text type="danger">{fetchError}</Text>
-                        ) : order ? (
+                        ) : order && product ? (
                             <>
-                                <div className="order-header">
-                                    <Text type="secondary">
-                                        Đơn hàng #{toBigIntString(order.orderId) || '689691046673645600'} -{' '}
-                                        {order.orderDate || '2025-03-18T04:25:59'}
-                                    </Text>
-                                    <Text type="danger">
-                                        Trạng thái: {order.orderStatus || 'Completed'} - Đánh giá ngay với nhận 300 Xu
-                                    </Text>
+                                {/* Header */}
+                                <div className="order-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                        <Text type="secondary">
+                                            Đơn hàng #{order.orderId} - {order.orderDate}
+                                        </Text>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                        <Text type="success">Giao hàng thành công</Text>
+                                        <Text type="danger" style={{ fontWeight: 'bold' }}>{order.orderStatus}</Text>
+                                    </div>
                                 </div>
-                                <Table
-                                    columns={columns}
-                                    dataSource={tableData}
-                                    pagination={false}
-                                    size="middle"
-                                    style={{ marginTop: '16px' }}
-                                />
-                                <div className="order-footer" style={{ marginTop: '16px', textAlign: 'right' }}>
-                                    <Text type="danger" strong>
-                                        Thành tiền: đ{order.totalPrice?.toLocaleString() || '861500'} đ
+
+                                {/* Product Section */}
+                                <div className="product-section" style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                    <Image
+                                        src={product.images?.[0] || 'https://via.placeholder.com/100'}
+                                        alt={product.productName || 'Product Image'}
+                                        onError={(e) => {
+                                            console.error(`Failed to load image: ${product.images?.[0]}`);
+                                            e.target.src = 'https://via.placeholder.com/100';
+                                        }}
+                                        style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                                    />
+                                    <div style={{ flex: 1 }}>
+                                        <Text>
+                                            ({product.productName})
+                                        </Text>
+                                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                                            Phân loại hàng: {product.productDesc}
+                                        </Text>
+                                        <Text style={{ marginTop: '8px' }}>
+                                            x{order.products[0].quantity}
+                                        </Text>
+                                        <div style={{ marginTop: '8px' }}>
+                                            <Text delete style={{ marginRight: '8px' }}>
+                                                đ{(product.sellPrice || product.unitPrice).toLocaleString()}
+                                            </Text>
+                                            <Text type="danger" strong>
+                                                đ{(product.discountedPrice || product.sellPrice || product.unitPrice).toLocaleString()}
+                                            </Text>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Divider */}
+                                <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
+
+                                {/* Footer */}
+                                <div className="order-footer" style={{ textAlign: 'right' }}>
+                                    <Text type="danger" strong style={{ fontSize: '18px' }}>
+                                        Thành tiền: đ{(calculatedTotal || order.totalPrice).toLocaleString()}
                                     </Text>
-                                    <Button type="primary" danger style={{ marginLeft: '16px' }}>
-                                        Đánh Giá
-                                    </Button>
-                                    <Button style={{ marginLeft: '8px' }}>Liên Hệ Người Bán</Button>
-                                    <Button style={{ marginLeft: '8px' }}>Mua Lại</Button>
+                                    <div style={{ marginTop: '16px' }}>
+                                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                                            Đặt hàng ngày hôm trước: {order.orderDate}
+                                        </Text>
+                                    </div>
+                                    <div style={{ marginTop: '8px' }}>
+                                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                                            Đánh giá ngay và nhận 300 Xu
+                                        </Text>
+                                    </div>
+                                    <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                                        <Button type="primary" danger>
+                                            Đánh Giá
+                                        </Button>
+                                        <Button>Liên Hệ Người Bán</Button>
+                                        <Button>Mua Lại</Button>
+                                    </div>
                                 </div>
                             </>
                         ) : (

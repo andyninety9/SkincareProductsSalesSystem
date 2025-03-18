@@ -746,7 +746,8 @@ const ProfilePage = () => {
                         </TabPane>
                         <TabPane
                             tab={<span style={{ color: activeTab === '3' ? '#D8959A' : 'gray' }}>Lịch Sử Mua Hàng</span>}
-                            key="3">
+                            key="3"
+                        >
                             {loadingOrders ? (
                                 <div style={{ textAlign: 'center', padding: '20px' }}>
                                     <Spin size="large" tip="Đang tải..." style={{ color: '#D8959A' }} />
@@ -759,75 +760,96 @@ const ProfilePage = () => {
                                         maxHeight: '400px',
                                         overflowY: 'auto',
                                         paddingRight: '10px',
-                                    }}>
+                                    }}
+                                >
                                     <List
                                         dataSource={ordersHistory}
                                         renderItem={(order) => (
                                             <List.Item
                                                 style={{
                                                     display: 'flex',
-                                                    alignItems: 'center',
+                                                    flexDirection: 'column', // Stack elements vertically
                                                     padding: 10,
                                                     borderBottom: '1px solid #ddd',
-                                                }}>
-                                                <img
-                                                    src="https://via.placeholder.com/80" // Placeholder image
-                                                    alt="Product"
-                                                    style={{ width: 80, height: 80, borderRadius: 10, marginRight: 15 }}
-                                                />
-                                                <div style={{ flex: 1 }}>
-                                                    <strong>{order.customerName}</strong>
-                                                    <p style={{ margin: 0 }}>
-                                                        {new Date(order.orderDate).toLocaleDateString('vi-VN')}
-                                                    </p>
-                                                    <p
-                                                        style={{
-                                                            fontWeight: 'bold',
-                                                            color: '#D8959A',
-                                                            whiteSpace: 'nowrap',
-                                                        }}>
-                                                        {order.totalPrice.toLocaleString('vi-VN')} vnd -{' '}
-                                                        {order.products.length} món
-                                                    </p>
-                                                    <p style={{ marginTop: -2, color: 'gray', fontSize: '10px' }}>
-                                                        {order.products[0]?.productName}
-                                                    </p>
-                                                </div>
+                                                }}
+                                            >
+                                                {/* Top Section: Order Details and Status */}
                                                 <div
                                                     style={{
                                                         display: 'flex',
-                                                        flexDirection: 'column',
-                                                        alignItems: 'flex-end',
-                                                        marginBottom: '50px',
-                                                    }}>
-                                                    <p
+                                                        justifyContent: 'space-between',
+                                                        width: '100%',
+                                                    }}
+                                                >
+                                                    <div style={{ flex: 1 }}>
+                                                        <strong>{order.customerName}</strong>
+                                                        <p style={{ margin: 0 }}>
+                                                            {new Date(order.orderDate).toLocaleDateString('vi-VN')}
+                                                        </p>
+                                                        <p
+                                                            style={{
+                                                                fontWeight: 'bold',
+                                                                color: '#D8959A',
+                                                                whiteSpace: 'nowrap',
+                                                            }}
+                                                        >
+                                                            {order.totalPrice.toLocaleString('vi-VN')} vnd -{' '}
+                                                            {order.products.reduce((total, item) => total + item.quantity, 0)} món
+                                                        </p>
+                                                        <p style={{ marginTop: -2, color: 'gray', fontSize: '10px' }}>
+                                                            {order.products[0]?.productName || 'No product name'}
+                                                        </p>
+                                                    </div>
+                                                    <div
                                                         style={{
-                                                            color: '#D8959A',
-                                                            margin: '0 0 8px 0',
-                                                            fontSize: '12px',
-                                                        }}>
-                                                        #{toBigIntString(order.orderId)}
-                                                    </p>
-                                                    <Tag
-                                                        color="#D8959A"
-                                                        style={{
-                                                            borderRadius: 5,
-                                                            height: '30px',
                                                             display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            marginTop: '5px',
-                                                        }}>
-                                                        {order.orderStatus}
-                                                    </Tag>
+                                                            flexDirection: 'column',
+                                                            alignItems: 'flex-end',
+                                                        }}
+                                                    >
+                                                        <p
+                                                            style={{
+                                                                color: '#D8959A',
+                                                                margin: '0 0 8px 0',
+                                                                fontSize: '12px',
+                                                            }}
+                                                        >
+                                                            #{toBigIntString(order.orderId)}
+                                                        </p>
+                                                        <Tag
+                                                            color="#D8959A"
+                                                            style={{
+                                                                borderRadius: 5,
+                                                                height: '30px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                marginTop: '5px',
+                                                            }}
+                                                        >
+                                                            {order.orderStatus}
+                                                        </Tag>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        marginTop: 10, 
+                                                    }}
+                                                >
                                                     <Button
                                                         type="primary"
                                                         style={{
                                                             backgroundColor: '#D8959A',
                                                             borderColor: '#D8959A',
-                                                            marginTop: 8,
+                                                            padding: '4px 8px',
+                                                            height: 30,
+                                                            fontSize: 15,
                                                         }}
-                                                        onClick={() => navigate(`/order-history/${toBigIntString(order.orderId)}`)}>
+                                                        onClick={() => navigate(`/order-history/${toBigIntString(order.orderId)}`)}
+                                                    >
                                                         Xem Chi Tiết
                                                     </Button>
                                                 </div>
@@ -837,7 +859,7 @@ const ProfilePage = () => {
                                 </div>
                             )}
                         </TabPane>
-                        
+
                         <TabPane
                             tab={<span style={{ color: activeTab === '4' ? '#D8959A' : 'gray' }}>Cài Đặt</span>}
                             key="4">
