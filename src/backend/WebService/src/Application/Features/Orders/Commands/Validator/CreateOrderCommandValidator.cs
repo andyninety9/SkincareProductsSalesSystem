@@ -19,7 +19,7 @@ namespace Application.Features.Orders.Commands.Validator
 
 
             // Validate VoucherCodeApplied (nếu có thì không được rỗng)
-            
+
             RuleFor(x => x.VoucherCodeApplied)
                 .NotEmpty()
                 .When(x => !string.IsNullOrWhiteSpace(x.VoucherCodeApplied))

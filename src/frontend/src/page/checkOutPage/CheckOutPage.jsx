@@ -249,12 +249,12 @@ export default function CheckOutPage() {
         const currentTotalAmount = cartItems.reduce((total, item) => {
             return total + item.sellPrice * item.quantity;
         }, 0);
-        const finalAmount = currentTotalAmount - discountAmount;
-        // values.eventId = 5;
+        const finalAmount = currentTotalAmount - discountAmount + shippingFee;
 
         if (selectedVoucher !== null) {
             values.VoucherCodeApplied = voucherCode;
         }
+        values.shippingFee = shippingFee.toString();
         values.orderItems = cartItems.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
@@ -262,11 +262,11 @@ export default function CheckOutPage() {
             discountedPrice: item.discountedPrice,
         }));
 
-        console.log('values', values);
+        // console.log('values', values);
 
         try {
             const response = await api.post('Orders/create', values);
-            console.log(response.data);
+            // console.log(response.data);
 
             if (response.data.statusCode === 201) {
                 const OrderId = BigInt(response.data.data.ordId).toString();
