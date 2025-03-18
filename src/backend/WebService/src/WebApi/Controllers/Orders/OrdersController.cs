@@ -450,7 +450,7 @@ namespace WebApi.Controllers.Orders
             }
 
             // Gán UserId từ token vào command
-            var cancelCommand = command with { UserId = userId};
+            var cancelCommand = command with { UserId = userId };
             var result = await _mediator.Send(cancelCommand, cancellationToken);
 
             return result.IsFailure ? HandleFailure(result) : Ok(new
@@ -461,5 +461,51 @@ namespace WebApi.Controllers.Orders
             });
 
         }
+
+        /// <summary>
+        /// Get user orders detail
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Returns the details of the user orders.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/orders/user/{orderId}
+        ///     
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        /// </remarks>
+        [HttpGet("user/{orderId}")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Customer)]
+        public async Task<IActionResult> GetUserOrders(CancellationToken cancellationToken = default)
+        {
+            if (User == null)
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.USER_INFORMATION_NOT_FOUND });
+            }
+
+            var usrID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(usrID))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.MISSING_USER_ID });
+            }
+
+            if (!long.TryParse(usrID, out var userId))
+            {
+                return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
+            }
+
+            var query = new GetUserOrdersQuery(userId);
+
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return result.IsFailure ? HandleFailure(result) : Ok(new
+            {
+                statusCode = 200,
+                message = "User orders retrieved successfully",
+                data = result.Value
+            });
     }
 }
