@@ -20,10 +20,13 @@ export default function CartPage() {
     const cartItems = useSelector(selectCartItems); // Lấy giỏ hàng từ Redux
     const navigate = useNavigate();
 
-    // Debug: Log cartItems to verify data
+    // Debug: Log cartItems and image URLs
     console.log('Cart Items:', cartItems);
+    cartItems.forEach((item, index) => {
+        console.log(`Item ${index} Image URL:`, item.images?.[0] || 'Fallback used');
+    });
 
-    // 🛠 Tránh lỗi NaN khi không có sản phẩm
+    // Calculate total amount with fallback
     const totalAmount = cartItems.length > 0
         ? cartItems.reduce((total, item) => total + (item.sellPrice || 0) * (item.quantity || 0), 0)
         : 0;
@@ -34,24 +37,22 @@ export default function CartPage() {
             dataIndex: 'images',
             key: 'images',
             render: (_, record) => {
-                // Debug: Log the record to see its structure
-                console.log(`Cart Item Record:`, record);
-
+                const imageUrl = record.images?.[0] || 'https://picsum.photos/100';
                 return (
                     <div className="table-col-name">
                         <div className="table-col-name-img">
                             <img
-                                src={record.images?.[0] || 'https://via.placeholder.com/100'}
+                                src={imageUrl}
                                 alt={record.productName || 'Product Image'}
                                 onError={(e) => {
-                                    console.error(`Failed to load image: ${record.images?.[0]}`);
-                                    e.target.src = 'https://via.placeholder.com/100'; // Fallback on error
+                                    console.error(`Failed to load image: ${imageUrl}`);
+                                    e.target.src = 'https://picsum.photos/100'; // Fallback on error
                                 }}
                                 style={{ width: '100px', height: '100px', objectFit: 'cover' }}
                             />
                         </div>
                         <div className="table-col-name-content">
-                            {/* Remove brandName display to match screenshot */}
+                            <h5>{record.brandName || 'N/A'}</h5>
                             <Text>{record.productName || 'Unnamed Product'}</Text>
                             <br />
                             <Text type="secondary" style={{ fontSize: '12px' }}>
@@ -68,7 +69,9 @@ export default function CartPage() {
             dataIndex: 'sellPrice',
             key: 'sellPrice',
             render: (sellPrice) => (
-                <Text className="font-bold">{(sellPrice || 0).toLocaleString()} đ</Text>
+                <Text className="font-bold">
+                    {(sellPrice || 0).toLocaleString()} đ
+                </Text>
             ),
         },
         {
@@ -100,7 +103,9 @@ export default function CartPage() {
             dataIndex: 'totalPrice',
             key: 'totalPrice',
             render: (_, record) => (
-                <Text className="font-bold">{((record.sellPrice || 0) * (record.quantity || 0)).toLocaleString()} đ</Text>
+                <Text className="font-bold">
+                    {((record.sellPrice || 0) * (record.quantity || 0)).toLocaleString()} đ
+                </Text>
             ),
         },
         {
@@ -120,12 +125,15 @@ export default function CartPage() {
         <Container>
             <div style={{ marginBottom: '3%' }}>
                 <div className="cart-title">
-                    <h5 className="font-bold">Giỏ hàng</h5> <span>({cartItems.length} sản phẩm)</span>
+                    <h5 className="font-bold">Giỏ hàng</h5>{' '}
+                    <span>({cartItems.length} sản phẩm)</span>
                 </div>
                 <div className="cart-div">
                     <Row>
                         <Col xs={8}>
-                            <ConfigProvider theme={{ components: { Table: { headerBg: '#EFEFEF', borderColor: '#D8959A' } } }}>
+                            <ConfigProvider
+                                theme={{ components: { Table: { headerBg: '#EFEFEF', borderColor: '#D8959A' } } }}
+                            >
                                 <Table
                                     className="table-cart"
                                     dataSource={cartItems}
