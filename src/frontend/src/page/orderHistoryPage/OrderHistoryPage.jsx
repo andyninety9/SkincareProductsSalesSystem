@@ -2,12 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useRouteError, isRouteErrorResponse } from 'react-router-dom';
 import { routes } from '../../routes';
 import { Container, Row, Col } from 'react-bootstrap';
-import { Button, Skeleton, Card, Typography, Image } from 'antd';
+import { Button, Skeleton, Card, Typography, Image, Tag } from 'antd';
 import PropTypes from 'prop-types'; // Import PropTypes for validation
 import api from '../../config/api'; // Using the configured api with interceptors
 import { toast } from 'react-hot-toast';
+import {
+    CheckCircleOutlined,
+    ClockCircleOutlined,
+    CloseCircleOutlined,
+    SyncOutlined,
+} from '@ant-design/icons';
 
 const { Text } = Typography;
+
+// Status mapping with icons and colors
+const statusConfig = {
+    Pending: { icon: <ClockCircleOutlined />, color: 'default' },
+    Processing: { icon: <SyncOutlined spin />, color: '#E6B2BA' },
+    Shipping: { icon: <SyncOutlined />, color: 'blue' },
+    Shipped: { icon: <CheckCircleOutlined />, color: 'cyan' },
+    Completed: { icon: <CheckCircleOutlined />, color: '#D8959A' },
+    Cancelled: { icon: <CloseCircleOutlined />, color: 'error' },
+};
 
 // Utility function to convert to BigInt string
 const toBigIntString = (value) => {
@@ -17,6 +33,16 @@ const toBigIntString = (value) => {
         console.error(`Error converting to BigInt: ${value}`, error.message);
         return "N/A";
     }
+};
+
+// Utility function to format date to mm-dd-yy
+const formatDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    const date = new Date(dateStr);
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2); // Last 2 digits of year
+    return `${month}-${day}-${year}`;
 };
 
 // ErrorBoundary component with PropTypes validation
@@ -75,6 +101,9 @@ const OrderHistoryPage = () => {
                     orderStatus: response.data.data.orderStatus,
                     totalPrice: response.data.data.totalPrice,
                     products: response.data.data.products || [],
+                    rewardPoints: response.data.data.rewardPoints || 300, // Assuming rewardPoints from API
+                    payment: response.data.data.payment || {}, // Add payment details
+                    shippingAddress: response.data.data.shippingAddress || {}, // Add shipping address
                 });
                 // Fetch product details using the first product's ID
                 if (response.data.data.products && response.data.data.products.length > 0) {
@@ -132,10 +161,35 @@ const OrderHistoryPage = () => {
         return <ErrorBoundaryFallback error={error} />;
     }
 
-    // Calculate total price based on quantity and discounted/sell/unit price
-    const calculatedTotal = order && order.products && order.products.length > 0 && product
-        ? (product.discountedPrice || product.sellPrice || product.unitPrice) * order.products[0].quantity
+    // Determine the effective price (use discountedPrice if available and greater than 0, otherwise use sellPrice)
+    const effectivePrice = product
+        ? product.discountedPrice > 0
+            ? product.discountedPrice
+            : product.sellPrice
         : 0;
+
+    // Calculate total price based on effective price and quantity
+    const calculatedTotal = order && order.products && order.products.length > 0 && product
+        ? effectivePrice * order.products[0].quantity
+        : 0;
+
+    // Dynamic delivery status message based on orderStatus
+    const getDeliveryStatus = (status) => {
+        switch (status) {
+            case 'Shipped':
+            case 'Completed':
+                return 'Đã giao hàng';
+            case 'Processing':
+            case 'Shipping':
+                return 'Đang xử lý';
+            case 'Pending':
+                return 'Chờ xử lý';
+            case 'Cancelled':
+                return 'Đã hủy';
+            default:
+                return 'Trạng thái không xác định';
+        }
+    };
 
     return (
         <Container style={{ marginTop: '80px', padding: '24px', maxWidth: '1200px' }}>
@@ -159,12 +213,27 @@ const OrderHistoryPage = () => {
                                 <div className="order-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div>
                                         <Text type="secondary">
-                                            Đơn hàng #{order.orderId} - {order.orderDate}
+                                            Đơn hàng #{order.orderId} - {formatDate(order.orderDate)}
                                         </Text>
                                     </div>
                                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                        <Text type="success">Giao hàng thành công</Text>
-                                        <Text type="danger" style={{ fontWeight: 'bold' }}>{order.orderStatus}</Text>
+                                        <Text type="success">{getDeliveryStatus(order.orderStatus)}</Text>
+                                        <Tag
+                                            icon={statusConfig[order.orderStatus]?.icon}
+                                            color={statusConfig[order.orderStatus]?.color || 'default'}
+                                            style={{
+                                                borderRadius: 5,
+                                                height: '30px',
+                                                width: '100px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: '12px',
+                                                padding: '0 8px',
+                                            }}
+                                        >
+                                            {order.orderStatus}
+                                        </Tag>
                                     </div>
                                 </div>
 
@@ -190,13 +259,47 @@ const OrderHistoryPage = () => {
                                             x{order.products[0].quantity}
                                         </Text>
                                         <div style={{ marginTop: '8px' }}>
-                                            <Text delete style={{ marginRight: '8px' }}>
-                                                đ{(product.sellPrice || product.unitPrice).toLocaleString()}
-                                            </Text>
+                                            {product.discountedPrice > 0 && (
+                                                <Text delete style={{ marginRight: '8px' }}>
+                                                    đ{product.sellPrice.toLocaleString()}
+                                                </Text>
+                                            )}
                                             <Text type="danger" strong>
-                                                đ{(product.discountedPrice || product.sellPrice || product.unitPrice).toLocaleString()}
+                                                đ{effectivePrice.toLocaleString()}
                                             </Text>
                                         </div>
+                                    </div>
+                                </div>
+
+                                {/* Divider */}
+                                <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
+
+                                {/* Payment Section */}
+                                <div className="payment-section" style={{ marginTop: '16px' }}>
+                                    <Text strong style={{ fontSize: '16px' }}>
+                                        Thông tin thanh toán
+                                    </Text>
+                                    <div style={{ marginTop: '8px' }}>
+                                        <Text type="secondary" style={{ fontSize: '14px' }}>
+                                            Phương thức thanh toán: {order.payment?.paymentMethod || 'Không xác định'}
+                                        </Text>
+                                    </div>
+                                    <div style={{ marginTop: '4px' }}>
+                                        <Text type="secondary" style={{ fontSize: '14px' }}>
+                                            Số tiền thanh toán: đ{order.payment?.paymentAmount?.toLocaleString() || 'N/A'}
+                                        </Text>
+                                    </div>
+                                </div>
+
+                                {/* Address Section */}
+                                <div className="address-section" style={{ marginTop: '16px' }}>
+                                    <Text strong style={{ fontSize: '16px' }}>
+                                        Địa chỉ giao hàng
+                                    </Text>
+                                    <div style={{ marginTop: '8px' }}>
+                                        <Text type="secondary" style={{ fontSize: '14px' }}>
+                                            {order.shippingAddress?.detail || 'Địa chỉ không được cung cấp.'}
+                                        </Text>
                                     </div>
                                 </div>
 
@@ -206,16 +309,16 @@ const OrderHistoryPage = () => {
                                 {/* Footer */}
                                 <div className="order-footer" style={{ textAlign: 'right' }}>
                                     <Text type="danger" strong style={{ fontSize: '18px' }}>
-                                        Thành tiền: đ{(calculatedTotal || order.totalPrice).toLocaleString()}
+                                        Thành tiền: đ{order.totalPrice.toLocaleString()}
                                     </Text>
                                     <div style={{ marginTop: '16px' }}>
                                         <Text type="secondary" style={{ fontSize: '12px' }}>
-                                            Đặt hàng ngày hôm trước: {order.orderDate}
+                                            Đặt hàng ngày: {formatDate(order.orderDate)}
                                         </Text>
                                     </div>
                                     <div style={{ marginTop: '8px' }}>
                                         <Text type="secondary" style={{ fontSize: '12px' }}>
-                                            Đánh giá ngay và nhận 300 Xu
+                                            Đánh giá để nhận {order.rewardPoints || 300} Xu
                                         </Text>
                                     </div>
                                     <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
