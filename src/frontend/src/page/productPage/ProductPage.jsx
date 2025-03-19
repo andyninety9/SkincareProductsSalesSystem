@@ -8,6 +8,7 @@ import banner from '../../assets/banner.jpg';
 import './ProductPage.scss';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { ClipLoader } from 'react-spinners';
+import { useSearchParams } from 'react-router-dom';
 
 import drnt from '../../assets/baumanIMG/drnt.png';
 import drnw from '../../assets/baumanIMG/drnw.png';
@@ -39,7 +40,7 @@ export default function ProductPage() {
     const [skinTypeMap, setSkinTypeMap] = useState({});
     const [skinTypeId, setSkinTypeId] = useState();
     const [loading, setLoading] = useState(false);
-
+    const [searchParams] = useSearchParams();
     const skinTypeImages = {
         OSPW: ospw, // 1
         OSPT: ospt, // 2
@@ -59,6 +60,12 @@ export default function ProductPage() {
         DRNT: drnt, // 16
     };
 
+    useEffect(() => {
+        const cateProdId = searchParams.get('cateProdId');
+        if (cateProdId) {
+            setCategoryFilter(cateProdId);
+        }
+    }, [searchParams]);
     const fetchSkinTypes = async () => {
         try {
             const response = await api.get('skintype', { params: { pageSize: 10000 } });
