@@ -1,0 +1,20 @@
+{
+    "rewrites": [
+        {
+            "source": "/:path*",
+            "destination": "/index.html"
+        }
+    ],
+    "redirects": [
+        {
+            "source": "/old-path",
+            "destination": "/new-path",
+            "permanent": true
+        }
+    ],
+    "build": {
+        "src": "src/index.js",
+        "use": "@vercel/static-build",
+        "outputDirectory": "build"
+    }
+}
