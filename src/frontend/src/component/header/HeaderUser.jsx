@@ -11,8 +11,9 @@ import { toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCart, selectCartItems } from '../../redux/feature/cartSlice';
 import { resetQuiz } from '../../redux/feature/quizSlice';
-import { Avatar, Badge, Dropdown } from 'antd';
+import { Avatar, Badge, Card, Dropdown, Menu, Space, Typography } from 'antd';
 import LiveSearchProduct from '../liveSearchProduct/liveSearchProduct';
+import { AppstoreOutlined } from '@ant-design/icons';
 
 const HeaderUser = () => {
     const navigate = useNavigate();
@@ -26,7 +27,6 @@ const HeaderUser = () => {
     const [user, setUser] = useState(null);
     const prevUserCookieRef = useRef(null);
     const [categories, setCategories] = useState([]); // State lưu danh sách categories
-
 
     useEffect(() => {
         // Explicitly bind prevUserCookieRef to avoid scope issues
@@ -91,7 +91,6 @@ const HeaderUser = () => {
         };
     }, [isSearchOpen]);
 
-
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -105,7 +104,6 @@ const HeaderUser = () => {
         };
         fetchCategories();
     }, []);
-
 
     const fetchLogout = async () => {
         try {
@@ -211,7 +209,7 @@ const HeaderUser = () => {
                     Trang chủ
                 </Link>
                 <div
-                style={{ whiteSpace: 'nowrap', width: 'fit-content' }}
+                    style={{ whiteSpace: 'nowrap', width: 'fit-content' }}
                     className="position-relative"
                     ref={dropdownRef}
                     onMouseEnter={() => setIsDropdownOpen(true)}
@@ -223,30 +221,34 @@ const HeaderUser = () => {
                     </span>
 
                     {isDropdownOpen && categories.length > 0 && (
-                        <div className="position-absolute p-4 rounded" style={{ background: '#fffbfc', zIndex: 1000 }}>
-                            <div className="row">
-                                <div className="col-md-8">
-                                    <div className="row ps-5">
-                                        <div className="col-md-4" style={{  fontSize: '17px' }}>
-                                            <h6 className="fw-bold mt-2">Danh mục sản phẩm</h6>
-                                            {categories.map((category) => (
-                                                <Link
-                                                    key={category.cateProdId}
-                                                    to={`/products/category/${category.cateProdId}`}
-                                                    className="text-dark text-decoration-none d-block">
-                                                    {category.cateProdName}
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Image */}
-                                {/* <div className="col-md-4 d-flex align-items-center justify-content-center">
-                                    <img src={dropdownImage} alt="Dropdown" className="img-fluid rounded" style={{ maxWidth: '300px' }} />
-                                </div> */}
-                            </div>
-                        </div>
+                        <Card
+                            className="position-absolute"
+                            style={{
+                                width: 300,
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                                zIndex: 1000,
+                                border: '1px solid #f0f0f0',
+                            }}
+                            bodyStyle={{ padding: '12px 0' }}>
+                            <Typography.Title
+                                level={5}
+                                style={{ padding: '0 16px 8px', borderBottom: '1px solid #f0f0f0', margin: 0 }}>
+                                <Space>
+                                    <AppstoreOutlined />
+                                    Danh mục sản phẩm
+                                </Space>
+                            </Typography.Title>
+                            <Menu style={{ border: 'none' }}>
+                                {categories.map((category) => (
+                                    <Menu.Item
+                                        key={category.cateProdId}
+                                        onClick={() => navigate(`/product?cateProdId=${category.cateProdId}`)}
+                                        style={{ margin: '0', padding: '8px 16px' }}>
+                                        {category.cateProdName}
+                                    </Menu.Item>
+                                ))}
+                            </Menu>
+                        </Card>
                     )}
                 </div>
                 <Link to="/promotions" className="text-dark text-decoration-none" style={{ whiteSpace: 'nowrap' }}>
