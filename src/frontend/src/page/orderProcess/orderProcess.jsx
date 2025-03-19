@@ -67,7 +67,7 @@ export default function OrderProcess() {
                 length: 20,
                 width: 20,
                 height: 10,
-                insurance_value: orderDetails.totalPrice * 1000, // Use totalPrice from the response
+                insurance_value: 1000000, // Use totalPrice from the response
                 service_id: 0,
                 service_type_id: 2,
                 items: orderDetails.products.map((item) => ({
