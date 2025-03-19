@@ -11,9 +11,10 @@ import { toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCart, selectCartItems } from '../../redux/feature/cartSlice';
 import { resetQuiz } from '../../redux/feature/quizSlice';
-import { Avatar, Badge, Card, Dropdown, Menu, Space, Typography } from 'antd';
+import { Avatar, Badge, Card, Divider, Dropdown, Menu, Space, Typography } from 'antd';
 import LiveSearchProduct from '../liveSearchProduct/liveSearchProduct';
 import { AppstoreOutlined } from '@ant-design/icons';
+import { Row, Col } from 'antd';
 
 const HeaderUser = () => {
     const navigate = useNavigate();
@@ -26,7 +27,8 @@ const HeaderUser = () => {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [user, setUser] = useState(null);
     const prevUserCookieRef = useRef(null);
-    const [categories, setCategories] = useState([]); // State lưu danh sách categories
+    const [categories, setCategories] = useState([]);
+    const [skinTypes, setSkinTypes] = useState([]);
 
     useEffect(() => {
         // Explicitly bind prevUserCookieRef to avoid scope issues
@@ -103,6 +105,18 @@ const HeaderUser = () => {
             }
         };
         fetchCategories();
+
+        // const fetchSkinType = async () => {
+        //     try {
+        //         const response = await api.get('skintype?page=1&pageSize=20');
+        //         if (response.status === 200) {
+        //             setSkinTypes(response.data.data.items);
+        //         }
+        //     } catch (error) {
+        //         console.error('Error fetching skin types:', error);
+        //     }
+        // };
+        // fetchSkinType();
     }, []);
 
     const fetchLogout = async () => {
@@ -224,30 +238,57 @@ const HeaderUser = () => {
                         <Card
                             className="position-absolute"
                             style={{
-                                width: 300,
+                                width: 550, // Wider to accommodate two columns
                                 boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                                 zIndex: 1000,
                                 border: '1px solid #f0f0f0',
                             }}
-                            bodyStyle={{ padding: '12px 0' }}>
-                            <Typography.Title
-                                level={5}
-                                style={{ padding: '0 16px 8px', borderBottom: '1px solid #f0f0f0', margin: 0 }}>
-                                <Space>
-                                    <AppstoreOutlined />
-                                    Danh mục sản phẩm
-                                </Space>
-                            </Typography.Title>
-                            <Menu style={{ border: 'none' }}>
-                                {categories.map((category) => (
-                                    <Menu.Item
-                                        key={category.cateProdId}
-                                        onClick={() => navigate(`/product?cateProdId=${category.cateProdId}`)}
-                                        style={{ margin: '0', padding: '8px 16px' }}>
-                                        {category.cateProdName}
-                                    </Menu.Item>
-                                ))}
-                            </Menu>
+                            bodyStyle={{ padding: '16px' }}>
+                            <Row gutter={16}>
+                                {/* Left Column - Product Categories */}
+                                <Col span={12}>
+                                    <Typography.Title
+                                        level={5}
+                                        style={{ padding: '0 0 8px', borderBottom: '1px solid #f0f0f0', margin: 0 }}>
+                                        <Space>
+                                            <AppstoreOutlined />
+                                            Danh mục sản phẩm
+                                        </Space>
+                                    </Typography.Title>
+                                    <Menu style={{ border: 'none' }}>
+                                        {categories.map((category) => (
+                                            <Menu.Item
+                                                key={`cat-${category.cateProdId}`}
+                                                onClick={() => navigate(`/product?cateProdId=${category.cateProdId}`)}
+                                                style={{ padding: '8px' }}>
+                                                {category.cateProdName}
+                                            </Menu.Item>
+                                        ))}
+                                    </Menu>
+                                </Col>
+
+                                {/* Right Column - Skin Types */}
+                                {/* <Col span={12}>
+                                    <Typography.Title
+                                        level={5}
+                                        style={{ padding: '0 0 8px', borderBottom: '1px solid #f0f0f0', margin: 0 }}>
+                                        <Space>
+                                            <AppstoreOutlined />
+                                            Danh mục loại da
+                                        </Space>
+                                    </Typography.Title>
+                                    <Menu style={{ border: 'none' }}>
+                                        {skinTypes.map((skinType) => (
+                                            <Menu.Item
+                                                key={`skin-${skinType.skinTypeId}`}
+                                                onClick={() => navigate(`/product?skinTypeId=${skinType.skinTypeId}`)}
+                                                style={{ margin: '0', padding: '8px 0' }}>
+                                                {skinType.skinTypeCodes}
+                                            </Menu.Item>
+                                        ))}
+                                    </Menu>
+                                </Col> */}
+                            </Row>
                         </Card>
                     )}
                 </div>
