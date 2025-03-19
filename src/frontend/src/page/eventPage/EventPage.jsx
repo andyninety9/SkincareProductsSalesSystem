@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import service1 from '../../assets/service1.jpeg';
 import banner from '../../assets/bannerEvent.jpg';
+import event from '../../assets/event.jpg';
 import event1 from '../../assets/event1.png';
 import event2 from '../../assets/event2.png';
 import event3 from '../../assets/event3.png';
@@ -65,7 +66,7 @@ const EventPage = () => {
                 </h1>
                 {/* <img src={event1} alt="Event" className="img-fluid mt-3 mb-3" style={{ borderRadius: '10px', width:"700PX" }} /> */}
 
-            <Image src={event1} alt="Event" width="200" style={{ borderRadius: '10px' }} preview />
+            <Image src={event} alt="Event" width="100" style={{ borderRadius: '10px' }} preview />
         
                 <p className="text-muted">
                     - Revision Skincare -<br />
