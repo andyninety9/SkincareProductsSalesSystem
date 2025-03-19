@@ -267,7 +267,7 @@ export default function CheckOutPage() {
                 length: 20,
                 width: 20,
                 height: 10,
-                insurance_value: totalAmount * 1000,
+                insurance_value: 100000,
                 service_id: 0,
                 service_type_id: 2,
                 items: cartItems.map((item) => ({
@@ -506,11 +506,11 @@ export default function CheckOutPage() {
                             <Input placeholder="Email" size="large" />
                         </Form.Item>
 
-                        <Form.Item name="name">
+                        <Form.Item name="name" rules={[{ required: true, message: 'Vui lòng nhập họ tên người nhận' }]}>
                             <Input placeholder="Họ và Tên" size="large" />
                         </Form.Item>
 
-                        <Form.Item name="phone">
+                        <Form.Item name="phone" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}>
                             <Input placeholder="Số điện thoại" size="large" />
                         </Form.Item>
 
