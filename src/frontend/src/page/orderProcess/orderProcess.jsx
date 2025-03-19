@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../config/api';
 import { routes } from '../../routes';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { clearCart } from '../../redux/feature/cartSlice';
 import toast from 'react-hot-toast';
 import { Button, Spin } from 'antd';
+import { clearPendingOrder, selectPendingOrder } from '../../redux/feature/orderSlice';
 
 export default function OrderProcess() {
     const location = useLocation();
@@ -13,6 +14,7 @@ export default function OrderProcess() {
     const queryParams = new URLSearchParams(location.search);
     const paramsCheck = Object.fromEntries(queryParams.entries());
     const dispatch = useDispatch();
+    const pendingOrder = useSelector(selectPendingOrder);
 
     const [loading, setLoading] = useState(true);
     const [orderDetails, setOrderDetails] = useState(null);
@@ -55,7 +57,7 @@ export default function OrderProcess() {
                 from_province_name: 'HCM',
                 return_phone: '0918788433',
                 return_address: '39 NTT',
-                to_name: customerInfo.name,
+                to_name: customerInfo.name || 'Khách hàng Mavid',
                 to_phone: customerInfo.phone,
                 to_address: customerInfo.address,
                 to_ward_name: customerInfo.ward,
@@ -136,6 +138,7 @@ export default function OrderProcess() {
             setLoading(true);
             const { orderId, vnp_TransactionStatus, vnp_SecureHash, vnp_Amount, method } = paramsCheck;
             const LongOrderId = BigInt(orderId);
+            console.log('Pending order from Redux:', pendingOrder);
 
             try {
                 // Step 1: Verify payment status
@@ -146,26 +149,23 @@ export default function OrderProcess() {
 
                 if (response.data.statusCode === 200) {
                     toast.success('Thanh toán thành công');
-                    dispatch(clearCart());
 
-                    // Step 2: Get order details and create delivery order
-                    const orderData = await handleFetchOrderDetail(orderId);
-                    if (orderData) {
-                        // Step 3: Create delivery order with order details
-                        try {
-                            const deliveryResult = await handleCreateDeliveryOrder(orderId);
-                            if (deliveryResult) {
-                                toast.success('Đơn hàng đã được xử lý và sẽ được giao đến bạn sớm nhất');
-                            } else {
-                                toast.warning('Đơn hàng đã thanh toán thành công, nhưng có vấn đề khi tạo vận đơn');
-                            }
-                        } catch (deliveryError) {
-                            console.error('Error creating delivery:', deliveryError);
-                            toast.warning('Thanh toán thành công nhưng không thể tạo vận đơn');
-                        }
+                    // Get order details - use pendingOrder data if available
+                    let customerInfo;
+                    if (pendingOrder && pendingOrder.orderId === orderId) {
+                        customerInfo = pendingOrder.recipientInfo;
+                        // Can use other data from pendingOrder as needed
                     } else {
-                        toast.warning('Không thể lấy thông tin đơn hàng, vận đơn sẽ được tạo sau');
+                        // Fallback to fetching from API if needed
+                        const orderData = await handleFetchOrderDetail(orderId);
+                        // Process orderData...
                     }
+
+                    // Create delivery order with enhanced information
+                    const deliveryOrderId = await handleCreateDeliveryOrder(orderId);
+
+                    // Clear pending order from Redux when done
+                    dispatch(clearPendingOrder());
                 } else {
                     toast.error('Thanh toán thất bại');
                     navigate(routes.cart);
@@ -180,8 +180,8 @@ export default function OrderProcess() {
         };
 
         handlePaymentReturn();
-    }, []);
-    
+    }, [dispatch, pendingOrder, paramsCheck]);
+
     if (loading) {
         return (
             <div
