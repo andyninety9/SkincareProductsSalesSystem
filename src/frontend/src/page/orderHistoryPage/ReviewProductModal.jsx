@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Rate, Input, Button, Form, Typography, Upload, Divider } from 'antd';
 import { PictureOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
@@ -17,13 +17,26 @@ const countWords = (text) => {
         : 0;
 };
 
-const ReviewProductModal = ({ visible, onClose, product, orderId, onSuccess }) => {
+const ReviewProductModal = ({ visible, onClose, product, orderId, onSuccess, orderStatus }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [ratingValue, setRatingValue] = useState(0);
 
+    useEffect(() => {
+        if (visible && orderStatus !== 'Completed') {
+            toast.error('Chỉ có thể đánh giá sản phẩm khi đơn hàng đã hoàn thành!');
+            onClose();
+        }
+    }, [visible, orderStatus, onClose]);
+
     const handleSubmit = async () => {
         try {
+            // Double-check order status before submitting
+            if (orderStatus !== 'Completed') {
+                toast.error('Chỉ có thể đánh giá sản phẩm khi đơn hàng đã hoàn thành!');
+                return;
+            }
+
             setLoading(true);
             const values = await form.validateFields();
             const finalRating = ratingValue || values.rating;
@@ -48,9 +61,9 @@ const ReviewProductModal = ({ visible, onClose, product, orderId, onSuccess }) =
             const response = await api.post(`products/review/create`, reviewData);
 
             if (response?.data?.statusCode === 200) {
-                toast.success('Đánh giá sản phẩm thành công!');
+                // Remove this toast.success call to avoid duplication
                 form.resetFields();
-                if (onSuccess) onSuccess();
+                if (onSuccess) onSuccess('Đánh giá sản phẩm thành công!'); // Pass success message to parent
                 onClose();
             } else {
                 throw new Error(response?.data?.message || 'Failed to submit review');
@@ -72,7 +85,7 @@ const ReviewProductModal = ({ visible, onClose, product, orderId, onSuccess }) =
     return (
         <Modal
             title={null}
-            open={visible}
+            open={visible && orderStatus === 'Completed'} // Only open if order is completed
             onCancel={onClose}
             footer={null}
             width={520}
@@ -222,6 +235,7 @@ ReviewProductModal.propTypes = {
     onClose: PropTypes.func.isRequired,
     product: PropTypes.object,
     orderId: PropTypes.string,
+    orderStatus: PropTypes.string,
     onSuccess: PropTypes.func,
 };
 

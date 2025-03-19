@@ -148,8 +148,8 @@ const OrderHistoryPage = () => {
         setReviewModalVisible(true);
     };
 
-    const handleReviewSuccess = () => {
-        toast.success('Cảm ơn bạn đã đánh giá sản phẩm!');
+    const handleReviewSuccess = (message) => {
+        toast.success(message || 'Cảm ơn bạn đã đánh giá sản phẩm!');
     };
 
     const fetchOrderDetails = async (orderId) => {
@@ -257,6 +257,7 @@ const OrderHistoryPage = () => {
                 onClose={() => setReviewModalVisible(false)}
                 product={selectedProduct}
                 orderId={order?.orderId}
+                orderStatus={order?.orderStatus}
                 onSuccess={handleReviewSuccess}
             />
             <Row className="mb-3">
@@ -526,7 +527,17 @@ const OrderHistoryPage = () => {
                                                                 size="small"
                                                                 type="link"
                                                                 onClick={() => handleReviewProduct(product)}
-                                                                style={{ color: '#D8959A' }}>
+                                                                disabled={order.orderStatus !== 'Completed'}
+                                                                style={{
+                                                                    color:
+                                                                        order.orderStatus === 'Completed'
+                                                                            ? '#D8959A'
+                                                                            : '#999',
+                                                                    cursor:
+                                                                        order.orderStatus === 'Completed'
+                                                                            ? 'pointer'
+                                                                            : 'not-allowed',
+                                                                }}>
                                                                 Đánh giá sản phẩm
                                                             </Button>
                                                         </div>
@@ -640,15 +651,54 @@ const OrderHistoryPage = () => {
                                         justifyContent: 'flex-end',
                                     }}>
                                     <div style={{ width: '350px' }}>
+                                        {/* Calculate subtotal from products */}
                                         <div
                                             style={{
                                                 display: 'flex',
                                                 justifyContent: 'space-between',
                                                 marginBottom: '8px',
                                             }}>
-                                            <Text>Tổng tiền hàng:</Text>
-                                            <Text>đ{order.totalPrice.toLocaleString()}</Text>
+                                            <Text>Tạm tính:</Text>
+                                            <Text>
+                                                đ
+                                                {products
+                                                    .reduce(
+                                                        (sum, product) => sum + product.sellPrice * product.quantity,
+                                                        0
+                                                    )
+                                                    .toLocaleString()}
+                                            </Text>
                                         </div>
+
+                                        {/* Display discount if applicable */}
+                                        {(() => {
+                                            const regularTotal = products.reduce(
+                                                (sum, product) => sum + product.sellPrice * product.quantity,
+                                                0
+                                            );
+                                            const actualProductsTotal = products.reduce(
+                                                (sum, product) => sum + product.unitPrice * product.quantity,
+                                                0
+                                            );
+                                            const discount = regularTotal - actualProductsTotal;
+
+                                            return discount > 0 ? (
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        marginBottom: '8px',
+                                                        color: '#52c41a',
+                                                    }}>
+                                                    <Text style={{ color: '#52c41a' }}>Giảm giá:</Text>
+                                                    <Text style={{ color: '#52c41a' }}>
+                                                        -đ{discount.toLocaleString()}
+                                                    </Text>
+                                                </div>
+                                            ) : null;
+                                        })()}
+
+                                        {/* Shipping fee */}
                                         <div
                                             style={{
                                                 display: 'flex',
@@ -657,9 +707,15 @@ const OrderHistoryPage = () => {
                                             }}>
                                             <Text>Phí vận chuyển:</Text>
                                             <Text>
-                                                đ{(order.payment?.paymentAmount - order.totalPrice).toLocaleString()}
+                                                đ
+                                                {(order.payment?.paymentAmount - order.totalPrice > 0
+                                                    ? order.payment.paymentAmount - order.totalPrice
+                                                    : 0
+                                                ).toLocaleString()}
                                             </Text>
                                         </div>
+
+                                        {/* Final total */}
                                         <div
                                             style={{
                                                 display: 'flex',
