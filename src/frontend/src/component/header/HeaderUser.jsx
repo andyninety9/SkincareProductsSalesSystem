@@ -255,16 +255,23 @@ const HeaderUser = () => {
                                             Danh mục sản phẩm
                                         </Space>
                                     </Typography.Title>
-                                    <Menu style={{ border: 'none' }}>
+                                    <Menu style={{ border: 'none', }}>
                                         {categories.map((category) => (
                                             <Menu.Item
                                                 key={`cat-${category.cateProdId}`}
                                                 onClick={() => navigate(`/product?cateProdId=${category.cateProdId}`)}
-                                                style={{ padding: '8px' }}>
+                                                style={{
+                                                    padding: '8px',
+                                                    // textAlign: 'center',
+                                                    display: 'flex',
+                                                    justifyContent: 'flex-start',
+                                                    alignItems: 'center',
+                                                }}>
                                                 {category.cateProdName}
                                             </Menu.Item>
                                         ))}
                                     </Menu>
+
                                 </Col>
 
                                 {/* Right Column - Skin Types */}
