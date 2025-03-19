@@ -12,7 +12,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(corsPolicy, policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // 🚀 Chỉ định domain frontend (không đổi)
+        policy.WithOrigins("https://www.mavidvietnam.store") // 🚀 Chỉ định domain frontend (không đổi)
               .AllowAnyMethod() // Cho phép tất cả phương thức HTTP
               .AllowAnyHeader() // Chấp nhận mọi loại header
               .AllowCredentials(); // 🔥 Cho phép gửi Cookie / Authorization
