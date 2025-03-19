@@ -25,6 +25,8 @@ const HeaderUser = () => {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [user, setUser] = useState(null);
     const prevUserCookieRef = useRef(null);
+    const [categories, setCategories] = useState([]); // State lưu danh sách categories
+
 
     useEffect(() => {
         // Explicitly bind prevUserCookieRef to avoid scope issues
@@ -88,6 +90,22 @@ const HeaderUser = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [isSearchOpen]);
+
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await api.get('Products/categories?page=1&pageSize=1000');
+                if (response.status === 200) {
+                    setCategories(response.data.data.items);
+                }
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+        fetchCategories();
+    }, []);
+
 
     const fetchLogout = async () => {
         try {
@@ -193,168 +211,40 @@ const HeaderUser = () => {
                     Trang chủ
                 </Link>
                 <div
+                style={{ whiteSpace: 'nowrap', width: 'fit-content' }}
                     className="position-relative"
                     ref={dropdownRef}
                     onMouseEnter={() => setIsDropdownOpen(true)}
                     onMouseLeave={() => setIsDropdownOpen(false)}>
-                    <span
-                        className="text-dark text-decoration-none cursor-pointer black-sparkle"
-                        style={{ whiteSpace: 'nowrap' }}>
-                        <span style={{ display: 'inline-block', transform: 'translateY(6px)' }}>✨</span>
-                        <Link
-                            to={routes.product}
-                            className="text-dark text-decoration-none"
-                            style={{ whiteSpace: 'nowrap' }}>
+                    <span className="text-dark text-decoration-none cursor-pointer black-sparkle">
+                        <Link to={routes.product} className="text-dark text-decoration-none">
                             Sản phẩm
                         </Link>
-                        <span style={{ display: 'inline-block', transform: 'translateY(-6px)' }}>✨</span>
                     </span>
-                    {isDropdownOpen && (
-                        <div
-                            className="position-absolute p-4 rounded"
-                            style={{
-                                position: 'absolute',
-                                top: '100%',
-                                left: '110%',
-                                transform: 'translateX(-50%)',
-                                width: '100vw',
-                                height: 'fit-content',
-                                maxWidth: '1440px',
-                                background: '#fffbfc',
-                                padding: '20px',
-                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                                zIndex: 1000,
-                                overflowX: 'hidden',
-                                overflowY: 'hidden',
-                            }}>
+
+                    {isDropdownOpen && categories.length > 0 && (
+                        <div className="position-absolute p-4 rounded" style={{ background: '#fffbfc', zIndex: 1000 }}>
                             <div className="row">
-                                {/* Product Categories */}
-                                <div className="col-xl-8 ">
-                                    <div className="row ps-5 ">
-                                        <div className="col-md-4" style={{ paddingLeft: '9rem', fontSize: '17px' }}>
-                                            <h6 className="fw-bold mt-2 ">Chăm Sóc Da</h6>
-                                            <Link
-                                                to="/products/skincare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Tất cả
-                                            </Link>
-                                            <Link
-                                                to="/products/skincare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Chống nắng
-                                            </Link>
-                                            <Link
-                                                to="/products/skincare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Tẩy trang
-                                            </Link>
-                                            <Link
-                                                to="/products/skincare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Sữa rửa mặt
-                                            </Link>
-                                            <Link
-                                                to="/products/skincare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Tẩy da chết mặt
-                                            </Link>
-                                            <Link
-                                                to="/products/skincare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Mặt nạ
-                                            </Link>
-                                            <Link
-                                                to="/products/skincare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Nước cân bằng
-                                            </Link>
-                                            <Link
-                                                to="/products/skincare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Tinh chất
-                                            </Link>
-                                            <Link
-                                                to="/products/skincare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Kem dưỡng
-                                            </Link>
-                                            <Link
-                                                to="/products/skincare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Xịt khoáng
-                                            </Link>
-                                        </div>
-                                        <div
-                                            className="col-md-4 mt-2"
-                                            style={{ paddingLeft: '7rem', fontSize: '17px' }}>
-                                            <h6 className="fw-bold">Tắm & Dưỡng Thể</h6>
-                                            <Link
-                                                to="/products/bodycare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Tất cả
-                                            </Link>
-                                            <Link
-                                                to="/products/bodycare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Tẩy da chết cơ thể
-                                            </Link>
-                                            <Link
-                                                to="/products/bodycare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Sữa tắm
-                                            </Link>
-                                            <Link
-                                                to="/products/bodycare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Xịt cơ thể
-                                            </Link>
-                                            <Link
-                                                to="/products/bodycare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Dưỡng thể
-                                            </Link>
-                                        </div>
-                                        <div
-                                            className="col-md-4 mt-2"
-                                            style={{ paddingLeft: '4rem', fontSize: '17px' }}>
-                                            <h6 className="fw-bold">Chăm Sóc Tóc</h6>
-                                            <Link
-                                                to="/products/haircare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Tất cả
-                                            </Link>
-                                            <Link
-                                                to="/products/haircare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Dầu gội
-                                            </Link>
-                                            <Link
-                                                to="/products/haircare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Kem ủ
-                                            </Link>
-                                            <Link
-                                                to="/products/haircare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Dầu xả
-                                            </Link>
-                                            <Link
-                                                to="/products/haircare"
-                                                className="text-dark text-decoration-none d-block">
-                                                Tinh chất dưỡng tóc
-                                            </Link>
+                                <div className="col-md-8">
+                                    <div className="row ps-5">
+                                        <div className="col-md-4" style={{  fontSize: '17px' }}>
+                                            <h6 className="fw-bold mt-2">Danh mục sản phẩm</h6>
+                                            {categories.map((category) => (
+                                                <Link
+                                                    key={category.cateProdId}
+                                                    to={`/products/category/${category.cateProdId}`}
+                                                    className="text-dark text-decoration-none d-block">
+                                                    {category.cateProdName}
+                                                </Link>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
+
                                 {/* Image */}
-                                <div className="col-md-4 d-flex align-items-center justify-content-center">
-                                    <img
-                                        src={dropdownImage}
-                                        alt="Dropdown"
-                                        className="img-fluid rounded"
-                                        style={{ maxWidth: '250px' }}
-                                    />
-                                </div>
+                                {/* <div className="col-md-4 d-flex align-items-center justify-content-center">
+                                    <img src={dropdownImage} alt="Dropdown" className="img-fluid rounded" style={{ maxWidth: '300px' }} />
+                                </div> */}
                             </div>
                         </div>
                     )}
