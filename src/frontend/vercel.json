@@ -12,10 +12,6 @@
             "permanent": true
         }
     ],
-    "build": {
-        "use": "@vercel/static-build",
-        "outputDirectory": "build"
-    },
     "functions": {
         "api/**.js": {
             "memory": 128,
