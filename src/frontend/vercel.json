@@ -13,8 +13,30 @@
         }
     ],
     "build": {
-        "src": "src/index.js",
         "use": "@vercel/static-build",
         "outputDirectory": "build"
-    }
+    },
+    "functions": {
+        "api/**.js": {
+            "memory": 128,
+            "maxDuration": 10
+        }
+    },
+    "routes": [
+        {
+            "src": "/old-path",
+            "dest": "/new-path"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/:path*",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=31536000, immutable"
+                }
+            ]
+        }
+    ]
 }
