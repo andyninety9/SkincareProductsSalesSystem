@@ -15,7 +15,7 @@ export const routes = {
     cart: '/cart',
     checkout: '/checkout',
     orderConfirmPage: '/confirmOrder',
-    event: '/event',
+    promotion: '/promotions',
     aboutUs: '/about-us',
     profile: '/profile',
     quiz: '/quiz',

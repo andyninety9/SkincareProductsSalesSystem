@@ -85,6 +85,7 @@ function App() {
                 { path: routes.review, element: <ReviewPage /> },
                 { path: routes.contact, element: <Contact /> },
                 { path: routes.service, element: <Service /> },
+                { path: routes.promotion, element: <EventPage /> },
                 { path: routes.faq, element: <Faq /> },
                 { path: routes.cart, element: <CartPage /> },
                 { path: routes.verifyEmail, element: <VerifyEmailPage /> },
