@@ -229,6 +229,92 @@ export default function CheckOutPage() {
         }
     };
 
+    const handleCreateDeliveryOrder = async (orderId, customerInfo) => {
+        try {
+            // Extract address information from form values
+            const formValues = form.getFieldsValue();
+            const addressCodes = await handleGetAddressCodeByAddress();
+
+            if (!addressCodes) {
+                message.error('Không thể xác định mã địa chỉ giao hàng');
+                return null;
+            }
+
+            // Calculate total weight and dimensions based on cart items
+            const totalWeight = cartItems.reduce((sum, item) => sum + (item.weight || 200) * item.quantity, 200);
+
+            const response = await api.post('delivery/create-order', {
+                payment_type_id: formValues.paymentMethod === 'COD' ? 2 : 1, // 2 for COD, 1 for paid
+                note: formValues.note || 'Đơn hàng từ Mavid Skincare',
+                required_note: 'KHONGCHOXEMHANG',
+                from_name: 'Mavid Skincare Shop',
+                from_phone: '0987654321',
+                from_address: '43 Xô Viết Nghệ Tĩnh, Phường 17, Quận Bình Thạnh, Hồ Chí Minh, Vietnam',
+                from_ward_name: 'Phường 17',
+                from_district_name: 'Quận Bình Thạnh',
+                from_province_name: 'HCM',
+                return_phone: '0918788433',
+                return_address: '39 NTT',
+                to_name: formValues.name,
+                to_phone: formValues.phone,
+                to_address: formValues.address,
+                to_ward_name: formValues.ward,
+                to_district_name: formValues.district,
+                to_province_name: formValues.province,
+                cod_amount: formValues.paymentMethod === 'COD' ? totalAmount + shippingFee - discountAmount : 0,
+                content: `Đơn hàng #${orderId}`,
+                weight: totalWeight,
+                length: 20,
+                width: 20,
+                height: 10,
+                insurance_value: totalAmount * 1000,
+                service_id: 0,
+                service_type_id: 2,
+                items: cartItems.map((item) => ({
+                    name: item.productName,
+                    code: item.productId.toString(),
+                    quantity: item.quantity,
+                    price: item.sellPrice,
+                    length: 12,
+                    width: 12,
+                    height: 12,
+                    weight: item.weight || 200,
+                    category: {
+                        level1: 'Mỹ phẩm',
+                    },
+                })),
+            });
+
+            console.log('Delivery order response:', response.data);
+
+            if (response.data.statusCode === 200) {
+                const deliveryOrderId = response.data.data.data.order_code;
+
+                // Update order with delivery tracking code
+                try {
+                    await api.put(`Orders/update-tracking/${orderId}`, {
+                        trackingCode: deliveryOrderId,
+                    });
+                    message.success('Đã tạo đơn vận chuyển thành công');
+                } catch (updateError) {
+                    console.error('Failed to update order with tracking code:', updateError);
+                }
+
+                return deliveryOrderId;
+            } else {
+                message.error('Không thể tạo đơn vận chuyển: ' + response.data.message);
+                return null;
+            }
+        } catch (error) {
+            console.error('Failed to create delivery order:', error);
+            if (error.response?.data) {
+                console.error('Error details:', error.response.data);
+            }
+            message.error('Không thể tạo đơn vận chuyển');
+            return null;
+        }
+    };
+
     useEffect(() => {
         handleFetchVoucher();
     }, []);
@@ -278,6 +364,8 @@ export default function CheckOutPage() {
 
             if (response.data.statusCode === 201) {
                 const OrderId = BigInt(response.data.data.ordId).toString();
+
+                // Apply voucher if selected
                 if (voucherCode && discountAmount > 0) {
                     try {
                         await handleUseVoucher(OrderId);
@@ -287,12 +375,23 @@ export default function CheckOutPage() {
                         // Continue with payment even if voucher marking fails
                     }
                 }
+
                 if (values.paymentMethod === 'COD') {
-                    // For COD, skip payment API call
-                    message.success('Đặt hàng thành công!');
-                    dispatch(clearCart());
-                    // Redirect to order confirmation page or homepage
-                    window.location.href = routes.orderSuccess || routes.home;
+                    // For COD, create delivery order immediately
+                    try {
+                        const deliveryOrderId = await handleCreateDeliveryOrder(OrderId, values);
+                        if (deliveryOrderId) {
+                            message.success('Đặt hàng thành công!');
+                            dispatch(clearCart());
+                            window.location.href = routes.orderSuccess || routes.home;
+                        }
+                    } catch (deliveryError) {
+                        console.error('Error creating delivery order:', deliveryError);
+                        // Still consider order successful even if delivery creation fails
+                        message.warning('Đặt hàng thành công, nhưng có lỗi khi tạo đơn vận chuyển');
+                        dispatch(clearCart());
+                        window.location.href = routes.orderSuccess || routes.home;
+                    }
                 } else {
                     // For VNPay, proceed with payment creation
                     const paymentCreate = {
@@ -304,6 +403,11 @@ export default function CheckOutPage() {
                     try {
                         const responsePayment = await api.post('Payment/create', paymentCreate);
                         const paymentUrl = responsePayment.data.data.paymentUrl;
+
+                        // Store order details for later delivery creation
+                        // This should be handled in the payment return callback route
+                        sessionStorage.setItem('pendingOrderId', OrderId);
+
                         // Clear the cart after successful payment initiation
                         message.success('Đặt hàng thành công!');
                         dispatch(clearCart());
@@ -349,6 +453,7 @@ export default function CheckOutPage() {
                             email: user?.email || '',
                             name: user?.fullName || '',
                             phone: user?.phone || '',
+                            shippingMethod: 'Ahamove',
                         });
 
                         // Calculate shipping fee for default address
@@ -610,7 +715,13 @@ export default function CheckOutPage() {
                                         }
                                     });
                             }}>
-                            <button disabled={isSubmitting}>{isSubmitting ? 'Đang xử lý...' : 'Đặt hàng'}</button>
+                            <button disabled={isSubmitting || cartItems.length === 0}>
+                                {isSubmitting
+                                    ? 'Đang xử lý...'
+                                    : cartItems.length === 0
+                                    ? 'Không có sản phẩm'
+                                    : 'Đặt hàng'}
+                            </button>
                         </div>
                     </div>
                 </Col>
