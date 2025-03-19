@@ -12,6 +12,7 @@ import Cookies from 'js-cookie';
 import { clearCart } from '../../redux/feature/cartSlice';
 import { Button } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
+import { setPendingOrder } from '../../redux/feature/orderSlice';
 
 export default function CheckOutPage() {
     // Add this with your other state declarations
@@ -393,27 +394,53 @@ export default function CheckOutPage() {
                         window.location.href = routes.orderSuccess || routes.home;
                     }
                 } else {
-                    // For VNPay, proceed with payment creation
+                    // For VNPay, store order details in Redux
+                    const orderDetails = {
+                        orderId: OrderId,
+                        items: cartItems,
+                        recipientInfo: {
+                            name: values.name,
+                            phone: values.phone,
+                            email: values.email,
+                            address: values.address,
+                            ward: values.ward,
+                            district: values.district,
+                            province: values.province,
+                            note: values.note || '',
+                        },
+                        paymentDetails: {
+                            totalAmount: currentTotalAmount,
+                            shippingFee,
+                            discountAmount,
+                            finalAmount,
+                            paymentMethod: values.paymentMethod,
+                            shippingMethod: values.shippingMethod,
+                            voucherCode: voucherCode || null,
+                        },
+                        timestamp: new Date().toISOString(),
+                    };
+
+                    // Store in Redux
+                    dispatch(setPendingOrder(orderDetails));
+
+                    // Proceed with payment creation
                     const paymentCreate = {
                         OrderId,
                         PaymentMethod: values.paymentMethod,
                         PaymentAmount: finalAmount,
                         ShippingMethod: values.shippingMethod,
                     };
+
                     try {
                         const responsePayment = await api.post('Payment/create', paymentCreate);
                         const paymentUrl = responsePayment.data.data.paymentUrl;
 
-                        // Store order details for later delivery creation
-                        // This should be handled in the payment return callback route
-                        sessionStorage.setItem('pendingOrderId', OrderId);
-
-                        // Clear the cart after successful payment initiation
-                        message.success('Đặt hàng thành công!');
+                        // Clear cart and redirect to payment URL
+                        message.success('Đặt hàng thành công! Chuyển hướng đến trang thanh toán...');
                         dispatch(clearCart());
                         window.location.assign(paymentUrl);
                     } catch (error) {
-                        setIsSubmitting(false); // Reset loading state on error
+                        setIsSubmitting(false);
                         message.error(
                             'Không thể tạo thanh toán: ' + (error.response?.data?.message || 'Đã xảy ra lỗi')
                         );
@@ -422,7 +449,7 @@ export default function CheckOutPage() {
                 }
             }
         } catch (error) {
-            setIsSubmitting(false); // Reset loading state on error
+            setIsSubmitting(false);
             message.error('Không thể đặt hàng: ' + (error.response?.data?.message || 'Đã xảy ra lỗi'));
             console.error('Failed to checkout:', error.response?.data);
         }
