@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import service1 from '../../assets/service1.jpeg';
+import banner from '../../assets/bannerEvent.jpg';
 import event1 from '../../assets/event1.png';
 import event2 from '../../assets/event2.png';
 import event3 from '../../assets/event3.png';
@@ -8,6 +9,9 @@ import EventCarousel from '../../component/eventCarousel/EventCarousel';
 import { Grid, Box, Typography } from '@mui/material';
 import api from '../../config/api';
 import { format } from 'date-fns';
+import { Image } from 'antd';
+// import { Image } from 'primereact/image';
+
 
 const EventPage = () => {
     const [listEvent, setListEvent] = React.useState([]);
@@ -38,7 +42,7 @@ const EventPage = () => {
                 <div
                     className="text-center mb-4 position-relative d-flex flex-column align-items-center justify-content-center"
                     style={{
-                        background: `linear-gradient(rgba(181, 113, 112, 0.5), rgba(120, 120, 120, 0.5)), url(${service1}) no-repeat center center / cover`,
+                        background: `linear-gradient(rgba(181, 113, 112, 0.5), rgba(120, 120, 120, 0.5)), url(${banner}) no-repeat center center / cover`,
                         height: '300px',
                         width: '100vw',
                         maxWidth: '100%',
@@ -59,13 +63,16 @@ const EventPage = () => {
                 <h1 className="" style={{ fontSize: '35px', fontFamily: "'Prata', serif", color: '#A76A6E' }}>
                     Sự kiện ra mắt Revision Skincare® tại thị trường Việt Nam
                 </h1>
-                <img src={event1} alt="Event" className="img-fluid mt-3 mb-3" style={{ borderRadius: '10px' }} />
+                {/* <img src={event1} alt="Event" className="img-fluid mt-3 mb-3" style={{ borderRadius: '10px', width:"700PX" }} /> */}
+
+            <Image src={event1} alt="Event" width="200" style={{ borderRadius: '10px' }} preview />
+        
                 <p className="text-muted">
                     - Revision Skincare -<br />
                     22/03/2024
                 </p>
                 <p className="text-start" style={{ fontSize: '18px' }}>
-                    <span className="text-danger">Revision Skincare®</span>
+                    <span className="text-danger">Revision Skincare® </span>
                     trân trọng cảm ơn BS.CKI Phạm Nguyễn Khánh Ly đã đến tham dự và đồng hành cùng chúng tôi trong sự
                     kiện ra mắt Revision Skincare® tại thị trường Việt Nam vào ngày 20.03 vừa qua.
                 </p>
@@ -74,11 +81,13 @@ const EventPage = () => {
                     nghệ trẻ hóa đa chiều DEJ Technology và kinh nghiệm ứng dụng sản phẩm của Revision Skincare® trong
                     các phác đồ điều trị tại Le’ Bali.
                 </p>
-                <img
+                <Image
                     src={event2}
                     alt="Event Product"
-                    className="img-fluid mt-3 mb-3"
-                    style={{ borderRadius: '10px' }}
+                    // className="img-fluid mt-3 mb-3"
+                    width="200"
+                    style={{ borderRadius: '10px'}}
+                    preview
                 />
                 <p className="text-muted">
                     - Revision Skincare -<br />

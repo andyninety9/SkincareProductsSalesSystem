@@ -44,6 +44,7 @@
         "redux-persist": "^6.0.0",
         "styled-components": "^6.1.15",
         "swiper": "^11.2.3",
+        "typeface-nunito": "^1.1.13",
         "yup": "^1.6.1"
     },
     "devDependencies": {
