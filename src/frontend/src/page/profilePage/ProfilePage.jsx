@@ -412,7 +412,11 @@ const ProfilePage = () => {
                     style={{
                         width: '100%',
                         height: '100%',
-                        background: `url(${coverPreview || userInfo.coverUrl}) no-repeat center center`,
+                        background: `url(${
+                            coverPreview ||
+                            userInfo.coverUrl ||
+                            'https://mavid-webapp.s3.ap-southeast-1.amazonaws.com/coverPhoto/690512381897342976/e61f2c74-3943-4287-889c-c6b960b95abe.jpg'
+                        }) no-repeat center center`,
                         backgroundSize: 'cover',
                     }}
                 />
