@@ -25,6 +25,7 @@ const EventPage = () => {
                 ...item,
                 eventId: item.eventId ? BigInt(item.eventId) : item.eventId,
             }));
+
             setListEvent(processedItems);
             console.log(listEvent);
         } catch (error) {
@@ -37,7 +38,7 @@ const EventPage = () => {
     }, []);
 
     return (
-        <div className="container-fluid p-0">
+        <div className="container-fluid p-0" style={{maxWidth:"1440px"}}>
             {/* Banner */}
             <div className="container-fluid p-0">
                 {/* Banner */}
