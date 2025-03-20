@@ -8,6 +8,7 @@ import api from '../../config/api';
 import { toast } from 'react-hot-toast';
 import '../../component/manageOrderSteps/ManageOrderSteps.css';
 import ReviewProductModal from './ReviewProductModal';
+import ReturnRequestModal from './ReturnRequestModal';
 
 const { Text, Title } = Typography;
 const statusSteps = [
@@ -142,6 +143,7 @@ const OrderHistoryPage = () => {
     const [fetchError, setFetchError] = useState(null);
     const [reviewModalVisible, setReviewModalVisible] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [returnModalVisible, setReturnModalVisible] = useState(false);
 
     const handleReviewProduct = (product) => {
         setSelectedProduct(product);
@@ -765,6 +767,19 @@ const OrderHistoryPage = () => {
                                         paddingTop: '20px',
                                     }}>
                                     <Button
+                                        type="default"
+                                        size="large"
+                                        disabled={order.orderStatus !== 'Completed'}
+                                        style={{
+                                            borderColor: '#D8959A',
+                                            color: order.orderStatus === 'Completed' ? '#D8959A' : '#d9d9d9',
+                                        }}
+                                        onClick={() => {
+                                            setReturnModalVisible(true);
+                                        }}>
+                                        <span style={{ fontWeight: 'bold' }}>Yêu Cầu Hoàn Trả</span>
+                                    </Button>
+                                    <Button
                                         type="primary"
                                         size="large"
                                         style={{
@@ -785,6 +800,12 @@ const OrderHistoryPage = () => {
                     </Card>
                 </Col>
             </Row>
+            <ReturnRequestModal
+                visible={returnModalVisible}
+                onClose={() => setReturnModalVisible(false)}
+                order={order}
+                products={products}
+            />
         </Container>
     );
 };
