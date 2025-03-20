@@ -11,6 +11,7 @@ import { Grid, Box, Typography } from '@mui/material';
 import api from '../../config/api';
 import { format } from 'date-fns';
 import { Image } from 'antd';
+import CardProduct from '../../component/cardProduct/card';
 // import { Image } from 'primereact/image';
 
 
@@ -96,29 +97,32 @@ const EventPage = () => {
                 </p>
             </div>
             {listEvent.map((event, index) => (
-                <div key={event.eventId || `event-${index}`} style={{ padding: '2rem' }}>
-                    <Typography
-                        variant="h4"
-                        fontFamily="'Prata', serif "
-                        style={{ textAlign: 'left', marginBottom: '2rem', color: '#A76A6E', marginLeft: '2rem' }}>
-                        {event.eventName}
-                    </Typography>
-                    {/* Carousel of Cards */}
-                    <EventCarousel event={event} />
-                </div>
+               <div key={event.eventId || `event-${index}`} style={{ padding: '2rem' }}>
+               <Typography
+                   variant="h4"
+                   fontFamily="'Prata', serif"
+                   style={{ textAlign: 'left', marginBottom: '2rem', color: '#A76A6E', marginLeft: '2rem' }}>
+                   {event.eventName}
+               </Typography>
+               <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                   {/* EventCarousel Component */}
+                   <EventCarousel event={event} />
+               </div>
+           </div>
+           
             ))}
 
-            <div className="container text-center mt-5">
+            <div className="container text-center mt-5 mb-5">
                 <p className="text-start" style={{ fontSize: '18px' }}>
-                    <span className="text-danger">Revision Skincare®</span>
+                    <span className="text-danger">Revision Skincare® </span>
                     hy vọng sẽ tiếp tục được đồng hành cùng BS.CKI Phạm Nguyễn Khánh Ly trong những sự kiện tiếp theo
                     của Revision. Hãy cùng ngắm nhìn những khoảnh khắc đáng nhớ của BS.CKI Phạm Nguyễn Khánh Ly tại sự
                     kiện ra mắt Revision Skincare® nhé !
                 </p>
             </div>
 
-            <Grid container sx={{ mt: 5 }}>
-                {/* Left Column: Text */}
+            {/* <Grid container sx={{ mt: 5 }}>
+
                 <Grid item xs={12} md={6} container justifyContent="center">
                     <Box sx={{ width: 'fit-content', ml: 'auto', textAlign: 'left' }}>
                         <Typography variant="h5" fontFamily="'Prata', serif " sx={{ mb: 2, color: '#A76A6E' }}>
@@ -146,7 +150,7 @@ const EventPage = () => {
                     </Box>
                 </Grid>
 
-                {/* Right Column: Image */}
+
                 <Grid item xs={12} md={5} container justifyContent="center">
                     <img
                         src={event4}
@@ -158,7 +162,7 @@ const EventPage = () => {
                         }}
                     />
                 </Grid>
-            </Grid>
+            </Grid> */}
         </div>
     );
 };
