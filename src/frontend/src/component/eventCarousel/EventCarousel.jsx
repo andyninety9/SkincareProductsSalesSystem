@@ -27,8 +27,6 @@ const EventProductsCarousel = ({ event }) => {
                     ? response.data.data.productId.toString()
                     : response.data.data.productId,
             };
-            console.log('processedItems:', processedItems);
-
             return processedItems;
         } catch (error) {
             console.error(`Error fetching product ${productId}:`, error);
@@ -53,10 +51,10 @@ const EventProductsCarousel = ({ event }) => {
             // Fetch details for each product
             const detailsPromises = productIds.map((id) => handleGetProductDetail(id));
             const fetchedDetails = await Promise.all(detailsPromises);
-
             // Filter out any null results (failed requests)
             const validDetails = fetchedDetails.filter((detail) => detail !== null);
             setProductDetails(validDetails);
+            // console.log(productDetails);
         } catch (error) {
             console.error('Error fetching event details:', error);
         } finally {
@@ -95,18 +93,18 @@ const EventProductsCarousel = ({ event }) => {
                 <div>Loading products...</div>
             ) : (
                 productDetails.map((product, index) => (
-                    <SwiperSlide key={product.productId || index}
-                    style={{
-                        width: 'calc(25% - 30px)',  // Đảm bảo chiều rộng của mỗi card
-                        height: '480px',             // Tăng chiều cao của card
-                        margin: '10px',              // Thêm margin giữa các card
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxSizing: 'border-box',   
-                    }}
-                    >
+                    <SwiperSlide
+                        key={product.productId || index}
+                        style={{
+                            width: 'calc(25% - 30px)', // Đảm bảo chiều rộng của mỗi card
+                            height: '480px', // Tăng chiều cao của card
+                            margin: '10px', // Thêm margin giữa các card
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxSizing: 'border-box',
+                        }}>
                         {/* <CardEvent
                             imageSrc={product.images?.[0] || event3}
                             productName={product.productName}
@@ -118,7 +116,9 @@ const EventProductsCarousel = ({ event }) => {
                             onClick={() => handleCardClick(product.productId)}
                             style={{ cursor: 'pointer', userSelect: 'none', position: 'relative' }}>
                             {product?.stocks === 0 && (
-                                <Tag color="red" style={{ position: 'absolute', top: 10, left: 10, fontWeight: 'bold' }}>
+                                <Tag
+                                    color="red"
+                                    style={{ position: 'absolute', top: 10, left: 10, fontWeight: 'bold' }}>
                                     Sold Out
                                 </Tag>
                             )}
@@ -129,7 +129,11 @@ const EventProductsCarousel = ({ event }) => {
                             />
                             <div className="cardProduct-content">
                                 <div className="cardProduct-content-left">
-                                    <Rate value={product?.totalRating || 0} disabled className="cardProduct-content-left-rate" />
+                                    <Rate
+                                        value={product?.totalRating || 0}
+                                        disabled
+                                        className="cardProduct-content-left-rate"
+                                    />
                                     <p
                                         style={{
                                             fontWeight: 700,
@@ -168,16 +172,25 @@ const EventProductsCarousel = ({ event }) => {
                                                 <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>
                                                     Listed Price:
                                                 </span>
-                                                <span style={{ textDecoration: 'line-through', fontSize: '14px', color: '#888' }}>
+                                                <span
+                                                    style={{
+                                                        textDecoration: 'line-through',
+                                                        fontSize: '14px',
+                                                        color: '#888',
+                                                    }}>
                                                     {formatCurrency(product.sellPrice)}
                                                 </span>
                                             </div>
                                         </>
                                     ) : (
                                         <div>
-                                            <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>Listed Price:</span>
+                                            <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>
+                                                Listed Price:
+                                            </span>
                                             <span style={{ color: '#ff4d4f', fontWeight: 'bold' }}>
-                                                {product?.sellPrice ? formatCurrency(product.sellPrice) : 'Contact for price'}
+                                                {product?.sellPrice
+                                                    ? formatCurrency(product.sellPrice)
+                                                    : 'Contact for price'}
                                             </span>
                                         </div>
                                     )}

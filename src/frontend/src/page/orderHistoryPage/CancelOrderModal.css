@@ -1,0 +1,164 @@
+/* Modal styling */
+.ant-modal-content {
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.ant-modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f0f0f0;
+    background: linear-gradient(to right, #f9f0f1, #fff);
+}
+
+.ant-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.ant-modal-body {
+    padding: 24px;
+}
+
+.ant-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #f0f0f0;
+    background: #fafafa;
+}
+
+/* Textarea styling */
+.custom-textarea {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    border-radius: 8px !important;
+    resize: none !important;
+    padding: 12px !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
+}
+
+.custom-textarea:hover {
+    border-color: #d8959a !important;
+}
+
+.custom-textarea:focus {
+    border-color: #d8959a !important;
+    box-shadow: 0 0 0 2px rgba(216, 149, 154, 0.2) !important;
+}
+
+.ant-input-textarea-show-count::after {
+    color: #888;
+    font-size: 12px;
+    float: right;
+    margin-top: 5px;
+}
+
+.ant-input-status-warning {
+    border-color: #faad14 !important;
+}
+
+.ant-input-status-warning:focus {
+    box-shadow: 0 0 0 2px rgba(250, 173, 20, 0.2) !important;
+}
+
+/* Radio button styling */
+.ant-radio-wrapper {
+    margin-bottom: 8px;
+    border-radius: 6px;
+    padding: 10px !important;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: flex-start;
+}
+
+.ant-radio-wrapper:hover {
+    background-color: #f9f0f1;
+}
+
+.ant-radio-wrapper-checked {
+    background-color: #fff1f0 !important;
+}
+
+.ant-radio {
+    top: 2px;
+}
+
+.ant-radio-inner {
+    border-color: #d8959a !important;
+}
+
+.ant-radio-checked .ant-radio-inner {
+    background-color: #d8959a !important;
+    border-color: #d8959a !important;
+}
+
+.ant-radio-checked .ant-radio-inner::after {
+    background-color: #fff !important;
+}
+
+/* Button styling */
+.ant-btn-primary {
+    background: #d8959a !important;
+    border-color: #d8959a !important;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+    background: #e0a7ac !important;
+    border-color: #e0a7ac !important;
+}
+
+.ant-btn-default:hover,
+.ant-btn-default:focus {
+    color: #d8959a !important;
+    border-color: #d8959a !important;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ant-modal {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+/* Text styling */
+.ant-typography {
+    font-size: 15px;
+    margin-bottom: 12px;
+}
+
+/* Space between radio options */
+.ant-space-vertical {
+    gap: 4px !important;
+}
+
+/* For mobile responsiveness */
+@media (max-width: 576px) {
+    .ant-modal {
+        max-width: 95%;
+        margin: 10px auto;
+    }
+
+    .ant-modal-title {
+        font-size: 16px;
+    }
+
+    .ant-modal-body {
+        padding: 16px;
+    }
+
+    .ant-modal-footer {
+        padding: 12px 16px;
+    }
+}
