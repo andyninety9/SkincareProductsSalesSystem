@@ -559,13 +559,13 @@ const ProfilePage = () => {
                     <p style={{ marginTop: '2px' }}>{userInfo.gender}</p>
                     <Input
                         prefix={<MailOutlined />}
-                        value={userInfo.email}
+                        value={userInfo.email || 'Đang cập nhật'}
                         disabled
                         style={{
                             marginBottom: 10,
                             boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
                             border: 'none',
-                            color: 'black',
+                            color: userInfo.email ? 'black' : '#888',
                             backgroundColor: 'white',
                             height: 50,
                         }}
@@ -573,25 +573,25 @@ const ProfilePage = () => {
 
                     <Input
                         prefix={<PhoneOutlined />}
-                        value={userInfo.phone}
+                        value={userInfo.phone || 'Đang cập nhật'}
                         disabled
                         style={{
                             marginBottom: 10,
                             boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
                             border: 'none',
-                            color: 'black',
+                            color: userInfo.phone ? 'black' : '#888',
                             backgroundColor: 'white',
                             height: 50,
                         }}
                     />
                     <Input
                         prefix={<CalendarOutlined />}
-                        value={userInfo.dob}
+                        value={userInfo.dob || 'Đang cập nhật'}
                         disabled
                         style={{
                             boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
                             border: 'none',
-                            color: 'black',
+                            color: userInfo.dob ? 'black' : '#888',
                             backgroundColor: 'white',
                             height: 50,
                         }}
