@@ -8,6 +8,8 @@ import api from '../../config/api';
 import { toast } from 'react-hot-toast';
 import '../../component/manageOrderSteps/ManageOrderSteps.css';
 import ReviewProductModal from './ReviewProductModal';
+import ReturnRequestModal from './ReturnRequestModal';
+import CancelOrderModal from './CancelOrderModal';
 
 const { Text, Title } = Typography;
 const statusSteps = [
@@ -142,10 +144,36 @@ const OrderHistoryPage = () => {
     const [fetchError, setFetchError] = useState(null);
     const [reviewModalVisible, setReviewModalVisible] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [returnModalVisible, setReturnModalVisible] = useState(false);
+    const [cancelModalVisible, setCancelModalVisible] = useState(false);
+    const [cancelReason, setCancelReason] = useState('');
 
     const handleReviewProduct = (product) => {
         setSelectedProduct(product);
         setReviewModalVisible(true);
+    };
+
+    const handleCancelOrder = async (reason) => {
+        try {
+            setLoading(true);
+            const response = await api.post(`orders/cancel`, {
+                orderId: toBigIntString(order.orderId),
+                note: reason || 'User cancelled order',
+            });
+            if (response.data.statusCode === 200) {
+                toast.success('Đã hủy đơn hàng thành công!');
+                setCancelModalVisible(false);
+                setCancelReason('');
+                fetchOrderDetails(order.orderId);
+            } else {
+                toast.error(response.data.message || 'Đã xảy ra lỗi khi hủy đơn hàng');
+            }
+        } catch (error) {
+            console.error('Error cancelling order:', error);
+            toast.error('Đã xảy ra lỗi khi hủy đơn hàng');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleReviewSuccess = (message) => {
@@ -764,6 +792,30 @@ const OrderHistoryPage = () => {
                                         borderTop: '1px solid #f0f0f0',
                                         paddingTop: '20px',
                                     }}>
+                                    {order.orderStatus === 'Pending' && (
+                                        <Button
+                                            danger
+                                            size="large"
+                                            onClick={() => setCancelModalVisible(true)}
+                                            style={{
+                                                fontWeight: 'bold',
+                                            }}>
+                                            Hủy Đơn Hàng
+                                        </Button>
+                                    )}
+                                    <Button
+                                        type="default"
+                                        size="large"
+                                        disabled={order.orderStatus !== 'Completed'}
+                                        style={{
+                                            borderColor: '#D8959A',
+                                            color: order.orderStatus === 'Completed' ? '#D8959A' : '#d9d9d9',
+                                        }}
+                                        onClick={() => {
+                                            setReturnModalVisible(true);
+                                        }}>
+                                        <span style={{ fontWeight: 'bold' }}>Yêu Cầu Hoàn Trả</span>
+                                    </Button>
                                     <Button
                                         type="primary"
                                         size="large"
@@ -785,6 +837,18 @@ const OrderHistoryPage = () => {
                     </Card>
                 </Col>
             </Row>
+            <CancelOrderModal
+                visible={cancelModalVisible}
+                onClose={() => setCancelModalVisible(false)}
+                onSubmit={handleCancelOrder}
+                loading={loading}
+            />
+            <ReturnRequestModal
+                visible={returnModalVisible}
+                onClose={() => setReturnModalVisible(false)}
+                order={order}
+                products={products}
+            />
         </Container>
     );
 };
