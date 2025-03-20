@@ -188,7 +188,16 @@ const HeaderUser = () => {
                                 menu={{
                                     items,
                                 }}>
-                                <Avatar src={<img src={user.avatarUrl} alt="avatar" />} style={{ cursor: 'pointer' }} />
+                                <Avatar
+                                    src={
+                                        user.avatarUrl ||
+                                        'https://cloud.appwrite.io/v1/storage/buckets/67dbb6420032d8a2ee8f/files/67dbcb3d26027f2e8bc1/view?project=67dbb339000bfac45e0d'
+                                    }
+                                    style={{ cursor: 'pointer' }}
+                                    onError={() => {
+                                        return true;
+                                    }}
+                                />
                             </Dropdown>
                         </>
                     ) : (
@@ -255,7 +264,7 @@ const HeaderUser = () => {
                                             Danh mục sản phẩm
                                         </Space>
                                     </Typography.Title>
-                                    <Menu style={{ border: 'none', }}>
+                                    <Menu style={{ border: 'none' }}>
                                         {categories.map((category) => (
                                             <Menu.Item
                                                 key={`cat-${category.cateProdId}`}
@@ -271,7 +280,6 @@ const HeaderUser = () => {
                                             </Menu.Item>
                                         ))}
                                     </Menu>
-
                                 </Col>
 
                                 {/* Right Column - Skin Types */}
