@@ -27,6 +27,8 @@ const EventProductsCarousel = ({ event }) => {
                     ? response.data.data.productId.toString()
                     : response.data.data.productId,
             };
+            console.log('processedItems:', processedItems);
+
             return processedItems;
         } catch (error) {
             console.error(`Error fetching product ${productId}:`, error);
@@ -121,7 +123,8 @@ const EventProductsCarousel = ({ event }) => {
                                 </Tag>
                             )}
                             <img
-                                src={product?.productImages?.length > 0 ? product.images[0].prodImageUrl : amuse}
+                                // src={product?.productImages?.length > 0 ? product.images[0].prodImageUrl : amuse}
+                                src={product?.images && product.images[0] ? product.images[0] : amuse}
                                 alt={product?.productName || 'Product'}
                             />
                             <div className="cardProduct-content">
