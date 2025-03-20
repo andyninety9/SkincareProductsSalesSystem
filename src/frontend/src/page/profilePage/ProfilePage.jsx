@@ -102,10 +102,10 @@ const ProfilePage = () => {
 
     const toBigIntString = (value) => {
         try {
-            return value != null ? BigInt(value).toString() : "N/A";
+            return value != null ? BigInt(value).toString() : 'N/A';
         } catch (error) {
             console.error(`Error converting to BigInt: ${value}`, error.message);
-            return "N/A";
+            return 'N/A';
         }
     };
 
@@ -486,7 +486,10 @@ const ProfilePage = () => {
                     }}>
                     <Avatar
                         size={100}
-                        src={avatarPreview} // Use preview URL or original avatar URL
+                        src={
+                            avatarPreview ||
+                            'https://cloud.appwrite.io/v1/storage/buckets/67dbb6420032d8a2ee8f/files/67dbcb3d26027f2e8bc1/view?project=67dbb339000bfac45e0d'
+                        } // Use default image if no avatar
                         style={{ border: '3px solid #D8959A' }}
                     />
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -794,9 +797,10 @@ const ProfilePage = () => {
                             )}
                         </TabPane>
                         <TabPane
-                            tab={<span style={{ color: activeTab === '3' ? '#D8959A' : 'gray' }}>Lịch Sử Mua Hàng</span>}
-                            key="3"
-                        >
+                            tab={
+                                <span style={{ color: activeTab === '3' ? '#D8959A' : 'gray' }}>Lịch Sử Mua Hàng</span>
+                            }
+                            key="3">
                             {loadingOrders ? (
                                 <div style={{ textAlign: 'center', padding: '20px' }}>
                                     <Spin size="large" tip="Đang tải..." style={{ color: '#D8959A' }} />
@@ -809,26 +813,23 @@ const ProfilePage = () => {
                                         maxHeight: '400px',
                                         overflowY: 'auto',
                                         paddingRight: '10px',
-                                    }}
-                                >
+                                    }}>
                                     <List
                                         dataSource={ordersHistory}
                                         renderItem={(order) => (
                                             <List.Item
                                                 style={{
                                                     display: 'flex',
-                                                    flexDirection: 'column', 
+                                                    flexDirection: 'column',
                                                     padding: 10,
                                                     borderBottom: '1px solid #ddd',
-                                                }}
-                                            >
+                                                }}>
                                                 <div
                                                     style={{
                                                         display: 'flex',
                                                         justifyContent: 'space-between',
                                                         width: '100%',
-                                                    }}
-                                                >
+                                                    }}>
                                                     <div style={{ flex: 1 }}>
                                                         <strong>{order.customerName}</strong>
                                                         <p style={{ margin: 0 }}>
@@ -839,10 +840,13 @@ const ProfilePage = () => {
                                                                 fontWeight: 'bold',
                                                                 color: '#D8959A',
                                                                 whiteSpace: 'nowrap',
-                                                            }}
-                                                        >
+                                                            }}>
                                                             {order.totalPrice.toLocaleString('vi-VN')} vnd -{' '}
-                                                            {order.products.reduce((total, item) => total + item.quantity, 0)} món
+                                                            {order.products.reduce(
+                                                                (total, item) => total + item.quantity,
+                                                                0
+                                                            )}{' '}
+                                                            món
                                                         </p>
                                                         <p style={{ marginTop: -2, color: 'gray', fontSize: '10px' }}>
                                                             {order.products[0]?.productName || 'No product name'}
@@ -853,15 +857,13 @@ const ProfilePage = () => {
                                                             display: 'flex',
                                                             flexDirection: 'column',
                                                             alignItems: 'flex-end',
-                                                        }}
-                                                    >
+                                                        }}>
                                                         <p
                                                             style={{
                                                                 color: '#D8959A',
                                                                 margin: '0 0 8px 0',
                                                                 fontSize: '12px',
-                                                            }}
-                                                        >
+                                                            }}>
                                                             #{toBigIntString(order.orderId)}
                                                         </p>
                                                         <Tag
@@ -870,15 +872,14 @@ const ProfilePage = () => {
                                                             style={{
                                                                 borderRadius: 5,
                                                                 height: '30px',
-                                                                width: '100px', 
+                                                                width: '100px',
                                                                 display: 'flex',
                                                                 alignItems: 'center',
                                                                 justifyContent: 'center',
                                                                 marginTop: '5px',
                                                                 fontSize: '12px',
-                                                                padding: '0 8px', 
-                                                            }}
-                                                        >
+                                                                padding: '0 8px',
+                                                            }}>
                                                             {order.orderStatus}
                                                         </Tag>
                                                     </div>
@@ -888,9 +889,8 @@ const ProfilePage = () => {
                                                     style={{
                                                         display: 'flex',
                                                         justifyContent: 'center',
-                                                        marginTop: 10, 
-                                                    }}
-                                                >
+                                                        marginTop: 10,
+                                                    }}>
                                                     <Button
                                                         type="primary"
                                                         style={{
@@ -900,8 +900,9 @@ const ProfilePage = () => {
                                                             height: 30,
                                                             fontSize: 14,
                                                         }}
-                                                        onClick={() => navigate(`/order-history/${toBigIntString(order.orderId)}`)}
-                                                    >
+                                                        onClick={() =>
+                                                            navigate(`/order-history/${toBigIntString(order.orderId)}`)
+                                                        }>
                                                         Xem Chi Tiết
                                                     </Button>
                                                 </div>
