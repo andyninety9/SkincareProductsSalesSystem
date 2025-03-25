@@ -150,6 +150,10 @@ export default function CardProduct({ product }) {
                     )}
                 </div>
             </div>
+
+            <button className="buy-now-btn">
+                Thêm vào giỏ hàng
+            </button>
         </div>
     );
 }

@@ -7,12 +7,13 @@
     margin-right: auto;
     background: #fff;
     overflow: hidden;
-    transition: transform 0.2s ease-in-out;
+    transition: transform 0.3s ease-in-out;
     display: flex;
     flex-direction: column;
+    position: relative; // ✅ Để nút "Mua ngay" có thể được đặt ở vị trí chính xác
 
     &:hover {
-        transform: scale(1.05);
+        transform: scale(1.05); // Khi hover vào card, card sẽ phóng to nhẹ
     }
 
     img {
@@ -21,6 +22,18 @@
         width: 100%;
         height: 250px; // ✅ Chiều cao ảnh giống thiết kế
         object-fit: cover; // ✅ Đảm bảo ảnh không bị méo
+        transition: transform 0.3s ease-in-out; // Hiệu ứng khi hover ảnh
+    }
+
+    // Khi hover vào card, di chuyển cả ảnh và nội dung (bao gồm phần nền trắng)
+    &:hover {
+        .cardProduct-content {
+            transform: translateY(-40px); // Đẩy toàn bộ nội dung lên khi hover vào card
+        }
+
+        img {
+            transform: translateY(-40px); // Đẩy ảnh lên trên khi hover
+        }
     }
 
     &-content {
@@ -30,6 +43,8 @@
         flex-direction: column;
         justify-content: space-between;
         text-align: left;
+        padding-bottom: 50px; // Đảm bảo có không gian cho nút "Mua ngay" dưới cùng
+        transition: transform 0.3s ease-in-out;
 
         &-left {
             display: flex;
@@ -62,44 +77,67 @@
             text-align: right;
         }
     }
+
+    // Nút "Mua ngay" (Cập nhật màu và kích thước)
+    .buy-now-btn {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background-color: #D8959A;  
+        color: white;
+        width: 70%;
+        padding: 10px 20px;  
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 15px;  
+        border: none;
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.3s;
+    }
+
+    // Khi hover vào card
+    &:hover .buy-now-btn {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0); 
+    }
 }
 
 // ✅ Responsive cho màn hình nhỏ hơn
 @media (max-width: 1024px) {
     .cardProduct {
-        width: 250px; // ✅ Giảm kích thước card trên tablet
+        width: 250px; 
         height: 380px;
     }
 
     .cardProduct img {
-        height: 220px; // ✅ Cố định chiều cao hình ảnh
+        height: 220px;
     }
 }
 
 @media (max-width: 768px) {
     .cardProduct {
-        width: 220px; // ✅ Giảm kích thước card trên mobile
+        width: 220px; 
         height: 340px;
     }
 
     .cardProduct img {
-        height: 180px; // ✅ Cố định chiều cao hình ảnh trên mobile
+        height: 180px; 
     }
 
     .cardProduct-content-left p {
-        font-size: 12px; // ✅ Giảm kích thước chữ trên mobile
-        -webkit-line-clamp: 3; // ✅ Hiển thị tối đa 3 dòng
+        font-size: 12px; 
+        -webkit-line-clamp: 3; 
     }
 }
 
-// ✅ Layout Grid để giữ card không bị lệch
+
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); // ✅ Tự động điều chỉnh số cột
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
     gap: 20px;
     justify-content: center;
     align-items: center;
     margin-top: 30px;
     padding: 0 20px;
 }
-
