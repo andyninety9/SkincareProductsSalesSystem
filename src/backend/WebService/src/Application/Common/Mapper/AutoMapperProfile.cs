@@ -18,6 +18,7 @@ using Application.Features.Reviews.Commands.Response;
 using Application.Features.Events.Commands.Response;
 using Application.Features.ProductCategory.Commands.Response;
 using Application.Features.RecommendForFeature.Commands.Response;
+using Application.Features.ReportsService.Queries.Response;
 
 namespace Application.Common.Mapper
 {
@@ -66,6 +67,17 @@ namespace Application.Common.Mapper
             CreateMap<RecommendFor, CreateRecommendForResponse>();
             CreateMap<Quiz, GetUserQuizHistoryResponse>();
             CreateMap<GetUserQuizHistoryResponse, Quiz>();
+
+            // Mapping cho GetSalesSummaryResponse và các kiểu con
+            CreateMap<GetSalesSummaryResponse, GetSalesSummaryDto>();
+            CreateMap<GetSalesSummaryDto, GetSalesSummaryResponse>();
+
+            CreateMap<GetDailySalesResponse, GetDailySaleDto>();
+            CreateMap<GetDailySaleDto, GetDailySalesResponse>();
+
+            CreateMap<GetTopSellingProductDto, GetTopSellingProductResponse>();
+            CreateMap<GetTopSellingProductResponse, GetTopSellingProductDto>();
+
 
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();

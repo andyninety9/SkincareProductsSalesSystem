@@ -100,5 +100,9 @@ namespace Application.Constant
         public static string UPDATE_RETURN_SUCCESS = "Return updated successfully.";
         public static string DELETE_RETURN_SUCCESS = "Return deleted successfully.";
         public static string GET_RETURN_LIST_SUCCESS = "Return list retrieved successfully.";
+
+        //Report related messages
+        public static string GET_SALES_SUMMARY_SUCCESS = "Sales summary report retrieved successfully.";
+
     }
 }

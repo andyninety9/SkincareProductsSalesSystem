@@ -166,7 +166,7 @@ namespace Infrastructure.Repositories
                 {
                     OrderLogId = ol.OrdLogId,
                     NewStatusOrderId = ol.NewStatusOrdId,
-                    NewStatusOrderName = ol.NewStatusOrd.OrdStatusName, 
+                    NewStatusOrderName = ol.NewStatusOrd.OrdStatusName,
                     UserId = ol.UsrId,
                     Note = ol.Note,
                     CreatedAt = ol.CreatedAt
@@ -338,5 +338,106 @@ namespace Infrastructure.Repositories
 
             return order;
         }
+
+        public async Task<GetSalesSummaryDto?> GetSalesSummaryAsync(DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken)
+        {
+            var overviewQuery = _context.Orders
+                .Where(o => o.OrdDate >= fromDate && o.OrdDate <= toDate && o.IsPaid == true)
+                .Join(_context.OrderDetails,
+                    o => o.OrdId,
+                    od => od.OrdId,
+                    (o, od) => new { o.TotalOrdPrice, o.OrdId, od.Quantity });
+
+            var overview = await overviewQuery
+                .GroupBy(_ => 1)
+                .Select(g => new
+                {
+                    TotalRevenue = g.Sum(x => x.TotalOrdPrice),
+                    TotalOrders = g.Select(x => x.OrdId).Distinct().Count(),
+                    AverageOrderValue = g.Average(x => x.TotalOrdPrice),
+                    TotalProductsSold = g.Sum(x => x.Quantity)
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (overview == null)
+            {
+                return null;
+            }
+
+            return new GetSalesSummaryDto
+            {
+                TotalRevenue = (decimal)overview.TotalRevenue,
+                TotalOrders = overview.TotalOrders,
+                AverageOrderValue = (decimal)overview.AverageOrderValue,
+                TotalProductsSold = overview.TotalProductsSold,
+                StartDate = fromDate.Value,
+                EndDate = toDate.Value
+            };
+        }
+
+        public async Task<IEnumerable<GetDailySaleDto>> GetDailySalesAsync(DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken)
+        {
+            var dailySales = await _context.Orders
+            .Where(o => o.OrdDate >= fromDate && o.OrdDate <= toDate && o.IsPaid == true)
+            .GroupJoin(_context.OrderDetails,
+                    o => o.OrdId,
+                    od => od.OrdId,
+                    (o, odGroup) => new { o, odGroup })
+            .SelectMany(x => x.odGroup.DefaultIfEmpty(),
+                        (o, od) => new
+                        {
+                            o.o.OrdDate,
+                            o.o.TotalOrdPrice,
+                            o.o.OrdId,
+                            Quantity = od != null ? od.Quantity : 0
+                        })
+            .GroupBy(x => x.OrdDate.Date)
+            .Select(g => new GetDailySaleDto
+            {
+                Date = g.Key,
+                Revenue = (decimal)g.Sum(x => x.TotalOrdPrice),
+                OrderCount = g.Select(x => x.OrdId).Distinct().Count(),
+                ProductsSold = g.Sum(x => x.Quantity)
+            })
+            .OrderBy(ds => ds.Date)
+            .ToListAsync(cancellationToken);
+
+            return dailySales;
+        }
+
+        public async Task<IEnumerable<GetTopSellingProductDto>> GetTopSellingProductsAsync(DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken)
+        {
+            var topSellingProducts = await _context.OrderDetails
+    .GroupJoin(_context.Orders,
+               od => od.OrdId,
+               o => o.OrdId,
+               (od, oGroup) => new { od, oGroup })
+    .SelectMany(x => x.oGroup.DefaultIfEmpty(),
+                (x, o) => new { x.od, o })
+    .Where(x => x.o != null && x.o.OrdDate >= fromDate && x.o.OrdDate <= toDate && x.o.IsPaid == true)
+    .Join(_context.Products,
+          x => x.od.ProdId,
+          p => p.ProductId,
+          (x, p) => new { x.od, p })
+    .Join(_context.ProductImages,
+          x => x.p.ProductId,
+          pi => pi.ProdId,
+          (x, pi) => new { x.od, x.p, pi })
+    .GroupBy(x => new { x.p.ProductId, x.p.ProductName, x.p.SellPrice, x.pi.ProdImageUrl })
+    .Select(g => new GetTopSellingProductDto
+    {
+        ProductId = g.Key.ProductId,
+        ProductName = g.Key.ProductName,
+        ImageUrl = g.Key.ProdImageUrl,
+        QuantitySold = g.Sum(x => x.od.Quantity),
+        Revenue = (decimal)g.Sum(x => x.od.Quantity * x.od.SellPrice),
+        UnitPrice = (decimal)g.Key.SellPrice
+    })
+    .OrderByDescending(p => p.QuantitySold)
+    .Take(10)
+    .ToListAsync(cancellationToken);
+    
+            return topSellingProducts;
+        }
     }
-}
+    }
