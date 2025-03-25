@@ -1,6 +1,6 @@
 .cardProduct {
     width: 300px; /* Fixed width */
-    height: 480px; /* Fixed height to accommodate both buttons */
+    height: 400px; /* Fixed height to accommodate both buttons */
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     border-radius: 12px;
     margin-left: auto;
@@ -36,13 +36,13 @@
     }
 
     &-content {
-        flex: 1; /* Giúp phần nội dung không bị co giãn */
+        flex: 1; 
         padding: 10px 15px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         text-align: left;
-        padding-bottom: 120px; /* Đảm bảo có không gian cho cả 2 nút khi hover */
+        padding-bottom: 90px; 
         transition: transform 0.3s ease-in-out;
         position: relative; /* Đảm bảo nút hiển thị đúng */
         background: transparent; /* Loại bỏ màu nền không mong muốn */
