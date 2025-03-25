@@ -17,7 +17,7 @@ const bigIntOrNumberType = PropTypes.oneOfType([
         ) {
             return new Error(
                 `Invalid prop '${propName}' of type '${typeof props[
-                    propName
+                propName
                 ]}' supplied to '${componentName}', expected 'number' or 'bigint'.`
             );
         }
@@ -52,10 +52,12 @@ CardProduct.propTypes = {
         reviewCount: PropTypes.number,
         totalsold: PropTypes.number,
     }),
+    isProductDetail: PropTypes.bool,
+
 };
-export default function CardProduct({ product }) {
+export default function CardProduct({ product, isProductDetail }) {
     const navigate = useNavigate();
-    const dispatch = useDispatch(); 
+    const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems); // Giỏ hàng từ Redux
     const [quantity, setQuantity] = useState(1); // Số lượng sản phẩm
     const userAuth = Cookies.get('user');
@@ -98,10 +100,10 @@ export default function CardProduct({ product }) {
 
     const handleClick = (event) => {
         if (
-            event.target.closest('.buy-now-btn') || 
+            event.target.closest('.buy-now-btn') ||
             event.target.closest('.buy-now-immediate')
         ) {
-            return; 
+            return;
         }
 
         if (!productId) {
@@ -111,13 +113,13 @@ export default function CardProduct({ product }) {
     };
 
     const handleAddToCart = () => {
-        if (!handleCheckLogin()) return; 
+        if (!handleCheckLogin()) return;
 
 
         const productToAdd = {
             ...product,
             productId: product.productId ? product.productId.toString() : product.productId,
-            quantity, 
+            quantity,
         };
 
 
@@ -154,17 +156,17 @@ export default function CardProduct({ product }) {
     const handleBuyNow = (event) => {
         event.stopPropagation();
         if (!handleCheckLogin()) return;
-    
+
         const productToAdd = {
             ...product,
             productId: product.productId ? product.productId.toString() : product.productId,
             quantity,
         };
-    
+
         const existingProduct = cartItems.find(
             (item) => item.productId && product.productId && item.productId.toString() === product.productId.toString()
         );
-    
+
         if (existingProduct) {
             dispatch(
                 increaseQuantity({
@@ -175,20 +177,28 @@ export default function CardProduct({ product }) {
         } else {
             dispatch(addToCart(productToAdd));
         }
-    
+
         const updatedCartItems = [...cartItems];
         if (!existingProduct) {
             updatedCartItems.push(productToAdd);
         }
         localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-    
+
         notification.success({
             message: 'Đã thêm vào giỏ hàng!',
             description: `Đã thêm ${quantity} sản phẩm vào giỏ hàng.`,
         });
-    
+
         navigate('/cart');
     };
+    // isProductDetail = isProductDetail !== undefined ? isProductDetail : false;
+
+    const imageUrl = product?.images?.length > 0
+        ? isProductDetail
+            ? product.images[0].prodImageUrl // Nếu là trang chi tiết sản phẩm
+            : product.images[0] // Nếu là carousel sự kiện
+        : 'https://product.hstatic.net/1000360941/product/toner-innisfree-hoa-anh-dao_3400df3de24543f3958a7e5b704ab8ac_master.jpg';
+
 
     return (
         <div
@@ -200,16 +210,36 @@ export default function CardProduct({ product }) {
                     Sold Out
                 </Tag>
             )}
-            <img
+            {/* <img
                 src={
                     product?.images?.length > 0
                         ? product.images[0].prodImageUrl
                         : 'https://product.hstatic.net/1000360941/product/toner-innisfree-hoa-anh-dao_3400df3de24543f3958a7e5b704ab8ac_master.jpg'
                 }
                 alt={product?.productName || 'Product'}
+            /> */}
+            {/* <img
+                src={
+                    product?.images?.length > 0
+                        ? product.images[0]
+                        : 'https://product.hstatic.net/1000360941/product/toner-innisfree-hoa-anh-dao_3400df3de24543f3958a7e5b704ab8ac_master.jpg'
+                }
+                alt={product?.productName || 'Product'}
+            /> */}
+            <img
+                src={imageUrl}
+                alt={product?.productName || 'Product'}
             />
 
             <div className="cardProduct-content">
+                <div className="buttons-container">
+                    <button className="buy-now-btn" onClick={handleAddToCart}>
+                        Thêm vào giỏ hàng
+                    </button>
+                    <Button className="buy-now-immediate" type="primary" onClick={handleBuyNow}>
+                        Mua ngay
+                    </Button>
+                </div>
                 <div className="cardProduct-content-left">
                     <Rate value={product?.totalRating || 0} disabled className="cardProduct-content-left-rate" />
                     <p
@@ -234,7 +264,7 @@ export default function CardProduct({ product }) {
                         }}>
                         {product?.productDesc || 'Không có mô tả'}
                     </p>
-                    
+
                 </div>
 
                 <div className="cardProduct-content-right">
@@ -268,13 +298,13 @@ export default function CardProduct({ product }) {
                 </div>
             </div>
 
-            <button className="buy-now-btn" onClick={handleAddToCart}>
+            {/* <button className="buy-now-btn" onClick={handleAddToCart}>
                 Thêm vào giỏ hàng
             </button>
 
             <Button className="buy-now-immediate" type="primary" onClick={handleBuyNow}>
                 Mua ngay
-            </Button>
+            </Button> */}
 
         </div>
     );
