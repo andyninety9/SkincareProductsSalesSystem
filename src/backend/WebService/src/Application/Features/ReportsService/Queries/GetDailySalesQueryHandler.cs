@@ -8,21 +8,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.ReportsService.Queries
 {
-    public sealed record GetSalesSummaryQuery(string? FromDate, string? ToDate) : IQuery<GetSalesSummaryResponse>;
-    internal sealed class GetSalesSummaryQueryHandler : IQueryHandler<GetSalesSummaryQuery, GetSalesSummaryResponse>
+    public sealed record GetDailySalesQuery(string? FromDate, string? ToDate) : IQuery<GetDailySalesResponse>;
+    internal sealed class GetDailySalesQueryHandler : IQueryHandler<GetDailySalesQuery, GetDailySalesResponse>
     {
         private readonly IMapper _mapper;
         private readonly IOrderRepository _orderRepository;
 
 
-        public GetSalesSummaryQueryHandler(IMapper mapper, IOrderRepository orderRepository)
+        public GetDailySalesQueryHandler(IMapper mapper, IOrderRepository orderRepository)
         {
             _orderRepository = orderRepository;
             _mapper = mapper;
         }
 
 
-        public async Task<Result<GetSalesSummaryResponse>> Handle(GetSalesSummaryQuery request, CancellationToken cancellationToken)
+        public async Task<Result<GetDailySalesResponse>> Handle(GetDailySalesQuery request, CancellationToken cancellationToken)
         {
             DateTime? fromDate = null;
             DateTime? toDate = null;
@@ -32,7 +32,7 @@ namespace Application.Features.ReportsService.Queries
             {
                 if (!DateTime.TryParseExact(request.FromDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var parsedFromDate))
                 {
-                    return Result<GetSalesSummaryResponse>.Failure<GetSalesSummaryResponse>(new Error("GetSalesSummaryResponse", "Invalid fromDate format. Please use yyyy-MM-dd."));
+                    return Result<GetDailySalesResponse>.Failure<GetDailySalesResponse>(new Error("GetDailySalesResponse", "Invalid fromDate format. Please use yyyy-MM-dd."));
                 }
                 fromDate = parsedFromDate;
             }
@@ -42,22 +42,19 @@ namespace Application.Features.ReportsService.Queries
             {
                 if (!DateTime.TryParseExact(request.ToDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var parsedToDate))
                 {
-                    return Result<GetSalesSummaryResponse>.Failure<GetSalesSummaryResponse>(new Error("GetSalesSummaryResponse", "Invalid toDate format. Please use yyyy-MM-dd."));
+                    return Result<GetDailySalesResponse>.Failure<GetDailySalesResponse>(new Error("GetDailySalesResponse", "Invalid toDate format. Please use yyyy-MM-dd."));
                 }
                 toDate = parsedToDate;
             }
 
-            var result = await _orderRepository.GetSalesSummaryAsync(fromDate, toDate, cancellationToken);
+            var result = await _orderRepository.GetDailySalesAsync(fromDate, toDate, cancellationToken);
 
             
-
-
-            if (result == null)
+            
+            return Result<GetDailySalesResponse>.Success(new GetDailySalesResponse
             {
-                return Result<GetSalesSummaryResponse>.Failure<GetSalesSummaryResponse>(new Error("GetSalesSummaryResponse", "No sales summary found."));
-            }
-            
-            return Result<GetSalesSummaryResponse>.Success(_mapper.Map<GetSalesSummaryResponse>(result));
+                DailySales = _mapper.Map<IEnumerable<GetDailySaleDto>>(result)
+            });
         }
 
 

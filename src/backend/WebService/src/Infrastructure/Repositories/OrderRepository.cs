@@ -363,7 +363,7 @@ namespace Infrastructure.Repositories
             {
                 return null;
             }
-            
+
             return new GetSalesSummaryDto
             {
                 TotalRevenue = (decimal)overview.TotalRevenue,
@@ -374,5 +374,37 @@ namespace Infrastructure.Repositories
                 EndDate = toDate.Value
             };
         }
+
+        public async Task<IEnumerable<GetDailySaleDto>> GetDailySalesAsync(DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken)
+        {
+            var dailySales = await _context.Orders
+            .Where(o => o.OrdDate >= fromDate && o.OrdDate <= toDate && o.IsPaid == true)
+            .GroupJoin(_context.OrderDetails,
+                    o => o.OrdId,
+                    od => od.OrdId,
+                    (o, odGroup) => new { o, odGroup })
+            .SelectMany(x => x.odGroup.DefaultIfEmpty(),
+                        (o, od) => new
+                        {
+                            o.o.OrdDate,
+                            o.o.TotalOrdPrice,
+                            o.o.OrdId,
+                            Quantity = od != null ? od.Quantity : 0
+                        })
+            .GroupBy(x => x.OrdDate.Date)
+            .Select(g => new GetDailySaleDto
+            {
+                Date = g.Key,
+                Revenue = (decimal)g.Sum(x => x.TotalOrdPrice),
+                OrderCount = g.Select(x => x.OrdId).Distinct().Count(),
+                ProductsSold = g.Sum(x => x.Quantity)
+            })
+            .OrderBy(ds => ds.Date)
+            .ToListAsync(cancellationToken);
+
+            return dailySales;
+        }
+        
+
     }
     }

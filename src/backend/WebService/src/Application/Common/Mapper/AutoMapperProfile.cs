@@ -72,6 +72,9 @@ namespace Application.Common.Mapper
             CreateMap<GetSalesSummaryResponse, GetSalesSummaryDto>();
             CreateMap<GetSalesSummaryDto, GetSalesSummaryResponse>();
 
+            CreateMap<GetDailySalesResponse, GetDailySaleDto>();
+            CreateMap<GetDailySaleDto, GetDailySalesResponse>();
+
             // Mapping for Order
             CreateMap<Order, ChangeOrderStatusResponse>();
             CreateMap<ChangeOrderStatusResponse, Order>();

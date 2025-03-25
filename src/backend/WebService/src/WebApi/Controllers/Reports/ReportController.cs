@@ -32,5 +32,23 @@ namespace WebApi.Controllers.Reports
             var result = await _mediator.Send(request, cancellationToken);
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_SALES_SUMMARY_SUCCESS, data = result.Value });
         }
+
+        /// <summary>
+        /// Get DailySales report
+        /// </summary>
+        /// <param name="request">DailySales report details.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>DailySales report data.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/Report/daily-sales?startDate=2021-01-01&endDate=2021-12-31
+        /// </remarks>
+        [HttpGet("daily-sales")]
+        public async Task<IActionResult> GetDailySales([FromQuery] GetDailySalesQuery request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_SALES_SUMMARY_SUCCESS, data = result.Value });
+        }
     }
 }

@@ -33,5 +33,7 @@ namespace Domain.Repositories
         Task<Order?> ReverseStatusOrderAsync(long orderId, CancellationToken cancellationToken);
 
         Task<GetSalesSummaryDto?> GetSalesSummaryAsync(DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken);
+
+        Task<IEnumerable<GetDailySaleDto>> GetDailySalesAsync(DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken);
     }
 }
