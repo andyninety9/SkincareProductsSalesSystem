@@ -4,8 +4,6 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import CardEvent from '../cardEvent/CardEvent';
-import event3 from '../../assets/event3.png';
 import amuse from '../../assets/amuse.png';
 import api from '../../config/api';
 import { Rate, Tag } from 'antd';
