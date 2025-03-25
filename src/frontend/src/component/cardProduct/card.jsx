@@ -52,8 +52,10 @@ CardProduct.propTypes = {
         reviewCount: PropTypes.number,
         totalsold: PropTypes.number,
     }),
+    isProductDetail: PropTypes.bool,
+
 };
-export default function CardProduct({ product }) {
+export default function CardProduct({ product, isProductDetail }) {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems); // Giỏ hàng từ Redux
@@ -189,6 +191,14 @@ export default function CardProduct({ product }) {
 
         navigate('/cart');
     };
+    // isProductDetail = isProductDetail !== undefined ? isProductDetail : false;
+
+    const imageUrl = product?.images?.length > 0
+        ? isProductDetail
+            ? product.images[0].prodImageUrl // Nếu là trang chi tiết sản phẩm
+            : product.images[0] // Nếu là carousel sự kiện
+        : 'https://product.hstatic.net/1000360941/product/toner-innisfree-hoa-anh-dao_3400df3de24543f3958a7e5b704ab8ac_master.jpg';
+
 
     return (
         <div
@@ -208,11 +218,18 @@ export default function CardProduct({ product }) {
                 }
                 alt={product?.productName || 'Product'}
             /> */}
+            {/* <img
+                src={
+                    product?.images?.length > 0
+                        ? product.images[0]
+                        : 'https://product.hstatic.net/1000360941/product/toner-innisfree-hoa-anh-dao_3400df3de24543f3958a7e5b704ab8ac_master.jpg'
+                }
+                alt={product?.productName || 'Product'}
+            /> */}
             <img
-    src={product?.images?.length > 0 ? product.images[0] : 'https://product.hstatic.net/1000360941/product/toner-innisfree-hoa-anh-dao_3400df3de24543f3958a7e5b704ab8ac_master.jpg'}
-    alt={product?.productName || 'Product'}
-/>
-
+                src={imageUrl}
+                alt={product?.productName || 'Product'}
+            />
 
             <div className="cardProduct-content">
                 <div className="buttons-container">

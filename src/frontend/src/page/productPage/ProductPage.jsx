@@ -361,7 +361,7 @@ export default function ProductPage() {
                             justifyContent: 'center',
                         }}>
                         {displayedProducts.map((product) => (
-                            <CardProduct key={product.id} product={product} />
+                            <CardProduct key={product.id} product={product} isProductDetail={true}/>
                         ))}
                     </div>
                     <div style={{ marginTop: '30px', textAlign: 'center', marginBottom: '30px' }}>

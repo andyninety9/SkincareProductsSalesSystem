@@ -84,7 +84,7 @@ const EventProductsCarousel = ({ event }) => {
                             justifyContent: 'center',
                             boxSizing: 'border-box',
                         }}>
-                        <CardProduct product={product} /> 
+                        <CardProduct product={product} isProductDetail={false}/> 
                     </SwiperSlide>
                 ))
             )}
