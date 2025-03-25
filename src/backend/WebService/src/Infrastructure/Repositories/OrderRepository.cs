@@ -166,7 +166,7 @@ namespace Infrastructure.Repositories
                 {
                     OrderLogId = ol.OrdLogId,
                     NewStatusOrderId = ol.NewStatusOrdId,
-                    NewStatusOrderName = ol.NewStatusOrd.OrdStatusName, 
+                    NewStatusOrderName = ol.NewStatusOrd.OrdStatusName,
                     UserId = ol.UsrId,
                     Note = ol.Note,
                     CreatedAt = ol.CreatedAt
@@ -338,5 +338,41 @@ namespace Infrastructure.Repositories
 
             return order;
         }
+
+        public async Task<GetSalesSummaryDto?> GetSalesSummaryAsync(DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken)
+        {
+            var overviewQuery = _context.Orders
+                .Where(o => o.OrdDate >= fromDate && o.OrdDate <= toDate && o.IsPaid == true)
+                .Join(_context.OrderDetails,
+                    o => o.OrdId,
+                    od => od.OrdId,
+                    (o, od) => new { o.TotalOrdPrice, o.OrdId, od.Quantity });
+
+            var overview = await overviewQuery
+                .GroupBy(_ => 1)
+                .Select(g => new
+                {
+                    TotalRevenue = g.Sum(x => x.TotalOrdPrice),
+                    TotalOrders = g.Select(x => x.OrdId).Distinct().Count(),
+                    AverageOrderValue = g.Average(x => x.TotalOrdPrice),
+                    TotalProductsSold = g.Sum(x => x.Quantity)
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (overview == null)
+            {
+                return null;
+            }
+            
+            return new GetSalesSummaryDto
+            {
+                TotalRevenue = (decimal)overview.TotalRevenue,
+                TotalOrders = overview.TotalOrders,
+                AverageOrderValue = (decimal)overview.AverageOrderValue,
+                TotalProductsSold = overview.TotalProductsSold,
+                StartDate = fromDate.Value,
+                EndDate = toDate.Value
+            };
+        }
     }
-}
+    }
