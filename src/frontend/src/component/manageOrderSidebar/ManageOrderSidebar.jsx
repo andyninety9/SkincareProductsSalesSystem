@@ -3,6 +3,7 @@ import { Layout, Menu } from "antd";
 import { UserOutlined, CommentOutlined, ContainerOutlined, ShopOutlined, CalendarOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./ManageOrderSidebar.css";
+import { Dashboard } from '@mui/icons-material';
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -30,6 +31,7 @@ const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("manage-quiz")) return "7";
     if (pathname.includes("manage-skintype")) return "12";
     if (pathname.includes("manage-brand")) return "10";
+    if (pathname.includes('dashboard')) return '5';
     return "0";
 };
 
@@ -67,7 +69,8 @@ const ManageOrderSidebar = () => {
                             e.key === "10" ? "/manage-brand" :
                                 e.key === "11" ? "/manage-category" :
                                     e.key === "7" ? "/manage-quiz" :
-                                        e.key === "12" ? "/manage-skintype" : // Added for Manage Skintype
+                                        e.key === "12" ? "/manage-skintype" : 
+                                            e.key === "5" ? "/dashboard" :
                                             "/"
         );
     };
@@ -103,6 +106,7 @@ const ManageOrderSidebar = () => {
                 onClick={handleMenuClick}
                 style={{ flex: 1, borderRight: 0 }}
             >
+                <Menu.Item key="5" icon={<Dashboard />}>Dashboard</Menu.Item>
                 <Menu.Item key="0" icon={<UserOutlined />}>Manage Account</Menu.Item>
                 <Menu.Item key="8" icon={<CalendarOutlined />}>Manage Events</Menu.Item>
                 <SubMenu key="sub1" icon={<ContainerOutlined />} title="Manage Orders">
