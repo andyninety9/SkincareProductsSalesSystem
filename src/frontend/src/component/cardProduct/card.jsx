@@ -17,7 +17,7 @@ const bigIntOrNumberType = PropTypes.oneOfType([
         ) {
             return new Error(
                 `Invalid prop '${propName}' of type '${typeof props[
-                    propName
+                propName
                 ]}' supplied to '${componentName}', expected 'number' or 'bigint'.`
             );
         }
@@ -55,7 +55,7 @@ CardProduct.propTypes = {
 };
 export default function CardProduct({ product }) {
     const navigate = useNavigate();
-    const dispatch = useDispatch(); 
+    const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems); // Giỏ hàng từ Redux
     const [quantity, setQuantity] = useState(1); // Số lượng sản phẩm
     const userAuth = Cookies.get('user');
@@ -98,10 +98,10 @@ export default function CardProduct({ product }) {
 
     const handleClick = (event) => {
         if (
-            event.target.closest('.buy-now-btn') || 
+            event.target.closest('.buy-now-btn') ||
             event.target.closest('.buy-now-immediate')
         ) {
-            return; 
+            return;
         }
 
         if (!productId) {
@@ -111,13 +111,13 @@ export default function CardProduct({ product }) {
     };
 
     const handleAddToCart = () => {
-        if (!handleCheckLogin()) return; 
+        if (!handleCheckLogin()) return;
 
 
         const productToAdd = {
             ...product,
             productId: product.productId ? product.productId.toString() : product.productId,
-            quantity, 
+            quantity,
         };
 
 
@@ -154,17 +154,17 @@ export default function CardProduct({ product }) {
     const handleBuyNow = (event) => {
         event.stopPropagation();
         if (!handleCheckLogin()) return;
-    
+
         const productToAdd = {
             ...product,
             productId: product.productId ? product.productId.toString() : product.productId,
             quantity,
         };
-    
+
         const existingProduct = cartItems.find(
             (item) => item.productId && product.productId && item.productId.toString() === product.productId.toString()
         );
-    
+
         if (existingProduct) {
             dispatch(
                 increaseQuantity({
@@ -175,18 +175,18 @@ export default function CardProduct({ product }) {
         } else {
             dispatch(addToCart(productToAdd));
         }
-    
+
         const updatedCartItems = [...cartItems];
         if (!existingProduct) {
             updatedCartItems.push(productToAdd);
         }
         localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-    
+
         notification.success({
             message: 'Đã thêm vào giỏ hàng!',
             description: `Đã thêm ${quantity} sản phẩm vào giỏ hàng.`,
         });
-    
+
         navigate('/cart');
     };
 
@@ -210,6 +210,14 @@ export default function CardProduct({ product }) {
             />
 
             <div className="cardProduct-content">
+                <div className="buttons-container">
+                    <button className="buy-now-btn" onClick={handleAddToCart}>
+                        Thêm vào giỏ hàng
+                    </button>
+                    <Button className="buy-now-immediate" type="primary" onClick={handleBuyNow}>
+                        Mua ngay
+                    </Button>
+                </div>
                 <div className="cardProduct-content-left">
                     <Rate value={product?.totalRating || 0} disabled className="cardProduct-content-left-rate" />
                     <p
@@ -234,7 +242,7 @@ export default function CardProduct({ product }) {
                         }}>
                         {product?.productDesc || 'Không có mô tả'}
                     </p>
-                    
+
                 </div>
 
                 <div className="cardProduct-content-right">
@@ -268,13 +276,13 @@ export default function CardProduct({ product }) {
                 </div>
             </div>
 
-            <button className="buy-now-btn" onClick={handleAddToCart}>
+            {/* <button className="buy-now-btn" onClick={handleAddToCart}>
                 Thêm vào giỏ hàng
             </button>
 
             <Button className="buy-now-immediate" type="primary" onClick={handleBuyNow}>
                 Mua ngay
-            </Button>
+            </Button> */}
 
         </div>
     );
