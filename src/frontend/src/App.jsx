@@ -44,6 +44,7 @@ import ThankForOrderPage from './page/thankForOrderPage/ThankForOrderPage';
 import ResultQuizHistoryPage from './page/resultQuizHistory/ResultQuizHistoryPage';
 import OrderHistoryPage from './page/orderHistoryPage/OrderHistoryPage';
 import VerifyEmailPage from './page/verifyEmailPage/VerifyEmailPage';
+import DashboardPage from './page/dashboardPage/DashboardPage';
 
 function App() {
     const router = createBrowserRouter([
@@ -186,6 +187,14 @@ function App() {
             element: (
                 <ProtectedRoute roles={['Manager', 'Staff']}>
                     <ManageAccount />
+                </ProtectedRoute>
+            ),
+        },
+        {
+            path: routes.dashboard,
+            element: (
+                <ProtectedRoute roles={['Manager', 'Staff']}>
+                    <DashboardPage />
                 </ProtectedRoute>
             ),
         },

@@ -24,6 +24,7 @@ export const routes = {
     manageComment: '/manage-comment',
     manageAccount: '/manage-account',
     manageProduct: '/manage-product',
+    dashboard: '/dashboard',
     manageImgProduct: '/manage-img-product',
     manageEvent: '/manage-event',
     manageCategory: '/manage-category',
