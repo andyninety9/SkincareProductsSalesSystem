@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import ManageOrderHeader from '../../component/manageOrderHeader/ManageOrderHeader';
 import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSidebar';
 import api from '../../config/api';
-import { Card, Row, Col, Statistic, DatePicker, Button, Typography, Spin, List, Avatar, Select } from 'antd';
+import { Card, Row, Col, Statistic, DatePicker, Button, Typography, Spin, List, Avatar, Select, Alert } from 'antd';
 import { DollarOutlined, ShoppingCartOutlined, BarChartOutlined, TagOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import {
@@ -22,6 +22,7 @@ import {
     AreaChart,
     Cell,
 } from 'recharts';
+import { ComposedChart, ReferenceLine } from 'recharts';
 
 const { RangePicker } = DatePicker;
 const { Title } = Typography;
@@ -35,6 +36,7 @@ export default function DashboardPage() {
     const [chartType, setChartType] = useState('bar');
     const [productsFromDate, setProductsFromDate] = useState(dayjs().subtract(7, 'day'));
     const [productsToDate, setProductsToDate] = useState(dayjs());
+    const [dailySales, setDailySales] = useState([]);
 
     // Add these chart options
     const chartOptions = [
@@ -43,6 +45,66 @@ export default function DashboardPage() {
         { label: 'Area Chart', value: 'area' },
         { label: 'Pie Chart', value: 'pie' },
     ];
+
+    const processDailySalesData = (data) => {
+        if (!data || data.length === 0) {
+            console.warn('No data to process for daily sales');
+            return [];
+        }
+
+        try {
+            const processedData = data.map((item, index) => {
+                const formattedDate = dayjs(item.date).format('MMM DD');
+                const trend = index > 0 ? item.revenue - data[index - 1].revenue : 0;
+                // Add trendIndicator value for declining days (used for background coloring)
+                const trendIndicator =
+                    index > 0 && item.revenue < data[index - 1].revenue
+                        ? Math.max(item.orderCount, data[index - 1].orderCount, 5) // Ensure it's visible
+                        : 0;
+
+                return {
+                    ...item,
+                    formattedDate,
+                    trend,
+                    trendDirection: trend >= 0 ? 'up' : 'down',
+                    trendIndicator,
+                };
+            });
+            console.log('Processed daily sales data:', processedData);
+            return processedData;
+        } catch (error) {
+            console.error('Error processing daily sales data:', error);
+            return [];
+        }
+    };
+
+    const handleFetchDailySales = async (from = fromDate, to = toDate) => {
+        setLoading(true);
+        try {
+            const fromDateStr = from.format('YYYY-MM-DD');
+            const toDateStr = to.format('YYYY-MM-DD');
+            const response = await api.get(`report/daily-sales?fromDate=${fromDateStr}&toDate=${toDateStr}`);
+
+            // Debug the raw response
+            console.log('Full daily sales response:', response.data);
+
+            // Extract the dailySales array correctly
+            const dailySalesData = response.data?.data?.dailySales || [];
+
+            if (dailySalesData && dailySalesData.length > 0) {
+                console.log('Setting daily sales with', dailySalesData.length, 'records:', dailySalesData);
+                setDailySales(dailySalesData);
+            } else {
+                console.warn('No daily sales data found in response');
+                setDailySales([]);
+            }
+        } catch (error) {
+            console.error('Error fetching daily sales:', error);
+            setDailySales([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleFetchSalesSummary = async (from = fromDate, to = toDate) => {
         setLoading(true);
@@ -87,6 +149,7 @@ export default function DashboardPage() {
     useEffect(() => {
         handleFetchSalesSummary(fromDate, toDate);
         handleFetchTopSellingProducts(productsFromDate, productsToDate);
+        handleFetchDailySales(fromDate, toDate);
     }, []);
 
     const handleDateRangeChange = (dates) => {
@@ -98,6 +161,7 @@ export default function DashboardPage() {
 
     const handleApplyDateRange = () => {
         handleFetchSalesSummary(fromDate, toDate);
+        handleFetchDailySales(fromDate, toDate);
     };
 
     // Format currency with thousands separator
@@ -146,6 +210,12 @@ export default function DashboardPage() {
                             marginBottom: '24px',
                         }}>
                         <Title level={2}>Dashboard</Title>
+                        {(() => {
+                            console.log('Current dailySales state:', dailySales);
+                            console.log('dailySales exists:', !!dailySales);
+                            console.log('dailySales length:', dailySales?.length || 0);
+                            return null;
+                        })()}
                         <div>
                             <RangePicker
                                 value={[fromDate, toDate]}
@@ -157,6 +227,107 @@ export default function DashboardPage() {
                             </Button>
                         </div>
                     </div>
+                    {dailySales && dailySales.length > 0 ? (
+                        <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
+                            <Col span={24}>
+                                <Card
+                                    title={
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                            }}>
+                                            <span>Daily Sales Trend</span>
+                                            <span style={{ fontSize: '12px', color: '#666' }}>
+                                                {dailySales.length} days of data
+                                            </span>
+                                        </div>
+                                    }
+                                    style={{ height: '500px', display: 'flex', flexDirection: 'column' }}>
+                                    <div style={{ flex: 1, minHeight: '400px', border: '1px solid #ddd' }}>
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <ComposedChart
+                                                data={processDailySalesData(dailySales)}
+                                                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                                                <CartesianGrid strokeDasharray="3 3" />
+                                                <XAxis dataKey="formattedDate" />
+                                                <YAxis
+                                                    yAxisId="left"
+                                                    orientation="left"
+                                                    label={{
+                                                        value: 'Revenue (VND)',
+                                                        angle: -90,
+                                                        position: 'insideLeft',
+                                                    }}
+                                                />
+                                                <YAxis
+                                                    yAxisId="right"
+                                                    orientation="right"
+                                                    label={{ value: 'Count', angle: 90, position: 'insideRight' }}
+                                                />
+                                                <Tooltip
+                                                    formatter={(value, name) => {
+                                                        if (name === 'revenue') return formatCurrency(value);
+                                                        return value;
+                                                    }}
+                                                />
+                                                <Legend />
+
+                                                <Area
+                                                    yAxisId="left"
+                                                    type="monotone"
+                                                    dataKey="revenue"
+                                                    name="Revenue"
+                                                    fill="#8884d8"
+                                                    stroke="#8884d8"
+                                                    activeDot={{ r: 8 }}
+                                                />
+
+                                                <Bar
+                                                    yAxisId="right"
+                                                    dataKey="orderCount"
+                                                    name="Orders"
+                                                    fill="#82ca9d"
+                                                    barSize={20}
+                                                />
+
+                                                <Line
+                                                    yAxisId="right"
+                                                    type="monotone"
+                                                    dataKey="productsSold"
+                                                    name="Products Sold"
+                                                    stroke="#ff7300"
+                                                    activeDot={{ r: 8 }}
+                                                    strokeWidth={2}
+                                                />
+                                                {processDailySalesData(dailySales).map((entry, index) => {
+                                                    if (index === 0) return null;
+                                                    return entry.trend < 0 ? (
+                                                        <ReferenceLine
+                                                            key={`ref-${index}`}
+                                                            x={entry.formattedDate}
+                                                            stroke="#ff4d4f"
+                                                            strokeWidth={80}
+                                                            strokeOpacity={0.2}
+                                                        />
+                                                    ) : null;
+                                                })}
+                                            </ComposedChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </Card>
+                            </Col>
+                        </Row>
+                    ) : (
+                        <Alert
+                            message="No Daily Sales Data"
+                            description="There is no daily sales data available for the selected date range."
+                            type="info"
+                            showIcon
+                            style={{ marginTop: '24px' }}
+                        />
+                    )}
 
                     {loading ? (
                         <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
