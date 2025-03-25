@@ -200,14 +200,19 @@ export default function CardProduct({ product }) {
                     Sold Out
                 </Tag>
             )}
-            <img
+            {/* <img
                 src={
                     product?.images?.length > 0
                         ? product.images[0].prodImageUrl
                         : 'https://product.hstatic.net/1000360941/product/toner-innisfree-hoa-anh-dao_3400df3de24543f3958a7e5b704ab8ac_master.jpg'
                 }
                 alt={product?.productName || 'Product'}
-            />
+            /> */}
+            <img
+    src={product?.images?.length > 0 ? product.images[0] : 'https://product.hstatic.net/1000360941/product/toner-innisfree-hoa-anh-dao_3400df3de24543f3958a7e5b704ab8ac_master.jpg'}
+    alt={product?.productName || 'Product'}
+/>
+
 
             <div className="cardProduct-content">
                 <div className="buttons-container">

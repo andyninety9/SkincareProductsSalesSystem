@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
@@ -6,8 +5,8 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import amuse from '../../assets/amuse.png';
 import api from '../../config/api';
-import { Rate, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import CardProduct from '../../component/cardProduct/card'; // Import CardProduct
 
 const EventProductsCarousel = ({ event }) => {
     const [products, setProducts] = useState([]);
@@ -17,7 +16,6 @@ const EventProductsCarousel = ({ event }) => {
 
     const handleGetProductDetail = async (productId) => {
         try {
-            // Truyền productId dưới dạng chuỗi khi gọi API
             const response = await api.get(`products/${productId.toString()}`);
             const processedItems = {
                 ...response.data.data,
@@ -37,22 +35,18 @@ const EventProductsCarousel = ({ event }) => {
             if (!event || !event.eventId) return;
 
             setLoading(true);
-            const eventId = event.eventId.toString(); // eventId truyền lên API dưới dạng chuỗi
+            const eventId = event.eventId.toString();
             const response = await api.get(`events/${eventId}`);
 
             const eventDetails = response.data.data.eventDetails || [];
             setProducts(eventDetails);
 
-            // Extract product IDs from event details and ensure they are BigInt
             const productIds = eventDetails.map((item) => BigInt(item.productId));
 
-            // Fetch details for each product
             const detailsPromises = productIds.map((id) => handleGetProductDetail(id));
             const fetchedDetails = await Promise.all(detailsPromises);
-            // Filter out any null results (failed requests)
             const validDetails = fetchedDetails.filter((detail) => detail !== null);
             setProductDetails(validDetails);
-            // console.log(productDetails);
         } catch (error) {
             console.error('Error fetching event details:', error);
         } finally {
@@ -63,19 +57,6 @@ const EventProductsCarousel = ({ event }) => {
     useEffect(() => {
         handleGetEventDetail();
     }, [event]);
-
-    // 🔥 Format currency similar to CardProduct
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
-    };
-
-    // 🔥 Handle card click similar to CardProduct
-    const handleCardClick = (productId) => {
-        if (!productId) {
-            return;
-        }
-        navigate(`/product/${productId.toString()}`); // Truyền productId dưới dạng chuỗi
-    };
 
     return (
         <Swiper
@@ -90,111 +71,20 @@ const EventProductsCarousel = ({ event }) => {
             {loading ? (
                 <div>Loading products...</div>
             ) : (
-                productDetails.map((product, index) => (
+                productDetails.map((product) => (
                     <SwiperSlide
-                        key={product.productId || index}
+                        key={product.productId}
                         style={{
-                            width: 'calc(25% - 30px)', // Đảm bảo chiều rộng của mỗi card
-                            height: '480px', // Tăng chiều cao của card
-                            margin: '10px', // Thêm margin giữa các card
+                            width: 'calc(25% - 30px)',
+                            height: '480px',
+                            margin: '10px',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
                             boxSizing: 'border-box',
                         }}>
-                        {/* <CardEvent
-                            imageSrc={product.images?.[0] || event3}
-                            productName={product.productName}
-                            price={product.price}
-                        /> */}
-
-                        <div
-                            className="cardProduct"
-                            onClick={() => handleCardClick(product.productId)}
-                            style={{ cursor: 'pointer', userSelect: 'none', position: 'relative' }}>
-                            {product?.stocks === 0 && (
-                                <Tag
-                                    color="red"
-                                    style={{ position: 'absolute', top: 10, left: 10, fontWeight: 'bold' }}>
-                                    Sold Out
-                                </Tag>
-                            )}
-                            <img
-                                // src={product?.productImages?.length > 0 ? product.images[0].prodImageUrl : amuse}
-                                src={product?.images && product.images[0] ? product.images[0] : amuse}
-                                alt={product?.productName || 'Product'}
-                            />
-                            <div className="cardProduct-content">
-                                <div className="cardProduct-content-left">
-                                    <Rate
-                                        value={product?.totalRating || 0}
-                                        disabled
-                                        className="cardProduct-content-left-rate"
-                                    />
-                                    <p
-                                        style={{
-                                            fontWeight: 700,
-                                            fontSize: '16px',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: 1,
-                                            WebkitBoxOrient: 'vertical',
-                                        }}>
-                                        {product?.productName || 'No name'}
-                                    </p>
-                                    <p
-                                        style={{
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: 2,
-                                            WebkitBoxOrient: 'vertical',
-                                        }}>
-                                        {product?.productDesc || 'No description'}
-                                    </p>
-                                </div>
-                                <div className="cardProduct-content-right">
-                                    {product?.discountedPrice ? (
-                                        <>
-                                            <div>
-                                                <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>
-                                                    Discounted Price:
-                                                </span>
-                                                <span style={{ color: '#ff4d4f', fontWeight: 'bold' }}>
-                                                    {formatCurrency(product.discountedPrice)}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>
-                                                    Listed Price:
-                                                </span>
-                                                <span
-                                                    style={{
-                                                        textDecoration: 'line-through',
-                                                        fontSize: '14px',
-                                                        color: '#888',
-                                                    }}>
-                                                    {formatCurrency(product.sellPrice)}
-                                                </span>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <div>
-                                            <span style={{ color: '#888', fontSize: '14px', marginRight: '4px' }}>
-                                                Listed Price:
-                                            </span>
-                                            <span style={{ color: '#ff4d4f', fontWeight: 'bold' }}>
-                                                {product?.sellPrice
-                                                    ? formatCurrency(product.sellPrice)
-                                                    : 'Contact for price'}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+                        <CardProduct product={product} /> 
                     </SwiperSlide>
                 ))
             )}
