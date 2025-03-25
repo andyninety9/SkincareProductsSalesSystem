@@ -404,7 +404,40 @@ namespace Infrastructure.Repositories
 
             return dailySales;
         }
-        
 
+        public async Task<IEnumerable<GetTopSellingProductDto>> GetTopSellingProductsAsync(DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken)
+        {
+            var topSellingProducts = await _context.OrderDetails
+    .GroupJoin(_context.Orders,
+               od => od.OrdId,
+               o => o.OrdId,
+               (od, oGroup) => new { od, oGroup })
+    .SelectMany(x => x.oGroup.DefaultIfEmpty(),
+                (x, o) => new { x.od, o })
+    .Where(x => x.o != null && x.o.OrdDate >= fromDate && x.o.OrdDate <= toDate && x.o.IsPaid == true)
+    .Join(_context.Products,
+          x => x.od.ProdId,
+          p => p.ProductId,
+          (x, p) => new { x.od, p })
+    .Join(_context.ProductImages,
+          x => x.p.ProductId,
+          pi => pi.ProdId,
+          (x, pi) => new { x.od, x.p, pi })
+    .GroupBy(x => new { x.p.ProductId, x.p.ProductName, x.p.SellPrice, x.pi.ProdImageUrl })
+    .Select(g => new GetTopSellingProductDto
+    {
+        ProductId = g.Key.ProductId,
+        ProductName = g.Key.ProductName,
+        ImageUrl = g.Key.ProdImageUrl,
+        QuantitySold = g.Sum(x => x.od.Quantity),
+        Revenue = (decimal)g.Sum(x => x.od.Quantity * x.od.SellPrice),
+        UnitPrice = (decimal)g.Key.SellPrice
+    })
+    .OrderByDescending(p => p.QuantitySold)
+    .Take(10)
+    .ToListAsync(cancellationToken);
+    
+            return topSellingProducts;
+        }
     }
     }

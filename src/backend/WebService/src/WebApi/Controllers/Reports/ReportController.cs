@@ -1,5 +1,8 @@
+using Application.Attributes;
 using Application.Auth.Commands;
+using Application.Common.Enum;
 using Application.Constant;
+using Application.Features.Products.Queries;
 using Application.Features.ReportsService.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -27,6 +30,8 @@ namespace WebApi.Controllers.Reports
         ///     GET /api/Report/sales-summary?startDate=2021-01-01&endDate=2021-12-31
         /// </remarks>
         [HttpGet("sales-summary")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
         public async Task<IActionResult> GetSalesSummary([FromQuery] GetSalesSummaryQuery request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request, cancellationToken);
@@ -45,10 +50,33 @@ namespace WebApi.Controllers.Reports
         ///     GET /api/Report/daily-sales?startDate=2021-01-01&endDate=2021-12-31
         /// </remarks>
         [HttpGet("daily-sales")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
         public async Task<IActionResult> GetDailySales([FromQuery] GetDailySalesQuery request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request, cancellationToken);
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_SALES_SUMMARY_SUCCESS, data = result.Value });
         }
+
+        /// <summary>
+        /// Get Top Saling Products report
+        /// </summary>
+        /// <param name="request">MonthlySales report details.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>MonthlySales report data.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/Report/top-saling-products?startDate=2021-01-01&endDate=2021-12-31
+        /// </remarks>
+        [HttpGet("top-saling-products")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
+        public async Task<IActionResult> GetTopSalingProducts([FromQuery] GetTopSellingProductQuery request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_SALES_SUMMARY_SUCCESS, data = result.Value });
+        }
+        
     }
 }
