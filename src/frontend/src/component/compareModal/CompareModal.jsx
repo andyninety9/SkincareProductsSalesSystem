@@ -15,23 +15,22 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
     const compareItems = useSelector(selectCompareItems);
     const [secondProduct, setSecondProduct] = useState(null);
     const [productsList, setProductsList] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true); 
     const [selectedProductId, setSelectedProductId] = useState(null);
 
-    // Check if current product is in compareItems
     const isCurrentInCompare = compareItems.some(
         (item) => item.productId.toString() === currentProduct?.productId.toString()
     );
 
-    // Add current product to compareItems silently when modal opens
     useEffect(() => {
         if (visible && currentProduct && !isCurrentInCompare) {
-            // Dispatch without toast for initial add
             dispatch(addToCompare({ ...currentProduct, productId: currentProduct.productId.toString() }));
+        }
+        if (visible && currentProduct) {
+            setLoading(false);
         }
     }, [visible, currentProduct, isCurrentInCompare, dispatch]);
 
-    // Fetch all products when modal opens
     useEffect(() => {
         if (visible && productsList.length === 0) {
             const fetchProducts = async () => {
@@ -39,7 +38,6 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                 try {
                     const response = await api.get('products');
                     console.log('API Response:', response.data);
-
                     if (response.data && response.data.data && Array.isArray(response.data.data.items)) {
                         const processedProducts = response.data.data.items.map((product) => ({
                             ...product,
@@ -61,25 +59,21 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
         }
     }, [visible]);
 
-    // Handle adding a second product to compare with toast
     const handleAddToCompare = () => {
         if (!selectedProductId || selectedProductId === currentProduct?.productId.toString()) {
             toast.error('Vui lòng chọn một sản phẩm khác để so sánh.');
             return;
         }
-
         const productToAdd = productsList.find((p) => p.productId === selectedProductId);
         if (productToAdd) {
             setSecondProduct(productToAdd);
             console.log('Second Product:', productToAdd);
             if (!compareItems.some((item) => item.productId === productToAdd.productId)) {
                 dispatch(addToCompare(productToAdd));
-                toast.success('Đã thêm sản phẩm để so sánh!'); // Toast only for manual addition
             }
         }
     };
 
-    // Reset second product to allow adding another
     const handleChangeProduct = () => {
         setSecondProduct(null);
         setSelectedProductId(null);
@@ -93,7 +87,6 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
         );
     }
 
-    // Fields to compare
     const compareFields = [
         { key: 'productName', label: 'Tên sản phẩm' },
         { key: 'productDesc', label: 'Mô tả' },
@@ -102,17 +95,28 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
         { key: 'ingredient', label: 'Thành phần' },
     ];
 
-    // Helper function to get the product image
     const getProductImage = (product) => {
         if (product.images && product.images.length > 0) {
             return typeof product.images[0] === 'string' ? product.images[0] : product.images[0].prodImageUrl;
         }
-        if (product.productImages && product.images.length > 0) {
+        if (product.productImages && product.productImages.length > 0) {
             return typeof product.productImages[0] === 'string' ? product.productImages[0] : product.productImages[0].prodImageUrl;
         }
         if (product.imageUrl) return product.imageUrl;
         return 'https://via.placeholder.com/200';
     };
+
+    const renderOption = (product) => (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Image
+                src={getProductImage(product)}
+                alt={product.productName}
+                preview={false}
+                style={{ width: 24, height: 24, marginRight: 8, objectFit: 'cover' }}
+            />
+            <span>{product.productName}</span>
+        </div>
+    );
 
     return (
         <Modal
@@ -121,42 +125,46 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
             footer={null}
             width={1000}
             centered
-            bodyStyle={{ maxHeight: '80vh', overflowY: 'auto', overflowX: 'hidden' }}
+            bodyStyle={{ height: '650px', overflowY: 'hidden', overflowX: 'hidden' }}
             title={
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <SwapOutlined style={{ fontSize: '20px', marginRight: '10px', color: '#D8959A' }} />
-                    <span>So sánh sản phẩm</span>
+                <div style={{ display: 'flex', alignItems: 'center', padding: '10px', borderRadius: '8px 8px 0 0' }}>
+                    <SwapOutlined style={{ fontSize: '24px', marginRight: '12px', color: '#D8959A' }} />
+                    <span style={{ fontSize: '18px', fontWeight: 'bold' }}>So sánh sản phẩm</span>
                 </div>
-            }>
-            {loading ? (
-                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+            }
+            transitionName=""
+        >
+            {loading || !currentProduct ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                     <Spin size="large" />
-                    <p style={{ marginTop: 20 }}>Đang tải dữ liệu...</p>
+                    <p style={{ marginTop: 20, color: '#888' }}>Đang tải dữ liệu...</p>
                 </div>
             ) : (
                 <div className="compare-content" style={{ width: '100%' }}>
-                    <Row gutter={32}>
-                        {/* Left Column: Current Product */}
-                        <Col span={12} style={{ display: 'flex', flexDirection: 'column' }}>
+                    <Row gutter={[48, 16]}>
+                        <Col span={12} style={{ display: 'flex', flexDirection: 'column', padding: '0 8px' }}>
                             <Card
                                 className="compare-card"
                                 title={currentProduct?.productName}
                                 cover={
-                                    <Image
-                                        alt={currentProduct?.productName}
-                                        src={getProductImage(currentProduct)}
-                                        style={{ height: 200, objectFit: 'cover', width: '100%' }}
-                                    />
+                                    <div style={{ height: 300, width: '100%', position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Added centering */}
+                                        <Image
+                                            alt={currentProduct?.productName}
+                                            src={getProductImage(currentProduct)}
+                                            style={{ height: 300, objectFit: 'contain', width: '100%', border: '1px solid #e8e8e8', borderRadius: '4px 4px 0 0' }}
+                                            placeholder={<div style={{ height: 300, background: '#f0f0f0' }} />}
+                                        />
+                                    </div>
                                 }
-                                style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', minHeight: '500px', margin: '0 4px' }}
+                                bodyStyle={{ padding: '16px' }}
+                            >
                                 <div style={{ flex: 1 }}>
                                     {compareFields.map((field) => (
-                                        <div key={field.key} style={{ marginBottom: '10px' }}>
-                                            <Text strong>{field.label}: </Text>
-                                            <Text>
-                                                {field.render
-                                                    ? field.render(currentProduct?.[field.key])
-                                                    : currentProduct?.[field.key] || 'N/A'}
+                                        <div key={field.key} style={{ marginBottom: '16px' }}>
+                                            <Text strong style={{ fontSize: '16px' }}>{field.label}: </Text>
+                                            <Text style={{ fontSize: '14px', color: '#555' }}>
+                                                {field.render ? field.render(currentProduct?.[field.key]) : currentProduct?.[field.key] || 'N/A'}
                                             </Text>
                                         </div>
                                     ))}
@@ -164,33 +172,35 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                             </Card>
                         </Col>
 
-                        {/* Right Column: Second Product or Selection */}
-                        <Col span={12} style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Col span={12} style={{ display: 'flex', flexDirection: 'column', padding: '0 8px' }}>
                             {secondProduct ? (
                                 <Card
                                     className="compare-card"
                                     title={secondProduct.productName}
                                     cover={
-                                        <Image
-                                            alt={secondProduct.productName}
-                                            src={getProductImage(secondProduct)}
-                                            style={{ height: 200, objectFit: 'cover', width: '100%' }}
-                                        />
+                                        <div style={{ height: 300, width: '100%', position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Added centering */}
+                                            <Image
+                                                alt={secondProduct.productName}
+                                                src={getProductImage(secondProduct)}
+                                                style={{ height: 300, objectFit: 'contain', width: '100%', border: '1px solid #e8e8e8', borderRadius: '4px 4px 0 0' }}
+                                                placeholder={<div style={{ height: 300, background: '#f0f0f0' }} />}
+                                            />
+                                        </div>
                                     }
                                     extra={
                                         <Button type="link" onClick={handleChangeProduct} style={{ color: '#D8959A' }}>
                                             Thay đổi
                                         </Button>
                                     }
-                                    style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                    style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', minHeight: '500px', margin: '0 4px' }}
+                                    bodyStyle={{ padding: '16px' }}
+                                >
                                     <div style={{ flex: 1 }}>
                                         {compareFields.map((field) => (
-                                            <div key={field.key} style={{ marginBottom: '10px' }}>
-                                                <Text strong>{field.label}: </Text>
-                                                <Text>
-                                                    {field.render
-                                                        ? field.render(secondProduct[field.key])
-                                                        : secondProduct[field.key] || 'N/A'}
+                                            <div key={field.key} style={{ marginBottom: '16px' }}>
+                                                <Text strong style={{ fontSize: '16px' }}>{field.label}: </Text>
+                                                <Text style={{ fontSize: '14px', color: '#555' }}>
+                                                    {field.render ? field.render(secondProduct[field.key]) : secondProduct[field.key] || 'N/A'}
                                                 </Text>
                                             </div>
                                         ))}
@@ -200,22 +210,35 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                 <div style={{ padding: '20px', textAlign: 'center', width: '100%' }}>
                                     <Title level={4}>Thêm sản phẩm để so sánh</Title>
                                     <Select
-                                        placeholder="Chọn sản phẩm"
-                                        style={{ width: '100%', marginBottom: '10px' }}
+                                        showSearch
+                                        placeholder="Tìm và chọn sản phẩm"
+                                        style={{ width: '100%', marginBottom: '10px', borderRadius: '4px', boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)' }}
                                         onChange={(value) => setSelectedProductId(value)}
-                                        value={selectedProductId}>
+                                        value={selectedProductId}
+                                        filterOption={(input, option) => option.label.toLowerCase().includes(input.toLowerCase())}
+                                        optionLabelProp="label"
+                                    >
                                         {productsList
                                             .filter((p) => p.productId !== currentProduct?.productId.toString())
                                             .map((product) => (
-                                                <Option key={product.productId} value={product.productId}>
-                                                    {product.productName}
+                                                <Option key={product.productId} value={product.productId} label={product.productName}>
+                                                    {renderOption(product)}
                                                 </Option>
                                             ))}
                                     </Select>
                                     <Button
                                         type="primary"
                                         onClick={handleAddToCompare}
-                                        style={{ backgroundColor: '#D8959A', borderColor: '#D8959A', width: '100%' }}>
+                                        style={{
+                                            backgroundColor: '#D8959A',
+                                            borderColor: '#D8959A',
+                                            width: '100%',
+                                            borderRadius: '4px',
+                                            transition: 'background-color 0.3s',
+                                        }}
+                                        onMouseEnter={(e) => (e.target.style.backgroundColor = '#C07A80')}
+                                        onMouseLeave={(e) => (e.target.style.backgroundColor = '#D8959A')}
+                                    >
                                         Thêm
                                     </Button>
                                 </div>
