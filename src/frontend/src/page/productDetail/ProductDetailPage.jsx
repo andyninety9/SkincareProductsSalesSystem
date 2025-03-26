@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, clearCart, increaseQuantity, selectCartItems } from '../../redux/feature/cartSlice';
 import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
+import { addToCompare, selectCompareItems } from '../../redux/feature/compareSlice';
 const { Panel } = Collapse;
 
 const calculateAverageRating = (reviews) => {
@@ -126,6 +127,11 @@ export default function ProductDetailPage() {
         localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
 
         toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+    };
+
+    const handleAddToCompare = () => {
+        dispatch(addToCompare(product));
+        // Optional: Show a notification that the product was added to comparison
     };
 
     const averageRating = calculateAverageRating(reviews);
@@ -333,65 +339,82 @@ export default function ProductDetailPage() {
                             )}
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            {/* Nút chọn số lượng */}
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '8px',
-                                    width: '120px',
-                                    height: '45px',
-                                    justifyContent: 'space-between',
-                                }}>
-                                <button
-                                    onClick={() => {
-                                        // Giảm số lượng, nhưng không nhỏ hơn 1
-                                        setQuantity((prev) => Math.max(1, prev - 1));
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                {/* Nút chọn số lượng */}
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '8px',
+                                        width: '120px',
+                                        height: '45px',
+                                        justifyContent: 'space-between',
+                                    }}>
+                                    <button
+                                        onClick={() => {
+                                            // Giảm số lượng, nhưng không nhỏ hơn 1
+                                            setQuantity((prev) => Math.max(1, prev - 1));
+                                        }}
+                                        style={quantityButtonStyle}>
+                                        −
+                                    </button>
+                                    <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{quantity}</span>
+                                    <button
+                                        onClick={() => {
+                                            // Tăng số lượng, nhưng không vượt quá số lượng tồn kho
+                                            setQuantity((prev) => Math.min(product.stocks, prev + 1));
+                                        }}
+                                        style={quantityButtonStyle}>
+                                        +
+                                    </button>
+                                </div>
+                                <Button
+                                    type="default"
+                                    style={{
+                                        backgroundColor: product.stocks > 0 ? 'white' : '#ccc',
+                                        borderColor: product.stocks > 0 ? '#D8959A' : '#ccc',
+                                        color: product.stocks > 0 ? '#D8959A' : '#888',
+                                        width: '40%',
+                                        height: '45px',
+                                        fontSize: '16px',
+                                        cursor: product.stocks > 0 ? 'pointer' : 'not-allowed',
                                     }}
-                                    style={quantityButtonStyle}>
-                                    −
-                                </button>
-                                <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{quantity}</span>
-                                <button
-                                    onClick={() => {
-                                        // Tăng số lượng, nhưng không vượt quá số lượng tồn kho
-                                        setQuantity((prev) => Math.min(product.stocks, prev + 1));
+                                    onClick={product.stocks > 0 ? handleAddToCart : null}
+                                    disabled={product.stocks === 0}>
+                                    Thêm vào giỏ
+                                </Button>
+                                {/* Nút Add to cart */}
+                                <Button
+                                    type="primary"
+                                    style={{
+                                        backgroundColor: product.stocks > 0 ? '#D8959A' : '#ccc',
+                                        borderColor: product.stocks > 0 ? '#D8959A' : '#ccc',
+                                        width: '40%',
+                                        height: '45px',
+                                        fontSize: '16px',
+                                        cursor: product.stocks > 0 ? 'pointer' : 'not-allowed',
                                     }}
-                                    style={quantityButtonStyle}>
-                                    +
-                                </button>
+                                    onClick={product.stocks > 0 ? handleBuyNow : null}
+                                    disabled={product.stocks === 0}>
+                                    {product.stocks > 0 ? 'Mua ngay' : 'Hết hàng'}
+                                </Button>
                             </div>
+
+                            {/* Nút So sánh sản phẩm */}
                             <Button
                                 type="default"
                                 style={{
-                                    backgroundColor: product.stocks > 0 ? 'white' : '#ccc',
-                                    borderColor: product.stocks > 0 ? '#D8959A' : '#ccc',
-                                    color: product.stocks > 0 ? '#D8959A' : '#888',
-                                    width: '40%',
+                                    backgroundColor: 'white',
+                                    borderColor: '#D8959A',
+                                    color: '#D8959A',
+                                    width: '100%',
                                     height: '45px',
                                     fontSize: '16px',
-                                    cursor: product.stocks > 0 ? 'pointer' : 'not-allowed',
                                 }}
-                                onClick={product.stocks > 0 ? handleAddToCart : null}
-                                disabled={product.stocks === 0}>
-                                Thêm vào giỏ
-                            </Button>
-                            {/* Nút Add to cart */}
-                            <Button
-                                type="primary"
-                                style={{
-                                    backgroundColor: product.stocks > 0 ? '#D8959A' : '#ccc',
-                                    borderColor: product.stocks > 0 ? '#D8959A' : '#ccc',
-                                    width: '40%',
-                                    height: '45px',
-                                    fontSize: '16px',
-                                    cursor: product.stocks > 0 ? 'pointer' : 'not-allowed',
-                                }}
-                                onClick={product.stocks > 0 ? handleBuyNow : null}
-                                disabled={product.stocks === 0}>
-                                {product.stocks > 0 ? 'Mua ngay' : 'Hết hàng'}
+                                onClick={handleAddToCompare}>
+                                So sánh sản phẩm
                             </Button>
                         </div>
                         <div style={{ marginTop: '20px' }}>
