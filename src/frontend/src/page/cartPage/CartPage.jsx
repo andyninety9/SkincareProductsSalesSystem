@@ -34,7 +34,7 @@ export default function CartPage() {
             render: (_, record) => (
                 <div className="table-col-name">
                     <div className="table-col-name-img">
-                        <img
+                        {/* <img
                             src={record.images?.[0] || 'https://via.placeholder.com/100'}
                             alt={record.productName || 'Product Image'}
                             onError={(e) => {
@@ -42,7 +42,18 @@ export default function CartPage() {
                                 e.target.src = 'https://via.placeholder.com/100';
                             }}
                             style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                        /> */}
+
+                        <img
+                            src={record.images?.[0]?.prodImageUrl || 'https://via.placeholder.com/100'}
+                            alt={record.productName || 'Product Image'}
+                            onError={(e) => {
+                                console.error(`Failed to load image: ${record.images?.[0]?.prodImageUrl}`);
+                                e.target.src = 'https://via.placeholder.com/100';
+                            }}
+                            style={{ width: '80px', height: '80px', objectFit: 'cover' }}
                         />
+
                     </div>
                     <div className="table-col-name-content">
                         <h5>{record.brandName}</h5>
