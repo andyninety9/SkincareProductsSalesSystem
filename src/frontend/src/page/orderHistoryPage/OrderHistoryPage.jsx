@@ -248,6 +248,7 @@ const OrderHistoryPage = () => {
                 if (response?.data?.statusCode === 200 && response?.data?.data) {
                     return {
                         ...response.data.data,
+                        // orderId: BigInt(response.data.data.ordId),
                         quantity: orderProduct.quantity,
                         unitPrice: orderProduct.unitPrice,
                     };
