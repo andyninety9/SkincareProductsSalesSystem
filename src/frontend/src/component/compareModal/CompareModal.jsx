@@ -86,7 +86,7 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
 
     if (!currentProduct && !loading) {
         return (
-            <Modal open={visible} onCancel={onClose} footer={null} width={800} centered>
+            <Modal open={visible} onCancel={onClose} footer={null} width={1000} centered>
                 <Empty description="Không có sản phẩm để so sánh" />
             </Modal>
         );
@@ -103,16 +103,14 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
 
     // Helper function to get the product image
     const getProductImage = (product) => {
-        // For currentProduct (array of strings) or secondProduct (array of objects)
         if (product.images && product.images.length > 0) {
-            // Check if images[0] is a string or an object with prodImageUrl
             return typeof product.images[0] === 'string' ? product.images[0] : product.images[0].prodImageUrl;
         }
         if (product.productImages && product.productImages.length > 0) {
             return typeof product.productImages[0] === 'string' ? product.productImages[0] : product.productImages[0].prodImageUrl;
         }
         if (product.imageUrl) return product.imageUrl;
-        return 'https://via.placeholder.com/200'; // Fallback image
+        return 'https://via.placeholder.com/200';
     };
 
     return (
@@ -120,9 +118,9 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
             open={visible}
             onCancel={onClose}
             footer={null}
-            width={800}
+            width={1000} // Increased width from 800 to 1000
             centered
-            bodyStyle={{ maxHeight: '80vh', overflowY: 'auto' }}
+            bodyStyle={{ maxHeight: '80vh', overflowY: 'auto', overflowX: 'hidden' }} // Prevent horizontal scroll
             title={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <SwapOutlined style={{ fontSize: '20px', marginRight: '10px', color: '#D8959A' }} />
@@ -135,8 +133,8 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                     <p style={{ marginTop: 20 }}>Đang tải dữ liệu...</p>
                 </div>
             ) : (
-                <div className="compare-content">
-                    <Row gutter={24}>
+                <div className="compare-content" style={{ width: '100%' }}>
+                    <Row gutter={32}> {/* Increased gutter from 24 to 32 for more gap */}
                         {/* Left Column: Current Product */}
                         <Col span={12} style={{ display: 'flex', flexDirection: 'column' }}>
                             <Card
@@ -146,10 +144,10 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                     <Image
                                         alt={currentProduct?.productName}
                                         src={getProductImage(currentProduct)}
-                                        style={{ height: 200, objectFit: 'cover' }}
+                                        style={{ height: 200, objectFit: 'cover', width: '100%' }}
                                     />
                                 }
-                                style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                                style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                                 <div style={{ flex: 1 }}>
                                     {compareFields.map((field) => (
                                         <div key={field.key} style={{ marginBottom: '10px' }}>
@@ -175,7 +173,7 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                         <Image
                                             alt={secondProduct.productName}
                                             src={getProductImage(secondProduct)}
-                                            style={{ height: 200, objectFit: 'cover' }}
+                                            style={{ height: 200, objectFit: 'cover', width: '100%' }}
                                         />
                                     }
                                     extra={
@@ -183,7 +181,7 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                             Thay đổi
                                         </Button>
                                     }
-                                    style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                                    style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                                     <div style={{ flex: 1 }}>
                                         {compareFields.map((field) => (
                                             <div key={field.key} style={{ marginBottom: '10px' }}>
@@ -198,7 +196,7 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                     </div>
                                 </Card>
                             ) : (
-                                <div style={{ padding: '20px', textAlign: 'center' }}>
+                                <div style={{ padding: '20px', textAlign: 'center', width: '100%' }}>
                                     <Title level={4}>Thêm sản phẩm để so sánh</Title>
                                     <Select
                                         placeholder="Chọn sản phẩm"
