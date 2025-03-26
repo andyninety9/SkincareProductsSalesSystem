@@ -125,7 +125,7 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
             centered
             bodyStyle={{ maxHeight: '90vh', overflowY: 'auto', overflowX: 'hidden' }} // Increased from 80vh to 90vh
             title={
-                <div style={{ display: 'flex', alignItems: 'center', padding: '10px', background: '#f5f5f5', borderRadius: '8px 8px 0 0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', padding: '10px', borderRadius: '8px 8px 0 0' }}>
                     <SwapOutlined style={{ fontSize: '24px', marginRight: '12px', color: '#D8959A' }} />
                     <span style={{ fontSize: '18px', fontWeight: 'bold' }}>So sánh sản phẩm</span>
                 </div>
