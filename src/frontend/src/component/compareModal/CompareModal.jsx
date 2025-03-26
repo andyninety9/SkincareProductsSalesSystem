@@ -23,9 +23,10 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
         (item) => item.productId.toString() === currentProduct?.productId.toString()
     );
 
-    // Add current product to compareItems when modal opens
+    // Add current product to compareItems silently when modal opens
     useEffect(() => {
         if (visible && currentProduct && !isCurrentInCompare) {
+            // Dispatch without toast for initial add
             dispatch(addToCompare({ ...currentProduct, productId: currentProduct.productId.toString() }));
         }
     }, [visible, currentProduct, isCurrentInCompare, dispatch]);
@@ -60,7 +61,7 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
         }
     }, [visible]);
 
-    // Handle adding a second product to compare
+    // Handle adding a second product to compare with toast
     const handleAddToCompare = () => {
         if (!selectedProductId || selectedProductId === currentProduct?.productId.toString()) {
             toast.error('Vui lòng chọn một sản phẩm khác để so sánh.');
@@ -73,8 +74,8 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
             console.log('Second Product:', productToAdd);
             if (!compareItems.some((item) => item.productId === productToAdd.productId)) {
                 dispatch(addToCompare(productToAdd));
+                toast.success('Đã thêm sản phẩm để so sánh!'); // Toast only for manual addition
             }
-            toast.success('Đã thêm sản phẩm để so sánh!');
         }
     };
 
@@ -106,7 +107,7 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
         if (product.images && product.images.length > 0) {
             return typeof product.images[0] === 'string' ? product.images[0] : product.images[0].prodImageUrl;
         }
-        if (product.productImages && product.productImages.length > 0) {
+        if (product.productImages && product.images.length > 0) {
             return typeof product.productImages[0] === 'string' ? product.productImages[0] : product.productImages[0].prodImageUrl;
         }
         if (product.imageUrl) return product.imageUrl;
@@ -118,9 +119,9 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
             open={visible}
             onCancel={onClose}
             footer={null}
-            width={1000} // Increased width from 800 to 1000
+            width={1000}
             centered
-            bodyStyle={{ maxHeight: '80vh', overflowY: 'auto', overflowX: 'hidden' }} // Prevent horizontal scroll
+            bodyStyle={{ maxHeight: '80vh', overflowY: 'auto', overflowX: 'hidden' }}
             title={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <SwapOutlined style={{ fontSize: '20px', marginRight: '10px', color: '#D8959A' }} />
@@ -134,7 +135,7 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                 </div>
             ) : (
                 <div className="compare-content" style={{ width: '100%' }}>
-                    <Row gutter={32}> {/* Increased gutter from 24 to 32 for more gap */}
+                    <Row gutter={32}>
                         {/* Left Column: Current Product */}
                         <Col span={12} style={{ display: 'flex', flexDirection: 'column' }}>
                             <Card
