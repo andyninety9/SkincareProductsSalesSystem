@@ -6,6 +6,7 @@ import { addToCart, increaseQuantity, selectCartItems } from '../../redux/featur
 import { useDispatch, useSelector } from 'react-redux';
 import { useState } from 'react';
 import Cookies from 'js-cookie';
+import toast from 'react-hot-toast';
 
 const bigIntOrNumberType = PropTypes.oneOfType([
     PropTypes.number,
@@ -115,20 +116,20 @@ export default function CardProduct({ product, isProductDetail }) {
     const handleAddToCart = () => {
         if (!handleCheckLogin()) return;
 
-
+        // Convert BigInt productId to string before adding to cart
         const productToAdd = {
             ...product,
             productId: product.productId ? product.productId.toString() : product.productId,
-            quantity,
+            quantity, // Thêm số lượng đã chọn
         };
 
-
+        // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
         const existingProduct = cartItems.find(
             (item) => item.productId && product.productId && item.productId.toString() === product.productId.toString()
         );
 
         if (existingProduct) {
-
+            // Nếu sản phẩm đã có trong giỏ hàng, chỉ cập nhật số lượng
             dispatch(
                 increaseQuantity({
                     productId: product.productId.toString(),
@@ -136,21 +137,18 @@ export default function CardProduct({ product, isProductDetail }) {
                 })
             );
         } else {
-
+            // Nếu sản phẩm chưa có, thêm sản phẩm mới vào giỏ
             dispatch(addToCart(productToAdd));
         }
 
-
+        // Lưu giỏ hàng vào localStorage
         const updatedCartItems = [...cartItems];
         if (!existingProduct) {
             updatedCartItems.push(productToAdd);
         }
         localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
 
-        notification.success({
-            message: 'Thêm vào giỏ hàng thành công!',
-            description: `Đã thêm ${quantity} sản phẩm vào giỏ hàng.`,
-        });
+        toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
     };
 
     const handleBuyNow = (event) => {
