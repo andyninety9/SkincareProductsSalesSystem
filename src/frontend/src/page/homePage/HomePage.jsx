@@ -119,7 +119,7 @@ export default function HomePage() {
                     <ObjectSlider slidesPerView={4} spaceBetween={30} navigationClass="bestsellet-slider-nav">
                         {popularProduct.map((prod, index) => (
                             <SwiperSlide key={index}>
-                                <CardProduct product={prod} />
+                                <CardProduct product={prod} isProductDetail={true} />
                             </SwiperSlide>
                         ))}
                     </ObjectSlider>
