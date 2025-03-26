@@ -15,7 +15,7 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
     const compareItems = useSelector(selectCompareItems);
     const [secondProduct, setSecondProduct] = useState(null);
     const [productsList, setProductsList] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true); 
     const [selectedProductId, setSelectedProductId] = useState(null);
 
     const isCurrentInCompare = compareItems.some(
@@ -25,6 +25,9 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
     useEffect(() => {
         if (visible && currentProduct && !isCurrentInCompare) {
             dispatch(addToCompare({ ...currentProduct, productId: currentProduct.productId.toString() }));
+        }
+        if (visible && currentProduct) {
+            setLoading(false);
         }
     }, [visible, currentProduct, isCurrentInCompare, dispatch]);
 
@@ -70,7 +73,6 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
             }
         }
     };
-
 
     const handleChangeProduct = () => {
         setSecondProduct(null);
@@ -123,34 +125,38 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
             footer={null}
             width={1000}
             centered
-            bodyStyle={{ maxHeight: '90vh', overflowY: 'auto', overflowX: 'hidden' }} // Increased from 80vh to 90vh
+            bodyStyle={{ height: '650px', overflowY: 'hidden', overflowX: 'hidden' }}
             title={
                 <div style={{ display: 'flex', alignItems: 'center', padding: '10px', borderRadius: '8px 8px 0 0' }}>
                     <SwapOutlined style={{ fontSize: '24px', marginRight: '12px', color: '#D8959A' }} />
                     <span style={{ fontSize: '18px', fontWeight: 'bold' }}>So sánh sản phẩm</span>
                 </div>
-            }>
-            {loading ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '50vh' }}>
+            }
+            transitionName=""
+        >
+            {loading || !currentProduct ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                     <Spin size="large" />
                     <p style={{ marginTop: 20, color: '#888' }}>Đang tải dữ liệu...</p>
                 </div>
             ) : (
                 <div className="compare-content" style={{ width: '100%' }}>
                     <Row gutter={[48, 16]}>
-                        {/* Left Column: Current Product */}
-                        <Col span={12} style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Col span={12} style={{ display: 'flex', flexDirection: 'column', padding: '0 8px' }}>
                             <Card
                                 className="compare-card"
                                 title={currentProduct?.productName}
                                 cover={
-                                    <Image
-                                        alt={currentProduct?.productName}
-                                        src={getProductImage(currentProduct)}
-                                        style={{ height: 300, objectFit: 'contain', width: '100%', border: '1px solid #e8e8e8', borderRadius: '4px 4px 0 0' }} // Increased height to 300px, changed to contain
-                                    />
+                                    <div style={{ height: 300, width: '100%', position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Added centering */}
+                                        <Image
+                                            alt={currentProduct?.productName}
+                                            src={getProductImage(currentProduct)}
+                                            style={{ height: 300, objectFit: 'contain', width: '100%', border: '1px solid #e8e8e8', borderRadius: '4px 4px 0 0' }}
+                                            placeholder={<div style={{ height: 300, background: '#f0f0f0' }} />}
+                                        />
+                                    </div>
                                 }
-                                style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', minHeight: '500px' }} // Increased minHeight to 500px
+                                style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', minHeight: '500px', margin: '0 4px' }}
                                 bodyStyle={{ padding: '16px' }}
                             >
                                 <div style={{ flex: 1 }}>
@@ -166,25 +172,27 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                             </Card>
                         </Col>
 
-                        {/* Right Column: Second Product or Selection */}
-                        <Col span={12} style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Col span={12} style={{ display: 'flex', flexDirection: 'column', padding: '0 8px' }}>
                             {secondProduct ? (
                                 <Card
                                     className="compare-card"
                                     title={secondProduct.productName}
                                     cover={
-                                        <Image
-                                            alt={secondProduct.productName}
-                                            src={getProductImage(secondProduct)}
-                                            style={{ height: 300, objectFit: 'contain', width: '100%', border: '1px solid #e8e8e8', borderRadius: '4px 4px 0 0' }} // Increased height to 300px, changed to contain
-                                        />
+                                        <div style={{ height: 300, width: '100%', position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Added centering */}
+                                            <Image
+                                                alt={secondProduct.productName}
+                                                src={getProductImage(secondProduct)}
+                                                style={{ height: 300, objectFit: 'contain', width: '100%', border: '1px solid #e8e8e8', borderRadius: '4px 4px 0 0' }}
+                                                placeholder={<div style={{ height: 300, background: '#f0f0f0' }} />}
+                                            />
+                                        </div>
                                     }
                                     extra={
                                         <Button type="link" onClick={handleChangeProduct} style={{ color: '#D8959A' }}>
                                             Thay đổi
                                         </Button>
                                     }
-                                    style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', minHeight: '500px' }} // Increased minHeight to 500px
+                                    style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', minHeight: '500px', margin: '0 4px' }}
                                     bodyStyle={{ padding: '16px' }}
                                 >
                                     <div style={{ flex: 1 }}>
