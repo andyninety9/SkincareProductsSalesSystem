@@ -11,7 +11,7 @@ namespace Application.Features.Return.Queries
 {
     public sealed record GetAllReturnByCustomerCommand(
         long UserId,
-        string? Keyword,
+        long? OrderId,
         PaginationParams PaginationParams
         ) : IQuery<PagedResult<GetAllReturnByCustomerResponse>>;
 
@@ -52,7 +52,7 @@ namespace Application.Features.Return.Queries
 
             var query = listReturn
                 .Where(r => listOrderLog.Any(ol => ol.OrdId == r.OrdIdd && ol.UsrId == request.UserId &&
-                            (string.IsNullOrEmpty(request.Keyword) || r.ReturnId.ToString().Contains(request.Keyword))))
+                            (request.OrderId == null || r.OrdIdd.ToString().Contains(request.OrderId.ToString()))))
                 .GroupBy(r => r.ReturnId)
                 .Select(group => new GetAllReturnByCustomerResponse
                 {

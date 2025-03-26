@@ -97,7 +97,7 @@ namespace WebApi.Controllers.Return
         [HttpGet("list")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Customer)]
-        public async Task<IActionResult> GetReturnList([FromQuery] string? keyword, [FromQuery] int page = 1,
+        public async Task<IActionResult> GetReturnList([FromQuery] string? orderId, [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
         {
             if (User == null)
@@ -116,8 +116,13 @@ namespace WebApi.Controllers.Return
             {
                 return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
             }
+            long orderIdLong = 0;
+            if (!string.IsNullOrEmpty(orderId))
+            {
+                long.TryParse(orderId, out orderIdLong);
+            }
 
-            var result = await _mediator.Send(new GetAllReturnByCustomerCommand(userId, keyword, new PaginationParams { Page = page, PageSize = pageSize }), cancellationToken);
+            var result = await _mediator.Send(new GetAllReturnByCustomerCommand(userId, orderIdLong, new PaginationParams { Page = page, PageSize = pageSize }), cancellationToken);
 
            
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_RETURN_LIST_SUCCESS, data = result.Value });
