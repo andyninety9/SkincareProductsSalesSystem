@@ -11,6 +11,8 @@ import { addToCart, clearCart, increaseQuantity, selectCartItems } from '../../r
 import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
 import { addToCompare, selectCompareItems } from '../../redux/feature/compareSlice';
+import CompareModal from '../../component/compareModal/compareModal';
+
 const { Panel } = Collapse;
 
 const calculateAverageRating = (reviews) => {
@@ -19,10 +21,13 @@ const calculateAverageRating = (reviews) => {
 };
 
 export default function ProductDetailPage() {
+    // Add modal visibility state
+    const [compareModalVisible, setCompareModalVisible] = useState(false);
+
+    // Your existing state variables
     const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems);
     const { id } = useParams();
-
     const [product, setProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [mainImage, setMainImage] = useState('');
@@ -129,9 +134,18 @@ export default function ProductDetailPage() {
         toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
     };
 
+    // Update the handleAddToCompare function
     const handleAddToCompare = () => {
-        dispatch(addToCompare(product));
-        // Optional: Show a notification that the product was added to comparison
+        // Show the compare modal
+        setCompareModalVisible(true);
+
+        // Optional: You can still dispatch the action if needed
+        dispatch(addToCompare({
+            ...product,
+            productId: product.productId ? product.productId.toString() : product.productId,
+        }));
+
+        toast.success("Đã thêm vào danh sách so sánh");
     };
 
     const averageRating = calculateAverageRating(reviews);
@@ -741,6 +755,12 @@ export default function ProductDetailPage() {
                     )}
                 </div>
             </div>
+            {/* Add CompareModal at the end */}
+            <CompareModal
+                visible={compareModalVisible}
+                onClose={() => setCompareModalVisible(false)}
+                currentProduct={product}
+            />
         </div>
     );
 }
