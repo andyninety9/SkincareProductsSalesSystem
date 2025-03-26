@@ -39,9 +39,13 @@ export default function useDashboardData() {
                         ? Math.max(item.orderCount, data[index - 1].orderCount, 5)
                         : 0;
 
+                // Add normalized revenue (divided by 100,000 for display)
+                const normalizedRevenue = item.revenue / 100000;
+
                 return {
                     ...item,
                     formattedDate,
+                    normalizedRevenue,
                     trend,
                     trendDirection: trend >= 0 ? 'up' : 'down',
                     trendIndicator,
@@ -51,6 +55,23 @@ export default function useDashboardData() {
         } catch (error) {
             console.error('Error processing daily sales data:', error);
             return [];
+        }
+    };
+
+    // Reload all dashboard data
+    const reloadDashboardData = async () => {
+        setLoading(true);
+        try {
+            // Call all fetch functions in parallel
+            await Promise.all([
+                handleFetchSalesSummary(fromDate, toDate),
+                handleFetchDailySales(fromDate, toDate),
+                handleFetchTopSellingProducts(productsFromDate, productsToDate),
+            ]);
+        } catch (error) {
+            console.error('Error reloading dashboard data:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -178,5 +199,6 @@ export default function useDashboardData() {
         handleApplyDateRange,
         handleProductsDateRangeChange,
         handleApplyProductsDateRange,
+        reloadDashboardData,
     };
 }

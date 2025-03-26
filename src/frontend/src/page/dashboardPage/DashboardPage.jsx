@@ -1,5 +1,5 @@
-import React from 'react';
-import { Row, Col, Typography, DatePicker, Button, Spin } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Row, Col, Typography, DatePicker, Button, Spin, Tooltip } from 'antd';
 import ManageOrderHeader from '../../component/manageOrderHeader/ManageOrderHeader';
 import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSidebar';
 import useDashboardData from '../../hooks/useDashboardData';
@@ -7,12 +7,14 @@ import SalesSummaryCards from '../../component/salesSummaryCards/SalesSummaryCar
 import TopSellingProductsChart from '../../component/topSellingProductsChart/TopSellingProductsChart';
 import TopSellingProductsList from '../../component/topSellingProductsList/TopSellingProductsList';
 import DailySalesTrendChart from '../../component/dailySalesTrendChart/DailySalesTrendChart';
-
+import { ReloadOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
 export default function DashboardPage() {
+    const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
+
     const {
         salesSummary,
         dailySales,
@@ -29,8 +31,30 @@ export default function DashboardPage() {
         handleApplyDateRange,
         handleProductsDateRangeChange,
         handleApplyProductsDateRange,
+        reloadDashboardData,
     } = useDashboardData();
 
+    const formatLastUpdateTime = () => {
+        return lastUpdateTime.toLocaleString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+    };
+
+    // Handle reload button click
+    const handleReloadData = () => {
+        reloadDashboardData();
+        setLastUpdateTime(new Date());
+    };
+
+    // Set initial update time
+    useEffect(() => {
+        setLastUpdateTime(new Date());
+    }, []);
     return (
         <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', flexDirection: 'column' }}>
             <ManageOrderHeader />
@@ -45,25 +69,28 @@ export default function DashboardPage() {
                             marginBottom: '24px',
                         }}>
                         <Title level={2}>Dashboard</Title>
-                        <div>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <div style={{ marginRight: '16px', fontSize: '14px', color: '#888' }}>
+                                Cập nhật lần cuối: {formatLastUpdateTime()}
+                            </div>
                             <RangePicker
                                 value={[fromDate, toDate]}
                                 onChange={handleDateRangeChange}
                                 style={{ marginRight: '16px' }}
                             />
-                            <Button type="primary" onClick={handleApplyDateRange}>
+                            <Button type="primary" onClick={handleApplyDateRange} style={{ marginRight: '8px' }}>
                                 Apply
                             </Button>
+                            <Tooltip title="Tải lại dữ liệu">
+                                <Button
+                                    type="primary"
+                                    icon={<ReloadOutlined />}
+                                    onClick={handleReloadData}
+                                    loading={loading}
+                                />
+                            </Tooltip>
                         </div>
                     </div>
-
-                    {/* Daily Sales Trend Chart */}
-                    <DailySalesTrendChart
-                        dailySales={dailySales}
-                        processDailySalesData={processDailySalesData}
-                        formatCurrency={formatCurrency}
-                    />
-
                     {/* Sales Summary Cards */}
                     {loading ? (
                         <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
@@ -72,6 +99,12 @@ export default function DashboardPage() {
                     ) : (
                         <SalesSummaryCards salesSummary={salesSummary} formatCurrency={formatCurrency} />
                     )}
+                    {/* Daily Sales Trend Chart */}
+                    <DailySalesTrendChart
+                        dailySales={dailySales}
+                        processDailySalesData={processDailySalesData}
+                        formatCurrency={formatCurrency}
+                    />
 
                     {/* Top Selling Products */}
                     {topSellingProducts.length > 0 && (
