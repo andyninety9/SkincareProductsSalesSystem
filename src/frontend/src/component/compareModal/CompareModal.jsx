@@ -160,7 +160,15 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                         style={{ height: 200, objectFit: 'cover', width: '100%' }}
                                     />
                                 }
-                                style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                style={{
+                                    flex: 1,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    borderRadius: '8px', // Rounded corners
+                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', // Subtle shadow
+                                }}
+                                bodyStyle={{ padding: '16px' }} // Consistent padding
+                            >
                                 <div style={{ flex: 1 }}>
                                     {compareFields.map((field) => (
                                         <div key={field.key} style={{ marginBottom: '10px' }}>
@@ -194,7 +202,15 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                             Thay đổi
                                         </Button>
                                     }
-                                    style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                    style={{
+                                        flex: 1,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        borderRadius: '8px', // Rounded corners
+                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', // Subtle shadow
+                                    }}
+                                    bodyStyle={{ padding: '16px' }} // Consistent padding
+                                >
                                     <div style={{ flex: 1 }}>
                                         {compareFields.map((field) => (
                                             <div key={field.key} style={{ marginBottom: '10px' }}>
