@@ -147,7 +147,7 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                 </div>
             ) : (
                 <div className="compare-content" style={{ width: '100%' }}>
-                    <Row gutter={32}>
+                    <Row gutter={48}> {/* Increased gutter from 32 to 48 for a larger gap */}
                         {/* Left Column: Current Product */}
                         <Col span={12} style={{ display: 'flex', flexDirection: 'column' }}>
                             <Card
@@ -217,19 +217,13 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                         style={{ width: '100%', marginBottom: '10px' }}
                                         onChange={(value) => setSelectedProductId(value)}
                                         value={selectedProductId}
-                                        filterOption={(input, option) =>
-                                            option.label.toLowerCase().includes(input.toLowerCase())
-                                        } // Filter by label (productName)
+                                        filterOption={(input, option) => option.label.toLowerCase().includes(input.toLowerCase())}
                                         optionLabelProp="label"
                                     >
                                         {productsList
                                             .filter((p) => p.productId !== currentProduct?.productId.toString())
                                             .map((product) => (
-                                                <Option
-                                                    key={product.productId}
-                                                    value={product.productId}
-                                                    label={product.productName}
-                                                >
+                                                <Option key={product.productId} value={product.productId} label={product.productName}>
                                                     {renderOption(product)}
                                                 </Option>
                                             ))}
