@@ -26,7 +26,6 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
     // Add current product to compareItems silently when modal opens
     useEffect(() => {
         if (visible && currentProduct && !isCurrentInCompare) {
-            // Dispatch without toast for initial add
             dispatch(addToCompare({ ...currentProduct, productId: currentProduct.productId.toString() }));
         }
     }, [visible, currentProduct, isCurrentInCompare, dispatch]);
@@ -74,7 +73,7 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
             console.log('Second Product:', productToAdd);
             if (!compareItems.some((item) => item.productId === productToAdd.productId)) {
                 dispatch(addToCompare(productToAdd));
-                toast.success('Đã thêm sản phẩm để so sánh!'); // Toast only for manual addition
+                toast.success('Đã thêm sản phẩm để so sánh!');
             }
         }
     };
@@ -107,12 +106,25 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
         if (product.images && product.images.length > 0) {
             return typeof product.images[0] === 'string' ? product.images[0] : product.images[0].prodImageUrl;
         }
-        if (product.productImages && product.images.length > 0) {
+        if (product.productImages && product.productImages.length > 0) {
             return typeof product.productImages[0] === 'string' ? product.productImages[0] : product.productImages[0].prodImageUrl;
         }
         if (product.imageUrl) return product.imageUrl;
         return 'https://via.placeholder.com/200';
     };
+
+    // Custom render for dropdown options with image
+    const renderOption = (product) => (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Image
+                src={getProductImage(product)}
+                alt={product.productName}
+                preview={false}
+                style={{ width: 24, height: 24, marginRight: 8, objectFit: 'cover' }}
+            />
+            <span>{product.productName}</span>
+        </div>
+    );
 
     return (
         <Modal
@@ -200,15 +212,25 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                 <div style={{ padding: '20px', textAlign: 'center', width: '100%' }}>
                                     <Title level={4}>Thêm sản phẩm để so sánh</Title>
                                     <Select
-                                        placeholder="Chọn sản phẩm"
+                                        showSearch
+                                        placeholder="Tìm và chọn sản phẩm"
                                         style={{ width: '100%', marginBottom: '10px' }}
                                         onChange={(value) => setSelectedProductId(value)}
-                                        value={selectedProductId}>
+                                        value={selectedProductId}
+                                        filterOption={(input, option) =>
+                                            option.label.toLowerCase().includes(input.toLowerCase())
+                                        } // Filter by label (productName)
+                                        optionLabelProp="label"
+                                    >
                                         {productsList
                                             .filter((p) => p.productId !== currentProduct?.productId.toString())
                                             .map((product) => (
-                                                <Option key={product.productId} value={product.productId}>
-                                                    {product.productName}
+                                                <Option
+                                                    key={product.productId}
+                                                    value={product.productId}
+                                                    label={product.productName}
+                                                >
+                                                    {renderOption(product)}
                                                 </Option>
                                             ))}
                                     </Select>
