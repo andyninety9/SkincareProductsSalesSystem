@@ -1,201 +1,60 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Row, Col, Typography, DatePicker, Button, Spin, Tooltip } from 'antd';
 import ManageOrderHeader from '../../component/manageOrderHeader/ManageOrderHeader';
 import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSidebar';
-import api from '../../config/api';
-import { Card, Row, Col, Statistic, DatePicker, Button, Typography, Spin, List, Avatar, Select, Alert } from 'antd';
-import { DollarOutlined, ShoppingCartOutlined, BarChartOutlined, TagOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-    PieChart,
-    Pie,
-    Area,
-    LineChart,
-    Line,
-    AreaChart,
-    Cell,
-} from 'recharts';
-import { ComposedChart, ReferenceLine } from 'recharts';
+import useDashboardData from '../../hooks/useDashboardData';
+import SalesSummaryCards from '../../component/salesSummaryCards/SalesSummaryCards';
+import TopSellingProductsChart from '../../component/topSellingProductsChart/TopSellingProductsChart';
+import TopSellingProductsList from '../../component/topSellingProductsList/TopSellingProductsList';
+import DailySalesTrendChart from '../../component/dailySalesTrendChart/DailySalesTrendChart';
+import { ReloadOutlined } from '@ant-design/icons';
 
-const { RangePicker } = DatePicker;
 const { Title } = Typography;
+const { RangePicker } = DatePicker;
 
 export default function DashboardPage() {
-    const [salesSummary, setSalesSummary] = useState(null);
-    const [fromDate, setFromDate] = useState(dayjs().subtract(7, 'day'));
-    const [toDate, setToDate] = useState(dayjs());
-    const [loading, setLoading] = useState(false);
-    const [topSellingProducts, setTopSellingProducts] = useState([]);
-    const [chartType, setChartType] = useState('bar');
-    const [productsFromDate, setProductsFromDate] = useState(dayjs().subtract(7, 'day'));
-    const [productsToDate, setProductsToDate] = useState(dayjs());
-    const [dailySales, setDailySales] = useState([]);
+    const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
 
-    // Add these chart options
-    const chartOptions = [
-        { label: 'Bar Chart', value: 'bar' },
-        { label: 'Line Chart', value: 'line' },
-        { label: 'Area Chart', value: 'area' },
-        { label: 'Pie Chart', value: 'pie' },
-    ];
+    const {
+        salesSummary,
+        dailySales,
+        topSellingProducts,
+        loading,
+        fromDate,
+        toDate,
+        productsFromDate,
+        productsToDate,
+        formatCurrency,
+        processDailySalesData,
+        processChartData,
+        handleDateRangeChange,
+        handleApplyDateRange,
+        handleProductsDateRangeChange,
+        handleApplyProductsDateRange,
+        reloadDashboardData,
+    } = useDashboardData();
 
-    const processDailySalesData = (data) => {
-        if (!data || data.length === 0) {
-            console.warn('No data to process for daily sales');
-            return [];
-        }
-
-        try {
-            const processedData = data.map((item, index) => {
-                const formattedDate = dayjs(item.date).format('MMM DD');
-                const trend = index > 0 ? item.revenue - data[index - 1].revenue : 0;
-                // Add trendIndicator value for declining days (used for background coloring)
-                const trendIndicator =
-                    index > 0 && item.revenue < data[index - 1].revenue
-                        ? Math.max(item.orderCount, data[index - 1].orderCount, 5) // Ensure it's visible
-                        : 0;
-
-                return {
-                    ...item,
-                    formattedDate,
-                    trend,
-                    trendDirection: trend >= 0 ? 'up' : 'down',
-                    trendIndicator,
-                };
-            });
-            console.log('Processed daily sales data:', processedData);
-            return processedData;
-        } catch (error) {
-            console.error('Error processing daily sales data:', error);
-            return [];
-        }
+    const formatLastUpdateTime = () => {
+        return lastUpdateTime.toLocaleString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
     };
 
-    const handleFetchDailySales = async (from = fromDate, to = toDate) => {
-        setLoading(true);
-        try {
-            const fromDateStr = from.format('YYYY-MM-DD');
-            const toDateStr = to.format('YYYY-MM-DD');
-            const response = await api.get(`report/daily-sales?fromDate=${fromDateStr}&toDate=${toDateStr}`);
-
-            // Debug the raw response
-            console.log('Full daily sales response:', response.data);
-
-            // Extract the dailySales array correctly
-            const dailySalesData = response.data?.data?.dailySales || [];
-
-            if (dailySalesData && dailySalesData.length > 0) {
-                console.log('Setting daily sales with', dailySalesData.length, 'records:', dailySalesData);
-                setDailySales(dailySalesData);
-            } else {
-                console.warn('No daily sales data found in response');
-                setDailySales([]);
-            }
-        } catch (error) {
-            console.error('Error fetching daily sales:', error);
-            setDailySales([]);
-        } finally {
-            setLoading(false);
-        }
+    // Handle reload button click
+    const handleReloadData = () => {
+        reloadDashboardData();
+        setLastUpdateTime(new Date());
     };
 
-    const handleFetchSalesSummary = async (from = fromDate, to = toDate) => {
-        setLoading(true);
-        try {
-            const fromDateStr = from.format('YYYY-MM-DD');
-            const toDateStr = to.format('YYYY-MM-DD');
-
-            const response = await api.get(`report/sales-summary?fromDate=${fromDateStr}&toDate=${toDateStr}`);
-            setSalesSummary(response.data.data);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-    const handleProductsDateRangeChange = (dates) => {
-        if (dates && dates.length === 2) {
-            setProductsFromDate(dates[0]);
-            setProductsToDate(dates[1]);
-        }
-    };
-
-    const handleApplyProductsDateRange = () => {
-        handleFetchTopSellingProducts(productsFromDate, productsToDate);
-    };
-
-    const handleFetchTopSellingProducts = async (from = fromDate, to = toDate) => {
-        setLoading(true);
-        try {
-            const fromDateStr = from.format('YYYY-MM-DD');
-            const toDateStr = to.format('YYYY-MM-DD');
-
-            const response = await api.get(`report/top-saling-products?fromDate=${fromDateStr}&toDate=${toDateStr}`);
-            setTopSellingProducts(response.data.data.topSellingProducts);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // Set initial update time
     useEffect(() => {
-        handleFetchSalesSummary(fromDate, toDate);
-        handleFetchTopSellingProducts(productsFromDate, productsToDate);
-        handleFetchDailySales(fromDate, toDate);
+        setLastUpdateTime(new Date());
     }, []);
-
-    const handleDateRangeChange = (dates) => {
-        if (dates && dates.length === 2) {
-            setFromDate(dates[0]);
-            setToDate(dates[1]);
-        }
-    };
-
-    const handleApplyDateRange = () => {
-        handleFetchSalesSummary(fromDate, toDate);
-        handleFetchDailySales(fromDate, toDate);
-    };
-
-    // Format currency with thousands separator
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-            maximumFractionDigits: 0,
-        }).format(value);
-    };
-
-    const processChartData = (data) => {
-        const combinedData = [];
-        const productMap = new Map();
-
-        // Group by productId and combine quantities and revenue
-        data.forEach((item) => {
-            if (productMap.has(item.productId)) {
-                const existingItem = productMap.get(item.productId);
-                existingItem.quantitySold += item.quantitySold;
-                existingItem.revenue += item.revenue;
-            } else {
-                productMap.set(item.productId, { ...item });
-            }
-        });
-
-        // Convert map values to array
-        productMap.forEach((item) => {
-            combinedData.push(item);
-        });
-
-        return combinedData;
-    };
-
     return (
         <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', flexDirection: 'column' }}>
             <ManageOrderHeader />
@@ -210,591 +69,63 @@ export default function DashboardPage() {
                             marginBottom: '24px',
                         }}>
                         <Title level={2}>Dashboard</Title>
-                        {(() => {
-                            console.log('Current dailySales state:', dailySales);
-                            console.log('dailySales exists:', !!dailySales);
-                            console.log('dailySales length:', dailySales?.length || 0);
-                            return null;
-                        })()}
-                        <div>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <div style={{ marginRight: '16px', fontSize: '14px', color: '#888' }}>
+                                Cập nhật lần cuối: {formatLastUpdateTime()}
+                            </div>
                             <RangePicker
                                 value={[fromDate, toDate]}
                                 onChange={handleDateRangeChange}
                                 style={{ marginRight: '16px' }}
                             />
-                            <Button type="primary" onClick={handleApplyDateRange}>
+                            <Button type="primary" onClick={handleApplyDateRange} style={{ marginRight: '8px' }}>
                                 Apply
                             </Button>
+                            <Tooltip title="Tải lại dữ liệu">
+                                <Button
+                                    type="primary"
+                                    icon={<ReloadOutlined />}
+                                    onClick={handleReloadData}
+                                    loading={loading}
+                                />
+                            </Tooltip>
                         </div>
                     </div>
-                    {dailySales && dailySales.length > 0 ? (
-                        <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
-                            <Col span={24}>
-                                <Card
-                                    title={
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                            }}>
-                                            <span>Daily Sales Trend</span>
-                                            <span style={{ fontSize: '12px', color: '#666' }}>
-                                                {dailySales.length} days of data
-                                            </span>
-                                        </div>
-                                    }
-                                    style={{ height: '500px', display: 'flex', flexDirection: 'column' }}>
-                                    <div style={{ flex: 1, minHeight: '400px', border: '1px solid #ddd' }}>
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <ComposedChart
-                                                data={processDailySalesData(dailySales)}
-                                                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                                                <CartesianGrid strokeDasharray="3 3" />
-                                                <XAxis dataKey="formattedDate" />
-                                                <YAxis
-                                                    yAxisId="left"
-                                                    orientation="left"
-                                                    label={{
-                                                        value: 'Revenue (VND)',
-                                                        angle: -90,
-                                                        position: 'insideLeft',
-                                                    }}
-                                                />
-                                                <YAxis
-                                                    yAxisId="right"
-                                                    orientation="right"
-                                                    label={{ value: 'Count', angle: 90, position: 'insideRight' }}
-                                                />
-                                                <Tooltip
-                                                    formatter={(value, name) => {
-                                                        if (name === 'revenue') return formatCurrency(value);
-                                                        return value;
-                                                    }}
-                                                />
-                                                <Legend />
-
-                                                <Area
-                                                    yAxisId="left"
-                                                    type="monotone"
-                                                    dataKey="revenue"
-                                                    name="Revenue"
-                                                    fill="#8884d8"
-                                                    stroke="#8884d8"
-                                                    activeDot={{ r: 8 }}
-                                                />
-
-                                                <Bar
-                                                    yAxisId="right"
-                                                    dataKey="orderCount"
-                                                    name="Orders"
-                                                    fill="#82ca9d"
-                                                    barSize={20}
-                                                />
-
-                                                <Line
-                                                    yAxisId="right"
-                                                    type="monotone"
-                                                    dataKey="productsSold"
-                                                    name="Products Sold"
-                                                    stroke="#ff7300"
-                                                    activeDot={{ r: 8 }}
-                                                    strokeWidth={2}
-                                                />
-                                                {processDailySalesData(dailySales).map((entry, index) => {
-                                                    if (index === 0) return null;
-                                                    return entry.trend < 0 ? (
-                                                        <ReferenceLine
-                                                            key={`ref-${index}`}
-                                                            x={entry.formattedDate}
-                                                            stroke="#ff4d4f"
-                                                            strokeWidth={80}
-                                                            strokeOpacity={0.2}
-                                                        />
-                                                    ) : null;
-                                                })}
-                                            </ComposedChart>
-                                        </ResponsiveContainer>
-                                    </div>
-                                </Card>
-                            </Col>
-                        </Row>
-                    ) : (
-                        <Alert
-                            message="No Daily Sales Data"
-                            description="There is no daily sales data available for the selected date range."
-                            type="info"
-                            showIcon
-                            style={{ marginTop: '24px' }}
-                        />
-                    )}
-
+                    {/* Sales Summary Cards */}
                     {loading ? (
                         <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
                             <Spin size="large" />
                         </div>
-                    ) : salesSummary ? (
-                        <Row gutter={[16, 16]}>
-                            <Col xs={24} sm={12} lg={6}>
-                                <Card hoverable>
-                                    <Statistic
-                                        title="Total Revenue"
-                                        value={salesSummary.totalRevenue}
-                                        formatter={(value) => formatCurrency(value)}
-                                        prefix={<DollarOutlined />}
-                                        valueStyle={{ color: '#3f8600' }}
-                                    />
-                                </Card>
-                            </Col>
-                            <Col xs={24} sm={12} lg={6}>
-                                <Card hoverable>
-                                    <Statistic
-                                        title="Total Orders"
-                                        value={salesSummary.totalOrders}
-                                        prefix={<ShoppingCartOutlined />}
-                                        valueStyle={{ color: '#1677ff' }}
-                                    />
-                                </Card>
-                            </Col>
-                            <Col xs={24} sm={12} lg={6}>
-                                <Card hoverable>
-                                    <Statistic
-                                        title="Average Order Value"
-                                        value={salesSummary.averageOrderValue}
-                                        formatter={(value) => formatCurrency(value)}
-                                        prefix={<BarChartOutlined />}
-                                        valueStyle={{ color: '#722ed1' }}
-                                    />
-                                </Card>
-                            </Col>
-                            <Col xs={24} sm={12} lg={6}>
-                                <Card hoverable>
-                                    <Statistic
-                                        title="Total Products Sold"
-                                        value={salesSummary.totalProductsSold}
-                                        prefix={<TagOutlined />}
-                                        valueStyle={{ color: '#fa541c' }}
-                                    />
-                                </Card>
-                            </Col>
-                            <Col span={24}>
-                                <Card>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <Title level={5}>Report Period</Title>
-                                        <p>
-                                            {dayjs(salesSummary.startDate).format('MMM D, YYYY')} -{' '}
-                                            {dayjs(salesSummary.endDate).format('MMM D, YYYY')}
-                                        </p>
-                                    </div>
-                                </Card>
-                            </Col>
-                        </Row>
                     ) : (
-                        <div>No data available</div>
+                        <SalesSummaryCards salesSummary={salesSummary} formatCurrency={formatCurrency} />
                     )}
+                    {/* Daily Sales Trend Chart */}
+                    <DailySalesTrendChart
+                        dailySales={dailySales}
+                        processDailySalesData={processDailySalesData}
+                        formatCurrency={formatCurrency}
+                    />
+
+                    {/* Top Selling Products */}
                     {topSellingProducts.length > 0 && (
                         <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
                             <Col xs={24} lg={12}>
-                                <Card
-                                    title={
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                            }}>
-                                            <span>Top Selling Products Chart</span>
-                                            <Select
-                                                value={chartType}
-                                                onChange={setChartType}
-                                                options={chartOptions}
-                                                style={{ width: 120 }}
-                                            />
-                                        </div>
-                                    }
-                                    style={{ height: '500px', display: 'flex', flexDirection: 'column' }}>
-                                    <div style={{ flex: 1, minHeight: 0 }}>
-                                        <ResponsiveContainer width="100%" height={300}>
-                                            {chartType === 'bar' && (
-                                                <BarChart data={processChartData(topSellingProducts)}>
-                                                    <CartesianGrid strokeDasharray="3 3" />
-                                                    <XAxis dataKey="productName" />
-                                                    <YAxis
-                                                        yAxisId="left"
-                                                        orientation="left"
-                                                        stroke="#8884d8"
-                                                        label={{
-                                                            value: 'Quantity',
-                                                            angle: -90,
-                                                            position: 'insideLeft',
-                                                        }}
-                                                    />
-                                                    <YAxis
-                                                        yAxisId="right"
-                                                        orientation="right"
-                                                        stroke="#82ca9d"
-                                                        label={{ value: 'Revenue', angle: 90, position: 'insideRight' }}
-                                                    />
-                                                    <Tooltip
-                                                        formatter={(value, name) =>
-                                                            name === 'revenue' ? formatCurrency(value) : value
-                                                        }
-                                                    />
-                                                    <Legend />
-                                                    <Bar
-                                                        yAxisId="left"
-                                                        dataKey="quantitySold"
-                                                        name="Quantity Sold"
-                                                        fill="#8884d8"
-                                                    />
-                                                    <Bar
-                                                        yAxisId="right"
-                                                        dataKey="revenue"
-                                                        name="Revenue"
-                                                        fill="#82ca9d"
-                                                    />
-                                                </BarChart>
-                                            )}
-                                            {chartType === 'line' && (
-                                                <LineChart
-                                                    data={processChartData(topSellingProducts)}
-                                                    margin={{ top: 50, right: 30, left: 20, bottom: 5 }} // Added bottom margin
-                                                >
-                                                    <CartesianGrid strokeDasharray="3 3" />
-                                                    <XAxis
-                                                        dataKey="productName"
-                                                        tick={{
-                                                            fontSize: 11,
-                                                            fill: '#333',
-                                                            width: 120, // Limit text width
-                                                        }}
-                                                        interval={0}
-                                                        angle={-65} // Steeper angle
-                                                        textAnchor="end"
-                                                        height={100} // Increased height
-                                                        padding={{ left: 10, right: 10 }}
-                                                    />
-                                                    <YAxis
-                                                        yAxisId="left"
-                                                        orientation="left"
-                                                        stroke="#8884d8"
-                                                        label={{
-                                                            value: 'Quantity Sold',
-                                                            angle: -90,
-                                                            position: 'insideLeft',
-                                                        }}
-                                                    />
-                                                    <YAxis
-                                                        yAxisId="right"
-                                                        orientation="right"
-                                                        stroke="#82ca9d"
-                                                        label={{
-                                                            value: 'Revenue (VND)',
-                                                            angle: 90,
-                                                            position: 'insideRight',
-                                                        }}
-                                                    />
-                                                    <Tooltip
-                                                        formatter={(value, name) =>
-                                                            name === 'revenue' ? formatCurrency(value) : value
-                                                        }
-                                                        labelFormatter={(label) => `Product: ${label}`}
-                                                    />
-                                                    <Legend wrapperStyle={{ paddingTop: 10 }} />
-                                                    <Line
-                                                        yAxisId="left"
-                                                        type="monotone"
-                                                        dataKey="quantitySold"
-                                                        name="Quantity Sold"
-                                                        stroke="#8884d8"
-                                                        activeDot={{ r: 8 }}
-                                                        dot={{ stroke: '#8884d8', strokeWidth: 2, r: 6, fill: 'white' }}
-                                                        isAnimationActive={true}
-                                                    />
-                                                    <Line
-                                                        yAxisId="right"
-                                                        type="monotone"
-                                                        dataKey="revenue"
-                                                        name="Revenue"
-                                                        stroke="#82ca9d"
-                                                        activeDot={{ r: 8 }}
-                                                        dot={{ stroke: '#82ca9d', strokeWidth: 2, r: 6, fill: 'white' }}
-                                                        isAnimationActive={true}
-                                                    />
-                                                </LineChart>
-                                            )}
-                                            {chartType === 'area' && (
-                                                <AreaChart data={topSellingProducts}>
-                                                    <CartesianGrid strokeDasharray="3 3" />
-                                                    <XAxis dataKey="productName" />
-                                                    <YAxis />
-                                                    <Tooltip
-                                                        formatter={(value, name) =>
-                                                            name === 'revenue' ? formatCurrency(value) : value
-                                                        }
-                                                    />
-                                                    <Legend />
-                                                    <Area
-                                                        type="monotone"
-                                                        dataKey="quantitySold"
-                                                        name="Quantity Sold"
-                                                        stroke="#8884d8"
-                                                        fill="#8884d8"
-                                                    />
-                                                    <Area
-                                                        type="monotone"
-                                                        dataKey="revenue"
-                                                        name="Revenue"
-                                                        stroke="#82ca9d"
-                                                        fill="#82ca9d"
-                                                    />
-                                                </AreaChart>
-                                            )}
-                                            {chartType === 'pie' && (
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        justifyContent: 'space-around',
-                                                        height: '100%',
-                                                    }}>
-                                                    <div style={{ width: '45%', height: '100%' }}>
-                                                        <p style={{ textAlign: 'center', fontWeight: 'bold' }}>
-                                                            Quantity Sold
-                                                        </p>
-                                                        <ResponsiveContainer width="100%" height={250}>
-                                                            <PieChart>
-                                                                <Pie
-                                                                    data={processChartData(topSellingProducts)}
-                                                                    nameKey="productName"
-                                                                    dataKey="quantitySold"
-                                                                    cx="50%"
-                                                                    cy="50%"
-                                                                    innerRadius={0}
-                                                                    outerRadius={65}
-                                                                    fill="#8884d8"
-                                                                    paddingAngle={5}
-                                                                    // Format percentage to show rounded value
-                                                                    label={({ percent }) =>
-                                                                        `${(percent * 100).toFixed(1)}%`
-                                                                    }
-                                                                    labelLine={{
-                                                                        stroke: '#555',
-                                                                        strokeWidth: 1,
-                                                                        strokeDasharray: '3 3',
-                                                                    }}>
-                                                                    {processChartData(topSellingProducts).map(
-                                                                        (entry, index) => (
-                                                                            <Cell
-                                                                                key={`cell-${index}`}
-                                                                                fill={`hsl(${
-                                                                                    (index * 30) % 360
-                                                                                }, 70%, 60%)`}
-                                                                            />
-                                                                        )
-                                                                    )}
-                                                                </Pie>
-                                                                <Tooltip
-                                                                    formatter={(value) => value}
-                                                                    labelFormatter={(name) => `Product: ${name}`}
-                                                                />
-                                                                <Legend
-                                                                    layout="vertical"
-                                                                    align="right"
-                                                                    verticalAlign="middle"
-                                                                    wrapperStyle={{
-                                                                        fontSize: '12px',
-                                                                        maxWidth: '40%',
-                                                                        overflowY: 'auto',
-                                                                        maxHeight: '200px',
-                                                                    }}
-                                                                />
-                                                            </PieChart>
-                                                        </ResponsiveContainer>
-                                                    </div>
-                                                    <div style={{ width: '45%', height: '100%' }}>
-                                                        <p style={{ textAlign: 'center', fontWeight: 'bold' }}>
-                                                            Revenue
-                                                        </p>
-                                                        <ResponsiveContainer width="100%" height={250}>
-                                                            <PieChart>
-                                                                <Pie
-                                                                    data={processChartData(topSellingProducts)}
-                                                                    nameKey="productName"
-                                                                    dataKey="revenue"
-                                                                    cx="50%"
-                                                                    cy="50%"
-                                                                    innerRadius={0}
-                                                                    outerRadius={65}
-                                                                    fill="#82ca9d"
-                                                                    paddingAngle={5}
-                                                                    // Format percentage to show rounded value
-                                                                    label={({ percent }) =>
-                                                                        `${(percent * 100).toFixed(1)}%`
-                                                                    }
-                                                                    labelLine={{
-                                                                        stroke: '#555',
-                                                                        strokeWidth: 1,
-                                                                        strokeDasharray: '3 3',
-                                                                    }}>
-                                                                    {processChartData(topSellingProducts).map(
-                                                                        (entry, index) => (
-                                                                            <Cell
-                                                                                key={`cell-${index}`}
-                                                                                fill={`hsl(${
-                                                                                    (index * 30) % 360
-                                                                                }, 70%, 60%)`}
-                                                                            />
-                                                                        )
-                                                                    )}
-                                                                </Pie>
-                                                                <Tooltip
-                                                                    formatter={(value) => formatCurrency(value)}
-                                                                    labelFormatter={(name) => `Product: ${name}`}
-                                                                />
-                                                                <Legend
-                                                                    layout="vertical"
-                                                                    align="right"
-                                                                    verticalAlign="middle"
-                                                                    wrapperStyle={{
-                                                                        fontSize: '12px',
-                                                                        maxWidth: '40%',
-                                                                        overflowY: 'auto',
-                                                                        maxHeight: '200px',
-                                                                    }}
-                                                                />
-                                                            </PieChart>
-                                                        </ResponsiveContainer>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </ResponsiveContainer>
-                                    </div>
-                                </Card>
+                                <TopSellingProductsChart
+                                    topSellingProducts={topSellingProducts}
+                                    processChartData={processChartData}
+                                    formatCurrency={formatCurrency}
+                                />
                             </Col>
-
                             <Col xs={24} lg={12}>
-                                <Card
-                                    title={
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                            }}>
-                                            <span>Top Selling Products</span>
-                                            <div>
-                                                <RangePicker
-                                                    value={[productsFromDate, productsToDate]}
-                                                    onChange={handleProductsDateRangeChange}
-                                                    style={{ marginRight: '8px' }}
-                                                    size="small"
-                                                />
-                                                <Button
-                                                    size="small"
-                                                    type="primary"
-                                                    onClick={handleApplyProductsDateRange}>
-                                                    Apply
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    }
-                                    style={{ height: '500px', display: 'flex', flexDirection: 'column' }}
-                                    bodyStyle={{ padding: '0 24px', flex: 1, overflow: 'hidden' }}>
-                                    <List
-                                        itemLayout="horizontal"
-                                        dataSource={processChartData(topSellingProducts)}
-                                        style={{
-                                            height: '100%',
-                                            overflow: 'auto',
-                                            padding: '5px',
-                                            borderRadius: '4px',
-                                            backgroundColor: '#f9f9f9',
-                                        }}
-                                        renderItem={(item) => (
-                                            <List.Item
-                                                style={{
-                                                    padding: '12px 16px',
-                                                    marginBottom: '8px',
-                                                    background: '#ffffff',
-                                                    borderRadius: '8px',
-                                                    boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-                                                    border: '1px solid #f0f0f0',
-                                                    transition: 'all 0.3s ease',
-                                                }}
-                                                className="product-list-item">
-                                                <List.Item.Meta
-                                                    avatar={
-                                                        <Avatar
-                                                            size={80}
-                                                            shape="square"
-                                                            src={item.imageUrl}
-                                                            style={{
-                                                                borderRadius: '4px',
-                                                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                                                                objectFit: 'cover',
-                                                            }}
-                                                        />
-                                                    }
-                                                    title={
-                                                        <span
-                                                            style={{
-                                                                fontWeight: 'bold',
-                                                                fontSize: '16px',
-                                                                color: '#303030',
-                                                                display: 'block',
-                                                                marginBottom: '4px',
-                                                            }}>
-                                                            {item.productName}
-                                                        </span>
-                                                    }
-                                                    description={
-                                                        <span style={{ color: '#666', fontSize: '14px' }}>
-                                                            Unit Price:{' '}
-                                                            <span style={{ fontWeight: '500', color: '#1890ff' }}>
-                                                                {formatCurrency(item.unitPrice)}
-                                                            </span>
-                                                        </span>
-                                                    }
-                                                    style={{ marginRight: '16px', flex: 2 }}
-                                                />
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        alignItems: 'flex-end',
-                                                        flex: 1,
-                                                    }}>
-                                                    <Statistic
-                                                        title={
-                                                            <span style={{ fontSize: '14px', color: '#666' }}>
-                                                                Quantity Sold
-                                                            </span>
-                                                        }
-                                                        value={item.quantitySold}
-                                                        valueStyle={{
-                                                            fontSize: '16px',
-                                                            fontWeight: '600',
-                                                            color: '#1d39c4',
-                                                        }}
-                                                    />
-                                                    <Statistic
-                                                        title={
-                                                            <span style={{ fontSize: '14px', color: '#666' }}>
-                                                                Revenue
-                                                            </span>
-                                                        }
-                                                        value={formatCurrency(item.revenue)}
-                                                        valueStyle={{
-                                                            fontSize: '16px',
-                                                            fontWeight: '600',
-                                                            color: '#389e0d',
-                                                        }}
-                                                    />
-                                                </div>
-                                            </List.Item>
-                                        )}
-                                    />
-                                </Card>
+                                <TopSellingProductsList
+                                    topSellingProducts={topSellingProducts}
+                                    processChartData={processChartData}
+                                    formatCurrency={formatCurrency}
+                                    productsFromDate={productsFromDate}
+                                    productsToDate={productsToDate}
+                                    handleProductsDateRangeChange={handleProductsDateRangeChange}
+                                    handleApplyProductsDateRange={handleApplyProductsDateRange}
+                                />
                             </Col>
                         </Row>
                     )}
