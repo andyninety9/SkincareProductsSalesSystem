@@ -18,19 +18,16 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
     const [loading, setLoading] = useState(false);
     const [selectedProductId, setSelectedProductId] = useState(null);
 
-    // Check if current product is in compareItems
     const isCurrentInCompare = compareItems.some(
         (item) => item.productId.toString() === currentProduct?.productId.toString()
     );
 
-    // Add current product to compareItems silently when modal opens
     useEffect(() => {
         if (visible && currentProduct && !isCurrentInCompare) {
             dispatch(addToCompare({ ...currentProduct, productId: currentProduct.productId.toString() }));
         }
     }, [visible, currentProduct, isCurrentInCompare, dispatch]);
 
-    // Fetch all products when modal opens
     useEffect(() => {
         if (visible && productsList.length === 0) {
             const fetchProducts = async () => {
@@ -38,7 +35,6 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                 try {
                     const response = await api.get('products');
                     console.log('API Response:', response.data);
-
                     if (response.data && response.data.data && Array.isArray(response.data.data.items)) {
                         const processedProducts = response.data.data.items.map((product) => ({
                             ...product,
@@ -60,13 +56,11 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
         }
     }, [visible]);
 
-    // Handle adding a second product to compare with toast
     const handleAddToCompare = () => {
         if (!selectedProductId || selectedProductId === currentProduct?.productId.toString()) {
             toast.error('Vui lòng chọn một sản phẩm khác để so sánh.');
             return;
         }
-
         const productToAdd = productsList.find((p) => p.productId === selectedProductId);
         if (productToAdd) {
             setSecondProduct(productToAdd);
@@ -78,7 +72,6 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
         }
     };
 
-    // Reset second product to allow adding another
     const handleChangeProduct = () => {
         setSecondProduct(null);
         setSelectedProductId(null);
@@ -92,7 +85,6 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
         );
     }
 
-    // Fields to compare
     const compareFields = [
         { key: 'productName', label: 'Tên sản phẩm' },
         { key: 'productDesc', label: 'Mô tả' },
@@ -101,7 +93,6 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
         { key: 'ingredient', label: 'Thành phần' },
     ];
 
-    // Helper function to get the product image
     const getProductImage = (product) => {
         if (product.images && product.images.length > 0) {
             return typeof product.images[0] === 'string' ? product.images[0] : product.images[0].prodImageUrl;
@@ -113,7 +104,6 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
         return 'https://via.placeholder.com/200';
     };
 
-    // Custom render for dropdown options with image
     const renderOption = (product) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
             <Image
@@ -133,21 +123,21 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
             footer={null}
             width={1000}
             centered
-            bodyStyle={{ maxHeight: '80vh', overflowY: 'auto', overflowX: 'hidden' }}
+            bodyStyle={{ maxHeight: '90vh', overflowY: 'auto', overflowX: 'hidden' }} // Increased from 80vh to 90vh
             title={
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <SwapOutlined style={{ fontSize: '20px', marginRight: '10px', color: '#D8959A' }} />
-                    <span>So sánh sản phẩm</span>
+                <div style={{ display: 'flex', alignItems: 'center', padding: '10px', background: '#f5f5f5', borderRadius: '8px 8px 0 0' }}>
+                    <SwapOutlined style={{ fontSize: '24px', marginRight: '12px', color: '#D8959A' }} />
+                    <span style={{ fontSize: '18px', fontWeight: 'bold' }}>So sánh sản phẩm</span>
                 </div>
             }>
             {loading ? (
-                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '50vh' }}>
                     <Spin size="large" />
-                    <p style={{ marginTop: 20 }}>Đang tải dữ liệu...</p>
+                    <p style={{ marginTop: 20, color: '#888' }}>Đang tải dữ liệu...</p>
                 </div>
             ) : (
                 <div className="compare-content" style={{ width: '100%' }}>
-                    <Row gutter={48}> {/* Increased gutter from 32 to 48 for a larger gap */}
+                    <Row gutter={[48, 16]}>
                         {/* Left Column: Current Product */}
                         <Col span={12} style={{ display: 'flex', flexDirection: 'column' }}>
                             <Card
@@ -157,26 +147,18 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                     <Image
                                         alt={currentProduct?.productName}
                                         src={getProductImage(currentProduct)}
-                                        style={{ height: 200, objectFit: 'cover', width: '100%' }}
+                                        style={{ height: 300, objectFit: 'contain', width: '100%', border: '1px solid #e8e8e8', borderRadius: '4px 4px 0 0' }} // Increased height to 300px, changed to contain
                                     />
                                 }
-                                style={{
-                                    flex: 1,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    borderRadius: '8px', // Rounded corners
-                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', // Subtle shadow
-                                }}
-                                bodyStyle={{ padding: '16px' }} // Consistent padding
+                                style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', minHeight: '500px' }} // Increased minHeight to 500px
+                                bodyStyle={{ padding: '16px' }}
                             >
                                 <div style={{ flex: 1 }}>
                                     {compareFields.map((field) => (
-                                        <div key={field.key} style={{ marginBottom: '10px' }}>
-                                            <Text strong>{field.label}: </Text>
-                                            <Text>
-                                                {field.render
-                                                    ? field.render(currentProduct?.[field.key])
-                                                    : currentProduct?.[field.key] || 'N/A'}
+                                        <div key={field.key} style={{ marginBottom: '16px' }}>
+                                            <Text strong style={{ fontSize: '16px' }}>{field.label}: </Text>
+                                            <Text style={{ fontSize: '14px', color: '#555' }}>
+                                                {field.render ? field.render(currentProduct?.[field.key]) : currentProduct?.[field.key] || 'N/A'}
                                             </Text>
                                         </div>
                                     ))}
@@ -194,7 +176,7 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                         <Image
                                             alt={secondProduct.productName}
                                             src={getProductImage(secondProduct)}
-                                            style={{ height: 200, objectFit: 'cover', width: '100%' }}
+                                            style={{ height: 300, objectFit: 'contain', width: '100%', border: '1px solid #e8e8e8', borderRadius: '4px 4px 0 0' }} // Increased height to 300px, changed to contain
                                         />
                                     }
                                     extra={
@@ -202,23 +184,15 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                             Thay đổi
                                         </Button>
                                     }
-                                    style={{
-                                        flex: 1,
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        borderRadius: '8px', // Rounded corners
-                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', // Subtle shadow
-                                    }}
-                                    bodyStyle={{ padding: '16px' }} // Consistent padding
+                                    style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', minHeight: '500px' }} // Increased minHeight to 500px
+                                    bodyStyle={{ padding: '16px' }}
                                 >
                                     <div style={{ flex: 1 }}>
                                         {compareFields.map((field) => (
-                                            <div key={field.key} style={{ marginBottom: '10px' }}>
-                                                <Text strong>{field.label}: </Text>
-                                                <Text>
-                                                    {field.render
-                                                        ? field.render(secondProduct[field.key])
-                                                        : secondProduct[field.key] || 'N/A'}
+                                            <div key={field.key} style={{ marginBottom: '16px' }}>
+                                                <Text strong style={{ fontSize: '16px' }}>{field.label}: </Text>
+                                                <Text style={{ fontSize: '14px', color: '#555' }}>
+                                                    {field.render ? field.render(secondProduct[field.key]) : secondProduct[field.key] || 'N/A'}
                                                 </Text>
                                             </div>
                                         ))}
@@ -230,7 +204,7 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                     <Select
                                         showSearch
                                         placeholder="Tìm và chọn sản phẩm"
-                                        style={{ width: '100%', marginBottom: '10px' }}
+                                        style={{ width: '100%', marginBottom: '10px', borderRadius: '4px', boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)' }}
                                         onChange={(value) => setSelectedProductId(value)}
                                         value={selectedProductId}
                                         filterOption={(input, option) => option.label.toLowerCase().includes(input.toLowerCase())}
@@ -247,7 +221,16 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
                                     <Button
                                         type="primary"
                                         onClick={handleAddToCompare}
-                                        style={{ backgroundColor: '#D8959A', borderColor: '#D8959A', width: '100%' }}>
+                                        style={{
+                                            backgroundColor: '#D8959A',
+                                            borderColor: '#D8959A',
+                                            width: '100%',
+                                            borderRadius: '4px',
+                                            transition: 'background-color 0.3s',
+                                        }}
+                                        onMouseEnter={(e) => (e.target.style.backgroundColor = '#C07A80')}
+                                        onMouseLeave={(e) => (e.target.style.backgroundColor = '#D8959A')}
+                                    >
                                         Thêm
                                     </Button>
                                 </div>
