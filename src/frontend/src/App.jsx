@@ -193,7 +193,7 @@ function App() {
         {
             path: routes.dashboard,
             element: (
-                <ProtectedRoute roles={['Manager', 'Staff']}>
+                <ProtectedRoute roles={['Manager']}>
                     <DashboardPage />
                 </ProtectedRoute>
             ),

@@ -90,10 +90,11 @@ const Login = () => {
                 secure: true,
             });
             if (user) {
-                if (user.role === "Manager") {
+                if (user.role === 'Manager') {
+                    navigate(routes.dashboard);
+                } else if (user.role === 'Staff') {
                     navigate(routes.manageAccount);
-                }
-                else {
+                } else {
                     navigate(routes.home);
                 }
                 toast.success('Login successfully');
