@@ -67,10 +67,10 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
             console.log('Second Product:', productToAdd);
             if (!compareItems.some((item) => item.productId === productToAdd.productId)) {
                 dispatch(addToCompare(productToAdd));
-                toast.success('Đã thêm sản phẩm để so sánh!');
             }
         }
     };
+
 
     const handleChangeProduct = () => {
         setSecondProduct(null);

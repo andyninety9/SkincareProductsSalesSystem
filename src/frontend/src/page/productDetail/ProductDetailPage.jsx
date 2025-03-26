@@ -144,8 +144,6 @@ export default function ProductDetailPage() {
             ...product,
             productId: product.productId ? product.productId.toString() : product.productId,
         }));
-
-        toast.success("Đã thêm vào danh sách so sánh");
     };
 
     const averageRating = calculateAverageRating(reviews);
