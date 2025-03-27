@@ -56,6 +56,7 @@ namespace WebApi.Controllers.Orders
         [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
         public async Task<IActionResult> GetOrders(
     [FromQuery] string? status,
+    [FromQuery] string? keyword,
     [FromQuery] long? customerId,
     [FromQuery] long? eventId,
     [FromQuery] string? fromDate,
@@ -68,7 +69,7 @@ namespace WebApi.Controllers.Orders
             {
                 var paginationParams = new PaginationParams { Page = page, PageSize = pageSize };
 
-                var query = new GetAllOrdersQuery(status, customerId, eventId, fromDate, toDate, paginationParams);
+                var query = new GetAllOrdersQuery(status, keyword, customerId, eventId, fromDate, toDate, paginationParams);
 
                 // Validate request
                 var validator = new GetAllOrdersQueryValidator();
