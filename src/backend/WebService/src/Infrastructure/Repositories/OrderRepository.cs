@@ -24,6 +24,7 @@ namespace Infrastructure.Repositories
 
         public async Task<(IEnumerable<GetAllOrdersResponse> Orders, int TotalCount)> GetAllOrdersByQueryAsync(
             string? status,
+            string? keyword,
             long? customerId,
             long? eventId,
             DateTime? fromDate,
@@ -43,6 +44,11 @@ namespace Infrastructure.Repositories
             if (!string.IsNullOrEmpty(status))
             {
                 query = query.Where(o => o.OrdStatus.OrdStatusName == status);
+            }
+
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(o => o.OrdId.ToString().Contains(keyword) || o.Usr.Email.Contains(keyword));
             }
 
             if (customerId.HasValue)
