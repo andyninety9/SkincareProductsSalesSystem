@@ -67,6 +67,14 @@ namespace Application.Common.Mapper
             CreateMap<RecommendFor, CreateRecommendForResponse>();
             CreateMap<Quiz, GetUserQuizHistoryResponse>();
             CreateMap<GetUserQuizHistoryResponse, Quiz>();
+            CreateMap<User, UserDto>();
+            CreateMap<UserDto, User>();
+            CreateMap<ReturnProductDetailDto, ReturnProduct>();
+            CreateMap<ReturnProduct, ReturnProductDetailDto>();
+            CreateMap<ReturnProductDetail, ReturnProductDetailDto>();
+            CreateMap<ReturnProductDetailDto, ReturnProductDetail>();
+
+
 
             // Mapping cho GetSalesSummaryResponse và các kiểu con
             CreateMap<GetSalesSummaryResponse, GetSalesSummaryDto>();

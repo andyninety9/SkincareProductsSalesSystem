@@ -9,6 +9,7 @@ namespace Domain.Repositories
 {
     public interface IReturnProductDetailRepository : IRepository<ReturnProductDetail>
     {
+        Task<List<ReturnProductDetail>> GetByReturnIdAsync(long returnId, CancellationToken cancellationToken);
         
     }
 }
