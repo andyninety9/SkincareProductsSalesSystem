@@ -12,7 +12,8 @@ const cartSlice = createSlice({
             const item = state.cartItems.find(cartItem => cartItem.productId === action.payload.productId);
             if (item) {
                 item.quantity += action.payload.quantity;
-            } else {
+            } 
+            else {
                 state.cartItems.push({ ...action.payload, quantity: action.payload.quantity });
             }
         },

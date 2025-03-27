@@ -107,7 +107,7 @@ export default function DashboardPage() {
                     />
 
                     {/* Top Selling Products */}
-                    {topSellingProducts.length > 0 && (
+                    {/* {topSellingProducts.length > 0 && ( */}
                         <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
                             <Col xs={24} lg={12}>
                                 <TopSellingProductsChart
@@ -128,7 +128,7 @@ export default function DashboardPage() {
                                 />
                             </Col>
                         </Row>
-                    )}
+                    {/* )} */}
                 </div>
             </div>
         </div>
