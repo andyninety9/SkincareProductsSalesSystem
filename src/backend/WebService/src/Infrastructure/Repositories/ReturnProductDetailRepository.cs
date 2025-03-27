@@ -6,6 +6,7 @@ using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Common;
 using Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -13,6 +14,13 @@ namespace Infrastructure.Repositories
     {
         public ReturnProductDetailRepository(MyDbContext context) : base(context)
         {
+        }
+
+        public Task<List<ReturnProductDetail>> GetByReturnIdAsync(long returnId, CancellationToken cancellationToken)
+        {
+            return _context.ReturnProductDetails
+                .Where(x => x.ReturnId == returnId)
+                .ToListAsync(cancellationToken);
         }
     }
 }
