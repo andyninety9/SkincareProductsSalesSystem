@@ -155,5 +155,36 @@ namespace WebApi.Controllers.Return
 
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_RETURN_LIST_SUCCESS, data = result.Value });
         }
+
+        /// <summary>
+        /// Process return request
+        /// </summary>
+        /// <param name="request">Return request containing return ID and status</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>Returns the status of the return request creation</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/return/process
+        ///     {
+        ///         "returnId": "68167683437861276",
+        ///         "status": 1
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        ///
+        /// Role:
+        /// - Manager
+        /// - Staff
+        /// </remarks>
+        [HttpPost("process")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> ProcessReturn([FromBody] ProcessReturnCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.PROCESS_RETURN_SUCCESS, data = result.Value });
+        }
     }
 }
