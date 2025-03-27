@@ -24,7 +24,7 @@ const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("manage-event")) return "8";
     if (pathname.includes("manage-order")) return "1";
     if (pathname.includes("manage-cancel-order")) return "2";
-    if (pathname.includes("manage-request-product")) return "3";
+    if (pathname.includes("manage-return")) return "3";
     if (pathname.includes("view-comments")) return "4";
     if (pathname.includes("review-comments")) return "5";
     if (pathname.includes("manage-category")) return "11";
@@ -71,6 +71,7 @@ const ManageOrderSidebar = () => {
                                     e.key === "7" ? "/manage-quiz" :
                                         e.key === "12" ? "/manage-skintype" : 
                                             e.key === "5" ? "/dashboard" :
+                                                e.key === "3" ? "/manage-return" :
                                             "/"
         );
     };
@@ -112,7 +113,7 @@ const ManageOrderSidebar = () => {
                 <SubMenu key="sub1" icon={<ContainerOutlined />} title="Manage Orders">
                     <Menu.Item key="1">Manage Order Status</Menu.Item>
                     <Menu.Item key="2">Manage Cancel Order</Menu.Item>
-                    <Menu.Item key="3">Manage Request Product</Menu.Item>
+                    <Menu.Item key="3">Manage Return Order</Menu.Item>
                 </SubMenu>
                 <SubMenu key="sub3" icon={<ShopOutlined />} title="Manage Products">
                     <Menu.Item key="6">Manage Product</Menu.Item>
