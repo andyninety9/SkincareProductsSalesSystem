@@ -44,7 +44,7 @@ export default function CartPage() {
                             style={{ width: '80px', height: '80px', objectFit: 'cover' }}
                         /> */}
 
-                        <img
+                        {/* <img
                             src={record.images?.[0]?.prodImageUrl || 'https://via.placeholder.com/100'}
                             alt={record.productName || 'Product Image'}
                             onError={(e) => {
@@ -52,7 +52,17 @@ export default function CartPage() {
                                 e.target.src = 'https://via.placeholder.com/100';
                             }}
                             style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                        /> */}
+                        <img
+                            src={
+                                typeof record.images?.[0] === 'string'
+                                    ? record.images[0]
+                                    : record.images?.[0]?.prodImageUrl || 'https://via.placeholder.com/100'
+                            }
+                            style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                            alt={record.productName || 'Product Image'}
                         />
+
 
                     </div>
                     <div className="table-col-name-content">
