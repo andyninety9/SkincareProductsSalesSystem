@@ -1,5 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button, Checkbox, InputNumber, Form, List, Image, Spin, Typography, Empty } from 'antd';
+import {
+    Modal,
+    Button,
+    Checkbox,
+    InputNumber,
+    Form,
+    List,
+    Image,
+    Spin,
+    Typography,
+    Empty,
+    Divider,
+    Card,
+    Tag,
+} from 'antd';
 import PropTypes from 'prop-types';
 import api from '../../config/api';
 import { toast } from 'react-hot-toast';
@@ -10,7 +24,47 @@ const ReturnRequestModal = ({ visible, onClose, order, products }) => {
     const [form] = Form.useForm();
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [loading, setLoading] = useState(false);
-    
+    const [pendingReturns, setPendingReturns] = useState([]);
+
+    const handleGetReturnedProducts = async () => {
+        try {
+            setLoading(true);
+
+            if (!order || !order.orderId) {
+                console.warn('No order information available');
+                setLoading(false);
+                return;
+            }
+
+            // Convert orderId to BigInt for consistency (if needed)
+            const orderIdStr = BigInt(order.orderId).toString();
+            const response = await api.get(`return/list?orderId=${orderIdStr}`);
+
+            if (response.data.statusCode === 200) {
+                const returnItems = response.data.data.items || [];
+
+                // Convert IDs to BigInt and filter pending returns
+                const pendingReturnItems = returnItems
+                    .map((item) => ({
+                        ...item,
+                        returnId: BigInt(item.returnId),
+                        orderId: BigInt(item.orderId),
+                        // Preserve the rest of the properties
+                    }))
+                    .filter((item) => item.returnStatus === false);
+
+                setPendingReturns(pendingReturnItems);
+                console.log('Pending return items with BigInt IDs:', pendingReturnItems);
+            } else {
+                toast.error(response.data.message || 'Đã xảy ra lỗi khi tải dữ liệu');
+            }
+        } catch (error) {
+            console.error('Error getting returned products:', error);
+            toast.error('Đã xảy ra lỗi khi tải dữ liệu');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Reset state when modal opens/closes
     useEffect(() => {
@@ -18,6 +72,7 @@ const ReturnRequestModal = ({ visible, onClose, order, products }) => {
             setSelectedProducts([]);
             form.resetFields();
         }
+        handleGetReturnedProducts();
     }, [visible, form]);
 
     const handleProductSelection = (productId, checked) => {
@@ -109,6 +164,23 @@ const ReturnRequestModal = ({ visible, onClose, order, products }) => {
         return null;
     }
 
+    const getAvailableQuantity = (productId) => {
+        const pendingQuantity = pendingReturns.reduce((total, returnItem) => {
+            const matchingProduct = (returnItem.returnProductDetails || []).find(
+                (detail) => detail.productId === productId
+            );
+            return total + (matchingProduct ? matchingProduct.quantity : 0);
+        }, 0);
+
+        // Find the original product to get purchased quantity
+        const originalProduct = products.find((p) => p.productId === productId);
+        if (!originalProduct) return 0;
+
+        // Calculate available quantity for return
+        const availableQuantity = originalProduct.quantity - pendingQuantity;
+        return Math.max(0, availableQuantity);
+    };
+
     return (
         <Modal
             title={<span style={{ color: '#D8959A', fontWeight: 'bold' }}>Yêu Cầu Hoàn Trả</span>}
@@ -130,6 +202,67 @@ const ReturnRequestModal = ({ visible, onClose, order, products }) => {
             ]}
             width={600}>
             <Spin spinning={loading}>
+                {pendingReturns.length > 0 && (
+                    <div style={{ marginBottom: 20 }}>
+                        <Divider orientation="left">
+                            <Text strong>Sản phẩm đang chờ hoàn trả</Text>
+                        </Divider>
+
+                        {pendingReturns.map((returnItem) => (
+                            <Card
+                                key={returnItem.returnId}
+                                size="small"
+                                style={{ marginBottom: 10 }}
+                                title={
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                        }}>
+                                        <span>Mã hoàn trả: {returnItem.returnId.toString()}</span>
+                                        <Tag color="orange">Chờ duyệt</Tag>
+                                    </div>
+                                }>
+                                <Text>Ngày yêu cầu: {returnItem.returnDate}</Text>
+                                <Text style={{ display: 'block' }}>
+                                    Số tiền hoàn trả: đ{returnItem.refundAmount?.toLocaleString()}
+                                </Text>
+
+                                <List
+                                    itemLayout="horizontal"
+                                    dataSource={returnItem.returnProductDetails || []}
+                                    renderItem={(product) => (
+                                        <List.Item style={{ padding: '8px 0' }}>
+                                            <div style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
+                                                <Image
+                                                    src={product.productImage || 'https://via.placeholder.com/50'}
+                                                    alt={product.productName}
+                                                    style={{
+                                                        width: '50px',
+                                                        height: '50px',
+                                                        objectFit: 'cover',
+                                                        marginRight: '12px',
+                                                    }}
+                                                    preview={false}
+                                                    fallback="https://via.placeholder.com/50"
+                                                />
+                                                <div style={{ flex: 1 }}>
+                                                    <div style={{ fontWeight: 'bold' }}>{product.productName}</div>
+                                                    <div style={{ fontSize: '12px', color: '#888' }}>
+                                                        Số lượng: {product.quantity} | Đơn giá: đ
+                                                        {product.sellPrice?.toLocaleString()}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </List.Item>
+                                    )}
+                                />
+                            </Card>
+                        ))}
+                        <Divider />
+                    </div>
+                )}
                 {products && products.length > 0 ? (
                     <Form form={form} layout="vertical">
                         <div style={{ marginBottom: '16px' }}>
@@ -147,6 +280,7 @@ const ReturnRequestModal = ({ visible, onClose, order, products }) => {
                                                 handleProductSelection(product.productId, e.target.checked)
                                             }
                                             style={{ marginRight: '16px' }}
+                                            disabled={getAvailableQuantity(product.productId) <= 0}
                                         />
 
                                         <Image
@@ -181,9 +315,13 @@ const ReturnRequestModal = ({ visible, onClose, order, products }) => {
                                                         if (!value || value <= 0) {
                                                             return Promise.reject('Số lượng phải lớn hơn 0');
                                                         }
-                                                        if (value > product.quantity) {
+
+                                                        const availableQty = getAvailableQuantity(product.productId);
+                                                        if (value > availableQty) {
                                                             return Promise.reject(
-                                                                `Không được vượt quá ${product.quantity}`
+                                                                `Không được vượt quá ${availableQty} (đã trừ ${
+                                                                    product.quantity - availableQty
+                                                                } đang chờ hoàn trả)`
                                                             );
                                                         }
                                                         return Promise.resolve();
@@ -192,8 +330,11 @@ const ReturnRequestModal = ({ visible, onClose, order, products }) => {
                                             ]}>
                                             <InputNumber
                                                 min={1}
-                                                max={product.quantity}
-                                                disabled={!selectedProducts.includes(product.productId)}
+                                                max={getAvailableQuantity(product.productId)}
+                                                disabled={
+                                                    !selectedProducts.includes(product.productId) ||
+                                                    getAvailableQuantity(product.productId) <= 0
+                                                }
                                                 style={{ width: '70px' }}
                                             />
                                         </Form.Item>

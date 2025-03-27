@@ -14,6 +14,7 @@ namespace Application.Features.Orders.Queries
 {
     public sealed record GetAllOrdersQuery(
         string? Status,
+        string? Keyword,
         long? CustomerId,
         long? EventId,
         string? FromDate,
@@ -49,6 +50,7 @@ namespace Application.Features.Orders.Queries
 
                 var (orders, totalCount) = await _orderRepository.GetAllOrdersByQueryAsync(
                     request.Status,
+                    request.Keyword,
                     request.CustomerId,
                     request.EventId,
                     fromDate,

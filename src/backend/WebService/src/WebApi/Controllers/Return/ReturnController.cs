@@ -97,7 +97,7 @@ namespace WebApi.Controllers.Return
         [HttpGet("list")]
         [Authorize]
         [AuthorizeRole(RoleAccountEnum.Customer)]
-        public async Task<IActionResult> GetReturnList([FromQuery] string? keyword, [FromQuery] int page = 1,
+        public async Task<IActionResult> GetReturnList([FromQuery] string? orderId, [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
         {
             if (User == null)
@@ -116,11 +116,75 @@ namespace WebApi.Controllers.Return
             {
                 return Unauthorized(new { statusCode = 401, message = IConstantMessage.INTERNAL_SERVER_ERROR });
             }
+            long orderIdLong = 0;
+            if (!string.IsNullOrEmpty(orderId))
+            {
+                long.TryParse(orderId, out orderIdLong);
+            }
 
-            var result = await _mediator.Send(new GetAllReturnByCustomerCommand(userId, keyword, new PaginationParams { Page = page, PageSize = pageSize }), cancellationToken);
+            var result = await _mediator.Send(new GetAllReturnByCustomerCommand(userId, orderIdLong, new PaginationParams { Page = page, PageSize = pageSize }), cancellationToken);
 
-           
+
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_RETURN_LIST_SUCCESS, data = result.Value });
+        }
+
+        /// <summary>
+        /// Get All Return Request For Manager
+        /// </summary>
+        /// <param name="keyword">Keyword to search</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Number of items per page</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>Returns the list of return requests</returns>
+        /// <remarks>
+        /// Sample request:
+        ///     GET /api/return/manager/list?<paramref name="keyword"/>=<paramref name="page"/>=<paramref name="pageSize"/>
+        ///         Headers:
+        ///         - Authorization: Bearer {token}
+        ///         Role:
+        ///         - Manager
+        ///         - Staff
+        /// </remarks>
+        [HttpGet("all")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> GetAllReturnRequest([FromQuery] string? keyword, [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        {
+            var result = await _mediator.Send(new GetAllReturnRequestQueryManager(keyword, new PaginationParams { Page = page, PageSize = pageSize }), cancellationToken);
+
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_RETURN_LIST_SUCCESS, data = result.Value });
+        }
+
+        /// <summary>
+        /// Process return request
+        /// </summary>
+        /// <param name="request">Return request containing return ID and status</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>Returns the status of the return request creation</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/return/process
+        ///     {
+        ///         "returnId": "68167683437861276",
+        ///         "status": 1
+        ///     }
+        ///
+        /// Headers:
+        /// - Authorization: Bearer {token}
+        ///
+        /// Role:
+        /// - Manager
+        /// - Staff
+        /// </remarks>
+        [HttpPost("process")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager, RoleAccountEnum.Staff)]
+        public async Task<IActionResult> ProcessReturn([FromBody] ProcessReturnCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.PROCESS_RETURN_SUCCESS, data = result.Value });
         }
     }
 }

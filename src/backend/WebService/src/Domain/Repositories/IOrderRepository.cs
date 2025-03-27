@@ -20,6 +20,7 @@ namespace Domain.Repositories
             CancellationToken cancellationToken);
         Task<(IEnumerable<GetAllOrdersResponse> Orders, int TotalCount)> GetAllOrdersByQueryAsync(
             string? status,
+            string? keyword,
             long? customerId,
             long? eventId,
             DateTime? fromDate,
