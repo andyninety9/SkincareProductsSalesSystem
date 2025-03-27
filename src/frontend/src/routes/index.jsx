@@ -39,4 +39,5 @@ export const routes = {
     orderSuccess: '/order-success',
     resultQuizHistory: '/result-quiz-history',
     orderHistory: '/order-history/:orderId',
+    manageReturn: '/manage-return'
 };
