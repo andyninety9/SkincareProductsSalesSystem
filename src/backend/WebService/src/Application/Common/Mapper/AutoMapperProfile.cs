@@ -73,6 +73,8 @@ namespace Application.Common.Mapper
             CreateMap<ReturnProduct, ReturnProductDetailDto>();
             CreateMap<ReturnProductDetail, ReturnProductDetailDto>();
             CreateMap<ReturnProductDetailDto, ReturnProductDetail>();
+            CreateMap<Product, ReturnProductDetailDto>();
+            CreateMap<ReturnProductDetailDto, Product>();
 
 
 

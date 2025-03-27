@@ -24,17 +24,23 @@ namespace Application.Features.Return.Queries
 
         private readonly IUserRepository _userRepository;
         private readonly IReturnProductDetailRepository _returnProductDetailRepository;
+        private readonly IProductRepository _productRepository;
+        private readonly IProductImageRepository _productImageRepository;
 
         public GetAllReturnRequestForManagerQueryHandler(
+            IProductRepository productRepository,
             IReturnProductRepository returnProductRepository,
             IUserRepository userRepository,
             IReturnProductDetailRepository returnProductDetailRepository,
+            IProductImageRepository productImageRepository,
             IMapper mapper,
             ILogger<GetAllReturnRequestForManagerQueryHandler> logger)
         {
             _userRepository = userRepository;
             _returnProductRepository = returnProductRepository;
             _returnProductDetailRepository = returnProductDetailRepository;
+            _productRepository = productRepository;
+            _productImageRepository = productImageRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -62,7 +68,24 @@ namespace Application.Features.Return.Queries
                         {
                             foreach (var detail in listReturnDetail)
                             {
-                                returnRequest.ReturnProducts.Add(_mapper.Map<ReturnProductDetailDto>(detail));
+                                long productId = detail.ProdIdre;
+                                var product = await _productRepository.GetByIdAsync(productId, cancellationToken);
+                                ReturnProductDetailDto tmp = new ReturnProductDetailDto();
+                                tmp = _mapper.Map<ReturnProductDetailDto>(product);
+                                tmp.Quantity = detail.ReturnQuantity;
+                                var productImage = await _productImageRepository.GetImagesByProductIdAsync(productId, cancellationToken);
+                                if (productImage != null && productImage.Any())
+                                {
+                                    tmp.ProductImage = productImage.First().ProdImageUrl;
+
+                                }
+                                else
+                                {
+                                    tmp.ProductImage = "https://image.cocoonvietnam.com/uploads/z5322301407365_da64ee4ef34e8f8c85194a8b3967f354_db4782bf9d.jpg";
+                                }
+
+                                returnRequest.ReturnProducts.Add(tmp);
+                               
                             }
                         }
                         returnRequests.Add(returnRequest);
