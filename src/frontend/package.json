@@ -1,7 +1,10 @@
 {
     "name": "mavid-fe",
     "private": true,
-    "version": "0.0.0",
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "Mavid Frontend",
+    "author": "Mavid Team",
     "type": "module",
     "scripts": {
         "dev": "vite",
