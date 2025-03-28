@@ -2,7 +2,7 @@
 import React from 'react';
 import { Modal, Typography, Divider, Row, Col, Card, Progress, Image, Spin, Empty } from 'antd';
 import { CalendarOutlined, SkinOutlined, InfoCircleOutlined } from '@ant-design/icons';
-
+import { useNavigate } from 'react-router-dom';
 const { Title, Paragraph, Text } = Typography;
 
 const QuizDetailModal = ({ visible, onClose, quizData, loading }) => {
@@ -13,7 +13,7 @@ const QuizDetailModal = ({ visible, onClose, quizData, loading }) => {
             </Modal>
         );
     }
-
+    const navigate = useNavigate();
     // Render skin scores with Progress bars
     const renderSkinScores = () => {
         if (!quizData || !quizData.resultScore) return null;
@@ -81,14 +81,16 @@ const QuizDetailModal = ({ visible, onClose, quizData, loading }) => {
                         <Card
                             key={product.productId}
                             hoverable
-                            style={{ width: 160, flexShrink: 0 }}
+                            style={{ width: 200, flexShrink: 0 }}
+                            onClick={() => navigate(`/product/${product.productId}`)}
                             cover={
                                 <Image
                                     alt={product.productName}
                                     src={product.productImages?.[0]?.prodImageUrl || 'https://via.placeholder.com/160'}
-                                    style={{ height: 160, objectFit: 'cover' }}
+                                    style={{ height: 200, objectFit: 'cover' }}
                                 />
-                            }>
+                            }
+                            >
                             <Card.Meta
                                 title={product.productName}
                                 description={
