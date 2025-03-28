@@ -1243,7 +1243,16 @@ export default function CheckOutPage() {
                                 <div key={index} className="confirm-receipt-items-row">
                                     <div className="confirm-receipt-items-row-part1">
                                         <div className="confirm-receipt-items-row-part1-img">
-                                            <img src={item.images[0]} alt="" />
+                                            <img
+                                                src={
+                                                    typeof item.images[0] === 'string'
+                                                        ? item.images[0]
+                                                        : item.images[0]?.prodImageUrl || 'https://via.placeholder.com/80'
+                                                }
+                                                alt={item.productName}
+                                                style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }}
+                                            />
+
                                         </div>
                                         <div className="confirm-receipt-items-row-part1-name">
                                             <p>{item.productName}</p>
@@ -1265,9 +1274,8 @@ export default function CheckOutPage() {
                                         .map((voucher, index) => (
                                             <div
                                                 key={index}
-                                                className={`voucher-card ${
-                                                    selectedVoucher === voucher.voucherId ? 'selected' : ''
-                                                }`}
+                                                className={`voucher-card ${selectedVoucher === voucher.voucherId ? 'selected' : ''
+                                                    }`}
                                                 onClick={() => {
                                                     setSelectedVoucher(voucher.voucherId);
                                                     setVoucherCode(voucher.voucherCode);
