@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain.Common;
+using Domain.DTOs;
 using Domain.Entities;
 
 namespace Domain.Repositories
@@ -30,6 +31,13 @@ namespace Domain.Repositories
         public IQueryable<User> SearchUsers(string? keyword = null, int? page = null, int? limit = null,
             string? gender = null, int? status = null, int? role = null,
             DateTime? fromDate = null, DateTime? toDate = null);
+
+        public Task<TotalUserDto> GetTotalUserAsync(DateTime fromDate, DateTime toDate,CancellationToken cancellationToken);
+        public Task<NewUserCountDto> GetNewUserCountAsync(DateTime fromDate, DateTime toDate,CancellationToken cancellationToken);
+        public Task<ActiveUserCountDto> GetActiveUserCountAsync(DateTime fromDate, DateTime toDate,CancellationToken cancellationToken);
+        public Task<UserGrowthRateDto> GetUserGrowthRateAsync(DateTime fromDate, DateTime toDate,CancellationToken cancellationToken);
+        public Task<UserByAgeGroupDto> GetUserByAgeGroupAsync(CancellationToken cancellationToken);
+        public Task<ListUserByLocationDto> GetUserByLocationAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken);
 
 
     }
