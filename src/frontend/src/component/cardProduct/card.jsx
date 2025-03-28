@@ -239,7 +239,12 @@ export default function CardProduct({ product, isProductDetail }) {
                     </Button>
                 </div>
                 <div className="cardProduct-content-left">
-                    <Rate value={product?.totalRating || 0} disabled className="cardProduct-content-left-rate" />
+                <Rate
+    value={product?.reviewCount > 0 ? product.totalRating : 0}
+    disabled
+    className="cardProduct-content-left-rate"
+/>
+
                     <p
                         style={{
                             fontWeight: 700,
