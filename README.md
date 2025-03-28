@@ -1,4 +1,7 @@
-# Skin Care Products Sales System
+<h1>Skin Care Products Sales System</h1>
+
+_**Mai Anh Duy<sup>(1)</sup>, Do Nguyen My Anh<sup>(2)</sup>, Nguyen Vu Thao Vi<sup>(3)</sup>**_
+_<sup>†</sup> FPT University, Vietnam_
 
 <div align="center">
 <img src="https://img.shields.io/badge/Version-1.0.0-blue.svg" alt="Version"> 
