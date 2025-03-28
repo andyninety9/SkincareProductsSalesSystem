@@ -230,14 +230,31 @@ export default function CardProduct({ product, isProductDetail }) {
             />
 
             <div className="cardProduct-content">
-                <div className="buttons-container">
-                    <button className="buy-now-btn" onClick={handleAddToCart}>
-                        Thêm vào giỏ hàng
-                    </button>
-                    <Button className="buy-now-immediate" type="primary" onClick={handleBuyNow}>
-                        Mua ngay
-                    </Button>
-                </div>
+            <div className="buttons-container">
+    <button
+        className="buy-now-btn"
+        onClick={handleAddToCart}
+        disabled={product?.stocks === 0}
+        style={{
+            cursor: product?.stocks === 0 ? 'not-allowed' : 'pointer',
+            opacity: product?.stocks === 0 ? 0.6 : 1,
+        }}>
+        Thêm vào giỏ hàng
+    </button>
+
+    <Button
+        className="buy-now-immediate"
+        type="primary"
+        onClick={handleBuyNow}
+        disabled={product?.stocks === 0}
+        style={{
+            cursor: product?.stocks === 0 ? 'not-allowed' : 'pointer',
+            opacity: product?.stocks === 0 ? 0.6 : 1,
+        }}>
+        Mua ngay
+    </Button>
+</div>
+
                 <div className="cardProduct-content-left">
                 <Rate
     value={product?.reviewCount > 0 ? product.totalRating : 0}
