@@ -77,7 +77,7 @@ function App() {
         {
             path: routes.manageOrder,
             element: (
-                <ProtectedRoute roles={['admin', 'staff']}>
+                <ProtectedRoute roles={['Manager', 'Staff']}>
                     <ManageOrderPage />
                 </ProtectedRoute>
             ),
