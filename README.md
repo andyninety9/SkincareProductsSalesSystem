@@ -1,4 +1,5 @@
 # Skin Care Products Sales System
+
 <div align="center">
 <img src="https://img.shields.io/badge/Version-1.0.0-blue.svg" alt="Version"> 
 <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
@@ -62,6 +63,18 @@ The system follows a **microservices-based architecture** with the following com
 -   **Authentication:** Google OAuth
 -   **Payment Gateway:** VNPay
 -   **Delivery Service:** GHN API
+
+<div align="center">
+  <img src="./assets/images/system_architecture.jpg" alt="System Architecture Diagram" width="800"/>
+  <p><em>Figure 1: High-level architecture diagram showing the microservices setup</em></p>
+</div>
+
+### Context Diagram
+
+<div align="center">
+  <img src="./assets/images/context_diagram.jpg" alt="Data Flow Diagram" width="700"/>
+  <p><em>Figure 2: Context diagram</em></p>
+</div>
 
 ## Docker Compose Instructions
 
