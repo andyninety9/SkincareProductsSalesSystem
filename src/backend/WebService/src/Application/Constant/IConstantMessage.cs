@@ -104,6 +104,7 @@ namespace Application.Constant
         //Report related messages
         public static string GET_SALES_SUMMARY_SUCCESS = "Sales summary report retrieved successfully.";
         public static string PROCESS_RETURN_SUCCESS = "Return request processed successfully.";
+        public static string GET_USER_SUMMARY_SUCCESS = "User summary report retrieved successfully.";
 
     }
 }

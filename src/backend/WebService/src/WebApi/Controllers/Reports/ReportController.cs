@@ -77,6 +77,26 @@ namespace WebApi.Controllers.Reports
             var result = await _mediator.Send(request, cancellationToken);
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_SALES_SUMMARY_SUCCESS, data = result.Value });
         }
-        
+
+        /// <summary>
+        /// Get user overview report
+        /// </summary>
+        /// <param name="request">User overview report details.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>User overview report data.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/Report/user-overview?fromtDate=2021-01-01&toDate=2021-12-31
+        ///     
+        /// </remarks>
+        [HttpGet("user-overview")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
+        public async Task<IActionResult> GetUserOverview([FromQuery] GetUserOverviewQuery request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_USER_SUMMARY_SUCCESS, data = result.Value });
+        }
     }
 }
