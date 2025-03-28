@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Statistic, Table, DatePicker, Button, Progress, Spin, Badge } from 'antd';
-import { UserOutlined, TeamOutlined, ShoppingOutlined, RiseOutlined, EyeOutlined } from '@ant-design/icons';
+import {
+    UserOutlined,
+    TeamOutlined,
+    ShoppingOutlined,
+    RiseOutlined,
+    EyeOutlined,
+    CalendarOutlined,
+} from '@ant-design/icons';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import axios from 'axios';
 import api from '../../config/api';
+import moment from 'moment';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -22,12 +29,54 @@ const UserStatisticsTab = () => {
         topSpendingUsers: [],
     });
     const [onlineVisitors, setOnlineVisitors] = useState(0);
+    const today = moment();
+    const tenDaysAgo = moment().subtract(10, 'days');
+    const defaultDateRange = [tenDaysAgo, today];
 
     const [dateRange, setDateRange] = useState([null, null]);
+    const [summaryDateRange, setSummaryDateRange] = useState([null, null]);
+    const [locationDateRange, setLocationDateRange] = useState([null, null]);
+    const [summaryLoading, setSummaryLoading] = useState(false);
+    const [locationLoading, setLocationLoading] = useState(false);
 
     useEffect(() => {
-        // This would be replaced with your actual API call
-        fetchUserData();
+        // Initial data loading
+        setLoading(true);
+        const fetchInitialData = async () => {
+            try {
+                const dateParams = buildDateRangeParams(summaryDateRange);
+                const summaryResponse = await api.get(`report/user-overview?${dateParams}`);
+
+                if (summaryResponse.data && summaryResponse.data.data) {
+                    setUserData({
+                        totalUsers: summaryResponse.data.data.totalUser || 0,
+                        newUsers: summaryResponse.data.data.newUsers || 0,
+                        activeUsers: summaryResponse.data.data.activeUsers || 0,
+                        userGrowthRate: summaryResponse.data.data.userGrowthRate || 0,
+                        usersByAge: [],
+                        usersByLocation: [],
+                        topSpendingUsers: [],
+                    });
+                }
+            } catch (err) {
+                console.log(err);
+                setUserData({
+                    totalUsers: 0,
+                    newUsers: 0,
+                    activeUsers: 0,
+                    userGrowthRate: 0,
+                    usersByAge: [],
+                    usersByLocation: [],
+                    topSpendingUsers: [],
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchInitialData();
+        handleGetUserByAge();
+        handleGetUserByLocation();
         handleFetchVisitorsData();
     }, []);
 
@@ -42,49 +91,129 @@ const UserStatisticsTab = () => {
             console.log(err);
         }
     };
+    const formatDateParam = (date) => {
+        if (!date) return null;
+        return date.format('YYYY-MM-DD');
+    };
+    const buildDateRangeParams = (dateRange) => {
+        if (!dateRange || !dateRange[0] || !dateRange[1]) {
+            // Default to 10 days ago if no date range provided
+            const today = moment().format('YYYY-MM-DD');
+            const tenDaysAgo = moment().subtract(10, 'days').format('YYYY-MM-DD');
+            return `fromDate=${tenDaysAgo}&toDate=${today}`;
+        }
 
-    const fetchUserData = async () => {
-        setLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            // Sample data - replace with actual API response
-            setUserData({
-                totalUsers: 2458,
-                newUsers: 126,
-                activeUsers: 1854,
-                userGrowthRate: 8.7,
-                usersByAge: [
-                    { age: '18-24', count: 425 },
-                    { age: '25-34', count: 890 },
-                    { age: '35-44', count: 654 },
-                    { age: '45-54', count: 321 },
-                    { age: '55+', count: 168 },
-                ],
-                usersByLocation: [
-                    { city: 'Hà Nội', count: 845 },
-                    { city: 'Hồ Chí Minh', count: 921 },
-                    { city: 'Đà Nẵng', count: 354 },
-                    { city: 'Cần Thơ', count: 178 },
-                    { city: 'Khác', count: 160 },
-                ],
-                topSpendingUsers: [
-                    { id: 1, name: 'Nguyễn Văn A', totalSpent: 15800000, orderCount: 12 },
-                    { id: 2, name: 'Trần Thị B', totalSpent: 12450000, orderCount: 9 },
-                    { id: 3, name: 'Lê Văn C', totalSpent: 11200000, orderCount: 7 },
-                    { id: 4, name: 'Phạm Thị D', totalSpent: 9800000, orderCount: 8 },
-                    { id: 5, name: 'Hoàng Văn E', totalSpent: 8500000, orderCount: 6 },
-                ],
-            });
-            setLoading(false);
-        }, 1500);
+        const fromDate = formatDateParam(dateRange[0]);
+        const toDate = formatDateParam(dateRange[1]);
+        return `fromDate=${fromDate}&toDate=${toDate}`;
+    };
+
+    const handleGetUserSummary = async () => {
+        setSummaryLoading(true);
+        try {
+            // This uses summaryDateRange specifically
+            const dateParams = buildDateRangeParams(summaryDateRange);
+            const response = await api.get(`report/user-overview?${dateParams}`);
+            console.log(response);
+
+            if (response.data && response.data.data) {
+                // Update userData state with the API data
+                setUserData((prevData) => ({
+                    ...prevData,
+                    totalUsers: response.data.data.totalUser || prevData.totalUsers,
+                    newUsers: response.data.data.newUsers || prevData.newUsers,
+                    activeUsers: response.data.data.activeUsers || prevData.activeUsers,
+                    userGrowthRate: response.data.data.userGrowthRate || prevData.userGrowthRate,
+                }));
+            }
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setSummaryLoading(false);
+        }
+    };
+
+    const handleGetUserByAge = async () => {
+        try {
+            const response = await api.get('report/user-by-age-groups');
+            console.log(response);
+
+            if (response.data && response.data.data && response.data.data.userByAgeGroup) {
+                const ageGroups = response.data.data.userByAgeGroup.ageGroups || [];
+
+                // Transform the API data format to match our chart's expected format
+                const formattedAgeGroups = ageGroups.map((item) => ({
+                    age: item.ageGroup,
+                    count: item.count,
+                }));
+
+                // Update userData with the age groups
+                setUserData((prevData) => ({
+                    ...prevData,
+                    usersByAge: formattedAgeGroups,
+                }));
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    const handleGetUserByLocation = async () => {
+        setLocationLoading(true);
+        try {
+            const dateParams = buildDateRangeParams(locationDateRange);
+            const response = await api.get(`report/user-by-location?${dateParams}`);
+            console.log(response);
+
+            if (response.data && response.data.data && response.data.data.userByLocationGroup) {
+                const locationData = response.data.data.userByLocationGroup.userByLocation || [];
+
+                // Transform the API data format to match our chart's expected format
+                const formattedLocationData = locationData.map((item) => ({
+                    city: item.location,
+                    count: item.userCount,
+                }));
+
+                // Update userData with the location data
+                setUserData((prevData) => ({
+                    ...prevData,
+                    usersByLocation: formattedLocationData,
+                }));
+            }
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setLocationLoading(false);
+        }
     };
 
     const handleDateRangeChange = (dates) => {
         setDateRange(dates);
     };
 
-    const handleApplyDateRange = () => {
-        fetchUserData();
+    const handleApplyDateRange = async () => {
+        setLoading(true);
+        try {
+            const dateParams = buildDateRangeParams(dateRange);
+            const summaryResponse = await api.get(`report/user-overview?${dateParams}`);
+
+            if (summaryResponse.data && summaryResponse.data.data) {
+                setUserData({
+                    totalUsers: summaryResponse.data.data.totalUser || 0,
+                    newUsers: summaryResponse.data.data.newUsers || 0,
+                    activeUsers: summaryResponse.data.data.activeUsers || 0,
+                    userGrowthRate: summaryResponse.data.data.userGrowthRate || 0,
+                    usersByAge: userData.usersByAge,
+                    usersByLocation: userData.usersByLocation,
+                    topSpendingUsers: userData.topSpendingUsers,
+                });
+            }
+        } catch (err) {
+            console.log(err);
+            // Keeping existing data on error instead of resetting everything
+        } finally {
+            setLoading(false);
+        }
     };
 
     const formatCurrency = (value) => {
@@ -162,78 +291,96 @@ const UserStatisticsTab = () => {
 
     return (
         <div>
-            {/* Date Range Filter */}
-            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Card style={{ marginRight: '16px' }}>
-                    <Statistic
-                        title="Online Visitors Now"
-                        value={onlineVisitors}
-                        prefix={<Badge status="success" />}
-                        valueStyle={{ color: '#52c41a' }}
-                        suffix={<EyeOutlined style={{ fontSize: '16px' }} />}
-                    />
-                </Card>
-                <div>
-                    <RangePicker value={dateRange} onChange={handleDateRangeChange} style={{ marginRight: '16px' }} />
-                    <Button type="primary" onClick={handleApplyDateRange}>
-                        Apply
-                    </Button>
-                </div>
-            </div>
+            {/* Online Visitors Card */}
+            <Card style={{ marginBottom: '16px' }}>
+                <Statistic
+                    title="Online Visitors Now"
+                    value={onlineVisitors}
+                    prefix={<Badge status="success" />}
+                    valueStyle={{ color: '#52c41a' }}
+                    suffix={<EyeOutlined style={{ fontSize: '16px' }} />}
+                />
+            </Card>
 
-            {/* User Summary Cards */}
-            <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card>
-                        <Statistic
-                            title="Total Users"
-                            value={userData.totalUsers}
-                            prefix={<TeamOutlined />}
-                            valueStyle={{ color: '#3f8600' }}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card>
-                        <Statistic
-                            title="New Users (This Month)"
-                            value={userData.newUsers}
-                            prefix={<UserOutlined />}
-                            valueStyle={{ color: '#1890ff' }}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card>
-                        <Statistic
-                            title="Active Users"
-                            value={userData.activeUsers}
-                            prefix={<ShoppingOutlined />}
-                            valueStyle={{ color: '#722ed1' }}
-                            suffix={
-                                <div style={{ fontSize: '14px', color: '#888' }}>
-                                    ({Math.round((userData.activeUsers / userData.totalUsers) * 100)}%)
-                                </div>
-                            }
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card>
-                        <Statistic
-                            title="User Growth Rate"
-                            value={userData.userGrowthRate}
-                            precision={1}
-                            prefix={<RiseOutlined />}
-                            suffix="%"
-                            valueStyle={{ color: '#cf1322' }}
-                        />
-                    </Card>
-                </Col>
-            </Row>
+            {/* User Summary Section with Date Picker */}
+            <Card
+                title={
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>User Summary</span>
+                        <div>
+                            <RangePicker
+                                value={summaryDateRange}
+                                onChange={(dates) => setSummaryDateRange(dates)}
+                                style={{ marginRight: '8px' }}
+                            />
+                            <Button
+                                type="primary"
+                                onClick={handleGetUserSummary}
+                                loading={summaryLoading}
+                                icon={<CalendarOutlined />}>
+                                Apply
+                            </Button>
+                        </div>
+                    </div>
+                }
+                style={{ marginBottom: '16px' }}>
+                <Row gutter={[16, 16]}>
+                    <Col xs={24} sm={12} lg={6}>
+                        <Card>
+                            <Statistic
+                                title="Total Users"
+                                value={userData.totalUsers}
+                                prefix={<TeamOutlined />}
+                                valueStyle={{ color: '#3f8600' }}
+                            />
+                        </Card>
+                    </Col>
+                    <Col xs={24} sm={12} lg={6}>
+                        <Card>
+                            <Statistic
+                                title="New Users (This Month)"
+                                value={userData.newUsers}
+                                prefix={<UserOutlined />}
+                                valueStyle={{ color: '#1890ff' }}
+                            />
+                        </Card>
+                    </Col>
+                    <Col xs={24} sm={12} lg={6}>
+                        <Card>
+                            <Statistic
+                                title="Active Users"
+                                value={userData.activeUsers}
+                                prefix={<ShoppingOutlined />}
+                                valueStyle={{ color: '#722ed1' }}
+                                suffix={
+                                    <div style={{ fontSize: '14px', color: '#888' }}>
+                                        (
+                                        {userData.totalUsers > 0
+                                            ? Math.round((userData.activeUsers / userData.totalUsers) * 100)
+                                            : 0}
+                                        %)
+                                    </div>
+                                }
+                            />
+                        </Card>
+                    </Col>
+                    <Col xs={24} sm={12} lg={6}>
+                        <Card>
+                            <Statistic
+                                title="User Growth Rate"
+                                value={userData.userGrowthRate}
+                                precision={1}
+                                prefix={<RiseOutlined />}
+                                suffix="%"
+                                valueStyle={{ color: '#cf1322' }}
+                            />
+                        </Card>
+                    </Col>
+                </Row>
+            </Card>
 
             {/* User Demographics */}
-            <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+            <Row gutter={[16, 16]}>
                 <Col xs={24} lg={12}>
                     <Card title="Users by Age Group">
                         <Bar
@@ -251,7 +398,26 @@ const UserStatisticsTab = () => {
                     </Card>
                 </Col>
                 <Col xs={24} lg={12}>
-                    <Card title="Users by Location">
+                    <Card
+                        title={
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span>Users by Location</span>
+                                <div>
+                                    <RangePicker
+                                        value={locationDateRange}
+                                        onChange={(dates) => setLocationDateRange(dates)}
+                                        style={{ marginRight: '8px' }}
+                                    />
+                                    <Button
+                                        type="primary"
+                                        onClick={handleGetUserByLocation}
+                                        loading={locationLoading}
+                                        icon={<CalendarOutlined />}>
+                                        Apply
+                                    </Button>
+                                </div>
+                            </div>
+                        }>
                         <Bar
                             data={locationChartData}
                             options={{
