@@ -57,31 +57,31 @@ const EventPage = () => {
                     <h3
                         className="text-white fw-bold"
                         style={{ fontSize: '40px', fontFamily: "'Prata', serif", marginTop: '10px' }}>
-                        Ra mắt Revision Skincare®
+                        Ra mắt Mavid Skincare®
                     </h3>
                 </div>
             </div>
 
             <div className="container text-center mt-5">
                 <h1 className="" style={{ fontSize: '35px', fontFamily: "'Prata', serif", color: '#A76A6E' }}>
-                    Sự kiện ra mắt Revision Skincare® tại thị trường Việt Nam
+                    Sự kiện ra mắt Mavid Skincare® tại thị trường Việt Nam
                 </h1>
                 {/* <img src={event1} alt="Event" className="img-fluid mt-3 mb-3" style={{ borderRadius: '10px', width:"700PX" }} /> */}
 
             <Image src={event} alt="Event" width="100" style={{ borderRadius: '10px' }} preview />
         
                 <p className="text-muted">
-                    - Revision Skincare -<br />
+                    - Mavid Skincare -<br />
                     22/03/2024
                 </p>
                 <p className="text-start" style={{ fontSize: '18px' }}>
-                    <span className="text-danger">Revision Skincare® </span>
-                    trân trọng cảm ơn BS.CKI Phạm Nguyễn Khánh Ly đã đến tham dự và đồng hành cùng chúng tôi trong sự
-                    kiện ra mắt Revision Skincare® tại thị trường Việt Nam vào ngày 20.03 vừa qua.
+                    <span className="text-danger">Mavid Skincare® </span>
+                    trân trọng cảm ơn BS.CKI Mai Anh Duy đã đến tham dự và đồng hành cùng chúng tôi trong sự
+                    kiện ra mắt Mavid Skincare® tại thị trường Việt Nam vào ngày 20.03 vừa qua.
                 </p>
                 <p className="text-start" style={{ fontSize: '18px' }}>
-                    Trong khuôn khổ sự kiện, BS.CKI Phạm Nguyễn Khánh Ly đã có bài chia sẻ hết sức thiết thực về công
-                    nghệ trẻ hóa đa chiều DEJ Technology và kinh nghiệm ứng dụng sản phẩm của Revision Skincare® trong
+                    Trong khuôn khổ sự kiện, BS.CKI Đỗ Nguyễn Mỹ Anh đã có bài chia sẻ hết sức thiết thực về công
+                    nghệ trẻ hóa đa chiều DEJ Technology và kinh nghiệm ứng dụng sản phẩm của Mavid Skincare® trong
                     các phác đồ điều trị tại Le’ Bali.
                 </p>
                 <Image
@@ -93,7 +93,7 @@ const EventPage = () => {
                     preview
                 />
                 <p className="text-muted">
-                    - Revision Skincare -<br />
+                    - Mavid Skincare -<br />
                     22/03/2024
                 </p>
             </div>
@@ -115,10 +115,10 @@ const EventPage = () => {
 
             <div className="container text-center mt-5 mb-5">
                 <p className="text-start" style={{ fontSize: '18px' }}>
-                    <span className="text-danger">Revision Skincare® </span>
-                    hy vọng sẽ tiếp tục được đồng hành cùng BS.CKI Phạm Nguyễn Khánh Ly trong những sự kiện tiếp theo
-                    của Revision. Hãy cùng ngắm nhìn những khoảnh khắc đáng nhớ của BS.CKI Phạm Nguyễn Khánh Ly tại sự
-                    kiện ra mắt Revision Skincare® nhé !
+                    <span className="text-danger">Mavid Skincare® </span>
+                    hy vọng sẽ tiếp tục được đồng hành cùng BS.CKI Mai Anh Duy trong những sự kiện tiếp theo
+                    của Mavid. Hãy cùng ngắm nhìn những khoảnh khắc đáng nhớ của BS.CKI Mai Anh Duy tại sự
+                    kiện ra mắt Mavid Skincare® nhé !
                 </p>
             </div>
 
@@ -131,7 +131,7 @@ const EventPage = () => {
                         </Typography>
 
                         <Typography variant="body1" sx={{ mb: 1 }}>
-                            REVISION SKINCARE® | KHOA HỌC SÁNG TẠO – TRẺ HÓA ĐA CHIỀU
+                            Mavid SKINCARE® | KHOA HỌC SÁNG TẠO – TRẺ HÓA ĐA CHIỀU
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 1 }}>
                             Hotline: 0902 805 286
@@ -155,7 +155,7 @@ const EventPage = () => {
                 <Grid item xs={12} md={5} container justifyContent="center">
                     <img
                         src={event4}
-                        alt="Revision Skincare"
+                        alt="Mavid Skincare"
                         style={{
                             width: '60%',
                             height: 'auto',
