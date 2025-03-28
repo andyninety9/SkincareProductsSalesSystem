@@ -32,12 +32,14 @@ namespace Domain.Repositories
             string? gender = null, int? status = null, int? role = null,
             DateTime? fromDate = null, DateTime? toDate = null);
 
-        public Task<TotalUserDto> GetTotalUserAsync(DateTime fromDate, DateTime toDate,CancellationToken cancellationToken);
-        public Task<NewUserCountDto> GetNewUserCountAsync(DateTime fromDate, DateTime toDate,CancellationToken cancellationToken);
-        public Task<ActiveUserCountDto> GetActiveUserCountAsync(DateTime fromDate, DateTime toDate,CancellationToken cancellationToken);
-        public Task<UserGrowthRateDto> GetUserGrowthRateAsync(DateTime fromDate, DateTime toDate,CancellationToken cancellationToken);
+        public Task<TotalUserDto> GetTotalUserAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken);
+        public Task<NewUserCountDto> GetNewUserCountAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken);
+        public Task<ActiveUserCountDto> GetActiveUserCountAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken);
+        public Task<UserGrowthRateDto> GetUserGrowthRateAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken);
         public Task<UserByAgeGroupDto> GetUserByAgeGroupAsync(CancellationToken cancellationToken);
         public Task<ListUserByLocationDto> GetUserByLocationAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken);
+        
+        public Task<ListTopSpendingUserDto> GetTopSpendingUsersAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken);
 
 
     }

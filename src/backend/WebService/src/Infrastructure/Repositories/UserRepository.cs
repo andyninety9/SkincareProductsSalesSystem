@@ -70,6 +70,49 @@ namespace Infrastructure.Repositories
             return Task.FromResult(new NewUserCountDto { NewUserCount = newUserCount });
         }
 
+        public Task<ListTopSpendingUserDto> GetTopSpendingUsersAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var topSpendingUsers = _context.Users
+                    .Join(
+                        _context.Orders,
+                        user => user.UsrId,
+                        order => order.UsrId,
+                        (user, order) => new { User = user, Order = order }
+                    )
+                    .Where(joined =>
+                        joined.Order.CreatedAt >= fromDate &&
+                        joined.Order.CreatedAt <= toDate &&
+                        joined.Order.OrdStatusId > 0 &&
+                        joined.Order.IsPaid == true)
+                    .GroupBy(joined => new { joined.User.UsrId, joined.User.Fullname })
+                    .Select(group => new GetTopSpendingUsersDto
+                    {
+                        UserId = group.Key.UsrId,
+                        UserName = group.Key.Fullname ?? "Unknown",
+                        OrderCount = group.Count(),
+                        TotalSpent = group.Sum(item => item.Order.TotalOrdPrice),
+                        AvgOrderValue = Math.Round(
+                            group.Sum(item => item.Order.TotalOrdPrice) / group.Count(),
+                            2)
+                    })
+                    .OrderByDescending(dto => dto.TotalSpent)
+                    .Take(10)
+                    .ToList();
+
+                return Task.FromResult(new ListTopSpendingUserDto
+                {
+                    TopSpendingUsers = topSpendingUsers
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while getting top spending users between {FromDate} and {ToDate}", fromDate, toDate);
+                throw;
+            }
+        }
+
         public Task<TotalUserDto> GetTotalUserAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken)
         {
             var totalUser = _context.Users.Count(u => u.CreatedAt >= fromDate && u.CreatedAt <= toDate);

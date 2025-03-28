@@ -107,5 +107,6 @@ namespace Application.Constant
         public static string GET_USER_SUMMARY_SUCCESS = "User summary report retrieved successfully.";
         public static string GET_USER_AGE_GROUP_SUCCESS = "User by age group report retrieved successfully.";
         public static string GET_USER_LOCATION_SUCCESS = "User by location report retrieved successfully.";
+        public static string GET_SPENDING_USER_SUCCESS = "Top spending users report retrieved successfully.";
     }
 }
