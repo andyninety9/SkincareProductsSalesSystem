@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Typography, DatePicker, Button, Spin, Tooltip } from 'antd';
+import { Row, Col, Typography, DatePicker, Button, Spin, Tooltip, Tabs } from 'antd';
 import ManageOrderHeader from '../../component/manageOrderHeader/ManageOrderHeader';
 import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSidebar';
 import useDashboardData from '../../hooks/useDashboardData';
@@ -8,9 +8,11 @@ import TopSellingProductsChart from '../../component/topSellingProductsChart/Top
 import TopSellingProductsList from '../../component/topSellingProductsList/TopSellingProductsList';
 import DailySalesTrendChart from '../../component/dailySalesTrendChart/DailySalesTrendChart';
 import { ReloadOutlined } from '@ant-design/icons';
+import UserStatisticsTab from '../userStatisticsTab/UserStatisticsTab';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
+const { TabPane } = Tabs;
 
 export default function DashboardPage() {
     const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
@@ -69,27 +71,6 @@ export default function DashboardPage() {
                             marginBottom: '24px',
                         }}>
                         <Title level={2}>Dashboard</Title>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <div style={{ marginRight: '16px', fontSize: '14px', color: '#888' }}>
-                                Cập nhật lần cuối: {formatLastUpdateTime()}
-                            </div>
-                            <RangePicker
-                                value={[fromDate, toDate]}
-                                onChange={handleDateRangeChange}
-                                style={{ marginRight: '16px' }}
-                            />
-                            <Button type="primary" onClick={handleApplyDateRange} style={{ marginRight: '8px' }}>
-                                Apply
-                            </Button>
-                            <Tooltip title="Tải lại dữ liệu">
-                                <Button
-                                    type="primary"
-                                    icon={<ReloadOutlined />}
-                                    onClick={handleReloadData}
-                                    loading={loading}
-                                />
-                            </Tooltip>
-                        </div>
                     </div>
                     {/* Sales Summary Cards */}
                     {loading ? (
@@ -97,38 +78,68 @@ export default function DashboardPage() {
                             <Spin size="large" />
                         </div>
                     ) : (
-                        <SalesSummaryCards salesSummary={salesSummary} formatCurrency={formatCurrency} />
-                    )}
-                    {/* Daily Sales Trend Chart */}
-                    <DailySalesTrendChart
-                        dailySales={dailySales}
-                        processDailySalesData={processDailySalesData}
-                        formatCurrency={formatCurrency}
-                    />
+                        <Tabs defaultActiveKey="sales" style={{ marginBottom: 16 }}>
+                            <TabPane tab="Sales Dashboard" key="sales">
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
+                                    <div style={{ marginRight: '16px', fontSize: '14px', color: '#888' }}>
+                                        Cập nhật lần cuối: {formatLastUpdateTime()}
+                                    </div>
+                                    <RangePicker
+                                        value={[fromDate, toDate]}
+                                        onChange={handleDateRangeChange}
+                                        style={{ marginRight: '16px' }}
+                                    />
+                                    <Button
+                                        type="primary"
+                                        onClick={handleApplyDateRange}
+                                        style={{ marginRight: '8px' }}>
+                                        Apply
+                                    </Button>
+                                    <Tooltip title="Tải lại dữ liệu">
+                                        <Button
+                                            type="primary"
+                                            icon={<ReloadOutlined />}
+                                            onClick={handleReloadData}
+                                            loading={loading}
+                                        />
+                                    </Tooltip>
+                                </div>
+                                <SalesSummaryCards salesSummary={salesSummary} formatCurrency={formatCurrency} />
 
-                    {/* Top Selling Products */}
-                    {/* {topSellingProducts.length > 0 && ( */}
-                        <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
-                            <Col xs={24} lg={12}>
-                                <TopSellingProductsChart
-                                    topSellingProducts={topSellingProducts}
-                                    processChartData={processChartData}
+                                {/* Daily Sales Trend Chart */}
+                                <DailySalesTrendChart
+                                    dailySales={dailySales}
+                                    processDailySalesData={processDailySalesData}
                                     formatCurrency={formatCurrency}
                                 />
-                            </Col>
-                            <Col xs={24} lg={12}>
-                                <TopSellingProductsList
-                                    topSellingProducts={topSellingProducts}
-                                    processChartData={processChartData}
-                                    formatCurrency={formatCurrency}
-                                    productsFromDate={productsFromDate}
-                                    productsToDate={productsToDate}
-                                    handleProductsDateRangeChange={handleProductsDateRangeChange}
-                                    handleApplyProductsDateRange={handleApplyProductsDateRange}
-                                />
-                            </Col>
-                        </Row>
-                    {/* )} */}
+
+                                {/* Top Selling Products */}
+                                <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
+                                    <Col xs={24} lg={12}>
+                                        <TopSellingProductsChart
+                                            topSellingProducts={topSellingProducts}
+                                            processChartData={processChartData}
+                                            formatCurrency={formatCurrency}
+                                        />
+                                    </Col>
+                                    <Col xs={24} lg={12}>
+                                        <TopSellingProductsList
+                                            topSellingProducts={topSellingProducts}
+                                            processChartData={processChartData}
+                                            formatCurrency={formatCurrency}
+                                            productsFromDate={productsFromDate}
+                                            productsToDate={productsToDate}
+                                            handleProductsDateRangeChange={handleProductsDateRangeChange}
+                                            handleApplyProductsDateRange={handleApplyProductsDateRange}
+                                        />
+                                    </Col>
+                                </Row>
+                            </TabPane>
+                            <TabPane tab="User Statistics" key="users">
+                                <UserStatisticsTab />
+                            </TabPane>
+                        </Tabs>
+                    )}
                 </div>
             </div>
         </div>
