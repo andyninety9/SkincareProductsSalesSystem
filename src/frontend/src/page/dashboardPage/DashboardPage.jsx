@@ -16,6 +16,7 @@ const { TabPane } = Tabs;
 
 export default function DashboardPage() {
     const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
+    const [activeTab, setActiveTab] = useState('sales');
 
     const {
         salesSummary,
@@ -35,6 +36,11 @@ export default function DashboardPage() {
         handleApplyProductsDateRange,
         reloadDashboardData,
     } = useDashboardData();
+
+    const handleTabChange = (key) => {
+        setActiveTab(key);
+        localStorage.setItem('dashboardActiveTab', key);
+    };
 
     const formatLastUpdateTime = () => {
         return lastUpdateTime.toLocaleString('vi-VN', {
@@ -56,6 +62,12 @@ export default function DashboardPage() {
     // Set initial update time
     useEffect(() => {
         setLastUpdateTime(new Date());
+
+        // Load saved active tab from localStorage
+        const savedTab = localStorage.getItem('dashboardActiveTab');
+        if (savedTab) {
+            setActiveTab(savedTab);
+        }
     }, []);
     return (
         <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', flexDirection: 'column' }}>
@@ -78,7 +90,7 @@ export default function DashboardPage() {
                             <Spin size="large" />
                         </div>
                     ) : (
-                        <Tabs defaultActiveKey="sales" style={{ marginBottom: 16 }}>
+                        <Tabs activeKey={activeTab} onChange={handleTabChange} style={{ marginBottom: 16 }}>
                             <TabPane tab="Sales Dashboard" key="sales">
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
                                     <div style={{ marginRight: '16px', fontSize: '14px', color: '#888' }}>

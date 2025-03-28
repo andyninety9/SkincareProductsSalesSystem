@@ -27,6 +27,12 @@ const UserStatisticsTab = () => {
         usersByAge: [],
         usersByLocation: [],
         topSpendingUsers: [],
+        retentionRates: {
+            after1Month: 0,
+            after3Month: 0,
+            after6Month: 0,
+            after12Month: 0,
+        },
     });
     const [onlineVisitors, setOnlineVisitors] = useState(0);
     const today = moment();
@@ -42,43 +48,82 @@ const UserStatisticsTab = () => {
     useEffect(() => {
         // Initial data loading
         setLoading(true);
-        const fetchInitialData = async () => {
-            try {
-                const dateParams = buildDateRangeParams(summaryDateRange);
-                const summaryResponse = await api.get(`report/user-overview?${dateParams}`);
 
-                if (summaryResponse.data && summaryResponse.data.data) {
-                    setUserData({
-                        totalUsers: summaryResponse.data.data.totalUser || 0,
-                        newUsers: summaryResponse.data.data.newUsers || 0,
-                        activeUsers: summaryResponse.data.data.activeUsers || 0,
-                        userGrowthRate: summaryResponse.data.data.userGrowthRate || 0,
-                        usersByAge: [],
-                        usersByLocation: [],
-                        topSpendingUsers: [],
-                    });
-                }
+        const loadAllData = async () => {
+            try {
+                // Load data in sequence to avoid race conditions
+                await fetchInitialData();
+                await handleGetUserByAge();
+                await handleGetUserByLocation();
+                await handleFetchVisitorsData();
+                await handleFetchReportSpendingUser();
+                await handleGetUserRetentionRate();
             } catch (err) {
-                console.log(err);
-                setUserData({
-                    totalUsers: 0,
-                    newUsers: 0,
-                    activeUsers: 0,
-                    userGrowthRate: 0,
-                    usersByAge: [],
-                    usersByLocation: [],
-                    topSpendingUsers: [],
-                });
+                console.error('Error loading data:', err);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchInitialData();
-        handleGetUserByAge();
-        handleGetUserByLocation();
-        handleFetchVisitorsData();
+        loadAllData();
     }, []);
+
+    // Also modify fetchInitialData to not reset usersByAge
+    const fetchInitialData = async () => {
+        try {
+            const dateParams = buildDateRangeParams(summaryDateRange);
+            const summaryResponse = await api.get(`report/user-overview?${dateParams}`);
+
+            if (summaryResponse.data && summaryResponse.data.data) {
+                setUserData((prevData) => ({
+                    ...prevData,
+                    totalUsers: summaryResponse.data.data.totalUser || 0,
+                    newUsers: summaryResponse.data.data.newUsers || 0,
+                    activeUsers: summaryResponse.data.data.activeUsers || 0,
+                    userGrowthRate: summaryResponse.data.data.userGrowthRate || 0,
+                    // Don't reset age, location or top spenders here
+                }));
+            }
+        } catch (err) {
+            console.log(err);
+            // Only reset basic stats on error, not all data
+        }
+    };
+
+    const handleFetchReportSpendingUser = async () => {
+        try {
+            const response = await api.get('report/spending-user?fromDate=2025-01-01&toDate=2025-03-29');
+            console.log('Spending user response:', response);
+
+            if (
+                response.data &&
+                response.data.data &&
+                response.data.data.topSpendingUsers &&
+                response.data.data.topSpendingUsers.topSpendingUsers
+            ) {
+                const spendingUsers = response.data.data.topSpendingUsers.topSpendingUsers.map((user, index) => ({
+                    // Use string directly to avoid BigInt issues
+                    id: String(BigInt(user.userId)),
+                    name: user.userName || 'Unknown User',
+                    totalSpent: Number(user.totalSpent) || 0,
+                    orderCount: Number(user.orderCount) || 0,
+                    avgOrderValue: Number(user.avgOrderValue) || 0,
+                    rank: index + 1,
+                }));
+
+                console.log('Processed spending users:', spendingUsers);
+
+                setUserData((prevData) => ({
+                    ...prevData,
+                    topSpendingUsers: spendingUsers,
+                }));
+            } else {
+                console.log('Invalid data structure for top spending users');
+            }
+        } catch (err) {
+            console.error('Error fetching top spending users:', err);
+        }
+    };
 
     const handleFetchVisitorsData = async () => {
         try {
@@ -187,6 +232,28 @@ const UserStatisticsTab = () => {
         }
     };
 
+    const handleGetUserRetentionRate = async () => {
+        try {
+            const response = await api.get('report/user-retention-rate');
+            console.log(response);
+
+            if (response.data && response.data.data) {
+                // Update userData with the retention rate data
+                setUserData((prevData) => ({
+                    ...prevData,
+                    retentionRates: {
+                        after1Month: response.data.data.after1Month || 0,
+                        after3Month: response.data.data.after3Month || 0,
+                        after6Month: response.data.data.after6Month || 0,
+                        after12Month: response.data.data.after12Month || 0,
+                    },
+                }));
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     const handleDateRangeChange = (dates) => {
         setDateRange(dates);
     };
@@ -253,31 +320,73 @@ const UserStatisticsTab = () => {
     // Table columns for top spending users
     const columns = [
         {
+            title: 'Rank',
+            dataIndex: 'rank',
+            key: 'rank',
+            width: 80,
+            render: (rank) => {
+                if (rank === 1) {
+                    return <div style={{ color: '#f5b505', fontWeight: 'bold', fontSize: '18px' }}>🥇 1st</div>;
+                } else if (rank === 2) {
+                    return <div style={{ color: '#a8a8a8', fontWeight: 'bold', fontSize: '16px' }}>🥈 2nd</div>;
+                } else if (rank === 3) {
+                    return <div style={{ color: '#cd7f32', fontWeight: 'bold', fontSize: '16px' }}>🥉 3rd</div>;
+                }
+                return <div style={{ color: '#666' }}>{rank}th</div>;
+            },
+        },
+        {
             title: 'User ID',
             dataIndex: 'id',
             key: 'id',
+            render: (id) => <span style={{ fontFamily: 'monospace', fontSize: '14px' }}>{id}</span>,
         },
         {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
+            render: (name, record) => <span style={record.rank <= 3 ? { fontWeight: 'bold' } : {}}>{name}</span>,
         },
         {
             title: 'Total Spent',
             dataIndex: 'totalSpent',
             key: 'totalSpent',
-            render: (value) => formatCurrency(value),
+            render: (value, record) => (
+                <div style={record.rank <= 3 ? { color: '#1890ff', fontWeight: 'bold' } : {}}>
+                    {formatCurrency(value)}
+                </div>
+            ),
             sorter: (a, b) => a.totalSpent - b.totalSpent,
         },
         {
             title: 'Orders',
             dataIndex: 'orderCount',
             key: 'orderCount',
+            render: (value) => (
+                <Badge
+                    count={value}
+                    style={{
+                        backgroundColor: '#52c41a',
+                        minWidth: '28px',
+                        height: '20px',
+                        padding: '0 8px',
+                        borderRadius: '10px',
+                        display: 'inline-flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                    }}
+                    overflowCount={999}
+                />
+            ),
         },
         {
             title: 'Avg. Order Value',
             key: 'avgOrderValue',
-            render: (_, record) => formatCurrency(record.totalSpent / record.orderCount),
+            render: (_, record) => (
+                <div style={{ color: '#722ed1' }}>{formatCurrency(record.totalSpent / record.orderCount)}</div>
+            ),
         },
     ];
 
@@ -436,7 +545,34 @@ const UserStatisticsTab = () => {
 
             {/* Top Spending Users */}
             <Card title="Top Spending Users" style={{ marginTop: 16 }}>
-                <Table dataSource={userData.topSpendingUsers} columns={columns} rowKey="id" pagination={false} />
+                {userData.topSpendingUsers && userData.topSpendingUsers.length > 0 ? (
+                    <Table
+                        dataSource={userData.topSpendingUsers}
+                        columns={columns}
+                        rowKey="id"
+                        pagination={false}
+                        rowClassName={(record) => {
+                            if (record.rank === 1) return 'top-spender-first';
+                            if (record.rank === 2) return 'top-spender-second';
+                            if (record.rank === 3) return 'top-spender-third';
+                            return '';
+                        }}
+                        onRow={(record) => ({
+                            style: {
+                                background:
+                                    record.rank === 1
+                                        ? '#fffbe6'
+                                        : record.rank === 2
+                                        ? '#f6ffed'
+                                        : record.rank === 3
+                                        ? '#e6f7ff'
+                                        : 'transparent',
+                            },
+                        })}
+                    />
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>No spending data available</div>
+                )}
             </Card>
 
             {/* User Retention Rate */}
@@ -445,25 +581,45 @@ const UserStatisticsTab = () => {
                     <Col span={6}>
                         <div style={{ textAlign: 'center' }}>
                             <p>After 1 Month</p>
-                            <Progress type="circle" percent={78} />
+                            <Progress
+                                type="circle"
+                                percent={userData.retentionRates.after1Month}
+                                format={(percent) => `${percent.toFixed(1)}%`}
+                                strokeColor={userData.retentionRates.after1Month > 50 ? '#52c41a' : '#faad14'}
+                            />
                         </div>
                     </Col>
                     <Col span={6}>
                         <div style={{ textAlign: 'center' }}>
                             <p>After 3 Months</p>
-                            <Progress type="circle" percent={65} />
+                            <Progress
+                                type="circle"
+                                percent={userData.retentionRates.after3Month}
+                                format={(percent) => `${percent.toFixed(1)}%`}
+                                strokeColor={userData.retentionRates.after3Month > 40 ? '#52c41a' : '#faad14'}
+                            />
                         </div>
                     </Col>
                     <Col span={6}>
                         <div style={{ textAlign: 'center' }}>
                             <p>After 6 Months</p>
-                            <Progress type="circle" percent={52} />
+                            <Progress
+                                type="circle"
+                                percent={userData.retentionRates.after6Month}
+                                format={(percent) => `${percent.toFixed(1)}%`}
+                                strokeColor={userData.retentionRates.after6Month > 30 ? '#52c41a' : '#faad14'}
+                            />
                         </div>
                     </Col>
                     <Col span={6}>
                         <div style={{ textAlign: 'center' }}>
                             <p>After 1 Year</p>
-                            <Progress type="circle" percent={38} />
+                            <Progress
+                                type="circle"
+                                percent={userData.retentionRates.after12Month}
+                                format={(percent) => `${percent.toFixed(1)}%`}
+                                strokeColor={userData.retentionRates.after12Month > 20 ? '#52c41a' : '#faad14'}
+                            />
                         </div>
                     </Col>
                 </Row>
