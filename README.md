@@ -1,51 +1,66 @@
 # Skin Care Products Sales System
+<div align="center">
+<img src="https://img.shields.io/badge/Version-1.0.0-blue.svg" alt="Version"> 
+<img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
+<img src="https://img.shields.io/github/stars/andyninety9/SkincareProductsSalesSystem?color=yellow" alt="Stars">
+<img src="https://img.shields.io/github/issues/andyninety9/SkincareProductsSalesSystem?color=red" alt="Issues">
+</div>
+
+![Website Screenshot](./assets/images/screenshot_mavid.jpg 'Skincare Products Sales System Homepage')
 
 ## Overview
 
 The **Skin Care Products Sales System** is a web application that facilitates the sale and management of skincare products. The system provides functionalities for customers to explore products, identify suitable skincare routines, and place orders seamlessly. It also includes robust management features for staff and administrators.
 
+<div align="center">
+  <img src="./assets/images/screenshot_product_page.jpg" alt="Product Page" width="400"/>
+  <img src="./assets/images/screenshot_order_history_page.jpg" alt="Checkout Flow" width="400"/>
+</div>
+
 ## Features
 
 ### Functional Requirements
 
-- **Company Information Portal:**  
-  - Display company introduction, skincare product information, blogs, FAQs, and news.
+-   **Company Information Portal:**
 
-- **Customer Functionalities:**  
-  - Determine skin type (oily, combination, dry, normal) via a quiz.  
-  - Recommend skincare products suitable for the identified skin type.  
-  - Compare different skincare products for informed decision-making.  
-  - Manage shopping cart and checkout process.  
-  - Payment processing and order cancellations.  
-  - Apply promotional codes and accumulate loyalty points.  
-  - Provide ratings and feedback for products.  
-  - View and manage order history and customer profiles.  
+    -   Display company introduction, skincare product information, blogs, FAQs, and news.
 
-- **Administrative & Management Features:**  
-  - Dashboard and analytics reports.  
-  - Manage product listings and inventory.  
-  - Order management from placement to completion.  
-  - Handle customer feedback and ratings.  
+-   **Customer Functionalities:**
+
+    -   Determine skin type (oily, combination, dry, normal) via a quiz.
+    -   Recommend skincare products suitable for the identified skin type.
+    -   Compare different skincare products for informed decision-making.
+    -   Manage shopping cart and checkout process.
+    -   Payment processing and order cancellations.
+    -   Apply promotional codes and accumulate loyalty points.
+    -   Provide ratings and feedback for products.
+    -   View and manage order history and customer profiles.
+
+-   **Administrative & Management Features:**
+    -   Dashboard and analytics reports.
+    -   Manage product listings and inventory.
+    -   Order management from placement to completion.
+    -   Handle customer feedback and ratings.
 
 ### Non-Functional Requirements
 
-- Scalability: Supports high traffic and large product catalogs.  
-- Security: Implements secure authentication and data protection measures.  
-- Performance: Optimized for fast response times and low latency.  
-- Availability: Ensures high uptime and fault tolerance.  
+-   Scalability: Supports high traffic and large product catalogs.
+-   Security: Implements secure authentication and data protection measures.
+-   Performance: Optimized for fast response times and low latency.
+-   Availability: Ensures high uptime and fault tolerance.
 
 ## System Architecture
 
-The system follows a **microservices-based architecture** with the following components:  
+The system follows a **microservices-based architecture** with the following components:
 
-- **Frontend:** React/Vue.js (SPA)  
-- **Backend:** .NET Core Web API  
-- **Database:** PostgreSQL  
-- **Cache:** Redis for session and caching  
-- **Cloud Storage:** AWS S3 for images  
-- **Authentication:** Google OAuth  
-- **Payment Gateway:** VNPay  
-- **Delivery Service:** GHN API  
+-   **Frontend:** React/Vue.js (SPA)
+-   **Backend:** .NET Core Web API
+-   **Database:** PostgreSQL
+-   **Cache:** Redis for session and caching
+-   **Cloud Storage:** AWS S3 for images
+-   **Authentication:** Google OAuth
+-   **Payment Gateway:** VNPay
+-   **Delivery Service:** GHN API
 
 ## Docker Compose Instructions
 
@@ -96,7 +111,6 @@ For example, to tag the `web-service-swp:amd` image as `web-service-swp:latest`,
 ```bash
 docker tag web-service-swp:amd web-service-swp:latest
 ```
-
 
 ## Environment Configuration (.env)
 
@@ -182,6 +196,7 @@ cd skincare-sales-system
 #### 2. Install Dependencies
 
 ##### Backend (.NET Core)
+
 ```bash
 cd backend
 dotnet restore
@@ -210,6 +225,6 @@ npm run dev
 
 ### Important Notes
 
-- Never commit `.env` files to version control
-- Create a `.env.example` file with the structure but without sensitive values
-- For production, set more restrictive values and use a secure method for environment variable management
+-   Never commit `.env` files to version control
+-   Create a `.env.example` file with the structure but without sensitive values
+-   For production, set more restrictive values and use a secure method for environment variable management
