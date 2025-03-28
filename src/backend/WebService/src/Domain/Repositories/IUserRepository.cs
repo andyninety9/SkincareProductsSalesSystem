@@ -38,8 +38,11 @@ namespace Domain.Repositories
         public Task<UserGrowthRateDto> GetUserGrowthRateAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken);
         public Task<UserByAgeGroupDto> GetUserByAgeGroupAsync(CancellationToken cancellationToken);
         public Task<ListUserByLocationDto> GetUserByLocationAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken);
-        
+
         public Task<ListTopSpendingUserDto> GetTopSpendingUsersAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken);
+        public Task<GetUserRetentionRateDto> GetUserRetentionAsync(CancellationToken cancellationToken);
+        
+
 
 
     }
