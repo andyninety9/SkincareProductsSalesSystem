@@ -46,30 +46,38 @@ import OrderHistoryPage from './page/orderHistoryPage/OrderHistoryPage';
 import VerifyEmailPage from './page/verifyEmailPage/VerifyEmailPage';
 import DashboardPage from './page/dashboardPage/DashboardPage';
 import ManageReturnPage from './page/manageReturnPage/ManageReturnPage';
+import PublicRoute from './routes/PublicRoute';
 
 function App() {
     const router = createBrowserRouter([
         {
             path: routes.login,
-            element: <Login />,
+            element: (
+                <PublicRoute>
+                    <Login />
+                </PublicRoute>
+            ),
         },
-
         {
             path: routes.register,
-            element: <Register />,
+            element: (
+                <PublicRoute>
+                    <Register />
+                </PublicRoute>
+            ),
         },
         {
             path: routes.changePasswordByToken,
-            element: <ResetPassword />,
-        },
-        {
-            path: routes.manageOrder,
-            element: <ManageOrderPage />,
+            element: (
+                <PublicRoute>
+                    <ResetPassword />
+                </PublicRoute>
+            ),
         },
         {
             path: routes.manageOrder,
             element: (
-                <ProtectedRoute roles={['admin']}>
+                <ProtectedRoute roles={['admin', 'staff']}>
                     <ManageOrderPage />
                 </ProtectedRoute>
             ),

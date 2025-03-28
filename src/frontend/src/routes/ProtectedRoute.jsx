@@ -6,6 +6,20 @@ import { routes } from '.';
 
 const ProtectedRoute = ({ children, roles = [] }) => {
     const user = Cookies.get('user') ? JSON.parse(Cookies.get('user')) : null;
+    const accessToken = Cookies.get('accessToken')?.replaceAll('"', '');
+    const refreshToken = Cookies.get('refreshToken')?.replaceAll('"', '');
+
+    console.log('Accesstoken from cookie:', accessToken);
+    console.log('Refreshtoken from cookie:', refreshToken);
+
+    // Check if accessToken or refreshToken is missing
+    if (!accessToken || !refreshToken) {
+        // Clear all authentication cookies
+        Cookies.remove('user');
+        Cookies.remove('accessToken');
+        Cookies.remove('refreshToken');
+        return <Navigate to={routes.login} />;
+    }
 
     // Check if the user is not logged in or doesn't have a role
     if (!user || !user.role) {
