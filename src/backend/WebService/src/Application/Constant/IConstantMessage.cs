@@ -105,6 +105,7 @@ namespace Application.Constant
         public static string GET_SALES_SUMMARY_SUCCESS = "Sales summary report retrieved successfully.";
         public static string PROCESS_RETURN_SUCCESS = "Return request processed successfully.";
         public static string GET_USER_SUMMARY_SUCCESS = "User summary report retrieved successfully.";
+        public static string GET_USER_AGE_GROUP_SUCCESS = "User by age group report retrieved successfully.";
 
     }
 }

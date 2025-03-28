@@ -98,5 +98,26 @@ namespace WebApi.Controllers.Reports
             var result = await _mediator.Send(request, cancellationToken);
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_USER_SUMMARY_SUCCESS, data = result.Value });
         }
+
+        /// <summary>
+        /// Get User By Age Group report
+        /// </summary>
+        /// <param name="request">User By Age Group report details.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>User By Age Group report data.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/Report/user-by-age-groups
+        ///         
+        /// </remarks>
+        [HttpGet("user-by-age-groups")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
+        public async Task<IActionResult> GetUserByAgeGroup([FromQuery] GetUserByAgeGroupQuery request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_USER_AGE_GROUP_SUCCESS, data = result.Value });
+        }
     }
 }
