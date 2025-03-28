@@ -56,7 +56,7 @@ CardProduct.propTypes = {
     isProductDetail: PropTypes.bool,
 
 };
-export default function CardProduct({ product, isProductDetail }) {
+export default function CardProduct({ product, isProductDetail, isInModal }) {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems); // Giỏ hàng từ Redux
@@ -200,9 +200,19 @@ export default function CardProduct({ product, isProductDetail }) {
 
     return (
         <div
-            className="cardProduct"
-            onClick={handleClick}
-            style={{ cursor: 'pointer', userSelect: 'none', position: 'relative' }}>
+    className={`cardProduct ${isInModal ? 'in-modal' : ''}`}
+    onClick={handleClick}
+    style={{
+        cursor: 'pointer',
+        userSelect: 'none',
+        position: 'relative',
+        width: isInModal ? '200px' : '100%',
+        height: isInModal ? '300px' : 'auto', // 👈 card thấp hơn
+        padding: isInModal ? '10px' : '15px',
+        fontSize: isInModal ? '13px' : '16px',
+    }}
+>
+
             {product?.stocks === 0 && (
                 <Tag color="red" style={{ position: 'absolute', top: 10, left: 10, fontWeight: 'bold' }}>
                     Sold Out
@@ -224,10 +234,22 @@ export default function CardProduct({ product, isProductDetail }) {
                 }
                 alt={product?.productName || 'Product'}
             /> */}
-            <img
+            {/* <img
                 src={imageUrl}
                 alt={product?.productName || 'Product'}
-            />
+            /> */}
+<img
+    src={imageUrl}
+    alt={product?.productName || 'Product'}
+    style={{
+        height: isInModal ? '120px' : '200px', // 👈 nhỏ hơn
+        objectFit: 'cover',
+        width: '100%',
+        borderRadius: '8px',
+    }}
+/>
+
+
 
             <div className="cardProduct-content">
                 <div className="buttons-container">

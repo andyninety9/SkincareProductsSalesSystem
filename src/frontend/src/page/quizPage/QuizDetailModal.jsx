@@ -2,6 +2,7 @@
 import React from 'react';
 import { Modal, Typography, Divider, Row, Col, Card, Progress, Image, Spin, Empty } from 'antd';
 import { CalendarOutlined, SkinOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import CardProduct from '../../component/cardProduct/card';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -78,31 +79,34 @@ const QuizDetailModal = ({ visible, onClose, quizData, loading }) => {
                 <Title level={5}>{title}</Title>
                 <div style={{ display: 'flex', overflowX: 'auto', gap: '10px', paddingBottom: '10px' }}>
                     {products.map((product) => (
-                        <Card
-                            key={product.productId}
-                            hoverable
-                            style={{ width: 160, flexShrink: 0 }}
-                            cover={
-                                <Image
-                                    alt={product.productName}
-                                    src={product.productImages?.[0]?.prodImageUrl || 'https://via.placeholder.com/160'}
-                                    style={{ height: 160, objectFit: 'cover' }}
-                                />
-                            }>
-                            <Card.Meta
-                                title={product.productName}
-                                description={
-                                    <Text type="secondary" ellipsis={{ rows: 2 }}>
-                                        {product.productDesc}
-                                    </Text>
-                                }
-                            />
-                            <div style={{ marginTop: 10 }}>
-                                <Text strong style={{ color: '#D8959A' }}>
-                                    {product.sellPrice?.toLocaleString() || 0} VNĐ
-                                </Text>
-                            </div>
-                        </Card>
+                        // <Card
+                        //     key={product.productId}
+                        //     hoverable
+                        //     style={{ width: 160, flexShrink: 0 }}
+                        //     cover={
+                        //         <Image
+                        //             alt={product.productName}
+                        //             src={product.productImages?.[0]?.prodImageUrl || 'https://via.placeholder.com/160'}
+                        //             style={{ height: 160, objectFit: 'cover' }}
+                        //         />
+                        //     }>
+                        //     <Card.Meta
+                        //         title={product.productName}
+                        //         description={
+                        //             <Text type="secondary" ellipsis={{ rows: 2 }}>
+                        //                 {product.productDesc}
+                        //             </Text>
+                        //         }
+                        //     />
+                        //     <div style={{ marginTop: 10 }}>
+                        //         <Text strong style={{ color: '#D8959A' }}>
+                        //             {product.sellPrice?.toLocaleString() || 0} VNĐ
+                        //         </Text>
+                        //     </div>
+                        // </Card>
+                        <div key={product.productId} style={{ width: 200, flexShrink: 0 }}>
+                        <CardProduct product={product} isInModal />
+                    </div>
                     ))}
                 </div>
             </div>
