@@ -301,7 +301,12 @@ export default function ProductDetailPage() {
                                 gap: '10px',
                                 marginBottom: '20px',
                             }}>
-                            <Rate defaultValue={product.totalRating || 3} disabled style={{ color: '#D8959A' }} />
+                            <Rate
+                                value={reviews.length > 0 ? parseFloat(averageRating) : 0}
+                                disabled
+                                style={{ color: '#D8959A' }}
+                            />
+
                             <span style={{ fontSize: '14px', color: '#666' }}>
                                 ({product.reviewCount || 0} đánh giá)
                             </span>
