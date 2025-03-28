@@ -140,5 +140,47 @@ namespace WebApi.Controllers.Reports
             var result = await _mediator.Send(request, cancellationToken);
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_USER_LOCATION_SUCCESS, data = result.Value });
         }
+
+        /// <summary>
+        /// Get spending user report
+        /// </summary>
+        /// <param name="request">Spending user report details.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Spending user report data.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/Report/spending-user?fromtDate=2021-01-01&toDate=2021-12-31
+        ///
+        /// </remarks>
+        [HttpGet("spending-user")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
+        public async Task<IActionResult> GetSpendingUser([FromQuery] GetSpendingUserQuery request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_SPENDING_USER_SUCCESS, data = result.Value });
+        }
+
+        /// <summary>
+        /// Get User Retention Rate
+        /// </summary>
+        /// <param name="request">User Retention Rate report details.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>User Retention Rate report data.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/Report/user-retention-rate?fromtDate=2021-01-01&toDate=2021-12-31
+        ///
+        /// </remarks>
+        [HttpGet("user-retention-rate")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
+        public async Task<IActionResult> GetUserRetentionRate([FromQuery] GetUserRetentionRateQuery request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_USER_SUMMARY_SUCCESS, data = result.Value });
+        }
     }
 }

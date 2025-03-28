@@ -70,6 +70,49 @@ namespace Infrastructure.Repositories
             return Task.FromResult(new NewUserCountDto { NewUserCount = newUserCount });
         }
 
+        public Task<ListTopSpendingUserDto> GetTopSpendingUsersAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var topSpendingUsers = _context.Users
+                    .Join(
+                        _context.Orders,
+                        user => user.UsrId,
+                        order => order.UsrId,
+                        (user, order) => new { User = user, Order = order }
+                    )
+                    .Where(joined =>
+                        joined.Order.CreatedAt >= fromDate &&
+                        joined.Order.CreatedAt <= toDate &&
+                        joined.Order.OrdStatusId > 0 &&
+                        joined.Order.IsPaid == true)
+                    .GroupBy(joined => new { joined.User.UsrId, joined.User.Fullname })
+                    .Select(group => new GetTopSpendingUsersDto
+                    {
+                        UserId = group.Key.UsrId,
+                        UserName = group.Key.Fullname ?? "Unknown",
+                        OrderCount = group.Count(),
+                        TotalSpent = group.Sum(item => item.Order.TotalOrdPrice),
+                        AvgOrderValue = Math.Round(
+                            group.Sum(item => item.Order.TotalOrdPrice) / group.Count(),
+                            2)
+                    })
+                    .OrderByDescending(dto => dto.TotalSpent)
+                    .Take(10)
+                    .ToList();
+
+                return Task.FromResult(new ListTopSpendingUserDto
+                {
+                    TopSpendingUsers = topSpendingUsers
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while getting top spending users between {FromDate} and {ToDate}", fromDate, toDate);
+                throw;
+            }
+        }
+
         public Task<TotalUserDto> GetTotalUserAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken)
         {
             var totalUser = _context.Users.Count(u => u.CreatedAt >= fromDate && u.CreatedAt <= toDate);
@@ -221,6 +264,87 @@ namespace Infrastructure.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while calculating user growth rate between {FromDate} and {ToDate}", fromDate, toDate);
+                throw;
+            }
+        }
+
+        public Task<GetUserRetentionRateDto> GetUserRetentionAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                // Get first day of previous month
+                DateTime now = DateTime.Now;
+                DateTime firstDayLastMonth = new DateTime(now.Year, now.AddMonths(-1).Month, 1);
+                DateTime firstDayCurrentMonth = new DateTime(now.Year, now.Month, 1);
+
+                // Get users registered last month
+                var registeredUsers = _context.Users
+                    .Where(u => u.CreatedAt >= firstDayLastMonth && u.CreatedAt < firstDayCurrentMonth)
+                    .ToList();
+
+                if (registeredUsers.Count == 0)
+                {
+                    // No users registered last month
+                    return Task.FromResult(new GetUserRetentionRateDto
+                    {
+                        After1Month = 0,
+                        After3Month = 0,
+                        After6Month = 0,
+                        After12Month = 0
+                    });
+                }
+
+                // Count users who placed orders after registration period
+                var userIds = registeredUsers.Select(u => u.UsrId).ToList();
+
+                var ordersWithUsers = _context.Orders
+                    .Where(o => userIds.Contains(o.UsrId))
+                    .AsEnumerable()
+                    .GroupBy(o => o.UsrId)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                int usersAfter1Month = 0;
+                int usersAfter3Months = 0;
+                int usersAfter6Months = 0;
+                int usersAfter12Months = 0;
+
+                foreach (var user in registeredUsers)
+                {
+                    if (!ordersWithUsers.TryGetValue(user.UsrId, out var userOrders))
+                        continue;
+
+                    // Calculate retention for each period
+                    if (userOrders.Any(o => o.CreatedAt >= user.CreatedAt.AddMonths(1)))
+                        usersAfter1Month++;
+
+                    if (userOrders.Any(o => o.CreatedAt >= user.CreatedAt.AddMonths(3)))
+                        usersAfter3Months++;
+
+                    if (userOrders.Any(o => o.CreatedAt >= user.CreatedAt.AddMonths(6)))
+                        usersAfter6Months++;
+
+                    if (userOrders.Any(o => o.CreatedAt >= user.CreatedAt.AddMonths(12)))
+                        usersAfter12Months++;
+                }
+
+                // Calculate retention rates
+                decimal totalUsers = registeredUsers.Count;
+                decimal retention1Month = Math.Round((usersAfter1Month / totalUsers) * 100, 2);
+                decimal retention3Month = Math.Round((usersAfter3Months / totalUsers) * 100, 2);
+                decimal retention6Month = Math.Round((usersAfter6Months / totalUsers) * 100, 2);
+                decimal retention12Month = Math.Round((usersAfter12Months / totalUsers) * 100, 2);
+
+                return Task.FromResult(new GetUserRetentionRateDto
+                {
+                    After1Month = (double)retention1Month,
+                    After3Month = (double)retention3Month,
+                    After6Month = (double)retention6Month,
+                    After12Month = (double)retention12Month
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while calculating user retention rates");
                 throw;
             }
         }
