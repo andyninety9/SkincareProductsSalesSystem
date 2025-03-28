@@ -119,5 +119,26 @@ namespace WebApi.Controllers.Reports
             var result = await _mediator.Send(request, cancellationToken);
             return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_USER_AGE_GROUP_SUCCESS, data = result.Value });
         }
+
+        /// <summary>
+        ///  Get User By Location report
+        /// </summary>
+        /// <param name="request">User By Location report details.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>User By Location report data.</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/Report/user-by-location?fromtDate=2021-01-01&toDate=2021-12-31
+        ///
+        /// </remarks>
+        [HttpGet("user-by-location")]
+        [Authorize]
+        [AuthorizeRole(RoleAccountEnum.Manager)]
+        public async Task<IActionResult> GetUserByLocation([FromQuery] GetUserByLocationQuery request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return result.IsFailure ? HandleFailure(result) : Ok(new { statusCode = 200, message = IConstantMessage.GET_USER_LOCATION_SUCCESS, data = result.Value });
+        }
     }
 }
