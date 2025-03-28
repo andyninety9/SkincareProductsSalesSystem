@@ -8,7 +8,7 @@ using StackExchange.Redis;
 namespace src.Controllers
 {
     [ApiController]
-    [Route("gateway-stats")]
+    [Route("api/gateway-stats")]
     public class StatsController : ControllerBase
     {
         private readonly IDatabase _redisDb;

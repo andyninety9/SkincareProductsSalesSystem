@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Statistic, Table, DatePicker, Button, Progress, Spin } from 'antd';
-import { UserOutlined, TeamOutlined, ShoppingOutlined, RiseOutlined } from '@ant-design/icons';
+import { Card, Row, Col, Statistic, Table, DatePicker, Button, Progress, Spin, Badge } from 'antd';
+import { UserOutlined, TeamOutlined, ShoppingOutlined, RiseOutlined, EyeOutlined } from '@ant-design/icons';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import axios from 'axios';
+import api from '../../config/api';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -19,12 +21,27 @@ const UserStatisticsTab = () => {
         usersByLocation: [],
         topSpendingUsers: [],
     });
+    const [onlineVisitors, setOnlineVisitors] = useState(0);
+
     const [dateRange, setDateRange] = useState([null, null]);
 
     useEffect(() => {
         // This would be replaced with your actual API call
         fetchUserData();
+        handleFetchVisitorsData();
     }, []);
+
+    const handleFetchVisitorsData = async () => {
+        try {
+            const response = await api.get('gateway-stats/online');
+            console.log(response);
+            if (response.data && response.data.onlineVisitors !== undefined) {
+                setOnlineVisitors(response.data.onlineVisitors);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
     const fetchUserData = async () => {
         setLoading(true);
@@ -146,11 +163,22 @@ const UserStatisticsTab = () => {
     return (
         <div>
             {/* Date Range Filter */}
-            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'flex-end' }}>
-                <RangePicker value={dateRange} onChange={handleDateRangeChange} style={{ marginRight: '16px' }} />
-                <Button type="primary" onClick={handleApplyDateRange}>
-                    Apply
-                </Button>
+            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Card style={{ marginRight: '16px' }}>
+                    <Statistic
+                        title="Online Visitors Now"
+                        value={onlineVisitors}
+                        prefix={<Badge status="success" />}
+                        valueStyle={{ color: '#52c41a' }}
+                        suffix={<EyeOutlined style={{ fontSize: '16px' }} />}
+                    />
+                </Card>
+                <div>
+                    <RangePicker value={dateRange} onChange={handleDateRangeChange} style={{ marginRight: '16px' }} />
+                    <Button type="primary" onClick={handleApplyDateRange}>
+                        Apply
+                    </Button>
+                </div>
             </div>
 
             {/* User Summary Cards */}
