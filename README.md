@@ -4,6 +4,7 @@
 <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
 <img src="https://img.shields.io/github/stars/andyninety9/SkincareProductsSalesSystem?color=yellow" alt="Stars">
 <img src="https://img.shields.io/github/issues/andyninety9/SkincareProductsSalesSystem?color=red" alt="Issues">
+<img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
 </div>
 
 ![Website Screenshot](./assets/images/screenshot_mavid.jpg 'Skincare Products Sales System Homepage')
