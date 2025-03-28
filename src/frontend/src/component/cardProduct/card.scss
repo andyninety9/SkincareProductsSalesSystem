@@ -122,27 +122,4 @@
     .cardProduct img {
         height: 200px;
     }
-
-    .cardProduct.in-modal {
-        width: 160px;
-        height: 300px;
-        img {
-            height: 160px;
-            object-fit: cover;
-        }
-    
-        .cardProduct-content {
-            padding: 8px;
-            font-size: 13px;
-    
-            p {
-                font-size: 13px;
-            }
-    
-            .buttons-container {
-                display: none; // Ẩn nút "Mua ngay" nếu muốn
-            }
-        }
-    }
-    
 }
