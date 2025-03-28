@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-const CompareModal = ({ visible, onClose, currentProduct }) => {
+export default function CompareModal ({ visible, onClose, currentProduct }){
     const dispatch = useDispatch();
     const compareItems = useSelector(selectCompareItems);
     const [secondProduct, setSecondProduct] = useState(null);
@@ -618,4 +618,3 @@ const CompareModal = ({ visible, onClose, currentProduct }) => {
     );
 };
 
-export default CompareModal;

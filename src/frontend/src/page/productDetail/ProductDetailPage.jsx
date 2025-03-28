@@ -11,7 +11,8 @@ import { addToCart, clearCart, increaseQuantity, selectCartItems } from '../../r
 import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
 import { addToCompare, selectCompareItems } from '../../redux/feature/compareSlice';
-import CompareModal from '../../component/compareModal';
+// Correct import
+import CompareModal from '../../component/compareModal/CompareModal';
 
 const { Panel } = Collapse;
 
