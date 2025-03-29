@@ -199,6 +199,12 @@ VITE_BACK_END_BASE_URL=your_backend_url
 VITE_GOOGLE_CLIENT_ID=google_oauth_client_id
 VITE_GOOGLE_CLIENT_SECRET=google_oauth_client_secret
 
+# Redis Configuration
+REDIS_HOST=localhost                 # Redis server hostname
+REDIS_PORT=6379                      # Redis port number
+REDIS_PASSWORD=your_redis_password   # Redis password
+REDIS_USERNAME=default               # Redis username if applicable
+
 ```
 
 ### Setup Instructions
