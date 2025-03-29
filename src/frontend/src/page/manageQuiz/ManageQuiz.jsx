@@ -117,21 +117,11 @@ export default function ManageQuiz() {
         [debouncedSearch]
     );
 
-    // const handleSearch = useCallback(
-    //     (value) => {
-    //         setSearchValue(value);
-    //         setCurrentPage(1);
-    //         fetchQuizItems(1, value.trim());
-    //     },
-    //     [fetchQuizItems]
-    // );
-
     const handleCreate = async (values) => {
         try {
             setError(null);
             console.log('Form Values:', JSON.stringify(values, null, 2));
 
-            // Step 1: Create the question
             const questionData = {
                 questionContent: values.questionContent,
                 cateQuestionId: values.cateQuestionId,
@@ -139,7 +129,6 @@ export default function ManageQuiz() {
             const questionResponse = await quizService.createQuestion(questionData);
             console.log('Create Question Response:', JSON.stringify(questionResponse, null, 2));
 
-            // Step 2: Create each answer
             const questionId = questionResponse.questionId;
             if (values.keyQuestions && values.keyQuestions.length > 0) {
                 const answerPromises = values.keyQuestions.map(async (answer) => {
@@ -168,7 +157,6 @@ export default function ManageQuiz() {
     const handleUpdate = useCallback(
         (updatedQuestion) => {
             try {
-                // Update state immediately with the response
                 setQuizItems((prev) =>
                     prev.map((item) => (item.questionId === updatedQuestion.questionId ? updatedQuestion : item))
                 );
@@ -197,14 +185,12 @@ export default function ManageQuiz() {
 
     const handleUpdateAnswersConfirm = useCallback(
         (updatedQuestion) => {
-            // Accept optional updatedQuestion
             setModalState((prev) => ({
                 ...prev,
                 updateVisible: false,
                 selectedQuestion: null,
             }));
             if (updatedQuestion) {
-                // Update state if question was updated
                 setQuizItems((prev) =>
                     prev.map((item) => (item.questionId === updatedQuestion.questionId ? updatedQuestion : item))
                 );
@@ -212,7 +198,7 @@ export default function ManageQuiz() {
                     prev.map((item) => (item.questionId === updatedQuestion.questionId ? updatedQuestion : item))
                 );
             }
-            fetchQuizItems(currentPage, searchValue); // Refresh data after updating answers
+            fetchQuizItems(currentPage, searchValue);
         },
         [currentPage, fetchQuizItems]
     );
@@ -340,88 +326,130 @@ export default function ManageQuiz() {
     };
 
     return (
-        <div style={{ display: 'flex', height: '100vh', flexDirection: 'column', overflow: 'hidden' }}>
-            <ManageOrderHeader
-                isModalOpen={modalState.updateVisible || modalState.createVisible || modalState.deleteVisible}
-            />
+        <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', flexDirection: 'column' }}>
+            <div>
+                <ManageOrderHeader
+                    isModalOpen={modalState.updateVisible || modalState.createVisible || modalState.deleteVisible}
+                />
+            </div>
             <div style={{ display: 'flex', flex: 1, marginTop: '60px', overflow: 'hidden' }}>
-                <ManageOrderSidebar />
-                <div style={{ flex: 1, padding: '32px', marginLeft: '300px', overflowY: 'auto' }}>
-                    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                        <h1 style={{ fontSize: '40px', textAlign: 'left', marginBottom: '16px' }}>Quiz</h1>
+                <div>
+                    <ManageOrderSidebar />
+                </div>
+                <div
+                    style={{
+                        flex: 1,
+                        padding: '24px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        overflowY: 'auto',
+                        marginLeft: '250px', // Matches ManageOrder
+                    }}
+                >
+                    <div style={{ width: '100%', margin: '0' }}>
+                        <h1 style={{ fontSize: '40px', textAlign: 'left', width: '100%', marginBottom: '16px' }}>
+                            Quiz
+                        </h1>
                         {error && (
                             <Alert
                                 message="Error"
                                 description={error}
                                 type="error"
                                 showIcon
-                                style={{ marginBottom: '16px' }}
+                                style={{ marginBottom: '16px', width: '100%' }}
                             />
                         )}
-                        <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
+                        <Row gutter={[16, 16]} style={{ marginBottom: '16px', width: '100%' }}>
                             <Col>
                                 <Card
                                     style={{
-                                        textAlign: 'center',
-                                        width: '150px',
+                                        textAlign: 'left',
+                                        width: '250px', 
                                         backgroundColor: '#FFFCFC',
                                         height: '120px',
                                         borderRadius: '12px',
-                                    }}>
-                                    <h2 style={{ fontSize: '16px', fontFamily: 'Nunito, sans-serif' }}>
+                                        padding: '16px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <h2 style={{ fontSize: '18px', fontFamily: 'Nunito, sans-serif', margin: 0 }}>
                                         Total Questions
                                     </h2>
-                                    <p style={{ fontSize: '32px', color: '#C87E83', fontFamily: 'Nunito, sans-serif' }}>
+                                    <p
+                                        style={{
+                                            fontSize: '25px', 
+                                            color: '#C87E83',
+                                            fontFamily: 'Nunito, sans-serif',
+                                            margin: 0,
+                                        }}
+                                    >
                                         {total}
                                     </p>
                                 </Card>
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        marginBottom: '24px',
-                                        marginTop: '24px',
-                                    }}>
-                                    <Input
-                                        placeholder="Tìm kiếm câu hỏi ..."
-                                        value={searchInputValue}
-                                        onChange={handleInputChange}
-                                        style={{ width: '500px' }}
-                                        suffix={<SearchOutlined style={{ color: 'rgba(0,0,0,0.45)' }} />}
-                                    />
-                                    <div style={{ display: 'grid', justifyContent: 'end' }}>
-                                        <Button
-                                            type="primary"
-                                            icon={<PlusOutlined />}
-                                            onClick={() => setModalState((prev) => ({ ...prev, createVisible: true }))}
-                                            style={{
-                                                backgroundColor: '#D8959B',
-                                                borderColor: '#D8959B',
-                                                marginLeft: '30px',
-                                            }}>
-                                            Tạo câu hỏi
-                                        </Button>
-                                    </div>
-                                </div>
                             </Col>
                         </Row>
-                        <Table
-                            dataSource={filteredQuizItems}
-                            columns={columns}
-                            rowKey="questionId"
-                            loading={loading}
-                            pagination={false}
-                            expandable={expandableConfig}
-                            className="manage-quiz-table"
-                        />
-                        <Pagination
-                            current={currentPage}
-                            pageSize={pageSize}
-                            total={total}
-                            onChange={setCurrentPage}
-                            showSizeChanger={false}
-                            style={{ textAlign: 'center', marginTop: '24px' }}
-                        />
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                alignItems: 'center',
+                                marginBottom: '30px',
+                                marginTop: '30px',
+                                width: '100%',
+                            }}
+                        >
+                            <Input
+                                placeholder="Tìm kiếm câu hỏi ..."
+                                value={searchInputValue}
+                                onChange={handleInputChange}
+                                style={{ width: '650px' }} // Matches ManageOrder search width
+                                suffix={<SearchOutlined style={{ color: 'rgba(0,0,0,0.45)' }} />}
+                            />
+                            <Button
+                                type="primary"
+                                icon={<PlusOutlined />}
+                                onClick={() => setModalState((prev) => ({ ...prev, createVisible: true }))}
+                                style={{
+                                    backgroundColor: '#D8959B',
+                                    borderColor: '#D8959B',
+                                    marginLeft: '30px',
+                                }}
+                            >
+                                Tạo câu hỏi
+                            </Button>
+                        </div>
+                        <div style={{ width: '100%' }}>
+                            <Table
+                                dataSource={filteredQuizItems}
+                                columns={columns}
+                                rowKey="questionId"
+                                loading={loading}
+                                pagination={false}
+                                expandable={expandableConfig}
+                                className="manage-quiz-table"
+                            />
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    marginTop: '16px',
+                                    width: '100%',
+                                }}
+                            >
+                                <Pagination
+                                    current={currentPage}
+                                    pageSize={pageSize}
+                                    total={total}
+                                    onChange={setCurrentPage}
+                                    showSizeChanger={false}
+                                    position={['bottomCenter']} // Matches ManageOrder
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

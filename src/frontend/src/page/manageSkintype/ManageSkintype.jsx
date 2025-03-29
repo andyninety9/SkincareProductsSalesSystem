@@ -107,29 +107,66 @@ export default function ManageSkintype() {
                 <div
                     style={{
                         flex: 1,
-                        padding: "32px",
+                        padding: "24px",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
                         overflowY: "auto",
-                        marginLeft: "300px"
+                        marginLeft: "250px"
                     }}
                 >
-                    <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-                        <h1 style={{ fontSize: "40px", textAlign: "left", width: "100%", marginBottom: "16px" }}>Skintypes</h1>
+                    <div style={{ width: "100%", margin: "0" }}>
+                        <h1 style={{ fontSize: "40px", textAlign: "left", width: "100%", marginBottom: "16px" }}>
+                            Skintypes
+                        </h1>
                         {error && (
-                            <div style={{ color: "red", marginBottom: "16px" }}>
+                            <div style={{ color: "red", marginBottom: "16px", width: "100%" }}>
                                 Error: {error}
                             </div>
                         )}
-                        <div style={{ display: "flex", gap: "20px", marginBottom: "16px", justifyContent: "flex-start" }}>
-                            <Card style={{ textAlign: "center", width: "150px", backgroundColor: "#FFFCFC", height: "120px", borderRadius: "12px" }}>
-                                <h2 style={{ fontSize: "16px", fontFamily: "Nunito, sans-serif" }}>Total Skintypes</h2>
-                                <p style={{ fontSize: "32px", color: "#C87E83", fontFamily: "Nunito, sans-serif" }}>{total}</p>
+                        <div style={{ display: "flex", gap: "70px", marginBottom: "16px", justifyContent: "flex-start", width: "100%" }}>
+                            <Card
+                                style={{
+                                    textAlign: "left",
+                                    width: "250px",
+                                    backgroundColor: "#FFFCFC",
+                                    height: "120px",
+                                    borderRadius: "12px",
+                                    padding: "16px",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "center"
+                                }}
+                            >
+                                <h2 style={{ fontSize: "18px", fontFamily: "Nunito, sans-serif", margin: 0 }}>
+                                    Total Skintypes
+                                </h2>
+                                <p
+                                    style={{
+                                        fontSize: "25px",
+                                        color: "#C87E83",
+                                        fontFamily: "Nunito, sans-serif",
+                                        margin: 0
+                                    }}
+                                >
+                                    {total}
+                                </p>
                             </Card>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "24px", marginTop: "24px" }}>
-                            <Input placeholder="Search skin types ..." style={{ width: "500px" }} suffix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />} />
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "flex-start",
+                                marginBottom: "30px",
+                                marginTop: "30px",
+                                width: "100%"
+                            }}
+                        >
+                            <Input
+                                placeholder="Search skin types ..."
+                                style={{ width: "650px" }}
+                                suffix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />}
+                            />
                         </div>
                         <div style={{ width: "100%" }}>
                             <Table
@@ -142,14 +179,22 @@ export default function ManageSkintype() {
                                 className="manage-skintype-table"
                                 style={{ width: "100%" }}
                             />
-                            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "24px" }}>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    marginTop: "16px",
+                                    width: "100%"
+                                }}
+                            >
                                 <Pagination
                                     current={currentPage}
                                     pageSize={pageSize}
                                     total={total}
                                     onChange={(page) => setCurrentPage(page)}
                                     showSizeChanger={false}
-                                    style={{ textAlign: "center" }}
+                                    position={['bottomCenter']}
                                 />
                             </div>
                         </div>

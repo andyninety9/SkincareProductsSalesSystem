@@ -9,7 +9,6 @@ import { Layout, Typography, Avatar } from 'antd';
 import PropTypes from 'prop-types';
 import './ManageOrderHeader.css';
 
-// Get initial user info synchronously from cookies
 const getInitialUserInfo = () => {
     const userCookie = Cookies.get('user');
     if (userCookie) {
@@ -32,12 +31,11 @@ const { Text } = Typography;
 
 const ManageOrderHeader = ({ isModalOpen }) => {
     const navigate = useNavigate();
-    const [userInfo, setUserInfo] = useState(getInitialUserInfo); // Set initial state synchronously
+    const [userInfo, setUserInfo] = useState(getInitialUserInfo);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [loading, setLoading] = useState(false); // Only for API fetch
+    const [loading, setLoading] = useState(false);
     const dropdownRef = useRef(null);
 
-    // Fetch user data from API if cookie is missing or invalid
     const fetchUserData = async () => {
         try {
             setLoading(true);
@@ -71,14 +69,12 @@ const ManageOrderHeader = ({ isModalOpen }) => {
         }
     };
 
-    // Only fetch from API if no valid cookie data on mount
     useEffect(() => {
         if (!userInfo) {
-            fetchUserData(); // Fetch only if cookie didn’t provide valid data
+            fetchUserData();
         }
-    }, [navigate]); // Runs on mount or navigate change, but only fetches if needed
+    }, [navigate]);
 
-    // Logout function
     const fetchLogout = async () => {
         try {
             const response = await api.post('/authen/logout', {
@@ -95,7 +91,7 @@ const ManageOrderHeader = ({ isModalOpen }) => {
             Cookies.remove('accessToken');
             Cookies.remove('refreshToken');
             Cookies.remove('user');
-            setUserInfo(null); // Clear user info on logout
+            setUserInfo(null);
             navigate(routes.home);
         }
     };
@@ -104,7 +100,6 @@ const ManageOrderHeader = ({ isModalOpen }) => {
         await fetchLogout();
     };
 
-    // Handle clicks outside dropdown to close it
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
