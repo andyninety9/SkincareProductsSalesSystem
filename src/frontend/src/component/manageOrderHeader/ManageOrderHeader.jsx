@@ -5,42 +5,63 @@ import '@fontsource/marko-one';
 import Cookies from 'js-cookie';
 import api from '../../config/api';
 import { toast } from 'react-hot-toast';
-import { Layout, Typography, Avatar, Skeleton } from 'antd'; 
+import { Layout, Typography, Avatar } from 'antd';
 import PropTypes from 'prop-types';
 import './ManageOrderHeader.css';
+
+// Get initial user info synchronously from cookies
+const getInitialUserInfo = () => {
+    const userCookie = Cookies.get('user');
+    if (userCookie) {
+        try {
+            const parsedUser = JSON.parse(userCookie);
+            return {
+                fullname: parsedUser.fullname || '',
+                avatarUrl: parsedUser.avatarUrl || 'https://via.placeholder.com/40',
+            };
+        } catch (error) {
+            console.error('Failed to parse user cookie:', error);
+            return null;
+        }
+    }
+    return null;
+};
 
 const { Header } = Layout;
 const { Text } = Typography;
 
 const ManageOrderHeader = ({ isModalOpen }) => {
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
+    const [userInfo, setUserInfo] = useState(getInitialUserInfo); // Set initial state synchronously
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [userInfo, setUserInfo] = useState({});
+    const [loading, setLoading] = useState(false); // Only for API fetch
     const dropdownRef = useRef(null);
 
+    // Fetch user data from API if cookie is missing or invalid
     const fetchUserData = async () => {
         try {
             setLoading(true);
             const response = await api.get('User/get-me');
             if (response?.data?.statusCode === 200 && response?.data?.data) {
                 const data = response.data.data;
-                setUserInfo({
+                const newUserInfo = {
                     fullname: data.fullname || '',
-                    avatarUrl: data.avatarUrl || '',
-                });
+                    avatarUrl: data.avatarUrl || 'https://via.placeholder.com/40',
+                };
+                setUserInfo(newUserInfo);
                 Cookies.set('user', JSON.stringify(data), {
                     expires: 5,
                     secure: true,
                 });
             } else {
                 console.warn('Unexpected API response:', response);
-                setUserInfo({});
+                setUserInfo(null);
+                Cookies.remove('user');
             }
         } catch (error) {
             console.error('Error fetching user data:', error);
-            setUserInfo({});
+            setUserInfo(null);
+            Cookies.remove('user');
             if (error.response?.status === 401) {
                 toast.error('Session expired. Please log in again.');
                 navigate(routes.login);
@@ -50,10 +71,14 @@ const ManageOrderHeader = ({ isModalOpen }) => {
         }
     };
 
+    // Only fetch from API if no valid cookie data on mount
     useEffect(() => {
-        fetchUserData();
-    }, [navigate]);
+        if (!userInfo) {
+            fetchUserData(); // Fetch only if cookie didn’t provide valid data
+        }
+    }, [navigate]); // Runs on mount or navigate change, but only fetches if needed
 
+    // Logout function
     const fetchLogout = async () => {
         try {
             const response = await api.post('/authen/logout', {
@@ -70,29 +95,26 @@ const ManageOrderHeader = ({ isModalOpen }) => {
             Cookies.remove('accessToken');
             Cookies.remove('refreshToken');
             Cookies.remove('user');
+            setUserInfo(null); // Clear user info on logout
             navigate(routes.home);
         }
     };
 
-    async function handleLogout() {
+    const handleLogout = async () => {
         await fetchLogout();
-    }
+    };
 
+    // Handle clicks outside dropdown to close it
     useEffect(() => {
-        function updateUserFromCookies() {
-            const userCookie = Cookies.get('user');
-            try {
-                setUser(userCookie ? JSON.parse(userCookie) : null);
-            } catch (error) {
-                console.error('Failed to parse user cookie:', error);
-                setUser(null);
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false);
             }
-        }
-
-        updateUserFromCookies();
-        const cookieCheckInterval = setInterval(updateUserFromCookies, 1000);
-
-        return () => clearInterval(cookieCheckInterval);
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     }, []);
 
     return (
@@ -133,14 +155,10 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                     <div className="manage-order-d-flex manage-order-gap-2 manage-order-align-items-center">
                         {loading ? (
                             <div className="manage-order-d-flex manage-order-align-items-center">
-                                <Skeleton.Avatar active size={40} shape="circle" />
-                                <Skeleton.Input
-                                    active
-                                    size="small"
-                                    style={{ width: 100, marginLeft: 8 }}
-                                />
+                                <Avatar size={40} /> {/* Simple placeholder during fetch */}
+                                <Text style={{ marginLeft: '8px', color: '#A76A6E' }}>Loading...</Text>
                             </div>
-                        ) : Object.keys(userInfo).length > 0 ? (
+                        ) : userInfo ? (
                             <div
                                 className="manage-order-position-relative"
                                 ref={dropdownRef}
@@ -149,8 +167,9 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                             >
                                 <div className="manage-order-d-flex manage-order-align-items-center">
                                     <Avatar
-                                        src={<img src={userInfo.avatarUrl || 'https://via.placeholder.com/40'} alt="avatar" />}
+                                        src={<img src={userInfo.avatarUrl} alt="avatar" />}
                                         style={{ cursor: 'pointer' }}
+                                        onError={() => true} // Fallback to default if image fails
                                     />
                                     <Text
                                         style={{
@@ -162,7 +181,7 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {userInfo.fullname || ''}
+                                        {userInfo.fullname}
                                     </Text>
                                 </div>
                                 {isDropdownOpen && (
@@ -211,5 +230,4 @@ const ManageOrderHeader = ({ isModalOpen }) => {
 ManageOrderHeader.propTypes = {
     isModalOpen: PropTypes.bool,
 };
-
-export default ManageOrderHeader;
+export default React.memo(ManageOrderHeader);
