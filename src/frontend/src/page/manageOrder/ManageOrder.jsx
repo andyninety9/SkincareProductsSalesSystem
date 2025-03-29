@@ -138,8 +138,6 @@ export default function ManageOrder() {
             }
             setSalesSummary({
                 totalOrders: 0,
-                totalRevenue: 0,
-                averageOrderValue: 0,
                 totalProductsSold: 0
             });
         }
@@ -279,26 +277,45 @@ export default function ManageOrder() {
                                 gap: '70px',
                                 marginBottom: '16px',
                                 justifyContent: 'flex-start',
+                                fontSize: '30px',
                             }}>
                             {[
-                                { title: 'Total Orders', value: salesSummary.totalOrders },
-                                { title: 'Total Revenue', value: `${(salesSummary.totalRevenue || 0).toLocaleString()} VND` },
-                                { title: 'Average Order Value', value: `${(salesSummary.averageOrderValue || 0).toLocaleString()} VND` },
-                                { title: 'Total Products Sold', value: salesSummary.totalProductsSold || 0 }
+                                { title: 'Tổng Đơn Hàng', value: salesSummary.totalOrders },
+                                { title: 'Tổng Sản Phẩm Đã Bán', value: salesSummary.totalProductsSold || 0 }
                             ].map((metric, i) => (
                                 <Card
                                     key={i}
                                     style={{
-                                        textAlign: 'center',
-                                        width: '180px',
+                                        textAlign: 'left',
+                                        width: '280px',
                                         backgroundColor: '#FFFCFC',
                                         height: '120px',
                                         borderRadius: '12px',
+                                        padding: '16px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center'
                                     }}>
-                                    <h2 style={{ fontSize: '18px', fontFamily: 'Nunito, sans-serif' }}>{metric.title}</h2>
-                                    <p style={{ fontSize: '40px', color: '#C87E83', fontFamily: 'Nunito, sans-serif' }}>
-                                        {metric.value}
-                                    </p>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <h2 style={{
+                                            fontSize: '18px',
+                                            fontFamily: 'Nunito, sans-serif',
+                                            whiteSpace: 'normal',
+                                            lineHeight: '1.2',
+                                            width: '100%',
+                                            margin: 0,
+                                            textAlign: 'left'
+                                        }}>{metric.title}</h2>
+                                        <p style={{
+                                            fontSize: '25px',
+                                            color: '#C87E83',
+                                            fontFamily: 'Nunito, sans-serif',
+                                            textAlign: 'left',
+                                            margin: 0
+                                        }}>
+                                            {metric.value}
+                                        </p>
+                                    </div>
                                 </Card>
                             ))}
                         </div>
