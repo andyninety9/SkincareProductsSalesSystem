@@ -139,7 +139,7 @@ export default function ManageSkintype() {
                                 }}
                             >
                                 <h2 style={{ fontSize: "18px", fontFamily: "Nunito, sans-serif", margin: 0 }}>
-                                    Total Skintypes
+                                    Tổng số loại da
                                 </h2>
                                 <p
                                     style={{

@@ -376,7 +376,7 @@ export default function ManageQuiz() {
                                     }}
                                 >
                                     <h2 style={{ fontSize: '18px', fontFamily: 'Nunito, sans-serif', margin: 0 }}>
-                                        Total Questions
+                                        Tổng Câu Hỏi
                                     </h2>
                                     <p
                                         style={{
