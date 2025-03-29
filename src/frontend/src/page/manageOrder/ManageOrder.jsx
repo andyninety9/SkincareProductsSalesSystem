@@ -1,5 +1,5 @@
-import { Table, Button, Input, Card, message, Pagination, DatePicker, Space } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Table, Button, Input, Card, message, Pagination, DatePicker, Space, Tooltip } from 'antd';
+import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSidebar';
 import ManageOrderHeader from '../../component/manageOrderHeader/ManageOrderHeader';
 import ManageOrderSteps from '../../component/manageOrderSteps/ManageOrderSteps';
@@ -43,6 +43,8 @@ const fetchApiData = async (endpoint, params = {}, setter, errorSetter, errorMsg
     }
 };
 
+const { RangePicker } = DatePicker;
+
 export default function ManageOrder() {
     const [orders, setOrders] = useState([]);
     const [visibleOrders, setVisibleOrders] = useState({});
@@ -56,6 +58,7 @@ export default function ManageOrder() {
         startDate: dayjs().startOf('month'),
         endDate: dayjs().endOf('month')
     });
+    const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
     const pageSize = 10;
 
     const debounce = (func, delay) => {
@@ -143,10 +146,43 @@ export default function ManageOrder() {
         }
     };
 
+    const handleDateRangeChange = (dates) => {
+        if (dates && dates.length === 2) {
+            setDateRange({
+                startDate: dates[0],
+                endDate: dates[1]
+            });
+        }
+    };
+
+    const handleApplyDateRange = () => {
+        fetchOrders(1);
+        fetchSalesSummary();
+        setCurrentPage(1);
+        setLastUpdateTime(new Date());
+    };
+
+    const handleReloadData = () => {
+        fetchOrders(currentPage);
+        fetchSalesSummary();
+        setLastUpdateTime(new Date());
+    };
+
+    const formatLastUpdateTime = () => {
+        return lastUpdateTime.toLocaleString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+    };
+
     useEffect(() => {
         fetchOrders(currentPage);
         fetchSalesSummary();
-    }, [currentPage, dateRange]);
+    }, [currentPage]); // Remove dateRange from dependency array since we'll use Apply button
 
     const toggleVisibility = (orderNumber) => {
         setVisibleOrders((prev) => {
@@ -257,20 +293,40 @@ export default function ManageOrder() {
                     <div style={{ maxWidth: '100%', margin: '0 auto' }}>
                         <h1 style={{ fontSize: '40px', textAlign: 'left', width: '100%' }}>Orders</h1>
                         {error && <div style={{ color: 'red', marginBottom: '16px' }}>Error: {error}</div>}
-                        <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                            <Space>
-                                <DatePicker
-                                    value={dateRange.startDate}
-                                    onChange={(date) => setDateRange(prev => ({ ...prev, startDate: date }))}
-                                    placeholder="Start Date"
+
+                        {/* Enhanced Date Range Picker */}
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'flex-start',
+                            alignItems: 'center',
+                            marginBottom: '24px'
+                        }}>
+                            <div style={{ marginRight: '16px', fontSize: '14px', color: '#888' }}>
+                                Cập nhật lần cuối: {formatLastUpdateTime()}
+                            </div>
+                            <div>
+                                <RangePicker
+                                    value={[dateRange.startDate, dateRange.endDate]}
+                                    onChange={handleDateRangeChange}
+                                    style={{ marginRight: '16px' }}
                                 />
-                                <DatePicker
-                                    value={dateRange.endDate}
-                                    onChange={(date) => setDateRange(prev => ({ ...prev, endDate: date }))}
-                                    placeholder="End Date"
-                                />
-                            </Space>
+                                <Button
+                                    type="primary"
+                                    onClick={handleApplyDateRange}
+                                    style={{ marginRight: '8px' }}>
+                                    Apply
+                                </Button>
+                                <Tooltip title="Tải lại dữ liệu">
+                                    <Button
+                                        type="primary"
+                                        icon={<ReloadOutlined />}
+                                        onClick={handleReloadData}
+                                        loading={loading}
+                                    />
+                                </Tooltip>
+                            </div>
                         </div>
+
                         <div
                             style={{
                                 display: 'flex',
@@ -319,6 +375,7 @@ export default function ManageOrder() {
                                 </Card>
                             ))}
                         </div>
+
                         <div
                             style={{
                                 display: 'flex',
@@ -328,7 +385,7 @@ export default function ManageOrder() {
                             }}>
                             <Input
                                 placeholder="Tìm kiếm khách hàng ..."
-                                style={{ width: '450px' }}
+                                style={{ width: '650px' }}
                                 suffix={<SearchOutlined style={{ color: 'rgba(0,0,0,0.45)' }} />}
                             />
                         </div>
