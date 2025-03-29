@@ -341,7 +341,13 @@ export default function ManageReturnPage() {
                             alignItems: 'center',
                             marginBottom: '24px',
                         }}>
-                        <Title level={2}>Manage Return</Title>
+                        <Title level={2} 
+                        style={{ 
+                            fontFamily: 'Marko One, sans-serif',
+                            fontSize: '40px',}}>
+                            Manage Return
+                        </Title>
+
                     </div>
                     {/* Search input */}
                     <div style={{ marginBottom: 16 }}>

@@ -1,10 +1,11 @@
-import { Table, Button, Input, Card, message, Pagination } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Table, Button, Input, Card, message, Pagination, DatePicker, Space, Tooltip } from 'antd';
+import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSidebar';
 import ManageOrderHeader from '../../component/manageOrderHeader/ManageOrderHeader';
 import ManageOrderSteps from '../../component/manageOrderSteps/ManageOrderSteps';
 import { useState, useEffect } from 'react';
 import api from '../../config/api';
+import dayjs from 'dayjs';
 
 // Define mapping for string statuses to numeric values
 const stringStatusToNumeric = {
@@ -42,6 +43,8 @@ const fetchApiData = async (endpoint, params = {}, setter, errorSetter, errorMsg
     }
 };
 
+const { RangePicker } = DatePicker;
+
 export default function ManageOrder() {
     const [orders, setOrders] = useState([]);
     const [visibleOrders, setVisibleOrders] = useState({});
@@ -50,6 +53,12 @@ export default function ManageOrder() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null); // Kept for inline error display
     const [orderDetails, setOrderDetails] = useState({});
+    const [salesSummary, setSalesSummary] = useState({ totalOrders: 0 });
+    const [dateRange, setDateRange] = useState({
+        startDate: dayjs().startOf('month'),
+        endDate: dayjs().endOf('month')
+    });
+    const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
     const pageSize = 10;
 
     const debounce = (func, delay) => {
@@ -101,9 +110,79 @@ export default function ManageOrder() {
         );
     };
 
+    const fetchSalesSummary = async () => {
+        try {
+            // Validate date range
+            if (!dateRange.startDate || !dateRange.endDate) {
+                message.error('Please select both start and end dates');
+                return;
+            }
+
+            if (dateRange.startDate.isAfter(dateRange.endDate)) {
+                message.error('Start date cannot be after end date');
+                return;
+            }
+
+            const response = await api.get('Report/sales-summary', {
+                params: {
+                    FromDate: dateRange.startDate.format('YYYY-MM-DD'),
+                    ToDate: dateRange.endDate.format('YYYY-MM-DD')
+                }
+            });
+            if (response.data.statusCode === 200 && response.data.data) {
+                setSalesSummary(response.data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching sales summary:', error);
+            if (error.response?.status === 400) {
+                message.error(error.response.data.detail || 'No sales data available for the selected period');
+            } else {
+                message.error('Failed to fetch sales summary. Please try again later.');
+            }
+            setSalesSummary({
+                totalOrders: 0,
+                totalProductsSold: 0
+            });
+        }
+    };
+
+    const handleDateRangeChange = (dates) => {
+        if (dates && dates.length === 2) {
+            setDateRange({
+                startDate: dates[0],
+                endDate: dates[1]
+            });
+        }
+    };
+
+    const handleApplyDateRange = () => {
+        fetchOrders(1);
+        fetchSalesSummary();
+        setCurrentPage(1);
+        setLastUpdateTime(new Date());
+    };
+
+    const handleReloadData = () => {
+        fetchOrders(currentPage);
+        fetchSalesSummary();
+        setLastUpdateTime(new Date());
+    };
+
+    const formatLastUpdateTime = () => {
+        return lastUpdateTime.toLocaleString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+    };
+
     useEffect(() => {
         fetchOrders(currentPage);
-    }, [currentPage]);
+        fetchSalesSummary();
+    }, [currentPage]); // Remove dateRange from dependency array since we'll use Apply button
 
     const toggleVisibility = (orderNumber) => {
         setVisibleOrders((prev) => {
@@ -211,33 +290,92 @@ export default function ManageOrder() {
                         overflowY: 'auto',
                         marginLeft: '250px',
                     }}>
-                    <div style={{ maxWidth: '100%', margin: '0 auto' }}>
+                    <div style={{ width: '100%', margin: '0' }}>
                         <h1 style={{ fontSize: '40px', textAlign: 'left', width: '100%' }}>Orders</h1>
                         {error && <div style={{ color: 'red', marginBottom: '16px' }}>Error: {error}</div>}
+
+                        {/* Enhanced Date Range Picker */}
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'flex-start',
+                            alignItems: 'center',
+                            marginBottom: '24px'
+                        }}>
+                            <div style={{ marginRight: '16px', fontSize: '14px', color: '#888' }}>
+                                Cập nhật lần cuối: {formatLastUpdateTime()}
+                            </div>
+                            <div>
+                                <RangePicker
+                                    value={[dateRange.startDate, dateRange.endDate]}
+                                    onChange={handleDateRangeChange}
+                                    style={{ marginRight: '16px' }}
+                                />
+                                <Button
+                                    type="primary"
+                                    onClick={handleApplyDateRange}
+                                    style={{ marginRight: '8px' }}>
+                                    Apply
+                                </Button>
+                                <Tooltip title="Tải lại dữ liệu">
+                                    <Button
+                                        type="primary"
+                                        icon={<ReloadOutlined />}
+                                        onClick={handleReloadData}
+                                        loading={loading}
+                                    />
+                                </Tooltip>
+                            </div>
+                        </div>
+
                         <div
                             style={{
                                 display: 'flex',
                                 gap: '70px',
                                 marginBottom: '16px',
                                 justifyContent: 'flex-start',
+                                fontSize: '30px',
                             }}>
-                            {[...Array(4)].map((_, i) => (
+                            {[
+                                { title: 'Tổng Đơn Hàng', value: salesSummary.totalOrders },
+                                { title: 'Tổng Sản Phẩm Đã Bán', value: salesSummary.totalProductsSold || 0 }
+                            ].map((metric, i) => (
                                 <Card
                                     key={i}
                                     style={{
-                                        textAlign: 'center',
-                                        width: '180px',
+                                        textAlign: 'left',
+                                        width: '280px',
                                         backgroundColor: '#FFFCFC',
                                         height: '120px',
                                         borderRadius: '12px',
+                                        padding: '16px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center'
                                     }}>
-                                    <h2 style={{ fontSize: '18px', fontFamily: 'Nunito, sans-serif' }}>Total Orders</h2>
-                                    <p style={{ fontSize: '40px', color: '#C87E83', fontFamily: 'Nunito, sans-serif' }}>
-                                        123
-                                    </p>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <h2 style={{
+                                            fontSize: '18px',
+                                            fontFamily: 'Nunito, sans-serif',
+                                            whiteSpace: 'normal',
+                                            lineHeight: '1.2',
+                                            width: '100%',
+                                            margin: 0,
+                                            textAlign: 'left'
+                                        }}>{metric.title}</h2>
+                                        <p style={{
+                                            fontSize: '25px',
+                                            color: '#C87E83',
+                                            fontFamily: 'Nunito, sans-serif',
+                                            textAlign: 'left',
+                                            margin: 0
+                                        }}>
+                                            {metric.value}
+                                        </p>
+                                    </div>
                                 </Card>
                             ))}
                         </div>
+
                         <div
                             style={{
                                 display: 'flex',
@@ -247,7 +385,7 @@ export default function ManageOrder() {
                             }}>
                             <Input
                                 placeholder="Tìm kiếm khách hàng ..."
-                                style={{ width: '450px' }}
+                                style={{ width: '650px' }}
                                 suffix={<SearchOutlined style={{ color: 'rgba(0,0,0,0.45)' }} />}
                             />
                         </div>
