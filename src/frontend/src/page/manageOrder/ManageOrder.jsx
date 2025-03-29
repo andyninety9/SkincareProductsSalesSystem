@@ -290,7 +290,7 @@ export default function ManageOrder() {
                         overflowY: 'auto',
                         marginLeft: '250px',
                     }}>
-                    <div style={{ maxWidth: '100%', margin: '0 auto' }}>
+                    <div style={{ width: '100%', margin: '0' }}>
                         <h1 style={{ fontSize: '40px', textAlign: 'left', width: '100%' }}>Orders</h1>
                         {error && <div style={{ color: 'red', marginBottom: '16px' }}>Error: {error}</div>}
 
