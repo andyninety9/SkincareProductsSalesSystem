@@ -31,25 +31,20 @@ const HeaderUser = () => {
     const [skinTypes, setSkinTypes] = useState([]);
 
     useEffect(() => {
-        // Explicitly bind prevUserCookieRef to avoid scope issues
         function updateUserFromCookies() {
             const userCookie = Cookies.get('user');
-            // Only update if the cookie has changed
             if (userCookie !== prevUserCookieRef.current) {
                 prevUserCookieRef.current = userCookie;
                 try {
                     setUser(userCookie ? JSON.parse(userCookie) : null);
                 } catch (error) {
-                    // console.error('failed to parse user', error);
                     setUser(null);
                 }
             }
         }
 
-        // Initial update
         updateUserFromCookies();
 
-        // Check for cookie changes periodically
         const cookieCheckInterval = setInterval(updateUserFromCookies, 1000);
 
         return () => clearInterval(cookieCheckInterval);
@@ -105,18 +100,6 @@ const HeaderUser = () => {
             }
         };
         fetchCategories();
-
-        // const fetchSkinType = async () => {
-        //     try {
-        //         const response = await api.get('skintype?page=1&pageSize=20');
-        //         if (response.status === 200) {
-        //             setSkinTypes(response.data.data.items);
-        //         }
-        //     } catch (error) {
-        //         console.error('Error fetching skin types:', error);
-        //     }
-        // };
-        // fetchSkinType();
     }, []);
 
     const fetchLogout = async () => {
@@ -127,18 +110,13 @@ const HeaderUser = () => {
 
             if (response.status === 200) {
                 toast.success('Logout successfully');
-                // console.log('Logout success:', response);
             } else {
                 console.error('Logout failed:', response);
             }
-        } catch (error) {
-            // toast.error('Error logging out');
-            // console.error('Error:', error);
         } finally {
             Cookies.remove('accessToken');
             Cookies.remove('refreshToken');
             Cookies.remove('user');
-            // Clear the cart state in Redux
             dispatch(clearCart());
             dispatch(resetQuiz());
 
@@ -209,7 +187,6 @@ const HeaderUser = () => {
                         </>
                     )}
 
-                    <FaHeart className="fs-5 text-secondary cursor-pointer" />
                     <FaSearch
                         className={`fs-5 cursor-pointer ${isSearchOpen ? 'text-dark' : 'text-secondary'}`}
                         onClick={handleShowSearchbar}
@@ -247,14 +224,13 @@ const HeaderUser = () => {
                         <Card
                             className="position-absolute"
                             style={{
-                                width: 550, // Wider to accommodate two columns
+                                width: 550,
                                 boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                                 zIndex: 1000,
                                 border: '1px solid #f0f0f0',
                             }}
                             bodyStyle={{ padding: '16px' }}>
                             <Row gutter={16}>
-                                {/* Left Column - Product Categories */}
                                 <Col span={12}>
                                     <Typography.Title
                                         level={5}
@@ -271,7 +247,6 @@ const HeaderUser = () => {
                                                 onClick={() => navigate(`/product?cateProdId=${category.cateProdId}`)}
                                                 style={{
                                                     padding: '8px',
-                                                    // textAlign: 'center',
                                                     display: 'flex',
                                                     justifyContent: 'flex-start',
                                                     alignItems: 'center',
@@ -281,28 +256,6 @@ const HeaderUser = () => {
                                         ))}
                                     </Menu>
                                 </Col>
-
-                                {/* Right Column - Skin Types */}
-                                {/* <Col span={12}>
-                                    <Typography.Title
-                                        level={5}
-                                        style={{ padding: '0 0 8px', borderBottom: '1px solid #f0f0f0', margin: 0 }}>
-                                        <Space>
-                                            <AppstoreOutlined />
-                                            Danh mục loại da
-                                        </Space>
-                                    </Typography.Title>
-                                    <Menu style={{ border: 'none' }}>
-                                        {skinTypes.map((skinType) => (
-                                            <Menu.Item
-                                                key={`skin-${skinType.skinTypeId}`}
-                                                onClick={() => navigate(`/product?skinTypeId=${skinType.skinTypeId}`)}
-                                                style={{ margin: '0', padding: '8px 0' }}>
-                                                {skinType.skinTypeCodes}
-                                            </Menu.Item>
-                                        ))}
-                                    </Menu>
-                                </Col> */}
                             </Row>
                         </Card>
                     )}
