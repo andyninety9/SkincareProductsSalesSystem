@@ -7,6 +7,8 @@
 
     <BaseOutputPath>$(MSBuildProjectDirectory)\Build\bin\</BaseOutputPath>
     <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)\Build\obj\</BaseIntermediateOutputPath>
+
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +17,6 @@
     <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
   </ItemGroup>
-  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  
 
 </Project>
