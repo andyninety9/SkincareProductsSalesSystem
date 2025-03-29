@@ -164,16 +164,20 @@ const ManageOrderHeader = ({ isModalOpen }) => {
                                     <Avatar
                                         src={<img src={userInfo.avatarUrl} alt="avatar" />}
                                         style={{ cursor: 'pointer' }}
-                                        onError={() => true} // Fallback to default if image fails
+                                        onError={() => true}
                                     />
                                     <Text
                                         style={{
                                             marginLeft: '8px',
+                                            marginTop: '10px',
                                             color: '#A76A6E',
                                             whiteSpace: 'nowrap',
                                             fontFamily: 'Nunito, sans-serif',
                                             fontSize: '16px',
                                             fontWeight: 'bold',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            height: '100%',
                                         }}
                                     >
                                         {userInfo.fullname}
