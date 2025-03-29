@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Layout, Menu } from "antd";
-import { UserOutlined, CommentOutlined, ContainerOutlined, ShopOutlined, CalendarOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { UserOutlined, ContainerOutlined, ShopOutlined, CalendarOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./ManageOrderSidebar.css";
 import { Dashboard } from '@mui/icons-material';
@@ -28,7 +28,7 @@ const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("manage-quiz")) return "7";
     if (pathname.includes("manage-skintype")) return "12";
     if (pathname.includes("manage-brand")) return "10";
-    if (pathname.includes('dashboard')) return '5';
+    if (pathname.includes("dashboard")) return "5";
     return "0";
 };
 
@@ -46,12 +46,23 @@ const ManageOrderSidebar = () => {
             setSelectedKey(newSelectedKey);
         }
 
-        if (path.includes("manage-order")) {
-            setOpenKeys(["sub1"]);
-        } else if (path.includes("manage-product")) {
-            setOpenKeys(["sub3"]);
+        // Determine which submenu should be opened based on the path
+        let newOpenKey = null;
+        if (path.includes("manage-order") || path.includes("manage-return")) {
+            newOpenKey = "sub1"; // Manage Orders
+        } else if (path.includes("manage-product") || path.includes("manage-brand") || path.includes("manage-category")) {
+            newOpenKey = "sub3"; // Manage Products
         } else if (path.includes("manage-quiz") || path.includes("manage-skintype")) {
-            setOpenKeys(["sub4"]); // Open "Manage Quiz" submenu
+            newOpenKey = "sub4"; // Manage Quiz
+        }
+
+        // Merge the new open key with existing openKeys instead of replacing them
+        if (newOpenKey && !openKeys.includes(newOpenKey)) {
+            setOpenKeys((prevKeys) => {
+                const updatedKeys = [...new Set([...prevKeys, newOpenKey])]; // Avoid duplicates
+                setPersistedOpenKeys(updatedKeys); // Persist the updated keys
+                return updatedKeys;
+            });
         }
     }, [location.pathname]);
 
