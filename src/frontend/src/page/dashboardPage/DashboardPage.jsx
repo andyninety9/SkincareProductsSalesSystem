@@ -82,7 +82,11 @@ export default function DashboardPage() {
                             alignItems: 'center',
                             marginBottom: '24px',
                         }}>
-                        <Title level={2}>Dashboard</Title>
+                        <Title level={2}
+                            style={{
+                                fontFamily: 'Marko One, sans-serif',
+                                fontSize: '40px',
+                            }}>Dashboard</Title>
                     </div>
                     {/* Sales Summary Cards */}
                     {loading ? (
