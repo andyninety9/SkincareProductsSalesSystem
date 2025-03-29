@@ -12,7 +12,7 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const searchContainerRef = useRef(null);
-    
+
     useEffect(() => {
         if (!searchTerm || searchTerm.length < 2) {
             setSearchResults([]);
@@ -35,10 +35,10 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
                 onClose();
             }
         }
-        
+
         // Add event listener
         document.addEventListener('mousedown', handleClickOutside);
-        
+
         // Clean up the event listener
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -86,9 +86,9 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
             ))}
         </>
     );
-    
+
     return (
-        <div className="live-search-container" style={{ width: '100%' }} ref={searchContainerRef}>
+        <div className="live-search-container" style={{ width: '40%' }} ref={searchContainerRef}>
             <div className="search-header">
                 <Input
                     placeholder="Tìm kiếm sản phẩm..."
