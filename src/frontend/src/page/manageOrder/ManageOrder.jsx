@@ -1,10 +1,11 @@
-import { Table, Button, Input, Card, message, Pagination } from 'antd';
+import { Table, Button, Input, Card, message, Pagination, DatePicker, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSidebar';
 import ManageOrderHeader from '../../component/manageOrderHeader/ManageOrderHeader';
 import ManageOrderSteps from '../../component/manageOrderSteps/ManageOrderSteps';
 import { useState, useEffect } from 'react';
 import api from '../../config/api';
+import dayjs from 'dayjs';
 
 // Define mapping for string statuses to numeric values
 const stringStatusToNumeric = {
@@ -50,6 +51,11 @@ export default function ManageOrder() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null); // Kept for inline error display
     const [orderDetails, setOrderDetails] = useState({});
+    const [salesSummary, setSalesSummary] = useState({ totalOrders: 0 });
+    const [dateRange, setDateRange] = useState({
+        startDate: dayjs().startOf('month'),
+        endDate: dayjs().endOf('month')
+    });
     const pageSize = 10;
 
     const debounce = (func, delay) => {
@@ -101,9 +107,48 @@ export default function ManageOrder() {
         );
     };
 
+    const fetchSalesSummary = async () => {
+        try {
+            // Validate date range
+            if (!dateRange.startDate || !dateRange.endDate) {
+                message.error('Please select both start and end dates');
+                return;
+            }
+
+            if (dateRange.startDate.isAfter(dateRange.endDate)) {
+                message.error('Start date cannot be after end date');
+                return;
+            }
+
+            const response = await api.get('Report/sales-summary', {
+                params: {
+                    FromDate: dateRange.startDate.format('YYYY-MM-DD'),
+                    ToDate: dateRange.endDate.format('YYYY-MM-DD')
+                }
+            });
+            if (response.data.statusCode === 200 && response.data.data) {
+                setSalesSummary(response.data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching sales summary:', error);
+            if (error.response?.status === 400) {
+                message.error(error.response.data.detail || 'No sales data available for the selected period');
+            } else {
+                message.error('Failed to fetch sales summary. Please try again later.');
+            }
+            setSalesSummary({
+                totalOrders: 0,
+                totalRevenue: 0,
+                averageOrderValue: 0,
+                totalProductsSold: 0
+            });
+        }
+    };
+
     useEffect(() => {
         fetchOrders(currentPage);
-    }, [currentPage]);
+        fetchSalesSummary();
+    }, [currentPage, dateRange]);
 
     const toggleVisibility = (orderNumber) => {
         setVisibleOrders((prev) => {
@@ -214,6 +259,20 @@ export default function ManageOrder() {
                     <div style={{ maxWidth: '100%', margin: '0 auto' }}>
                         <h1 style={{ fontSize: '40px', textAlign: 'left', width: '100%' }}>Orders</h1>
                         {error && <div style={{ color: 'red', marginBottom: '16px' }}>Error: {error}</div>}
+                        <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <Space>
+                                <DatePicker
+                                    value={dateRange.startDate}
+                                    onChange={(date) => setDateRange(prev => ({ ...prev, startDate: date }))}
+                                    placeholder="Start Date"
+                                />
+                                <DatePicker
+                                    value={dateRange.endDate}
+                                    onChange={(date) => setDateRange(prev => ({ ...prev, endDate: date }))}
+                                    placeholder="End Date"
+                                />
+                            </Space>
+                        </div>
                         <div
                             style={{
                                 display: 'flex',
@@ -221,7 +280,12 @@ export default function ManageOrder() {
                                 marginBottom: '16px',
                                 justifyContent: 'flex-start',
                             }}>
-                            {[...Array(4)].map((_, i) => (
+                            {[
+                                { title: 'Total Orders', value: salesSummary.totalOrders },
+                                { title: 'Total Revenue', value: `${(salesSummary.totalRevenue || 0).toLocaleString()} VND` },
+                                { title: 'Average Order Value', value: `${(salesSummary.averageOrderValue || 0).toLocaleString()} VND` },
+                                { title: 'Total Products Sold', value: salesSummary.totalProductsSold || 0 }
+                            ].map((metric, i) => (
                                 <Card
                                     key={i}
                                     style={{
@@ -231,9 +295,9 @@ export default function ManageOrder() {
                                         height: '120px',
                                         borderRadius: '12px',
                                     }}>
-                                    <h2 style={{ fontSize: '18px', fontFamily: 'Nunito, sans-serif' }}>Total Orders</h2>
+                                    <h2 style={{ fontSize: '18px', fontFamily: 'Nunito, sans-serif' }}>{metric.title}</h2>
                                     <p style={{ fontSize: '40px', color: '#C87E83', fontFamily: 'Nunito, sans-serif' }}>
-                                        123
+                                        {metric.value}
                                     </p>
                                 </Card>
                             ))}
