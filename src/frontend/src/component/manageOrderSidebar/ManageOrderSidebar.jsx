@@ -24,8 +24,6 @@ const getSelectedKeyFromPath = (pathname) => {
     if (pathname.includes("manage-event")) return "8";
     if (pathname.includes("manage-order")) return "1";
     if (pathname.includes("manage-return")) return "3";
-    if (pathname.includes("view-comments")) return "4";
-    if (pathname.includes("review-comments")) return "5";
     if (pathname.includes("manage-category")) return "11";
     if (pathname.includes("manage-quiz")) return "7";
     if (pathname.includes("manage-skintype")) return "12";
@@ -50,8 +48,6 @@ const ManageOrderSidebar = () => {
 
         if (path.includes("manage-order")) {
             setOpenKeys(["sub1"]);
-        } else if (path.includes("manage-comment")) {
-            setOpenKeys(["sub2"]);
         } else if (path.includes("manage-product")) {
             setOpenKeys(["sub3"]);
         } else if (path.includes("manage-quiz") || path.includes("manage-skintype")) {
@@ -118,14 +114,9 @@ const ManageOrderSidebar = () => {
                     <Menu.Item key="10">Manage Brand</Menu.Item>
                     <Menu.Item key="11">Manage Category</Menu.Item>
                 </SubMenu>
-                <SubMenu key="sub2" icon={<CommentOutlined />} title="Manage Comments">
-                    <Menu.Item key="4">View Comments</Menu.Item>
-                    <Menu.Item key="5">Review Comments</Menu.Item>
-                </SubMenu>
-
                 <SubMenu key="sub4" icon={<QuestionCircleOutlined />} title="Manage Quiz">
                     <Menu.Item key="7">Manage Quiz</Menu.Item>
-                    <Menu.Item key="12">Manage Skintype</Menu.Item> {/* Added for Manage Skintype */}
+                    <Menu.Item key="12">Manage Skintype</Menu.Item>
                 </SubMenu>
             </Menu>
             <div
