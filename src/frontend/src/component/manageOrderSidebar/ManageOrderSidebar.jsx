@@ -46,21 +46,19 @@ const ManageOrderSidebar = () => {
             setSelectedKey(newSelectedKey);
         }
 
-        // Determine which submenu should be opened based on the path
         let newOpenKey = null;
         if (path.includes("manage-order") || path.includes("manage-return")) {
-            newOpenKey = "sub1"; // Manage Orders
+            newOpenKey = "sub1"; 
         } else if (path.includes("manage-product") || path.includes("manage-brand") || path.includes("manage-category")) {
-            newOpenKey = "sub3"; // Manage Products
+            newOpenKey = "sub3"; 
         } else if (path.includes("manage-quiz") || path.includes("manage-skintype")) {
-            newOpenKey = "sub4"; // Manage Quiz
+            newOpenKey = "sub4"; 
         }
 
-        // Merge the new open key with existing openKeys instead of replacing them
         if (newOpenKey && !openKeys.includes(newOpenKey)) {
             setOpenKeys((prevKeys) => {
-                const updatedKeys = [...new Set([...prevKeys, newOpenKey])]; // Avoid duplicates
-                setPersistedOpenKeys(updatedKeys); // Persist the updated keys
+                const updatedKeys = [...new Set([...prevKeys, newOpenKey])]; 
+                setPersistedOpenKeys(updatedKeys); 
                 return updatedKeys;
             });
         }
