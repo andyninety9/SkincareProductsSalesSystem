@@ -27,7 +27,7 @@ const statusConfig = {
     Processing: { icon: <SyncOutlined spin />, color: '#E6B2BA' },
     Shipping: { icon: <SyncOutlined />, color: 'blue' },
     Shipped: { icon: <CheckCircleOutlined />, color: 'cyan' },
-    Completed: { icon: <CheckCircleOutlined />, color: '#D8959A' },
+    Completed: { icon: <CheckCircleOutlined />, color: 'success' },
     Cancelled: { icon: <CloseCircleOutlined />, color: 'error' },
 };
 
@@ -978,19 +978,33 @@ const ProfilePage = () => {
                                     <div style={{ textAlign: 'center', marginTop: '15px' }}>
                                         <Row justify="center">
                                             <Col>
-                                                <Row gutter={8} align="middle">
+                                                <Row gutter={8} align="middle" justify="center">
                                                     <Col>
                                                         <Pagination
-                                                            current={orderPagination.current} // Reflects the current page (e.g., 6)
-                                                            pageSize={orderPagination.pageSize} // Set to 10 as per your data
-                                                            total={orderPagination.total} // Should be 115 (totalItems), not totalPages * pageSize
+                                                            current={orderPagination.current}
+                                                            pageSize={orderPagination.pageSize}
+                                                            total={orderPagination.total}
                                                             onChange={handleOrderPaginationChange}
                                                             size="small"
-                                                            style={{ color: '#D8959A' }}
-                                                            showSizeChanger={false} // Keep this as false if you don’t want to change pageSize
-                                                            // Optional: Adds a quick jump input for easier navigation
-                                                            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`} // Optional: Shows total items
+                                                            style={{
+                                                                color: '#D8959A',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                            }}
+                                                            showSizeChanger={false}
                                                         />
+                                                    </Col>
+                                                </Row>
+                                                <Row justify="center" style={{ marginTop: '8px' }}>
+                                                    <Col>
+                                                        <span style={{ color: '#D8959A', fontSize: '12px' }}>
+                                                            <strong>
+                                                                {(orderPagination.current - 1) * orderPagination.pageSize + 1}-
+                                                                {Math.min(orderPagination.current * orderPagination.pageSize, orderPagination.total)}
+                                                            </strong>{' '}
+                                                            trong tổng <strong>{orderPagination.total}</strong> đơn hàng
+                                                        </span>
                                                     </Col>
                                                 </Row>
                                             </Col>
