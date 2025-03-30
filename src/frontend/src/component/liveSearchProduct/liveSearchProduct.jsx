@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../config/api';
-import { Avatar, Empty, Input, List, Skeleton, Spin } from 'antd';
+import { Avatar, Empty, Input, List, Skeleton } from 'antd';
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import './liveSearchProduct.css';
 
@@ -11,6 +11,8 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const searchContainerRef = useRef(null);
+
     useEffect(() => {
         if (!searchTerm || searchTerm.length < 2) {
             setSearchResults([]);
@@ -25,6 +27,23 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
         }, 300);
         return () => clearTimeout(debounceTimer);
     }, [searchTerm]);
+
+    // Add click outside listener
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+                onClose();
+            }
+        }
+
+        // Add event listener
+        document.addEventListener('mousedown', handleClickOutside);
+
+        // Clean up the event listener
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [onClose]);
 
     const performSearch = async (term) => {
         try {
@@ -67,9 +86,9 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
             ))}
         </>
     );
+
     return (
-        // Trong hàm return của LiveSearchProduct.jsx
-        <div className="live-search-container">
+        <div className="live-search-container" style={{ width: '40%' }} ref={searchContainerRef}>
             <div className="search-header">
                 <Input
                     placeholder="Tìm kiếm sản phẩm..."
@@ -80,13 +99,13 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
                     size="large"
                     autoFocus={autoFocus}
                     className="search-input"
+                    style={{ width: '100%', fontSize: '16px' }}
                 />
             </div>
 
-            <div className="search-results">
+            <div className="search-results" style={{ width: '100%', marginTop: '10px', maxHeight: '400px', overflowY: 'auto' }}>
                 {loading ? (
                     <div className="search-loading">
-                        {/* <Spin size="default" /> */}
                         <SearchResultSkeleton />
                     </div>
                 ) : (
@@ -100,7 +119,7 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
                                         renderItem={(item) => (
                                             <List.Item
                                                 className="search-result-item"
-                                                style={{ padding: '8px 16px' }}
+                                                style={{ padding: '12px 16px', cursor: 'pointer' }}
                                                 onClick={() => handleProductClick(item.productId)}>
                                                 <List.Item.Meta
                                                     avatar={
@@ -111,30 +130,26 @@ export default function LiveSearchProduct({ onClose, autoFocus }) {
                                                                     : 'https://product.hstatic.net/1000360941/product/toner-innisfree-hoa-anh-dao_3400df3de24543f3958a7e5b704ab8ac_master.jpg'
                                                             }
                                                             shape="square"
-                                                            size={54}
+                                                            size={64}
                                                         />
                                                     }
-                                                    title={item.productName}
-                                                    description={`${item.sellPrice.toLocaleString('vi-VN')}₫`}
+                                                    title={<span style={{ fontSize: '16px' }}>{item.productName}</span>}
+                                                    description={
+                                                        <span
+                                                            style={{
+                                                                fontSize: '14px',
+                                                                color: '#D8959A',
+                                                                fontWeight: 'bold',
+                                                            }}>
+                                                            {`${item.sellPrice.toLocaleString('vi-VN')}₫`}
+                                                        </span>
+                                                    }
                                                 />
                                             </List.Item>
                                         )}
                                     />
                                 ) : (
                                     <Empty description="Không tìm thấy sản phẩm nào" className="search-empty" />
-                                )}
-
-                                {searchResults.length > 5 && (
-                                    <div className="view-all-results">
-                                        <button
-                                            onClick={() => {
-                                                navigate(`/product`);
-                                                onClose();
-                                            }}
-                                            className="view-all-btn">
-                                            Xem tất cả kết quả
-                                        </button>
-                                    </div>
                                 )}
                             </>
                         )}
