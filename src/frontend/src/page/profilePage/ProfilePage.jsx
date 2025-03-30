@@ -31,6 +31,8 @@ const statusConfig = {
     Cancelled: { icon: <CloseCircleOutlined />, color: 'error' },
 };
 
+
+
 const ProfilePage = () => {
     const navigate = useNavigate();
     //addresses
@@ -597,7 +599,16 @@ const ProfilePage = () => {
                         }}>
                         {userInfo.fullname}
                     </p>
-                    <p style={{ marginTop: '2px' }}>{userInfo.gender}</p>
+                    <p style={{ marginTop: '2px' }}>
+                        {userInfo.gender
+                            ? userInfo.gender === 'Male'
+                                ? 'Nam'
+                                : userInfo.gender === 'Female'
+                                    ? 'Nữ'
+                                    : 'Khác'
+                            : 'Chưa cập nhật'
+                        }
+                    </p>
                     <Input
                         prefix={<MailOutlined />}
                         value={userInfo.email || 'Đang cập nhật'}
@@ -608,7 +619,7 @@ const ProfilePage = () => {
                             border: 'none',
                             color: userInfo.email ? 'black' : '#888',
                             backgroundColor: 'white',
-                            height: 50,
+                            height: 'auto', 
                         }}
                     />
 
@@ -622,7 +633,7 @@ const ProfilePage = () => {
                             border: 'none',
                             color: userInfo.phone ? 'black' : '#888',
                             backgroundColor: 'white',
-                            height: 50,
+                            height: 'auto',
                         }}
                     />
                     <Input
@@ -634,7 +645,8 @@ const ProfilePage = () => {
                             border: 'none',
                             color: userInfo.dob ? 'black' : '#888',
                             backgroundColor: 'white',
-                            height: 50,
+                            height: 'auto',
+    
                         }}
                     />
                     {userInfo.accountStatus === 'Unverified' && (
