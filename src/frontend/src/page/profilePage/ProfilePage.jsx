@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../config/api';
-import { MailOutlined, PhoneOutlined, CalendarOutlined } from '@ant-design/icons';
+import { MailOutlined, PhoneOutlined, CalendarOutlined, SearchOutlined } from '@ant-design/icons';
 import { Card, Avatar, Input, Tabs, List, Button, Tag, Row, Col, Modal, Form, message, Upload, Spin, Pagination } from 'antd';
 import { DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import UpdateProfileModal from './UpdateProfileModal';
@@ -47,6 +47,8 @@ const ProfilePage = () => {
         pageSize: 20,
         total: 0
     });
+    const [searchOrderText, setSearchOrderText] = useState('');
+    const [filteredOrdersHistory, setFilteredOrdersHistory] = useState([]);
     //user info
     const [userInfo, setUserInfo] = useState({});
     const [addresses, setAddresses] = useState([]);
@@ -233,6 +235,7 @@ const ProfilePage = () => {
                 const ordersData = response.data.data.items || [];
                 const totalItems = response.data.data.totalItems || 0;
                 setOrdersHistory(ordersData);
+                setFilteredOrdersHistory(ordersData);
                 setOrderPagination({
                     current: page,
                     pageSize: pageSize,
@@ -246,6 +249,26 @@ const ProfilePage = () => {
         } finally {
             setLoadingOrders(false);
         }
+    };
+
+    // Handle search in orders
+    const handleOrderSearch = (e) => {
+        const searchText = e.target.value.toLowerCase();
+        setSearchOrderText(searchText);
+
+        if (!searchText) {
+            setFilteredOrdersHistory(ordersHistory);
+            return;
+        }
+
+        const filtered = ordersHistory.filter(order =>
+            toBigIntString(order.orderId).toLowerCase().includes(searchText) ||
+            order.products.some(product =>
+                product.productName.toLowerCase().includes(searchText)
+            )
+        );
+
+        setFilteredOrdersHistory(filtered);
     };
 
     // Handle order pagination change
@@ -838,8 +861,21 @@ const ProfilePage = () => {
                                         display: 'flex',
                                         flexDirection: 'column',
                                     }}>
+                                    <Input
+                                        placeholder="Tìm kiếm theo ID đơn hàng hoặc tên sản phẩm"
+                                        value={searchOrderText}
+                                        onChange={handleOrderSearch}
+                                        style={{
+                                            marginBottom: '15px',
+                                            borderRadius: '6px',
+                                            borderColor: '#D8959A',
+                                        }}
+                                        prefix={<SearchOutlined style={{ color: '#D8959A' }} />}
+                                        allowClear
+                                    />
+
                                     <List
-                                        dataSource={ordersHistory}
+                                        dataSource={filteredOrdersHistory}
                                         renderItem={(order) => (
                                             <List.Item
                                                 style={{
@@ -933,6 +969,13 @@ const ProfilePage = () => {
                                             </List.Item>
                                         )}
                                     />
+
+                                    {filteredOrdersHistory.length === 0 && searchOrderText !== '' && (
+                                        <div style={{ textAlign: 'center', padding: '20px' }}>
+                                            Không tìm thấy đơn hàng phù hợp.
+                                        </div>
+                                    )}
+
                                     <div style={{ textAlign: 'center', marginTop: '15px' }}>
                                         <Row justify="center">
                                             <Col>
