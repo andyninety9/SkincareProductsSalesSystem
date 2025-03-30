@@ -44,7 +44,7 @@ const ProfilePage = () => {
     const [loadingOrders, setLoadingOrders] = useState(true);
     const [orderPagination, setOrderPagination] = useState({
         current: 1,
-        pageSize: 20,
+        pageSize: 10,
         total: 0
     });
     const [searchOrderText, setSearchOrderText] = useState('');
@@ -227,19 +227,19 @@ const ProfilePage = () => {
     };
 
     // Get all orders
-    const fetchOrdersHistory = async (page = 1, pageSize = 20) => {
+    const fetchOrdersHistory = async (page = 1, pageSize = 10) => { // Changed default pageSize to 10
         try {
             setLoadingOrders(true);
             const response = await api.get(`User/orders-history?page=${page}&pageSize=${pageSize}`);
             if (response.data.statusCode === 200) {
                 const ordersData = response.data.data.items || [];
-                const totalItems = response.data.data.totalItems || 0;
+                const totalItems = response.data.data.totalItems || 0; // Should be 115
                 setOrdersHistory(ordersData);
                 setFilteredOrdersHistory(ordersData);
                 setOrderPagination({
-                    current: page,
-                    pageSize: pageSize,
-                    total: totalItems
+                    current: page, // e.g., 6
+                    pageSize: pageSize, // e.g., 10
+                    total: totalItems // e.g., 115
                 });
             } else {
                 console.log('Failed to fetch order history.');
@@ -975,20 +975,21 @@ const ProfilePage = () => {
                                             Không tìm thấy đơn hàng phù hợp.
                                         </div>
                                     )}
-
                                     <div style={{ textAlign: 'center', marginTop: '15px' }}>
                                         <Row justify="center">
                                             <Col>
                                                 <Row gutter={8} align="middle">
                                                     <Col>
                                                         <Pagination
-                                                            current={orderPagination.current}
-                                                            pageSize={orderPagination.pageSize}
-                                                            total={orderPagination.total}
+                                                            current={orderPagination.current} // Reflects the current page (e.g., 6)
+                                                            pageSize={orderPagination.pageSize} // Set to 10 as per your data
+                                                            total={orderPagination.total} // Should be 115 (totalItems), not totalPages * pageSize
                                                             onChange={handleOrderPaginationChange}
                                                             size="small"
                                                             style={{ color: '#D8959A' }}
-                                                            showSizeChanger={false}
+                                                            showSizeChanger={false} // Keep this as false if you don’t want to change pageSize
+                                                            // Optional: Adds a quick jump input for easier navigation
+                                                            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`} // Optional: Shows total items
                                                         />
                                                     </Col>
                                                 </Row>
