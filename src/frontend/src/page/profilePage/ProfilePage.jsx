@@ -227,19 +227,19 @@ const ProfilePage = () => {
     };
 
     // Get all orders
-    const fetchOrdersHistory = async (page = 1, pageSize = 10) => { // Changed default pageSize to 10
+    const fetchOrdersHistory = async (page = 1, pageSize = 10) => {
         try {
             setLoadingOrders(true);
             const response = await api.get(`User/orders-history?page=${page}&pageSize=${pageSize}`);
             if (response.data.statusCode === 200) {
                 const ordersData = response.data.data.items || [];
-                const totalItems = response.data.data.totalItems || 0; // Should be 115
+                const totalItems = response.data.data.totalItems || 0;
                 setOrdersHistory(ordersData);
                 setFilteredOrdersHistory(ordersData);
                 setOrderPagination({
-                    current: page, // e.g., 6
-                    pageSize: pageSize, // e.g., 10
-                    total: totalItems // e.g., 115
+                    current: page,
+                    pageSize: pageSize,
+                    total: totalItems
                 });
             } else {
                 console.log('Failed to fetch order history.');
