@@ -498,13 +498,14 @@ const OrderHistoryPage = () => {
                                                             index < products.length - 1 ? '1px solid #f0f0f0' : 'none',
                                                     }}>
                                                     <Image
-                                                        src={product.images?.[0] || 'https://via.placeholder.com/100'}
+                                                        src={
+                                                            product.images?.[0] ||
+                                                            'https://via.placeholder.com/100?text=No+Image'
+                                                        }
                                                         alt={product.productName || 'Product Image'}
                                                         onError={(e) => {
-                                                            console.error(
-                                                                `Failed to load image: ${product.images?.[0]}`
-                                                            );
-                                                            e.target.src = 'https://via.placeholder.com/100';
+                                                            e.target.src =
+                                                                'https://via.placeholder.com/100?text=No+Image';
                                                         }}
                                                         style={{
                                                             width: '100px',
@@ -513,26 +514,48 @@ const OrderHistoryPage = () => {
                                                             borderRadius: '4px',
                                                             border: '1px solid #f0f0f0',
                                                         }}
+                                                        preview={{
+                                                            src: product.images?.[0],
+                                                            mask: <div style={{ fontSize: '14px' }}>Xem</div>,
+                                                        }}
                                                     />
                                                     <div
                                                         style={{
                                                             flex: 1,
-                                                            height: '100px',
+                                                            minHeight: '100px',
                                                             overflow: 'hidden',
                                                             display: 'flex',
                                                             flexDirection: 'column',
                                                             justifyContent: 'space-between',
                                                         }}>
-                                                        <Text strong>{product.productName}</Text>
+                                                        <div>
+                                                            <Text strong style={{ fontSize: '16px' }}>
+                                                                {product.productName}
+                                                            </Text>
+                                                            {product.brandName && (
+                                                                <Text
+                                                                    type="secondary"
+                                                                    style={{
+                                                                        fontSize: '13px',
+                                                                        display: 'block',
+                                                                        marginTop: '2px',
+                                                                    }}>
+                                                                    Thương hiệu: {product.brandName}
+                                                                </Text>
+                                                            )}
+                                                        </div>
+
                                                         <Text
                                                             type="secondary"
                                                             style={{
-                                                                fontSize: '12px',
+                                                                fontSize: '13px',
                                                                 wordBreak: 'break-word',
-                                                                overflowWrap: 'break-word',
-                                                                whiteSpace: 'normal',
-                                                                maxWidth: '100%',
-                                                                display: 'block',
+                                                                margin: '8px 0',
+                                                                display: '-webkit-box',
+                                                                WebkitLineClamp: 2,
+                                                                WebkitBoxOrient: 'vertical',
+                                                                overflow: 'hidden',
+                                                                textOverflow: 'ellipsis',
                                                             }}>
                                                             {product.productDesc}
                                                         </Text>
@@ -542,15 +565,17 @@ const OrderHistoryPage = () => {
                                                                 display: 'flex',
                                                                 alignItems: 'center',
                                                                 justifyContent: 'space-between',
+                                                                marginTop: '8px',
                                                             }}>
                                                             <div
                                                                 style={{
-                                                                    padding: '2px 8px',
+                                                                    padding: '3px 10px',
                                                                     backgroundColor: '#F5F5F5',
                                                                     borderRadius: '4px',
                                                                     fontSize: '14px',
+                                                                    fontWeight: '500',
                                                                 }}>
-                                                                x{product.quantity}
+                                                                Số lượng: {product.quantity}
                                                             </div>
                                                             <Button
                                                                 size="small"
@@ -567,38 +592,70 @@ const OrderHistoryPage = () => {
                                                                             ? 'pointer'
                                                                             : 'not-allowed',
                                                                 }}>
-                                                                Đánh giá sản phẩm
+                                                                <span style={{ fontWeight: '500' }}>
+                                                                    Đánh giá sản phẩm
+                                                                </span>
                                                             </Button>
                                                         </div>
                                                     </div>
-                                                    <div style={{ textAlign: 'right', width: '120px' }}>
-                                                        {product.discountedPrice > 0 && (
-                                                            <Text
-                                                                delete
-                                                                style={{
-                                                                    fontSize: '12px',
-                                                                    display: 'block',
-                                                                    color: '#999',
-                                                                }}>
-                                                                đ{product.sellPrice.toLocaleString()}
+                                                    <div style={{ textAlign: 'right', width: '140px' }}>
+                                                        {product.discountedPrice > 0 &&
+                                                            product.discountedPrice < product.sellPrice && (
+                                                                <Text
+                                                                    delete
+                                                                    style={{
+                                                                        fontSize: '13px',
+                                                                        display: 'block',
+                                                                        color: '#999',
+                                                                    }}>
+                                                                    Giá gốc: đ{product.sellPrice.toLocaleString()}
+                                                                </Text>
+                                                            )}
+
+                                                        <div style={{ marginTop: '3px' }}>
+                                                            <Text type="secondary" style={{ fontSize: '13px' }}>
+                                                                Đơn giá:
                                                             </Text>
-                                                        )}
-                                                        <Text
+                                                            <Text
+                                                                style={{
+                                                                    color: '#D8959A',
+                                                                    fontWeight: 'bold',
+                                                                    fontSize: '16px',
+                                                                    display: 'block',
+                                                                }}>
+                                                                đ
+                                                                {(product.discountedPrice > 0 &&
+                                                                product.discountedPrice < product.sellPrice
+                                                                    ? product.discountedPrice
+                                                                    : product.sellPrice
+                                                                ).toLocaleString()}
+                                                            </Text>
+                                                        </div>
+
+                                                        <div
                                                             style={{
-                                                                color: '#D8959A',
-                                                                fontWeight: 'bold',
-                                                                fontSize: '16px',
+                                                                marginTop: '6px',
+                                                                borderTop: '1px dashed #f0f0f0',
+                                                                paddingTop: '6px',
                                                             }}>
-                                                            đ
-                                                            {(product.discountedPrice > 0
-                                                                ? product.discountedPrice
-                                                                : product.sellPrice
-                                                            ).toLocaleString()}
-                                                        </Text>
-                                                        <Text type="secondary" style={{ fontSize: '13px' }}>
-                                                            Tổng: đ
-                                                            {(product.unitPrice * product.quantity).toLocaleString()}
-                                                        </Text>
+                                                            <Text type="secondary" style={{ fontSize: '13px' }}>
+                                                                Thành tiền ({product.quantity} sản phẩm):
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    fontWeight: '500',
+                                                                    color: '#333',
+                                                                    display: 'block',
+                                                                }}>
+                                                                đ
+                                                                {(
+                                                                    (product.discountedPrice > 0 &&
+                                                                    product.discountedPrice < product.sellPrice
+                                                                        ? product.discountedPrice
+                                                                        : product.sellPrice) * product.quantity
+                                                                ).toLocaleString()}
+                                                            </Text>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ))}
@@ -692,7 +749,7 @@ const OrderHistoryPage = () => {
                                                 đ
                                                 {products
                                                     .reduce(
-                                                        (sum, product) => sum + product.sellPrice * product.quantity,
+                                                        (sum, product) => sum + product.unitPrice * product.quantity,
                                                         0
                                                     )
                                                     .toLocaleString()}
@@ -701,15 +758,20 @@ const OrderHistoryPage = () => {
 
                                         {/* Display discount if applicable */}
                                         {(() => {
-                                            const regularTotal = products.reduce(
-                                                (sum, product) => sum + product.sellPrice * product.quantity,
-                                                0
-                                            );
-                                            const actualProductsTotal = products.reduce(
+                                            // Calculate subtotal (total product cost)
+                                            const subtotal = products.reduce(
                                                 (sum, product) => sum + product.unitPrice * product.quantity,
                                                 0
                                             );
-                                            const discount = regularTotal - actualProductsTotal;
+
+                                            // Calculate shipping fee (default to 21,500 if not available)
+                                            const shippingFee =
+                                                order.payment?.paymentAmount - order.totalPrice > 0
+                                                    ? order.payment.paymentAmount - order.totalPrice
+                                                    : 21500;
+
+                                            // Calculate discount: subtotal - (totalPrice - shippingFee)
+                                            const discount = subtotal - (order.totalPrice - shippingFee);
 
                                             return discount > 0 ? (
                                                 <div
@@ -739,7 +801,7 @@ const OrderHistoryPage = () => {
                                                 đ
                                                 {(order.payment?.paymentAmount - order.totalPrice > 0
                                                     ? order.payment.paymentAmount - order.totalPrice
-                                                    : 0
+                                                    : 21500
                                                 ).toLocaleString()}
                                             </Text>
                                         </div>
@@ -774,7 +836,7 @@ const OrderHistoryPage = () => {
                                                 fontSize: '13px',
                                             }}>
                                             <Text type="secondary">Phương thức thanh toán:</Text>
-                                            <Text strong>{order.payment?.paymentMethod || 'Không xác định'}</Text>
+                                            <Text strong>{order.payment?.paymentMethod || 'Cash on delivery'}</Text>
                                         </div>
                                     </div>
                                 </div>
