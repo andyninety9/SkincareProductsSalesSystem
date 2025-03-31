@@ -286,25 +286,25 @@ export default function ManageReturnPage() {
             key: 'refundAmount',
             render: (amount) => `₫${amount.toLocaleString()}`,
         },
-        {
-            title: 'Products',
-            dataIndex: 'returnProducts',
-            key: 'returnProducts',
-            render: (products, record) => (
-                <Space>
-                    <Button type="link" onClick={() => showReturnDetails({ returnProducts: products })}>
-                        View {products.length} product{products.length > 1 ? 's' : ''}
-                    </Button>
-                    <Button
-                        type="dashed"
-                        icon={<UploadOutlined />}
-                        onClick={() => showUploadModal(record.returnId)}
-                        size="small">
-                        Upload Images
-                    </Button>
-                </Space>
-            ),
-        },
+        // {
+        //     title: 'Products',
+        //     dataIndex: 'returnProducts',
+        //     key: 'returnProducts',
+        //     render: (products, record) => (
+        //         <Space>
+        //             <Button type="link" onClick={() => showReturnDetails({ returnProducts: products })}>
+        //                 View {products.length} product{products.length > 1 ? 's' : ''}
+        //             </Button>
+        //             <Button
+        //                 type="dashed"
+        //                 icon={<UploadOutlined />}
+        //                 onClick={() => showUploadModal(record.returnId)}
+        //                 size="small">
+        //                 Upload Images
+        //             </Button>
+        //         </Space>
+        //     ),
+        // },
         {
             title: 'Status',
             dataIndex: 'returnStatus',
@@ -341,13 +341,14 @@ export default function ManageReturnPage() {
                             alignItems: 'center',
                             marginBottom: '24px',
                         }}>
-                        <Title level={2} 
-                        style={{ 
-                            fontFamily: 'Marko One, sans-serif',
-                            fontSize: '40px',}}>
+                        <Title
+                            level={2}
+                            style={{
+                                fontFamily: 'Marko One, sans-serif',
+                                fontSize: '40px',
+                            }}>
                             Manage Return
                         </Title>
-
                     </div>
                     {/* Search input */}
                     <div style={{ marginBottom: 16 }}>
@@ -453,7 +454,7 @@ export default function ManageReturnPage() {
                     </Modal>
 
                     {/* Image Upload Modal */}
-                    <Modal
+                    {/* <Modal
                         title="Upload Product Condition Images"
                         open={uploadVisible}
                         onOk={handleUpload}
@@ -469,7 +470,7 @@ export default function ManageReturnPage() {
                             Please upload clear images showing the condition of returned products. Max size: 5MB per
                             image.
                         </Typography.Paragraph>
-                    </Modal>
+                    </Modal> */}
                     {/* Process Return Modal */}
                     <Modal
                         title="Process Return Request"

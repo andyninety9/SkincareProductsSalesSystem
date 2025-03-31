@@ -27,7 +27,7 @@ export default function TopSellingProductsChart({ topSellingProducts, processCha
         { label: 'Bar Chart', value: 'bar' },
         { label: 'Line Chart', value: 'line' },
         { label: 'Area Chart', value: 'area' },
-        { label: 'Pie Chart', value: 'pie' },
+        // { label: 'Pie Chart', value: 'pie' },
     ];
 
     return (
