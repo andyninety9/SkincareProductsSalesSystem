@@ -56,8 +56,10 @@ export default function ManageOrder() {
     const [salesSummary, setSalesSummary] = useState({ totalOrders: 0 });
     const [dateRange, setDateRange] = useState({
         startDate: dayjs().startOf('month'),
-        endDate: dayjs().endOf('month')
+        endDate: dayjs().endOf('month'),
     });
+    const [isNotificationVisible, setIsNotificationVisible] = useState(false);
+
     const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredOrders, setFilteredOrders] = useState([]);
@@ -72,6 +74,16 @@ export default function ManageOrder() {
         };
     };
 
+    const showNumberOnlyNotification = () => {
+        if (!isNotificationVisible) {
+            setIsNotificationVisible(true);
+            message.info('Chỉ nhập số ID đơn hàng', 3, () => {
+                // This callback runs when notification closes
+                setIsNotificationVisible(false);
+            });
+        }
+    };
+
     const debouncedSearch = useCallback(
         debounce((value) => {
             if (value.trim() === '') {
@@ -80,6 +92,8 @@ export default function ManageOrder() {
                 setCurrentPage(1);
                 return;
             }
+
+            setIsSearching(true);
             searchOrders(value);
         }, 500),
         []
@@ -94,7 +108,7 @@ export default function ManageOrder() {
                     page,
                     pageSize: 10,
                     ...(isSearching ? { keyword: searchTerm } : { keyword: '' }),
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
                 },
                 (items) => {
                     const formattedOrders = items.items.map((order) => ({
@@ -125,7 +139,7 @@ export default function ManageOrder() {
 
     const searchOrders = async (searchValue) => {
         setLoading(true);
-        setIsSearching(true);
+        // setIsSearching(true);
         try {
             let allOrders = [];
             let currentPageToFetch = 1;
@@ -139,8 +153,8 @@ export default function ManageOrder() {
                         pageSize: 10,
                         keyword: searchValue,
                         searchByOrderIdOnly: true,
-                        timestamp: Date.now()
-                    }
+                        timestamp: Date.now(),
+                    },
                 });
 
                 if (response.data.statusCode === 200 && response.data.data) {
@@ -170,7 +184,7 @@ export default function ManageOrder() {
 
             setOrders(allOrders);
             setFilteredOrders(allOrders);
-            setCurrentPage(1);
+            // setCurrentPage(1);
         } catch (error) {
             const fullErrorMsg = error.response?.data?.message || error.message || 'Failed to search orders';
             setError(fullErrorMsg);
@@ -207,8 +221,8 @@ export default function ManageOrder() {
             const response = await api.get('Report/sales-summary', {
                 params: {
                     FromDate: dateRange.startDate.format('YYYY-MM-DD'),
-                    ToDate: dateRange.endDate.format('YYYY-MM-DD')
-                }
+                    ToDate: dateRange.endDate.format('YYYY-MM-DD'),
+                },
             });
             if (response.data.statusCode === 200 && response.data.data) {
                 setSalesSummary(response.data.data);
@@ -222,7 +236,7 @@ export default function ManageOrder() {
             }
             setSalesSummary({
                 totalOrders: 0,
-                totalProductsSold: 0
+                totalProductsSold: 0,
             });
         }
     };
@@ -231,7 +245,7 @@ export default function ManageOrder() {
         if (dates && dates.length === 2) {
             setDateRange({
                 startDate: dates[0],
-                endDate: dates[1]
+                endDate: dates[1],
             });
         }
     };
@@ -279,21 +293,17 @@ export default function ManageOrder() {
 
         // Only search if the input is an order ID (numeric)
         if (/^\d*$/.test(value)) {
-            setIsSearching(true);
             debouncedSearch(value);
         } else {
-            message.info('Chỉ nhập số ID đơn hàng');
+            showNumberOnlyNotification();
         }
     };
 
     useEffect(() => {
-        if (isSearching) {
-            searchOrders(searchTerm);
-        } else {
-            fetchOrders(currentPage);
-        }
+        // Initial data load only
+        fetchOrders(1);
         fetchSalesSummary();
-    }, [currentPage, isSearching, searchTerm]);
+    }, []);
 
     const toggleVisibility = (orderNumber) => {
         setVisibleOrders((prev) => {
@@ -406,12 +416,13 @@ export default function ManageOrder() {
                         {error && <div style={{ color: 'red', marginBottom: '16px' }}>Error: {error}</div>}
 
                         {/* Enhanced Date Range Picker */}
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'flex-start',
-                            alignItems: 'center',
-                            marginBottom: '24px'
-                        }}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                alignItems: 'center',
+                                marginBottom: '24px',
+                            }}>
                             <div style={{ marginRight: '16px', fontSize: '14px', color: '#888' }}>
                                 Cập nhật lần cuối: {formatLastUpdateTime()}
                             </div>
@@ -421,10 +432,7 @@ export default function ManageOrder() {
                                     onChange={handleDateRangeChange}
                                     style={{ marginRight: '16px' }}
                                 />
-                                <Button
-                                    type="primary"
-                                    onClick={handleApplyDateRange}
-                                    style={{ marginRight: '8px' }}>
+                                <Button type="primary" onClick={handleApplyDateRange} style={{ marginRight: '8px' }}>
                                     Apply
                                 </Button>
                                 <Tooltip title="Tải lại dữ liệu">
@@ -448,7 +456,7 @@ export default function ManageOrder() {
                             }}>
                             {[
                                 { title: 'Tổng Đơn Hàng', value: salesSummary.totalOrders },
-                                { title: 'Tổng Sản Phẩm Đã Bán', value: salesSummary.totalProductsSold || 0 }
+                                { title: 'Tổng Sản Phẩm Đã Bán', value: salesSummary.totalProductsSold || 0 },
                             ].map((metric, i) => (
                                 <Card
                                     key={i}
@@ -461,25 +469,29 @@ export default function ManageOrder() {
                                         padding: '16px',
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        justifyContent: 'center'
+                                        justifyContent: 'center',
                                     }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                        <h2 style={{
-                                            fontSize: '18px',
-                                            fontFamily: 'Nunito, sans-serif',
-                                            whiteSpace: 'normal',
-                                            lineHeight: '1.2',
-                                            width: '100%',
-                                            margin: 0,
-                                            textAlign: 'left'
-                                        }}>{metric.title}</h2>
-                                        <p style={{
-                                            fontSize: '25px',
-                                            color: '#C87E83',
-                                            fontFamily: 'Nunito, sans-serif',
-                                            textAlign: 'left',
-                                            margin: 0
-                                        }}>
+                                        <h2
+                                            style={{
+                                                fontSize: '18px',
+                                                fontFamily: 'Nunito, sans-serif',
+                                                whiteSpace: 'normal',
+                                                lineHeight: '1.2',
+                                                width: '100%',
+                                                margin: 0,
+                                                textAlign: 'left',
+                                            }}>
+                                            {metric.title}
+                                        </h2>
+                                        <p
+                                            style={{
+                                                fontSize: '25px',
+                                                color: '#C87E83',
+                                                fontFamily: 'Nunito, sans-serif',
+                                                textAlign: 'left',
+                                                margin: 0,
+                                            }}>
                                             {metric.value}
                                         </p>
                                     </div>
@@ -500,6 +512,13 @@ export default function ManageOrder() {
                                 suffix={<SearchOutlined style={{ color: 'rgba(0,0,0,0.45)' }} />}
                                 value={searchTerm}
                                 onChange={handleSearch}
+                                onKeyPress={(e) => {
+                                    const isNumber = /\d/.test(e.key);
+                                    if (!isNumber) {
+                                        e.preventDefault();
+                                        showNumberOnlyNotification(); // Use the new function
+                                    }
+                                }}
                             />
                         </div>
                         <div style={{ width: '100%' }}>
