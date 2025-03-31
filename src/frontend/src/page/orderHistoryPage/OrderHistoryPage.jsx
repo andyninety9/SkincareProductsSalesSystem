@@ -207,6 +207,7 @@ const OrderHistoryPage = () => {
                     delivery: orderData.delivery,
                     warranty: orderData.warranty,
                     orderLogs: orderData.orderLogs,
+                    isPaid: orderData.isPaid,
                 });
 
                 // Fetch details for all products in the order
@@ -666,6 +667,37 @@ const OrderHistoryPage = () => {
                                         <Text type="secondary">Không có thông tin sản phẩm</Text>
                                     )}
                                 </div>
+                                {/* Divider */}
+                                <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />
+
+                                {/* Payment Error Warning */}
+                                {order.isPaid === false && order.payment && order.payment.paymentMethod === 'VNPay' ? (
+                                    <>
+                                        <div
+                                            style={{
+                                                padding: '16px',
+                                                backgroundColor: '#fff2f0',
+                                                border: '1px solid #ffccc7',
+                                                borderRadius: '8px',
+                                                marginBottom: '16px',
+                                            }}>
+                                            <Text
+                                                style={{
+                                                    color: '#ff4d4f',
+                                                    fontWeight: '500',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '8px',
+                                                }}>
+                                                <span style={{ fontSize: '18px' }}>⚠️</span>
+                                                Đã xảy ra lỗi trong quá trình thanh toán, vui lòng liên hệ với chúng tôi
+                                                để xác nhận
+                                            </Text>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <></>
+                                )}
 
                                 {/* Divider */}
                                 <hr style={{ margin: '16px 0', borderTop: '1px solid #e0e0e0' }} />

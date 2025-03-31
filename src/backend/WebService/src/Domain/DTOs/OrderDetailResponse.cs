@@ -9,6 +9,7 @@ namespace Domain.DTOs
         public DateTime OrderDate { get; set; }
         public string OrderStatus { get; set; } = string.Empty;
         public double TotalPrice { get; set; }
+        public bool? IsPaid { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public PaymentDto Payment { get; set; } = new();
