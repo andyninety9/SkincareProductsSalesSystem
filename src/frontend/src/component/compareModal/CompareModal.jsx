@@ -384,7 +384,7 @@ export default function CompareModal({ visible, onClose, currentProduct }) {
                                                 borderRadius: '4px',
                                                 padding: '2px 8px',
                                                 position: 'absolute',
-                                                right: '12px',
+                                                right: '10px',
                                                 top: '-30px',
                                                 zIndex: 1,
                                                 fontSize: '12px',
