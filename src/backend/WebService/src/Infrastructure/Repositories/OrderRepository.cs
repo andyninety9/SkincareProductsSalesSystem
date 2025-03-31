@@ -132,6 +132,7 @@ namespace Infrastructure.Repositories
                 OrderDate = order.Order.OrdDate,
                 OrderStatus = order.Order.OrdStatus.OrdStatusName,
                 TotalPrice = order.Order.TotalOrdPrice,
+                IsPaid = order.Order.IsPaid,
                 CreatedAt = order.Order.CreatedAt,
                 UpdatedAt = order.Order.UpdatedAt,
                 Payment = order.Order.Payments.Select(p => new PaymentDto
@@ -139,6 +140,7 @@ namespace Infrastructure.Repositories
                     PaymentId = p.PaymentId,
                     PaymentMethod = p.PaymentMethod,
                     PaymentAmount = p.PaymentAmount,
+                    OrderId = p.OrderId,
                     // CreatedAt = p.CreatedAt
                 }).FirstOrDefault() ?? new PaymentDto(),
                 Products = order.Order.OrderDetails.Select(od => new OrderProductDto
