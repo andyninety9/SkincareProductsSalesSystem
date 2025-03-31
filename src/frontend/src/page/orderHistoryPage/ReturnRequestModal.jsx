@@ -138,7 +138,7 @@ const ReturnRequestModal = ({ visible, onClose, order, products }) => {
             };
 
             // Log data being sent to API for debugging
-            console.log('Submitting return request:', payload);
+            // console.log('Submitting return request:', payload);
 
             // Use JSON.stringify with a replacer function to handle BigInt values
             const jsonPayload = JSON.stringify(payload);
