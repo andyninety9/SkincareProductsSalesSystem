@@ -294,7 +294,7 @@ export default function CompareModal({ visible, onClose, currentProduct }) {
                                                                 height: `${fieldHeight}px`,
                                                                 display: 'flex',
                                                                 alignItems: 'flex-start',
-                                                                gap: '10px'
+                                                                gap: '5px'
                                                             }}
                                                         >
                                                             <Text
@@ -382,13 +382,19 @@ export default function CompareModal({ visible, onClose, currentProduct }) {
                                                 color: '#ffffff',
                                                 backgroundColor: '#D8959A',
                                                 borderRadius: '4px',
-                                                padding: '4px 12px',
+                                                padding: '2px 8px',
                                                 position: 'absolute',
                                                 right: '12px',
-                                                top: '12px',
-                                                zIndex: 1
+                                                top: '-30px',
+                                                zIndex: 1,
+                                                fontSize: '12px',
+                                                height: 'auto',
+                                                minHeight: '24px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                                             }}
-                                            icon={<SwapOutlined />}
+                                            icon={<SwapOutlined style={{ fontSize: '12px' }} />}
                                         >
                                             Thay đổi
                                         </Button>
@@ -483,10 +489,10 @@ export default function CompareModal({ visible, onClose, currentProduct }) {
                                     height: '100%',
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    justifyContent: 'center',
+                                    justifyContent: 'flex-start',
                                     border: '1px dashed #ddd',
                                     borderRadius: '8px',
-                                    minHeight: '600px'
+                                    minHeight: '500px'
                                 }}>
                                     <Title level={4}>Thêm sản phẩm để so sánh</Title>
                                     <Select
