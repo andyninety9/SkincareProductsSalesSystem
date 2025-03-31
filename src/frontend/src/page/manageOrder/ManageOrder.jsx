@@ -3,7 +3,7 @@ import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import ManageOrderSidebar from '../../component/manageOrderSidebar/ManageOrderSidebar';
 import ManageOrderHeader from '../../component/manageOrderHeader/ManageOrderHeader';
 import ManageOrderSteps from '../../component/manageOrderSteps/ManageOrderSteps';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../../config/api';
 import dayjs from 'dayjs';
 
@@ -51,7 +51,7 @@ export default function ManageOrder() {
     const [currentPage, setCurrentPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null); // Kept for inline error display
+    const [error, setError] = useState(null);
     const [orderDetails, setOrderDetails] = useState({});
     const [salesSummary, setSalesSummary] = useState({ totalOrders: 0 });
     const [dateRange, setDateRange] = useState({
@@ -59,6 +59,9 @@ export default function ManageOrder() {
         endDate: dayjs().endOf('month')
     });
     const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredOrders, setFilteredOrders] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
     const pageSize = 10;
 
     const debounce = (func, delay) => {
@@ -68,12 +71,31 @@ export default function ManageOrder() {
             timer = setTimeout(() => func.apply(this, args), delay);
         };
     };
+
+    const debouncedSearch = useCallback(
+        debounce((value) => {
+            if (value.trim() === '') {
+                setIsSearching(false);
+                fetchOrders(1);
+                setCurrentPage(1);
+                return;
+            }
+            searchOrders(value);
+        }, 500),
+        []
+    );
+
     const fetchOrders = async (page = 1) => {
         setLoading(true);
         try {
-            const data = await fetchApiData(
-                '/Orders?keyword=',
-                { page, pageSize, timestamp: Date.now() },
+            await fetchApiData(
+                '/Orders',
+                {
+                    page,
+                    pageSize: 10,
+                    ...(isSearching ? { keyword: searchTerm } : { keyword: '' }),
+                    timestamp: Date.now()
+                },
                 (items) => {
                     const formattedOrders = items.items.map((order) => ({
                         ...order,
@@ -90,11 +112,70 @@ export default function ManageOrder() {
                         products: order.products || [],
                     }));
                     setOrders(formattedOrders);
+                    setFilteredOrders(formattedOrders);
                     setTotal(items.totalItems || items.items.length);
                 },
                 setError,
                 'Failed to fetch orders'
             );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const searchOrders = async (searchValue) => {
+        setLoading(true);
+        setIsSearching(true);
+        try {
+            let allOrders = [];
+            let currentPageToFetch = 1;
+            let totalPages = 1;
+
+            // Fetch all pages iteratively
+            while (currentPageToFetch <= totalPages) {
+                const response = await api.get('/Orders', {
+                    params: {
+                        page: currentPageToFetch,
+                        pageSize: 10,
+                        keyword: searchValue,
+                        searchByOrderIdOnly: true,
+                        timestamp: Date.now()
+                    }
+                });
+
+                if (response.data.statusCode === 200 && response.data.data) {
+                    const items = response.data.data.items;
+                    const formattedOrders = items.map((order) => ({
+                        ...order,
+                        orderId: BigInt(order.orderId),
+                        orderNumber: toBigIntString(order.orderId),
+                        dateTime: order.orderDate ? new Date(order.orderDate).toLocaleString() : 'N/A',
+                        customerName: order.customerName || 'N/A',
+                        items: order.products?.length || 0,
+                        total: order.totalPrice ? `${order.totalPrice.toLocaleString()} VND` : 'N/A',
+                        status:
+                            order.orderStatus in stringStatusToNumeric
+                                ? stringStatusToNumeric[order.orderStatus]
+                                : order.orderStatus || 1,
+                        products: order.products || [],
+                    }));
+                    allOrders = [...allOrders, ...formattedOrders];
+                    totalPages = response.data.data.totalPages;
+                    setTotal(response.data.data.totalItems);
+                } else {
+                    throw new Error('Failed to fetch search results');
+                }
+                currentPageToFetch += 1;
+            }
+
+            setOrders(allOrders);
+            setFilteredOrders(allOrders);
+            setCurrentPage(1);
+        } catch (error) {
+            const fullErrorMsg = error.response?.data?.message || error.message || 'Failed to search orders';
+            setError(fullErrorMsg);
+            message.error(fullErrorMsg);
+            console.error('Error searching orders:', error.message);
         } finally {
             setLoading(false);
         }
@@ -156,6 +237,8 @@ export default function ManageOrder() {
     };
 
     const handleApplyDateRange = () => {
+        setIsSearching(false);
+        setSearchTerm('');
         fetchOrders(1);
         fetchSalesSummary();
         setCurrentPage(1);
@@ -163,7 +246,11 @@ export default function ManageOrder() {
     };
 
     const handleReloadData = () => {
-        fetchOrders(currentPage);
+        if (isSearching) {
+            searchOrders(searchTerm);
+        } else {
+            fetchOrders(currentPage);
+        }
         fetchSalesSummary();
         setLastUpdateTime(new Date());
     };
@@ -179,10 +266,34 @@ export default function ManageOrder() {
         });
     };
 
+    const handleSearch = (e) => {
+        const value = e.target.value.toLowerCase();
+        setSearchTerm(value);
+
+        if (value === '') {
+            setIsSearching(false);
+            fetchOrders(1);
+            setCurrentPage(1);
+            return;
+        }
+
+        // Only search if the input is an order ID (numeric)
+        if (/^\d*$/.test(value)) {
+            setIsSearching(true);
+            debouncedSearch(value);
+        } else {
+            message.info('Chỉ nhập số ID đơn hàng');
+        }
+    };
+
     useEffect(() => {
-        fetchOrders(currentPage);
+        if (isSearching) {
+            searchOrders(searchTerm);
+        } else {
+            fetchOrders(currentPage);
+        }
         fetchSalesSummary();
-    }, [currentPage]); // Remove dateRange from dependency array since we'll use Apply button
+    }, [currentPage, isSearching, searchTerm]);
 
     const toggleVisibility = (orderNumber) => {
         setVisibleOrders((prev) => {
@@ -384,14 +495,20 @@ export default function ManageOrder() {
                                 marginTop: '30px',
                             }}>
                             <Input
-                                placeholder="Tìm kiếm khách hàng ..."
+                                placeholder="Tìm kiếm theo ID đơn hàng..."
                                 style={{ width: '650px' }}
                                 suffix={<SearchOutlined style={{ color: 'rgba(0,0,0,0.45)' }} />}
+                                value={searchTerm}
+                                onChange={handleSearch}
                             />
                         </div>
                         <div style={{ width: '100%' }}>
                             <Table
-                                dataSource={orders}
+                                dataSource={
+                                    isSearching
+                                        ? filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                                        : filteredOrders
+                                }
                                 columns={columns}
                                 rowKey="orderNumber"
                                 loading={loading}
@@ -409,9 +526,13 @@ export default function ManageOrder() {
                                 <Pagination
                                     current={currentPage}
                                     pageSize={pageSize}
-                                    total={total}
-                                    onChange={(page) => setCurrentPage(page)}
-                                    position={['bottomCenter']}
+                                    total={isSearching ? filteredOrders.length : total}
+                                    onChange={(page) => {
+                                        setCurrentPage(page);
+                                        if (!isSearching) {
+                                            fetchOrders(page);
+                                        }
+                                    }}
                                     showSizeChanger={false}
                                 />
                             </div>
