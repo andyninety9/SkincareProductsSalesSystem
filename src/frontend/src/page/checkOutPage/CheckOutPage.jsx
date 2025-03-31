@@ -1012,6 +1012,10 @@ export default function CheckOutPage() {
     };
     const handleCheckout = async (values) => {
         // Set loading state to true at the start
+        if (user?.accountStatus !== 'Verified') {
+            message.error('Tài khoản của bạn chưa được xác thực. Vui lòng xác thực trước khi thanh toán.');
+            return;
+        }
         setIsSubmitting(true);
 
         // Recalculate total amount to ensure it's current
@@ -1247,12 +1251,17 @@ export default function CheckOutPage() {
                                                 src={
                                                     typeof item.images[0] === 'string'
                                                         ? item.images[0]
-                                                        : item.images[0]?.prodImageUrl || 'https://via.placeholder.com/80'
+                                                        : item.images[0]?.prodImageUrl ||
+                                                          'https://via.placeholder.com/80'
                                                 }
                                                 alt={item.productName}
-                                                style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }}
+                                                style={{
+                                                    width: '80px',
+                                                    height: '80px',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '8px',
+                                                }}
                                             />
-
                                         </div>
                                         <div className="confirm-receipt-items-row-part1-name">
                                             <p>{item.productName}</p>
@@ -1274,8 +1283,9 @@ export default function CheckOutPage() {
                                         .map((voucher, index) => (
                                             <div
                                                 key={index}
-                                                className={`voucher-card ${selectedVoucher === voucher.voucherId ? 'selected' : ''
-                                                    }`}
+                                                className={`voucher-card ${
+                                                    selectedVoucher === voucher.voucherId ? 'selected' : ''
+                                                }`}
                                                 onClick={() => {
                                                     setSelectedVoucher(voucher.voucherId);
                                                     setVoucherCode(voucher.voucherCode);
@@ -1354,10 +1364,26 @@ export default function CheckOutPage() {
                                 {(totalAmount + shippingFee - discountAmount).toLocaleString()} đ
                             </span>
                         </div>
+                        {user?.accountStatus !== 'Verified' && (
+                            <div
+                                className="verification-warning"
+                                style={{
+                                    color: '#D8959A',
+                                    marginBottom: '10px',
+                                    fontSize: '14px',
+                                    textAlign: 'center',
+                                    padding: '8px',
+                                    border: '1px solid #D8959A',
+                                    borderRadius: '4px',
+                                    backgroundColor: 'rgba(216, 149, 154, 0.1)',
+                                }}>
+                                Tài khoản của bạn chưa được xác thực. Vui lòng xác thực trước khi thanh toán.
+                            </div>
+                        )}
                         <div
                             className="confirm-receipt-button"
                             onClick={() => {
-                                if (isSubmitting) return; // Prevent multiple submissions
+                                if (isSubmitting || user?.accountStatus !== 'Verified') return; // Prevent submission if unverified
 
                                 form.validateFields(['paymentMethod', 'shippingMethod'])
                                     .then(() => {
@@ -1376,7 +1402,16 @@ export default function CheckOutPage() {
                                         }
                                     });
                             }}>
-                            <button disabled={isSubmitting}>{isSubmitting ? 'Đang xử lý...' : 'Đặt hàng'}</button>
+                            <button
+                                disabled={isSubmitting || user?.accountStatus !== 'Verified' || cartItems.length === 0}>
+                                {isSubmitting
+                                    ? 'Đang xử lý...'
+                                    : user?.accountStatus !== 'Verified'
+                                    ? 'Cần xác thực tài khoản'
+                                    : cartItems.length === 0
+                                    ? 'Không có sản phẩm'
+                                    : 'Đặt hàng'}
+                            </button>
                         </div>
                     </div>
                 </Col>

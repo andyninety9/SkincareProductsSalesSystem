@@ -1,17 +1,13 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './CartPage.scss';
 import { Col, Container, Row } from 'react-bootstrap';
 import { Button, ConfigProvider, Table, Typography } from 'antd';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-    decreaseQuantity,
-    increaseQuantity,
-    removeFromCart,
-    selectCartItems,
-} from '../../redux/feature/cartSlice';
+import { decreaseQuantity, increaseQuantity, removeFromCart, selectCartItems } from '../../redux/feature/cartSlice';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../routes';
+import Cookies from 'js-cookie';
 
 const { Text } = Typography;
 
@@ -19,12 +15,36 @@ export default function CartPage() {
     const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems);
     const navigate = useNavigate();
+    const [user, setUser] = useState(null);
+    const prevUserCookieRef = useRef(null);
 
-    console.log('Cart Items:', cartItems);
+    // console.log('Cart Items:', cartItems);
+    useEffect(() => {
+        function updateUserFromCookies() {
+            const userCookie = Cookies.get('user');
+            if (userCookie !== prevUserCookieRef.current) {
+                prevUserCookieRef.current = userCookie;
+                try {
+                    setUser(userCookie ? JSON.parse(userCookie) : null);
+                } catch (error) {
+                    setUser(null);
+                }
+            }
+        }
 
-    const totalAmount = cartItems.length > 0
-        ? cartItems.reduce((total, item) => total + (item.sellPrice || 0) * (item.quantity || 0), 0)
-        : 0;
+        updateUserFromCookies();
+
+        const cookieCheckInterval = setInterval(updateUserFromCookies, 1000);
+
+        return () => clearInterval(cookieCheckInterval);
+    }, []);
+
+    console.log('User:', user);
+
+    const totalAmount =
+        cartItems.length > 0
+            ? cartItems.reduce((total, item) => total + (item.sellPrice || 0) * (item.quantity || 0), 0)
+            : 0;
 
     const columns = [
         {
@@ -34,25 +54,6 @@ export default function CartPage() {
             render: (_, record) => (
                 <div className="table-col-name">
                     <div className="table-col-name-img">
-                        {/* <img
-                            src={record.images?.[0] || 'https://via.placeholder.com/100'}
-                            alt={record.productName || 'Product Image'}
-                            onError={(e) => {
-                                console.error(`Failed to load image: ${record.images?.[0]}`);
-                                e.target.src = 'https://via.placeholder.com/100';
-                            }}
-                            style={{ width: '80px', height: '80px', objectFit: 'cover' }}
-                        /> */}
-
-                        {/* <img
-                            src={record.images?.[0]?.prodImageUrl || 'https://via.placeholder.com/100'}
-                            alt={record.productName || 'Product Image'}
-                            onError={(e) => {
-                                console.error(`Failed to load image: ${record.images?.[0]?.prodImageUrl}`);
-                                e.target.src = 'https://via.placeholder.com/100';
-                            }}
-                            style={{ width: '80px', height: '80px', objectFit: 'cover' }}
-                        /> */}
                         <img
                             src={
                                 typeof record.images?.[0] === 'string'
@@ -62,8 +63,6 @@ export default function CartPage() {
                             style={{ width: '80px', height: '80px', objectFit: 'cover' }}
                             alt={record.productName || 'Product Image'}
                         />
-
-
                     </div>
                     <div className="table-col-name-content">
                         <h5>{record.brandName}</h5>
@@ -81,9 +80,7 @@ export default function CartPage() {
             title: 'Giá tiền',
             dataIndex: 'sellPrice',
             key: 'sellPrice',
-            render: (sellPrice) => (
-                <Text className="font-bold">{(sellPrice || 0).toLocaleString()} đ</Text>
-            ),
+            render: (sellPrice) => <Text className="font-bold">{(sellPrice || 0).toLocaleString()} đ</Text>,
             width: '20%',
             align: 'center',
         },
@@ -96,16 +93,14 @@ export default function CartPage() {
                     <Button
                         size="small"
                         onClick={() => dispatch(decreaseQuantity({ productId: record.productId }))}
-                        disabled={quantity <= 1}
-                    >
+                        disabled={quantity <= 1}>
                         -
                     </Button>
                     <Text>{quantity || 0}</Text>
                     <Button
                         size="small"
                         onClick={() => dispatch(increaseQuantity({ productId: record.productId }))}
-                        disabled={quantity >= (record.stocks || Infinity)}
-                    >
+                        disabled={quantity >= (record.stocks || Infinity)}>
                         +
                     </Button>
                 </div>
@@ -118,7 +113,9 @@ export default function CartPage() {
             dataIndex: 'totalPrice',
             key: 'totalPrice',
             render: (_, record) => (
-                <Text className="font-bold">{((record.sellPrice || 0) * (record.quantity || 0)).toLocaleString()} đ</Text>
+                <Text className="font-bold">
+                    {((record.sellPrice || 0) * (record.quantity || 0)).toLocaleString()} đ
+                </Text>
             ),
             width: '20%',
             align: 'center',
@@ -147,14 +144,15 @@ export default function CartPage() {
                 <div className="cart-div">
                     <Row>
                         <Col xs={8}>
-                            <ConfigProvider theme={{ components: { Table: { headerBg: '#EFEFEF', borderColor: '#D8959A' } } }}>
+                            <ConfigProvider
+                                theme={{ components: { Table: { headerBg: '#EFEFEF', borderColor: '#D8959A' } } }}>
                                 <Table
                                     className="table-cart"
                                     dataSource={cartItems}
                                     columns={columns}
                                     pagination={false}
                                     locale={{ emptyText: 'Giỏ hàng trống' }}
-                                // No scroll property to prevent horizontal scrolling
+                                    // No scroll property to prevent horizontal scrolling
                                 />
                             </ConfigProvider>
                         </Col>
@@ -171,10 +169,12 @@ export default function CartPage() {
                                                 {totalAmount.toLocaleString()} đ
                                             </span>
                                         </div>
-                                        <div className="cart-receipt-main-content-part">
+                                        {/* <div className="cart-receipt-main-content-part">
                                             <p>Giảm giá </p>
-                                            <span className="font-bold" style={{ fontSize: '18px' }}>-0 đ</span>
-                                        </div>
+                                            <span className="font-bold" style={{ fontSize: '18px' }}>
+                                                -0 đ
+                                            </span>
+                                        </div> */}
                                         <div className="cart-receipt-main-content-part">
                                             <p style={{ fontSize: '13px' }}>
                                                 Vui lòng kiểm tra giỏ hàng trước khi thanh toán
@@ -188,13 +188,33 @@ export default function CartPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <button
-                                    className="cart-receipt-button"
-                                    onClick={() => navigate(routes.checkout)}
-                                    disabled={cartItems.length === 0}
-                                >
-                                    Tiến hành đặt hàng
-                                </button>
+                                {user?.accountStatus === 'Verified' ? (
+                                    <button
+                                        className="cart-receipt-button"
+                                        onClick={() => navigate(routes.checkout)}
+                                        disabled={cartItems.length === 0}>
+                                        Tiến hành đặt hàng
+                                    </button>
+                                ) : (
+                                    <div>
+                                        <div
+                                            className="verification-warning"
+                                            style={{
+                                                color: '#D8959A',
+                                                marginBottom: '10px',
+                                                fontSize: '14px',
+                                                textAlign: 'center',
+                                            }}>
+                                            Bạn cần xác thực tài khoản trước khi thanh toán
+                                        </div>
+                                        <button
+                                            className="cart-receipt-button"
+                                            style={{ backgroundColor: '#6c757d' }}
+                                            onClick={() => navigate(routes.profile)}>
+                                            Đi đến trang xác thực tài khoản
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </Col>
                     </Row>
