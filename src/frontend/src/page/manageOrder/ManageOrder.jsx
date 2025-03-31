@@ -345,7 +345,7 @@ export default function ManageOrder() {
             title: 'Payment Amount',
             dataIndex: 'paymentAmount',
             key: 'paymentAmount',
-            render: (amount) => (amount ? `${amount.toLocaleString()} VND` : 'N/A'),
+            render: (amount) => (amount ? `${amount.toLocaleString()} VND` : 'Cash on delivery'),
         },
     ];
 
@@ -375,15 +375,57 @@ export default function ManageOrder() {
                     </div>
                     <div style={{ marginBottom: '32px' }}>
                         <strong>- Payment Information:</strong>
-                        <Table
-                            className="manage-order-table"
-                            columns={paymentColumns}
-                            dataSource={detailedOrder.payment ? [detailedOrder.payment] : []}
-                            rowKey="paymentId"
-                            pagination={false}
-                            style={{ margin: '0 16px' }}
-                            loading={!orderDetails[record.orderId] && visibleOrders[record.orderNumber]}
-                        />
+                        {!orderDetails[record.orderId] && visibleOrders[record.orderNumber] ? (
+                            <div style={{ margin: '16px', textAlign: 'center' }}>
+                                <Space style={{ display: 'flex', justifyContent: 'center' }}>
+                                    <div>Loading payment information...</div>
+                                </Space>
+                            </div>
+                        ) : (
+                            <>
+                                {detailedOrder.payment &&
+                                detailedOrder.payment.paymentMethod &&
+                                detailedOrder.payment.paymentId ? (
+                                    <Table
+                                        className="manage-order-table"
+                                        columns={paymentColumns.map((col) => {
+                                            // Fix the orderId display in the table
+                                            if (col.dataIndex === 'orderId') {
+                                                return {
+                                                    ...col,
+                                                    render: () => record.orderNumber, // Use the record's orderNumber instead
+                                                };
+                                            }
+                                            return col;
+                                        })}
+                                        dataSource={[
+                                            {
+                                                ...detailedOrder.payment,
+                                                orderId: record.orderNumber, // Replace the zero orderId with the correct one
+                                            },
+                                        ]}
+                                        rowKey="paymentId"
+                                        pagination={false}
+                                        style={{ margin: '0 16px' }}
+                                    />
+                                ) : (
+                                    <div
+                                        style={{
+                                            margin: '16px',
+                                            padding: '16px',
+                                            background: '#f9f9f9',
+                                            borderRadius: '4px',
+                                        }}>
+                                        <p style={{ fontSize: '14px', color: '#666', margin: '0' }}>
+                                            <strong>Payment Method:</strong> Cash on Delivery
+                                        </p>
+                                        <p style={{ fontSize: '14px', color: '#666', margin: '4px 0 0 0' }}>
+                                            <strong>Amount:</strong> {record.total}
+                                        </p>
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
                 </div>
             );
