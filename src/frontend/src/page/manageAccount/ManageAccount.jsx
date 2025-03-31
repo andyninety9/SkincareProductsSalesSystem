@@ -66,7 +66,11 @@ export default function ManageAccount() {
             filtered = accounts.filter((acc) => acc.roleId === roleId);
         }
         if (searchTerm) {
-            filtered = filtered.filter((acc) => acc.username.toLowerCase().includes(searchTerm.toLowerCase()));
+            filtered = filtered.filter(
+                (acc) =>
+                    acc.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    acc.usrId.toString().includes(searchTerm) // Tìm kiếm theo ID người dùng
+            );
         }
         setFilteredAccounts(filtered);
     }, [activeTab, searchTerm, accounts]);
