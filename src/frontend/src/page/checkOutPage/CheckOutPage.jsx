@@ -779,7 +779,7 @@ export default function CheckOutPage() {
     const cartItems = useSelector(selectCartItems);
     const user = Cookies.get('user') ? JSON.parse(Cookies.get('user')) : null;
     const totalAmount = cartItems.reduce((total, item) => {
-        return total + item.sellPrice * item.quantity;
+        return total + (item.discountedPrice || item.sellPrice) * item.quantity;
     }, 0);
     const [userAddress, setUserAddress] = React.useState([]);
     const [userVoucher, setUserVoucher] = React.useState([]);
@@ -1020,7 +1020,7 @@ export default function CheckOutPage() {
 
         // Recalculate total amount to ensure it's current
         const currentTotalAmount = cartItems.reduce((total, item) => {
-            return total + item.sellPrice * item.quantity;
+            return total + (item.discountedPrice || item.sellPrice) * item.quantity;
         }, 0);
         const finalAmount = currentTotalAmount - discountAmount + shippingFee;
 
@@ -1050,10 +1050,8 @@ export default function CheckOutPage() {
                     }
                 }
                 if (values.paymentMethod === 'COD') {
-                    // For COD, skip payment API call
                     message.success('Đặt hàng thành công!');
                     dispatch(clearCart());
-                    // Redirect to order confirmation page or homepage
                     window.location.href = routes.orderSuccess || routes.home;
                 } else {
                     // For VNPay, proceed with payment creation

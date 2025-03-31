@@ -43,7 +43,10 @@ export default function CartPage() {
 
     const totalAmount =
         cartItems.length > 0
-            ? cartItems.reduce((total, item) => total + (item.sellPrice || 0) * (item.quantity || 0), 0)
+            ? cartItems.reduce(
+                  (total, item) => total + (item.discountedPrice || item.sellPrice || 0) * (item.quantity || 0),
+                  0
+              )
             : 0;
 
     const columns = [
@@ -80,7 +83,9 @@ export default function CartPage() {
             title: 'Giá tiền',
             dataIndex: 'sellPrice',
             key: 'sellPrice',
-            render: (sellPrice) => <Text className="font-bold">{(sellPrice || 0).toLocaleString()} đ</Text>,
+            render: (sellPrice, record) => (
+                <Text className="font-bold">{(record.discountedPrice || sellPrice || 0).toLocaleString()} đ</Text>
+            ),
             width: '20%',
             align: 'center',
         },
@@ -114,7 +119,7 @@ export default function CartPage() {
             key: 'totalPrice',
             render: (_, record) => (
                 <Text className="font-bold">
-                    {((record.sellPrice || 0) * (record.quantity || 0)).toLocaleString()} đ
+                    {((record.discountedPrice || record.sellPrice || 0) * (record.quantity || 0)).toLocaleString()} đ
                 </Text>
             ),
             width: '20%',

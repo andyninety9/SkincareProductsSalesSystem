@@ -774,7 +774,7 @@ const OrderHistoryPage = () => {
                                                 fontSize: '13px',
                                             }}>
                                             <Text type="secondary">Phương thức thanh toán:</Text>
-                                            <Text strong>{order.payment?.paymentMethod || 'Không xác định'}</Text>
+                                            <Text strong>{order.payment?.paymentMethod || 'Cash on delivery'}</Text>
                                         </div>
                                     </div>
                                 </div>
