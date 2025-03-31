@@ -855,8 +855,10 @@ const OrderHistoryPage = () => {
                                                     fontSize: '18px',
                                                 }}>
                                                 đ
-                                                {order.payment?.paymentAmount.toLocaleString() ||
-                                                    order.totalPrice.toLocaleString()}
+                                                {(order.payment?.paymentAmount !== 0
+                                                    ? order.payment.paymentAmount
+                                                    : order.totalPrice
+                                                ).toLocaleString()}
                                             </Text>
                                         </div>
 
