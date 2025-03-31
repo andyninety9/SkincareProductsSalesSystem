@@ -281,31 +281,31 @@ const ProfilePage = () => {
     const searchOrderById = async (idText) => {
         try {
             setLoadingOrders(true);
-            
+
             // First get the total number of orders to determine how many pages to check
             const countResponse = await api.get(`User/orders-history?page=1&pageSize=1`);
             if (countResponse.data.statusCode !== 200) {
                 throw new Error('Failed to get total order count');
             }
-            
+
             const totalItems = countResponse.data.data.totalItems || 0;
             const pageSize = 10; // Use same page size as normal pagination
             const totalPages = Math.ceil(totalItems / pageSize);
-            
+
             let foundOrder = null;
-            
+
             // Search through all pages until we find the order with matching ID
             for (let page = 1; page <= totalPages; page++) {
                 const response = await api.get(`User/orders-history?page=${page}&pageSize=${pageSize}`);
-                
+
                 if (response.data.statusCode === 200) {
                     const pageOrders = response.data.data.items || [];
-                    
+
                     // Check for exact match on this page
-                    const match = pageOrders.find(order => 
+                    const match = pageOrders.find(order =>
                         toBigIntString(order.orderId) === idText
                     );
-                    
+
                     if (match) {
                         foundOrder = match;
                         break; // Stop searching once we find the match
@@ -314,7 +314,7 @@ const ProfilePage = () => {
                     console.log(`Failed to fetch orders from page ${page}`);
                 }
             }
-            
+
             if (foundOrder) {
                 // If we found the order, display just that one
                 setFilteredOrdersHistory([foundOrder]);

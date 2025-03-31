@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-export default function CompareModal ({ visible, onClose, currentProduct }){
+export default function CompareModal({ visible, onClose, currentProduct }) {
     const dispatch = useDispatch();
     const compareItems = useSelector(selectCompareItems);
     const [secondProduct, setSecondProduct] = useState(null);
@@ -87,14 +87,6 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
         );
     }
 
-    const compareFields = [
-        { key: 'productName', label: 'Tên sản phẩm' },
-        { key: 'productDesc', label: 'Mô tả' },
-        { key: 'sellPrice', label: 'Giá bán', render: (value) => (value ? `${value.toLocaleString()} VNĐ` : 'N/A') },
-        { key: 'totalRating', label: 'Đánh giá', render: (value) => (value ? `${value}/5` : 'Chưa có đánh giá') },
-        { key: 'ingredient', label: 'Thành phần' },
-    ];
-
     const getProductImage = (product) => {
         if (product.images && product.images.length > 0) {
             return typeof product.images[0] === 'string' ? product.images[0] : product.images[0].prodImageUrl;
@@ -124,10 +116,12 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
         {
             title: 'Thông tin chung',
             fields: [
-                { key: 'productName', label: 'Tên sản phẩm' },
-                { key: 'brandName', label: 'Thương hiệu' },
+                {
+                    key: 'brandName',
+                    label: 'Thương hiệu',
+                    render: (value) => <div style={{ height: '20px' }}>{value || 'N/A'}</div>,
+                },
                 { key: 'categoryName', label: 'Danh mục' },
-                { key: 'statusName', label: 'Trạng thái' },
             ],
         },
         {
@@ -164,9 +158,6 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
                         </div>
                     ),
                 },
-                { key: 'reviewCount', label: 'Số lượt đánh giá' },
-                { key: 'totalSold', label: 'Đã bán' },
-                { key: 'stocks', label: 'Tồn kho' },
             ],
         },
         {
@@ -175,31 +166,12 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
                 {
                     key: 'productDesc',
                     label: 'Mô tả',
-                    render: (value) => <div style={{ maxHeight: '100px', overflowY: 'auto' }}>{value || 'N/A'}</div>,
+                    render: (value) => <div style={{ height: '100px' }}>{value || 'N/A'}</div>,
                 },
                 {
                     key: 'ingredient',
                     label: 'Thành phần',
-                    render: (value) => <div style={{ maxHeight: '100px', overflowY: 'auto' }}>{value || 'N/A'}</div>,
-                },
-            ],
-        },
-        {
-            title: 'Hướng dẫn sử dụng',
-            fields: [
-                {
-                    key: 'instruction',
-                    label: 'Cách dùng',
-                    render: (value) => <div style={{ maxHeight: '100px', overflowY: 'auto' }}>{value || 'N/A'}</div>,
-                },
-                {
-                    key: 'prodUseFor',
-                    label: 'Công dụng',
-                    render: (value) => (
-                        <div style={{ maxHeight: '100px', overflowY: 'auto', whiteSpace: 'pre-line' }}>
-                            {value || 'N/A'}
-                        </div>
-                    ),
+                    render: (value) => <div style={{ height: '100px' }}>{value || 'N/A'}</div>,
                 },
             ],
         },
@@ -217,59 +189,55 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
             footer={null}
             width={1000}
             centered
-            bodyStyle={{ height: '650px', overflowY: 'auto', overflowX: 'hidden' }}
+            style={{ height: '650px', overflowY: 'auto', overflowX: 'hidden' }}
             title={
                 <div style={{ display: 'flex', alignItems: 'center', padding: '10px', borderRadius: '8px 8px 0 0' }}>
                     <SwapOutlined style={{ fontSize: '24px', marginRight: '12px', color: '#D8959A' }} />
                     <span style={{ fontSize: '18px', fontWeight: 'bold' }}>So sánh sản phẩm</span>
                 </div>
             }
-            transitionName="">
+            transitionName=""
+        >
             {loading || !currentProduct ? (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        height: '100%',
-                    }}>
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%'
+                }}>
                     <Spin size="large" />
                     <p style={{ marginTop: 20, color: '#888' }}>Đang tải dữ liệu...</p>
                 </div>
             ) : (
-                <div className="compare-content" style={{ width: '100%' }}>
+                <div style={{ width: '100%' }}>
                     <Row gutter={[48, 16]} style={{ margin: 0 }}>
                         <Col span={12} style={{ display: 'flex', flexDirection: 'column', padding: '0 8px' }}>
                             <Card
-                                className="compare-card"
                                 title={
-                                    <div
-                                        style={{
-                                            fontWeight: 'bold',
-                                            fontSize: '18px',
-                                            color: '#D8959A',
-                                            textAlign: 'center',
-                                            height: '50px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}>
+                                    <div style={{
+                                        fontWeight: 'bold',
+                                        fontSize: '18px',
+                                        color: '#D8959A',
+                                        textAlign: 'center',
+                                        height: '50px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}>
                                         {currentProduct?.productName}
                                     </div>
                                 }
                                 cover={
-                                    <div
-                                        style={{
-                                            height: 300,
-                                            width: '100%',
-                                            position: 'relative',
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            background: '#f9f9f9',
-                                            padding: '8px',
-                                        }}>
+                                    <div style={{
+                                        height: 300,
+                                        width: '100%',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        background: '#f9f9f9',
+                                        padding: '8px'
+                                    }}>
                                         <Image
                                             alt={currentProduct?.productName}
                                             src={getProductImage(currentProduct)}
@@ -277,7 +245,7 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
                                                 height: 290,
                                                 objectFit: 'contain',
                                                 width: '100%',
-                                                borderRadius: '4px',
+                                                borderRadius: '4px'
                                             }}
                                             placeholder={<div style={{ height: 300, background: '#f0f0f0' }} />}
                                         />
@@ -285,95 +253,73 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
                                 }
                                 style={{
                                     flex: 1,
-                                    display: 'flex',
-                                    flexDirection: 'column',
                                     borderRadius: '8px',
                                     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                                     height: '100%',
-                                    margin: '0 4px',
+                                    margin: '0 4px'
                                 }}
-                                bodyStyle={{ padding: '16px', height: 'calc(100% - 350px)', overflowY: 'auto' }}>
+                                bodyStyle={{ padding: '16px', height: 'calc(100% - 350px)', overflowY: 'auto' }}
+                            >
                                 <div style={{ flex: 1 }}>
-                                    {compareCategories.map((category, categoryIndex) => (
-                                        <div
-                                            key={category.title}
-                                            className={`compare-category-section category-${categoryIndex}`}
-                                            style={{ marginBottom: '24px' }}>
-                                            <div
-                                                style={{
-                                                    padding: '8px',
-                                                    backgroundColor: '#f5f5f5',
-                                                    borderRadius: '4px',
-                                                    marginBottom: '12px',
-                                                    borderLeft: '4px solid #D8959A',
-                                                    height: '40px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                }}>
+                                    {compareCategories.map((category) => (
+                                        <div key={category.title} style={{ marginBottom: '24px' }}>
+                                            <div style={{
+                                                padding: '8px',
+                                                backgroundColor: '#f5f5f5',
+                                                borderRadius: '4px',
+                                                marginBottom: '12px',
+                                                borderLeft: '4px solid #D8959A',
+                                                height: '40px',
+                                                display: 'flex',
+                                                alignItems: 'center'
+                                            }}>
                                                 <Text strong style={{ fontSize: '16px', color: '#333' }}>
                                                     {category.title}
                                                 </Text>
                                             </div>
-                                            <div className="field-container">
-                                                {category.fields.map((field, fieldIndex) => {
-                                                    const isFieldDifferent = isDifferent(
-                                                        field.key,
-                                                        currentProduct,
-                                                        secondProduct
-                                                    );
-
-                                                    // Calculate fixed height based on field type
-                                                    let fieldHeight = 80; // Default height
-                                                    if (
-                                                        field.key === 'productDesc' ||
-                                                        field.key === 'ingredient' ||
-                                                        field.key === 'instruction' ||
-                                                        field.key === 'prodUseFor'
-                                                    ) {
-                                                        fieldHeight = 120; // Taller height for text fields
-                                                    } else if (
-                                                        field.key === 'productName' ||
-                                                        field.key === 'brandName'
-                                                    ) {
-                                                        fieldHeight = 60; // Medium height for name fields
-                                                    }
+                                            <div style={{ padding: '8px' }}>
+                                                {category.fields.map((field) => {
+                                                    const isFieldDifferent = isDifferent(field.key, currentProduct, secondProduct);
+                                                    const fieldHeight = field.key === 'brandName' ? 40 :
+                                                        ['productDesc', 'ingredient'].includes(field.key) ? 120 : 60;
 
                                                     return (
                                                         <div
                                                             key={field.key}
-                                                            className={`compare-field field-${categoryIndex}-${fieldIndex}`}
                                                             style={{
-                                                                marginBottom: '16px',
+                                                                marginBottom: '8px',
                                                                 padding: '8px',
-                                                                backgroundColor:
-                                                                    isFieldDifferent && field.highlight && secondProduct
-                                                                        ? '#fcf8e3'
-                                                                        : 'transparent',
+                                                                backgroundColor: isFieldDifferent && field.highlight && secondProduct ? '#fcf8e3' : 'transparent',
                                                                 borderRadius: '4px',
                                                                 height: `${fieldHeight}px`,
                                                                 display: 'flex',
-                                                                flexDirection: 'column',
-                                                            }}>
+                                                                alignItems: 'flex-start',
+                                                                gap: '10px'
+                                                            }}
+                                                        >
                                                             <Text
                                                                 strong
                                                                 style={{
                                                                     fontSize: '14px',
                                                                     color: '#666',
-                                                                    marginBottom: '4px',
+                                                                    width: '130px',
                                                                     flexShrink: 0,
-                                                                    height: '20px',
-                                                                }}>
+                                                                    textAlign: 'left'
+                                                                }}
+                                                            >
                                                                 {field.label}:
                                                             </Text>
                                                             <div
                                                                 style={{
                                                                     fontSize: '14px',
                                                                     color: '#333',
-                                                                    paddingLeft: '8px',
                                                                     flex: 1,
-                                                                    overflowY: 'auto',
-                                                                    height: `${fieldHeight - 30}px`,
-                                                                }}>
+                                                                    textAlign: 'left',
+                                                                    overflow: 'hidden',
+                                                                    textOverflow: 'ellipsis',
+                                                                    whiteSpace: 'normal'
+                                                                }}
+                                                            >
                                                                 {field.render
                                                                     ? field.render(currentProduct?.[field.key])
                                                                     : currentProduct?.[field.key] || 'N/A'}
@@ -391,34 +337,30 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
                         <Col span={12} style={{ display: 'flex', flexDirection: 'column', padding: '0 8px' }}>
                             {secondProduct ? (
                                 <Card
-                                    className="compare-card"
                                     title={
-                                        <div
-                                            style={{
-                                                fontWeight: 'bold',
-                                                fontSize: '18px',
-                                                color: '#D8959A',
-                                                textAlign: 'center',
-                                                height: '50px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                            }}>
+                                        <div style={{
+                                            fontWeight: 'bold',
+                                            fontSize: '18px',
+                                            color: '#D8959A',
+                                            textAlign: 'center',
+                                            height: '50px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}>
                                             {secondProduct?.productName}
                                         </div>
                                     }
                                     cover={
-                                        <div
-                                            style={{
-                                                height: 300,
-                                                width: '100%',
-                                                position: 'relative',
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                background: '#f9f9f9',
-                                                padding: '8px',
-                                            }}>
+                                        <div style={{
+                                            height: 300,
+                                            width: '100%',
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            background: '#f9f9f9',
+                                            padding: '8px'
+                                        }}>
                                             <Image
                                                 alt={secondProduct.productName}
                                                 src={getProductImage(secondProduct)}
@@ -426,7 +368,7 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
                                                     height: 290,
                                                     objectFit: 'contain',
                                                     width: '100%',
-                                                    borderRadius: '4px',
+                                                    borderRadius: '4px'
                                                 }}
                                                 placeholder={<div style={{ height: 300, background: '#f0f0f0' }} />}
                                             />
@@ -444,103 +386,83 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
                                                 position: 'absolute',
                                                 right: '12px',
                                                 top: '12px',
-                                                zIndex: 1,
+                                                zIndex: 1
                                             }}
-                                            icon={<SwapOutlined />}>
+                                            icon={<SwapOutlined />}
+                                        >
                                             Thay đổi
                                         </Button>
                                     }
                                     style={{
                                         flex: 1,
-                                        display: 'flex',
-                                        flexDirection: 'column',
                                         borderRadius: '8px',
                                         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                                         height: '100%',
                                         margin: '0 4px',
+                                        position: 'relative'
                                     }}
-                                    bodyStyle={{ padding: '16px', height: 'calc(100% - 350px)', overflowY: 'auto' }}>
+                                    bodyStyle={{ padding: '16px', height: 'calc(100% - 350px)', overflowY: 'auto' }}
+                                >
                                     <div style={{ flex: 1 }}>
-                                        {compareCategories.map((category, categoryIndex) => (
-                                            <div
-                                                key={category.title}
-                                                className={`compare-category-section category-${categoryIndex}`}
-                                                style={{ marginBottom: '24px' }}>
-                                                <div
-                                                    style={{
-                                                        padding: '8px',
-                                                        backgroundColor: '#f5f5f5',
-                                                        borderRadius: '4px',
-                                                        marginBottom: '12px',
-                                                        borderLeft: '4px solid #D8959A',
-                                                        height: '40px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                    }}>
+                                        {compareCategories.map((category) => (
+                                            <div key={category.title} style={{ marginBottom: '24px' }}>
+                                                <div style={{
+                                                    padding: '8px',
+                                                    backgroundColor: '#f5f5f5',
+                                                    borderRadius: '4px',
+                                                    marginBottom: '12px',
+                                                    borderLeft: '4px solid #D8959A',
+                                                    height: '40px',
+                                                    display: 'flex',
+                                                    alignItems: 'center'
+                                                }}>
                                                     <Text strong style={{ fontSize: '16px', color: '#333' }}>
                                                         {category.title}
                                                     </Text>
                                                 </div>
-                                                <div className="field-container">
-                                                    {category.fields.map((field, fieldIndex) => {
-                                                        const isFieldDifferent = isDifferent(
-                                                            field.key,
-                                                            currentProduct,
-                                                            secondProduct
-                                                        );
-
-                                                        // Calculate fixed height based on field type
-                                                        let fieldHeight = 80; // Default height
-                                                        if (
-                                                            field.key === 'productDesc' ||
-                                                            field.key === 'ingredient' ||
-                                                            field.key === 'instruction' ||
-                                                            field.key === 'prodUseFor'
-                                                        ) {
-                                                            fieldHeight = 120; // Taller height for text fields
-                                                        } else if (
-                                                            field.key === 'productName' ||
-                                                            field.key === 'brandName'
-                                                        ) {
-                                                            fieldHeight = 60; // Medium height for name fields
-                                                        }
+                                                <div style={{ padding: '8px' }}>
+                                                    {category.fields.map((field) => {
+                                                        const isFieldDifferent = isDifferent(field.key, currentProduct, secondProduct);
+                                                        const fieldHeight = field.key === 'brandName' ? 40 :
+                                                            ['productDesc', 'ingredient'].includes(field.key) ? 120 : 60;
 
                                                         return (
                                                             <div
                                                                 key={field.key}
-                                                                className={`compare-field field-${categoryIndex}-${fieldIndex}`}
                                                                 style={{
-                                                                    marginBottom: '16px',
+                                                                    marginBottom: '8px',
                                                                     padding: '8px',
-                                                                    backgroundColor:
-                                                                        isFieldDifferent && field.highlight
-                                                                            ? '#fcf8e3'
-                                                                            : 'transparent',
+                                                                    backgroundColor: isFieldDifferent && field.highlight ? '#fcf8e3' : 'transparent',
                                                                     borderRadius: '4px',
                                                                     height: `${fieldHeight}px`,
                                                                     display: 'flex',
-                                                                    flexDirection: 'column',
-                                                                }}>
+                                                                    alignItems: 'flex-start',
+                                                                    gap: '10px'
+                                                                }}
+                                                            >
                                                                 <Text
                                                                     strong
                                                                     style={{
                                                                         fontSize: '14px',
                                                                         color: '#666',
-                                                                        marginBottom: '4px',
+                                                                        width: '130px',
                                                                         flexShrink: 0,
-                                                                        height: '20px',
-                                                                    }}>
+                                                                        textAlign: 'left'
+                                                                    }}
+                                                                >
                                                                     {field.label}:
                                                                 </Text>
                                                                 <div
                                                                     style={{
                                                                         fontSize: '14px',
                                                                         color: '#333',
-                                                                        paddingLeft: '8px',
                                                                         flex: 1,
-                                                                        overflowY: 'auto',
-                                                                        height: `${fieldHeight - 30}px`,
-                                                                    }}>
+                                                                        textAlign: 'left',
+                                                                        overflow: 'hidden',
+                                                                        textOverflow: 'ellipsis',
+                                                                        whiteSpace: 'normal'
+                                                                    }}
+                                                                >
                                                                     {field.render
                                                                         ? field.render(secondProduct?.[field.key])
                                                                         : secondProduct?.[field.key] || 'N/A'}
@@ -554,19 +476,18 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
                                     </div>
                                 </Card>
                             ) : (
-                                <div
-                                    style={{
-                                        padding: '20px',
-                                        textAlign: 'center',
-                                        width: '100%',
-                                        height: '100%',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        justifyContent: 'center',
-                                        border: '1px dashed #ddd',
-                                        borderRadius: '8px',
-                                        minHeight: '600px',
-                                    }}>
+                                <div style={{
+                                    padding: '20px',
+                                    textAlign: 'center',
+                                    width: '100%',
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    border: '1px dashed #ddd',
+                                    borderRadius: '8px',
+                                    minHeight: '600px'
+                                }}>
                                     <Title level={4}>Thêm sản phẩm để so sánh</Title>
                                     <Select
                                         showSearch
@@ -575,21 +496,23 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
                                             width: '100%',
                                             marginBottom: '10px',
                                             borderRadius: '4px',
-                                            boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)',
+                                            boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)'
                                         }}
                                         onChange={(value) => setSelectedProductId(value)}
                                         value={selectedProductId}
                                         filterOption={(input, option) =>
                                             option.label.toLowerCase().includes(input.toLowerCase())
                                         }
-                                        optionLabelProp="label">
+                                        optionLabelProp="label"
+                                    >
                                         {productsList
                                             .filter((p) => p.productId !== currentProduct?.productId.toString())
                                             .map((product) => (
                                                 <Option
                                                     key={product.productId}
                                                     value={product.productId}
-                                                    label={product.productName}>
+                                                    label={product.productName}
+                                                >
                                                     {renderOption(product)}
                                                 </Option>
                                             ))}
@@ -602,10 +525,11 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
                                             borderColor: '#D8959A',
                                             width: '100%',
                                             borderRadius: '4px',
-                                            transition: 'background-color 0.3s',
+                                            transition: 'background-color 0.3s'
                                         }}
-                                        onMouseEnter={(e) => (e.target.style.backgroundColor = '#C07A80')}
-                                        onMouseLeave={(e) => (e.target.style.backgroundColor = '#D8959A')}>
+                                        onMouseEnter={(e) => e.target.style.backgroundColor = '#C07A80'}
+                                        onMouseLeave={(e) => e.target.style.backgroundColor = '#D8959A'}
+                                    >
                                         Thêm
                                     </Button>
                                 </div>
@@ -616,5 +540,4 @@ export default function CompareModal ({ visible, onClose, currentProduct }){
             )}
         </Modal>
     );
-};
-
+}
