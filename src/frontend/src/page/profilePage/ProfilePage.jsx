@@ -31,8 +31,6 @@ const statusConfig = {
     Cancelled: { icon: <CloseCircleOutlined />, color: 'error' },
 };
 
-
-
 const ProfilePage = () => {
     const navigate = useNavigate();
     //addresses
@@ -263,14 +261,75 @@ const ProfilePage = () => {
             return;
         }
 
-        const filtered = ordersHistory.filter(order =>
-            toBigIntString(order.orderId).toLowerCase().includes(searchText) ||
-            order.products.some(product =>
-                product.productName.toLowerCase().includes(searchText)
-            )
-        );
+        // If searching for what looks like an ID (only contains numbers),
+        // perform a server-side search across all pages
+        if (/^\d+$/.test(searchText)) {
+            // Search by ID across all pages
+            searchOrderById(searchText);
+        } else {
+            // For product name searches, filter locally as before
+            const filtered = ordersHistory.filter(order =>
+                order.products.some(product =>
+                    product.productName.toLowerCase().includes(searchText)
+                )
+            );
+            setFilteredOrdersHistory(filtered);
+        }
+    };
 
-        setFilteredOrdersHistory(filtered);
+    // New function to search orders by ID across all pages
+    const searchOrderById = async (idText) => {
+        try {
+            setLoadingOrders(true);
+
+            // First get the total number of orders to determine how many pages to check
+            const countResponse = await api.get(`User/orders-history?page=1&pageSize=1`);
+            if (countResponse.data.statusCode !== 200) {
+                throw new Error('Failed to get total order count');
+            }
+
+            const totalItems = countResponse.data.data.totalItems || 0;
+            const pageSize = 10; // Use same page size as normal pagination
+            const totalPages = Math.ceil(totalItems / pageSize);
+
+            let foundOrder = null;
+
+            // Search through all pages until we find the order with matching ID
+            for (let page = 1; page <= totalPages; page++) {
+                const response = await api.get(`User/orders-history?page=${page}&pageSize=${pageSize}`);
+
+                if (response.data.statusCode === 200) {
+                    const pageOrders = response.data.data.items || [];
+
+                    // Check for exact match on this page
+                    const match = pageOrders.find(order =>
+                        toBigIntString(order.orderId) === idText
+                    );
+
+                    if (match) {
+                        foundOrder = match;
+                        break; // Stop searching once we find the match
+                    }
+                } else {
+                    console.log(`Failed to fetch orders from page ${page}`);
+                }
+            }
+
+            if (foundOrder) {
+                // If we found the order, display just that one
+                setFilteredOrdersHistory([foundOrder]);
+            } else {
+                // No match found across all pages
+                setFilteredOrdersHistory([]);
+                message.info("Không tìm thấy đơn hàng với ID này");
+            }
+        } catch (error) {
+            console.error('Error searching for order by ID:', error);
+            setFilteredOrdersHistory([]);
+            message.error("Có lỗi xảy ra khi tìm kiếm đơn hàng");
+        } finally {
+            setLoadingOrders(false);
+        }
     };
 
     // Handle order pagination change
@@ -619,7 +678,7 @@ const ProfilePage = () => {
                             border: 'none',
                             color: userInfo.email ? 'black' : '#888',
                             backgroundColor: 'white',
-                            height: 'auto', 
+                            height: 'auto',
                         }}
                     />
 
@@ -646,7 +705,7 @@ const ProfilePage = () => {
                             color: userInfo.dob ? 'black' : '#888',
                             backgroundColor: 'white',
                             height: 'auto',
-    
+
                         }}
                     />
                     {userInfo.accountStatus === 'Unverified' && (
